@@ -1,0 +1,36 @@
+
+Strengthening Tropical Pacific Zonal Sea Surface Temperature Gradient Consistent with Rising Greenhouse Gases
+
+- Tropical Pacific Important
+
+- There is an west-east warm-to-cold contrast.
+
+- GCMs predict weakening contrast with GHG conc.
+
+- In observations it has increased.
+
+- Our cleverer model agrees with observations.
+
+- GCMs are wrong because of equatorial cold-tongue bias.
+
+- GCMs need to be made better ASAP.
+
+
+### Conclusions
+
+- stronger trade winds - more shoaling of thermocline.
+
+
+###  Methods
+
+- ECMWF reanalysis ERA-40 1958-78, ERA-Interim 1979-2017.
+  Ocean ORAS4 1958-2017. Thermocline==20.C isotherm.
+
+- ?Python atmosphere model.
+
+- ?FORTRAN ocean model.
+
+
+
+
+

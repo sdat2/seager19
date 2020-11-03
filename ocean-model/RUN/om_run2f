@@ -1,0 +1,32 @@
+  +Year 1958
+  +Qflux_diag   0 
+
+%%%% Restart parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ +Restart 4    0:new;1:cont;2:"+Run_time" more;3:restart w/ new TIOS
+ +Restart_file         "output/om_diag.2y.restart"
+
+%%%% TIME Parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% step(s), hour(s), day(s), month(s), year(s) are valid time units.%%
+ +Run_time             58 years
+
+%%%% FORCING and INITIALIZATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Wind_file should be in N/m^2
+ +Wind_file     'DATA/tau-ECMWF' 
+
+ +SST_forc             1
+ +Ekman_forc           1
+ +f1prime        -0.006
+
+ +SST_file      'DATA/sst-ECMWF-clim.nc'
+ +QFLX_file     'DATA/qflx.nc'
+ +dQdT_file     'DATA/dQdT-sample.nc'
+ +dQdf_file     'DATA/dQdf-sample.nc'
+
+ +Spline_file   'DATA/spline_ECMWF.txt'
+ +Hcut 5
+ +Tcut 14.6
+
+ +Periodic
+ +Mask_file     'DATA/om_mask.nc'
+
+ +NUMMODE 2

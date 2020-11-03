@@ -3,6 +3,28 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# DATA
+
+data/
+DATA/
+output/
+OUTPUT/
+*.save
+*.output
+*.data
+*.y
+*.npy
+*.nc
+*.cdf
+*.netcdf
+*.mp4
+*.swp
+netcdf*
+*.tios
+*.ing
+ocean-model/DATA/tau-ECMWF.y
+ocean-model/DATA/
+
 # C extensions
 *.so
 

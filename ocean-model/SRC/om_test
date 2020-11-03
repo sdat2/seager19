@@ -1,0 +1,21 @@
+  +Year 1938
+  +Qflux_diag 0
+
+%%%% CONTROL parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ +Restart 0    0:new;1:cont;2:"+Run_time" more;3-4:restart w/ new TIOS3 
+                                                 4:restart w/  new date
+
+%%%% TIME Parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% step(s), hour(s), day(s), month(s), year(s) are valid time units.%%
+ +Run_time             2 months
+
+%%%% FORCING and INITIALIZATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ +Wind_file     'DATA/tau-ECMWF-clim'
+
+%%%% VERTICAL MODE INFO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ +NUMMODE              2
+
+%%%% Model GEOMETRY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ +Periodic
+ +Mask_file     'DATA/om_mask.nc'
+

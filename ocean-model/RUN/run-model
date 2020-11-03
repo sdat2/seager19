@@ -1,0 +1,21 @@
+#STEP 1 -  spinup the dynamics - ignore the sst equation and use climo windstress
+../SRC/tcom -i om_spin -t spin.tios
+../SRC/tios2cdf -f output/om_spin
+/bin/rm -rf output/om_spin.data output/om_spin.indx
+/bin/cp -f output/om_spin.save output/om_spin.20y.restart
+
+#STEP 2 -  diagnose the qflux needed to reproduce sst climatology
+../SRC/tcom -i om_diag -t diag.tios
+../SRC/tios2cdf -f output/om_diag
+/bin/rm -rf output/om_diag.data output/om_diag.indx
+/bin/cp -f output/om_diag.save output/om_diag.2y.restart
+
+# if you have ingrid installed, do the next line,
+# otherwise take the last year of qfluxes from om_diag.nc and 
+# pop it into DATA/qflx.nc with your favorite tool
+/usr/local/bin/ingrid qflx.ing
+
+#STEP 3 -  run the dynamics + sst in full mode
+../SRC/tcom -i om_run2f -t month.tios 
+../SRC/tios2cdf -f output/om_run2f
+/bin/rm -rf output/om_run2f.data output/om_run2f.indx
