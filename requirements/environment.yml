@@ -1,0 +1,17 @@
+prefix: ./env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - xarray
+  - cartopy
+  - matplotlib
+  - eccodes
+  - pynio
+  - dask
+  - pynio
+  - nc-time-axis
+  - pip
+  - pip:
+    - -r file:dev-requirements.txt
