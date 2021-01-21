@@ -27,6 +27,7 @@ A repository to contain and analyse the code from:
 
 The citation for this article is:
 
+```
 @article{seager2019strengthening,
   title={Strengthening tropical Pacific zonal sea surface temperature gradient consistent with rising greenhouse gases},
   author={Seager, Richard and Cane, Mark and Henderson, Naomi and Lee, Dong-Eun and Abernathey, Ryan and Zhang, Honghai},
@@ -38,7 +39,7 @@ The citation for this article is:
   url={https://doi.org/10.1038/s41558-019-0505-x},
   publisher={Nature Publishing Group}
 }
-
+```
 
 The paper is discussed at:
 
@@ -74,6 +75,27 @@ github.com/AlDanial/cloc v 1.84  T=0.10 s (349.4 files/s, 149217.5 lines/s)
  | Markdown                |           1       |         0      |          0      |          1 | 
  | SUM:                    |          34       |      2132      |       2201      |      10189 | 
 
+
+The code is structured into folders:
+
+```
+   |-animations
+   |-atmos-model
+   |---DATA
+   |---tmp
+   |-notebooks
+   |---exploratory
+   |---reports
+   |-ocean-model
+   |---DATA
+   |---RUN
+   |-----DATA
+   |-----output
+   |---SRC
+   |-----DATA
+   |-----output
+   |-requirements
+```
 
 ## The Beta-Plane Shallow Water Equations
 
@@ -114,3 +136,10 @@ different stencil sizes of various operators.
 
 
 
+```
+find . -not -path '*/\.*' | python -c "import sys as s;s.a=[];[setattr(s,'a',list(filter(lambda p: c.startswith(p+'/'),s.a)))or (s.stdout.write('  '*len(s.a)+c[len(s.a[-1])+1 if s.a else 0:])or True) and s.a.append(c[:-1]) for c in s.stdin]"
+```
+
+```
+ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
+```

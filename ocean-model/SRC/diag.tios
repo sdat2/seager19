@@ -1,0 +1,18 @@
+%- comment line starts with "%", empty lines skipped -------------------
+%
+%
+  DEFINE TIME_FMT      [month] 
+  DEFINE MISSING_VALUE [NaN]
+
+%  DEFINE GLOBAL_OUTPUT
+%-----------------------------------------------------------------------
+%  RANGE  index [AXE first/auto last/auto step/(number)]... 
+%
+  RANGE    1    [T * * 1 fmt=month] 
+%------------------------------------------------------------------------
+% STREAM name AXE   VALUES   RANGE#  var1 var2 var3 ......     %  
+%
+  STREAM SST  Z [ all ] 1 SST QFLX
+  STREAM DYN  Z [ all ] 1 PRES
+  STREAM TDEEP  Z [ 0 ] 1 HMODEL TDEEP
+%--------------------------------------------------------------------------
