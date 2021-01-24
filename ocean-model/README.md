@@ -1,4 +1,8 @@
 
+
+
+The ocean model code is built on legacy Fortran 90 and C code.
+
 Ocean model file structure:
 
 ```

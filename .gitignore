@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # DATA
-idea/
+.idea/
 data/
 DATA/
 output/
@@ -19,6 +19,8 @@ OUTPUT/
 *.netcdf
 *.mp4
 *.swp
+*.o 
+*.mod
 netcdf*
 # *.tios
 # *.ing

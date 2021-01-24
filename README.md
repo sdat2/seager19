@@ -11,7 +11,7 @@ A repository to contain and analyse the code from:
 <https://doi.org/10.1038/s41558-019-0505-x>
 
 
-### Short summary:
+### Short summary of paper:
 
 
 - There is a west-east warm-to-cold contrast in the Pacific.
@@ -23,9 +23,7 @@ A repository to contain and analyse the code from:
 - Their cleverer simple linear model agrees with observations.
 
 
-
-
-The citation for this article is:
+The citation for this paper is:
 
 ```
 @article{seager2019strengthening,
@@ -41,15 +39,20 @@ The citation for this article is:
 }
 ```
 
-The paper is discussed at:
+The paper is discussed in a podcast available at:
 
 <https://deep-convection.org/2020/04/13/episode-5-richard-seager/>
 
 
-
-The code was taken from:
+The code and data was taken from:
 
 <http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.PublicationsData/.Seager_etal_NCC-2019/>
+
+The Python code for the atmosphere model is in a Juypter Notebook. The ocean model code is built on legacy Fortran 90 and C code.
+
+The data is currently not stored in the github repository, as it takes up roughly 3.5 GB.
+
+### Code Makeup
 
 From running the command
 
@@ -76,19 +79,21 @@ github.com/AlDanial/cloc v 1.84  T=0.10 s (349.4 files/s, 149217.5 lines/s)
  | SUM:                    |          34       |      2132      |       2201      |      10189 | 
 
 
+### Code structure 
+
 The code is structured into folders:
 
 ```
    |-animations
    |-atmos-model
+   |---README.md --> lists file structure of this model.
    |---DATA
    |---tmp
-   |-notebooks
-   |---exploratory
-   |---reports
    |-ocean-model
+   |---README.md --> lists file structure of this model.
    |---DATA
    |---RUN
+   |-----run-model --> run this with bash to run model?
    |-----DATA
    |-----output
    |---SRC
@@ -123,18 +128,51 @@ The linear shallow water model equivalent is
           ∂η/∂t = -H*∇⋅u⃗ + γ*(η_ref - η) + Fηt(t)*Fη(x,y)         (3)
           ∂ϕ/∂t = -u⃗⋅∇ϕ                                           (4)
 
-ShallowWaters.jl discretises the equation on an equi-distant Arakawa C-grid, with 2nd order finite-difference operators. 
-Boundary conditions are implemented via a ghost-point copy and each variable has a halo of variable size to account for 
-different stencil sizes of various operators.
 
 # Model from the Methods Appendix to Seager 19
 
+## Atmos and Ocean reanalysis
+
+- ECMWF ERA-40 1958-78 & ERA-Interim 1979-2017
+  - Wind at 2m from surface, 
+  - precipitation, 
+- ORAS4 1958-2017
+  - SST, 
+  - themocline depth (20C isotherm).
+
 ## Atmospheric Model
+
+   (u, v, w) = (u'cos(pi z/zT), v'cos(pi z/zT), w'sin(pi z/zT))
+
+z is the height, and zT is the top of the troposphere.
+
+  (theta, Q) = (theta', Q')(theta0/theta00) sin(pi z/zT)
+
+  p = p'(rho0 / rho00) cos(pi z/zT)
+
+  (p/rho0)_z = g theta / theta00
+
+  p'/rho00 = (g zT/ pi theta00)theta'
+
+
+theta0 and rho0 are basic-state potential temperature and density profiles.
+
+  epsilon_u u - fv + phi_x = 0
+  epsilon_v v + fu + phi_y = 0
+  epsilon_phi phi + u_x + v_y = -Q_1
+
+the geopotential:
+
+  phi = - (g zT/ pi theta_00) theta
+
+
+
+
 
 ## Ocean Model
 
 
-
+### Commands to produce file trees:
 
 ```
 find . -not -path '*/\.*' | python -c "import sys as s;s.a=[];[setattr(s,'a',list(filter(lambda p: c.startswith(p+'/'),s.a)))or (s.stdout.write('  '*len(s.a)+c[len(s.a[-1])+1 if s.a else 0:])or True) and s.a.append(c[:-1]) for c in s.stdin]"
