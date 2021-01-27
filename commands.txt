@@ -1,0 +1,15 @@
+git submodule add https://git.overleaf.com/601198e28142a0508a615f15 report
+
+git submodule update --init --recursive
+
+git clone --recursive https://github.com/sdat2/seager19
+
+
+git config alias.supdate 'submodule update --remote --merge'
+
+git push --recurse-submodules=on-demand
+
+git config alias.spush 'push --recurse-submodules=on-demand'
+
+`git clone --recurse-submodules git@github.com:sdat2/seager19.git
+
