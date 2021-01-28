@@ -211,3 +211,14 @@ find . -not -path '*/\.*' | python -c "import sys as s;s.a=[];[setattr(s,'a',lis
 ```
 ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
 ```
+## Youtube links:
+
+https://doi.org/10.1038/s41558-019-0505-x
+
+ocean-model/RUN/output/
+
+SST_SST full in om_run2f: <https://youtu.be/JA97IWPmwxs>
+DYN_PRES in om_run2f: <https://youtu.be/5oRMWWAK1sM>
+TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
+TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
+TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>

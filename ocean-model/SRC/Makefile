@@ -1,5 +1,5 @@
 ARCH = Linux
-FC    = gfortran
+FC    = gfortran # change to f95 ?
 CC    = gcc
 LCDF   = -lnetcdf -lnetcdff
 
