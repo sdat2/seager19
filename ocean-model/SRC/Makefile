@@ -1,5 +1,6 @@
+# https://opensource.com/article/18/8/what-how-makefile#:~:text=The%20make%20utility%20requires%20a,be%20installed%20using%20make%20install%20.
 ARCH = Linux
-FC    = gfortran # change to f95 ?
+FC    = gfortran # f95 #f95 # gfortran # change to f95 ?
 CC    = gcc
 LCDF   = -lnetcdf -lnetcdff
 

@@ -1,27 +1,27 @@
 
- # Data structure
+## Data structure
 
  - Are the files with the same names in different places identical?
  - If so, why is there so much duplication of data?
 
 ```
 atmos-model
-  DATA/
-    ps-ECMWF-clim.nc
-    ts-ECMWF-clim60.nc
-    sfcWind-ECMWF-clim60.nc
-    pr-ECMWF-trend.nc
-    sst-ECMWF-clim.nc
+  DATA/      # everything ending with clim60 read by dQ.py
+    ps-ECMWF-clim.nc          # read in by TCAM.py
+    ts-ECMWF-clim60.nc        # read in by dQ.py
+    sfcWind-ECMWF-clim60.nc   # read in by dQ.py
+    pr-ECMWF-trend.nc         # read in by TCAM.py 
+    sst-ECMWF-clim.nc         # read in by TCAM.py
     mask-360x181.nc
-    ts-ECMWF-clim.nc
-    mask-360x180.nc
-    clt-ECMWF-clim60.nc
-    ts-ECMWF-trend.nc
-    sst-ECMWF-trend.nc
-    rh-fixed-clim60.nc
-    rh-ECMWF-clim60.nc
-    sfcWind-ECMWF-clim.nc
-    pr-ECMWF-clim.nc
+    ts-ECMWF-clim.nc          # read in by TCAM.py
+    mask-360x180.nc          
+    clt-ECMWF-clim60.nc      # read in by dQ.py
+    ts-ECMWF-trend.nc        # read in by TCAM.py
+    sst-ECMWF-trend.nc       # read in by TCAM.py
+    rh-fixed-clim60.nc       # read in by dQ.py
+    rh-ECMWF-clim60.nc       # read in by dQ.py
+    sfcWind-ECMWF-clim.nc    # read in by TCAM.py
+    pr-ECMWF-clim.nc         # read in by TCAM.py
   tmp/
     S91-Hq1800-PrcpLand1.nc
     S91-Hq1800-PrcpLand0.nc
@@ -90,7 +90,7 @@ ocean-model
       tau-ECMWF-clim.y
 ```
 
-# Code structure:
+## Code structure:
 
  - Duplication of code between `jupyter-notebook` and the `python` script.
 

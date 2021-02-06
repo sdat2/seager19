@@ -57,7 +57,7 @@ ny = 60
 YN = 60
 YS = -YN
 
-basedir = "tmp/S91"
+basedir = os.path.join("tmp", "S91")
 
 if not os.path.isdir("tmp"):
     os.makedirs("tmp")

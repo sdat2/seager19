@@ -6,6 +6,7 @@ __pycache__/
 
 # DATA
 .idea/
+.vscode/
 data/
 DATA/
 output/
@@ -27,6 +28,15 @@ netcdf*
 # *.ing
 # ocean-model/DATA/tau-ECMWF.y
 ocean-model/DATA/
+ocean-model/RUN/DATA/
+ocean-model/RUN/output/
+ocean-model/SRC/DATA/
+ocean-model/SRC/output/
+ocean-model/SRC/tcom # I think this is the executable
+ocean-model/SRC/old-object/
+atmos-model/DATA/
+atmos-model/tmp/
+
 
 # C extensions
 *.so

@@ -1,4 +1,4 @@
-.PHONY: clean lint format create_environment install_jupyter_tools
+.PHONY: clean lint format env jupyter_pro
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -18,10 +18,11 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-## Delete all compiled Python files
+## Delete all compiled Python files and object files
 clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
+	find . -type f -name "*.o"
 
 ## Lint src directory using flake8
 lint:
@@ -32,7 +33,7 @@ format:
 	black atmos-model
 
 ## Set up python interpreter environment and install basic dependencies
-create_environment:
+env:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, creating conda environment."
 	
@@ -50,11 +51,11 @@ else
 endif
 
 ## Install and set up handy jupyter notebook extensions
-install_jupyter_tools:
+jupyter_pro:
 	sh ./.setup_scripts/jupyter_tools.sh
 
 ## Set up sweet vscode settings
-vscode_beautiful:
+vscode_pro:
 	mkdir .vscode
 	cp ./.setup_scripts/vscode_settings.jsonc .vscode/settings.json
 
