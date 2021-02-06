@@ -1,8 +1,10 @@
 # Python Atmosphere Model
 
-Compile the programs in `SRC`.
 
-Run the programs in `RUN`.
+```
+python3 dQ.py 
+python3 TCAM.py 
+```
 
 File structure:
 

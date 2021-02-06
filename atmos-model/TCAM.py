@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
 
-get_ipython().run_line_magic("matplotlib", "inline")
+# get_ipython().run_line_magic("matplotlib", "inline")
 from scipy.interpolate import interp2d
 import os
 

@@ -7,7 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
 
-""" Using climatological Clouds and Windspeed in the
+""" 
+Using climatological Clouds and Windspeed in the
 surface heat flux formulas
 """
 rhoa = 1.225
@@ -136,8 +137,9 @@ files = []
 for i, m in enumerate(mem):
     name = names[m]
     var = vars[i]
-    file = "DATA/" + var + "-" + name + "-clim60.nc"
+    file = os.path.join("DATA", var + "-" + name + "-clim60.nc")
     print(name, var, file)
+    print(file)
     assert os.path.isfile(file)
     files += [file]
 

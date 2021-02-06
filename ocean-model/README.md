@@ -1,7 +1,20 @@
-
-
+# Ocean model.
 
 The ocean model code is built on legacy Fortran 90 and C code.
+
+To backup the data:
+
+```bash
+sh ./backup-data.sh
+```
+
+```bash
+sh ./comp-data.sh >> changes-mid-run.txt
+```
+
+Compile the programs in `SRC`.
+
+Run the programs in `RUN`.
 
 Ocean model file structure:
 

@@ -12,12 +12,14 @@ black               # automatic formatting provider
 isort               # automatic import sorter
 python-dotenv       # environment variable manager
 
+
 jupyter
 ipython
 scipy
 
 eccodes
 pynio
-dask
+dask[complete]
+bottleneck
 pynio
 nc-time-axis
