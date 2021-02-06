@@ -1,5 +1,9 @@
 # Python Atmosphere Model
 
+Compile the programs in `SRC`.
+
+Run the programs in `RUN`.
+
 File structure:
 
 ```

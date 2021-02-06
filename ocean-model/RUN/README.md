@@ -1,7 +1,12 @@
  # Folder that the ocean model is run from.
 
+```bash
+sh ./run-model
+```
  
- 
+ The timings end up getting stored in `timing.txt`.
+
+
  ```
  reading file for land/sea mask: DATA/om_mask.nc
  Using a time step of:    10.3655691     hours

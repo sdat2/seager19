@@ -1,33 +1,33 @@
-#usage: sh ./run-model
+# usage: sh ./run-model
 
 # STEP 1 -  spinup the dynamics - ignore the sst equation and use climo windstress
 
-echo "A: ${date}" >> timing.txt
+echo "A: $(date)" >> timing.txt
 
-../SRC/tcom -i om_spin -t spin.tios # 20:19-20:22ish
+../SRC/tcom -i om_spin -t spin.tios 
 
-echo "B: ${date}" >> timing.txt
+echo "B: $(date)" >> timing.txt
 
 ../SRC/tios2cdf -f output/om_spin # cannot open data file: <output/om_spin.indx>
 
-echo "C: ${date}" >> timing.txt
+echo "C: $(date)" >> timing.txt
 
-/bin/rm -rf output/om_spin.data output/om_spin.indx
-/bin/cp -f output/om_spin.save output/om_spin.20y.restart
+rm -rf output/om_spin.data output/om_spin.indx
+cp -f output/om_spin.save output/om_spin.20y.restart
 
-echo "D: ${date}" >> timing.txt
+echo "D: $(date)" >> timing.txt
 
 # STEP 2 -  diagnose the qflux needed to reproduce sst climatology
 ../SRC/tcom -i om_diag -t diag.tios
 
-echo "E: ${date}" >> timing.txt
+echo "E: $(date)" >> timing.txt
 
 ../SRC/tios2cdf -f output/om_diag
 
-echo "F: ${date}" >> timing.txt
+echo "F: $(date)" >> timing.txt
 
-/bin/rm -rf output/om_diag.data output/om_diag.indx
-/bin/cp -f output/om_diag.save output/om_diag.2y.restart
+rm -rf output/om_diag.data output/om_diag.indx
+cp -f output/om_diag.save output/om_diag.2y.restart
 
 # if you have ingrid installed, do the next line,
 # otherwise take the last year of qfluxes from om_diag.nc and 
@@ -37,15 +37,15 @@ echo "F: ${date}" >> timing.txt
 
 # STEP 3 -  run the dynamics + sst in full mode
 
-echo "G: ${date}" >> timing.txt
+echo "G: $(date)" >> timing.txt
 
 ../SRC/tcom -i om_run2f -t month.tios 
 
-echo "H: ${date}" >> timing.txt
+echo "H: $(date)" >> timing.txt
 
 ../SRC/tios2cdf -f output/om_run2f
 
-echo "I: ${date}" >> timing.txt
+echo "I: $(date)" >> timing.txt
 
-/bin/rm -rf output/om_run2f.data output/om_run2f.indx
+rm -rf output/om_run2f.data output/om_run2f.indx
 
