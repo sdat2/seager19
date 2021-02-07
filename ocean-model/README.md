@@ -12,6 +12,10 @@ sh ./backup-data.sh
 sh ./comp-data.sh >> changes-mid-run.txt
 ```
 
+```bash 
+sh ./comp-dat.sh
+```
+
 Compile the programs in `SRC`.
 
 Run the programs in `RUN`.
