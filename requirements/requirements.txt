@@ -1,6 +1,9 @@
 
 # core packages
 numpy
+cython 
+pyshp 
+six
 xarray==0.17
 cartopy
 matplotlib==3
