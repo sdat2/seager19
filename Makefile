@@ -27,10 +27,12 @@ clean:
 ## Lint src directory using flake8
 lint:
 	flake8 atmos-model
+	flake8 src
 
 ## Format src directory using black
 format: 
 	black atmos-model
+	black src
 
 ## Set up python interpreter environment and install basic dependencies
 env:
@@ -62,8 +64,6 @@ vscode_pro:
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
-
-# TODO: VSCode setup
 
 
 #################################################################################

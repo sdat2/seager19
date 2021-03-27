@@ -1,0 +1,16 @@
+ Input  base name: <output/om_spin.save>
+ Output base name: <output/om_spin.save>
+
+ parameter values used in this run:
+
+ nstart=               1  nlaststart=               0
+  nskip=               0      nsteps=               0
+   year=            1938         day=               0
+    sec=               0
+   delt=   0.3600000E+04
+
+   alat=   0.0000000E+00        blat=   0.3590000E+03
+   alon=  -0.8000000E+02        blon=   0.8000000E+02
+ Finished at step =       16903
+ <enso time> <  -24.0337982     >
+ <Day:Month:Year> <          30 :          12 :        1957 >
