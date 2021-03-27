@@ -97,7 +97,7 @@ def animate_prediction(
                 label_subplots([ax1, ax2, ax3, ax4, ax5, ax6], y_pos=1.07)
 
             xr.DataArray(
-                data=classes_to_rgb(y_da.isel(year=index).values),
+                data=y_da.isel(year=index).values,
                 dims=["y", "x", "band"],
                 coords=dict(
                     y=y_da.coords["y"].values,
@@ -108,9 +108,7 @@ def animate_prediction(
             ).plot.imshow(ax=ax5)
 
             xr.DataArray(
-                data=classes_to_rgb(
-                    np.round_(pred_da.isel(year=index)).values.astype("int16")
-                ),
+                data=np.round_(pred_da.isel(year=index)).values.astype("int16"),
                 dims=["y", "x", "band"],
                 coords=dict(
                     y=y_da.coords["y"].values,
