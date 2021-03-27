@@ -1,14 +1,13 @@
 
 # core packages
+proj
 numpy
-cython 
-pyshp 
+cython>=0.15.1
+pyshp
 six
 xarray==0.17
 cartopy
 matplotlib==3
-
-# local package
 
 # external requirements (mostly linters and formatters)
 flake8              # flake8 linter
