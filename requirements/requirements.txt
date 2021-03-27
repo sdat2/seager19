@@ -1,5 +1,6 @@
 
 # core packages
+numpy
 xarray==0.17
 cartopy==0.18
 matplotlib==3
