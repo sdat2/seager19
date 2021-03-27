@@ -170,3 +170,5 @@ dmypy.json
 .idea/
 .vscode/
 .animations/
+ocean-model/SRC/tcom
+ocean-model/SRC/tios2cdf

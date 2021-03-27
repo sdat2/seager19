@@ -11,6 +11,8 @@ mypy                # python type checker
 black               # automatic formatting provider
 isort               # automatic import sorter
 python-dotenv       # environment variable manager
+pylint              # use pylint instead
+
 
 # linear algebra and general data analysis
 numpy               # arrays, linear algebra

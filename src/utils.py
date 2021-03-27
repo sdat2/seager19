@@ -4,8 +4,6 @@ import time
 from functools import wraps
 from sys import getsizeof
 
-import requests
-
 
 def timeit(method):
     """

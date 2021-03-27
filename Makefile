@@ -20,14 +20,16 @@ endif
 
 ## Delete all compiled Python files and object files
 clean:
-	find . -type f -name "*.py[co]" -delete
-	find . -type d -name "__pycache__" -delete
-	find . -type f -name "*.o"
+	find src/ -type f -name "*.py[co]" -delete
+	find src/ -type d -name "__pycache__" -delete
+	find src/ -type f -name "*.o"
 
 ## Lint src directory using flake8
 lint:
-	flake8 atmos-model
-	flake8 src
+	pylint --ignore-patterns=lint_test src
+	pylint --ignore-patterns=lint_test atmos-model
+	# flake8 atmos-model
+	# flake8 src
 
 ## Format src directory using black
 format: 
@@ -60,6 +62,8 @@ jupyter_pro:
 vscode_pro:
 	mkdir .vscode
 	cp ./.setup_scripts/vscode_settings.jsonc .vscode/settings.json
+
+# jupyter_dark: 
 
 #################################################################################
 # PROJECT RULES                                                                 #
