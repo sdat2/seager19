@@ -5,20 +5,20 @@ from functools import wraps
 from sys import getsizeof
 
 
-def timeit(method):
-    """
-    timeit is a wrapper for performance analysis which should
-    return the time taken for a function to run,
-    :param method: the function that it takes as an input
-    :return: timed
-    example usage:
-    tmp_log_data={}
-    part = spin_forward(400, co, particles=copy.deepcopy(particles),
-                        log_time=tmp_log_d)
-    # chuck it into part to stop interference.
-    assert part != particles
-    spin_round_time[key].append(tmp_log_data['SPIN_FORWARD'])
-    @timeit
+def timeit(method: any) -> None:
+    """timeit is a wrapper for performance analysis which should
+    return the time taken for a function to run. Alters log_time dict if fed in.
+    Add @timeit to the function you want to time.
+
+    Args:
+        method (any):  the function that it takes as an inputv
+
+    Examples:
+        Usage with time collection.
+        >>> tmp_log_data={}
+        >>> part = spin_forward(400, co, particles=copy.deepcopy(particles),
+        ...                    log_time=tmp_log_d)
+        >>> spin_round_time[key].append(tmp_log_data['SPIN_FORWARD']
     """
 
     @wraps(method)

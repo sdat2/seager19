@@ -172,3 +172,4 @@ dmypy.json
 .animations/
 ocean-model/SRC/tcom
 ocean-model/SRC/tios2cdf
+etc/

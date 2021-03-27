@@ -6,13 +6,11 @@ A set of functions to animate particular results.
 animate_prediction - specifically designed to plot inputs and results
     from the xgboost algorithm over Chenobyl.
 
-TODO: Add animation functions for more general cases
 """
 import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
-from src.data_loading.landcover_plot_utils import classes_to_rgb
 from src.plot_settings import label_subplots, ps_defaults
 from src.utils import timeit
 from tqdm import tqdm
@@ -29,6 +27,7 @@ def animate_prediction(
 ) -> None:
     """This function animates the inputs, labels, and the corresponding
        predictions of the model.
+       Based on code originally from Tom Anderson: tomand@bas.ac.uk.
 
     Args:
         x_da (xr.DataArray): 3 or 6 bands, 4 seasons, 20 years
@@ -37,7 +36,6 @@ def animate_prediction(
         video_path (str, optional): relative text path to output mp4 file.
             Defaults to "joint_val.mp4".
 
-    Based on code originally from Tom Anderson: tomand@bas.ac.uk.
     """
 
     def gen_frame_func(
