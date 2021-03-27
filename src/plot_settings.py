@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """A file for setting a consistent set of plotting settings across
 the project.
 
@@ -42,13 +41,10 @@ Example:
 import itertools
 from distutils.spawn import find_executable
 from typing import Sequence, Tuple
-
 import matplotlib
 import matplotlib.style
 import numpy as np
 import seaborn as sns
-
-from src.constants import REPORT_TEXTWIDTH_PT
 
 
 def ps_defaults(use_tex: bool = True) -> None:
@@ -180,7 +176,7 @@ def get_dim(
 
 def set_dim(
     fig: matplotlib.pyplot.figure,
-    width: float = REPORT_TEXTWIDTH_PT,
+    width: float = 398.3386,
     fraction_of_line_width: float = 1,
     ratio: float = (5 ** 0.5 - 1) / 2,
 ) -> None:
