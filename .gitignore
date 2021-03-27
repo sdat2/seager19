@@ -163,3 +163,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+*.pdf
+*.png
+*.eps
+.idea/
+.vscode/
+.animations/

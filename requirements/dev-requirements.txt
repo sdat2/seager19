@@ -12,14 +12,28 @@ black               # automatic formatting provider
 isort               # automatic import sorter
 python-dotenv       # environment variable manager
 
+# linear algebra and general data analysis
+numpy               # arrays, linear algebra
+scipy               # linear algebra and numerical mathematics
+numba               # speeding up array operations
+pandas              # tabular data analysis
+scipy               # scipy
 
+# interactive computing
+jupyterlab          # jupyter notebooks
+tqdm                # loading bar
 jupyter
 ipython
-scipy
 
+# useful xarray extensions
 eccodes
-pynio
-dask[complete]
+dask[complete]      # allows more lazy operation for xarray.
 bottleneck
-pynio
 nc-time-axis
+netCDF4             # makes sure that the default driver is netCDF4.
+
+# configuration inputs.
+hydra-core
+
+# Wandb
+wandb              # automatic recording of runs

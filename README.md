@@ -1,4 +1,6 @@
 # seager19
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+ <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 A repository to contain and analyse the code from:
 
@@ -54,6 +56,7 @@ The data is currently not stored in the github repository, as it takes up roughl
 
 ### Code Makeup
 
+
 From running the command
 
       cloc $(git ls-files)
@@ -100,6 +103,12 @@ The code is structured into folders:
    |-----DATA
    |-----output
    |-requirements
+```
+
+# To get report run: 
+
+```
+git submodule add https://git.overleaf.com/601198e28142a0508a615f15 report
 ```
 
 ## The Beta-Plane Shallow Water Equations

@@ -212,7 +212,7 @@ def S91_solver(Q1):
 # In[ ]:
 
 
-def smooth121(da, sdims, NSmooths=1, perdims=[]):
+def smooth121(da: xr.DataArray, sdims, NSmooths: int = 1, perdims: list = []):
     """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time
     Usage
     -----
