@@ -31,14 +31,6 @@ src.plot\_settings module
    :undoc-members:
    :show-inheritance:
 
-src.train module
-----------------
-
-.. automodule:: src.train
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 src.utils module
 ----------------
 
