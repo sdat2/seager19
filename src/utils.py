@@ -15,10 +15,15 @@ def timeit(method: any) -> None:
 
     Examples:
         Usage with time collection.
+
+    .. code-block:: python
+        :linenos:
+
         >>> tmp_log_data={}
         >>> part = spin_forward(400, co, particles=copy.deepcopy(particles),
         ...                    log_time=tmp_log_d)
         >>> spin_round_time[key].append(tmp_log_data['SPIN_FORWARD']
+
     """
 
     @wraps(method)
