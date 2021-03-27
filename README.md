@@ -1,6 +1,7 @@
 # seager19
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+[![Documentation Status](https://readthedocs.org/projects/seager19/badge/?version=latest)](https://seager19.readthedocs.io/en/latest/?badge=latest)
 
 A repository to contain and analyse the code from:
 
@@ -210,28 +211,6 @@ the geopotential:
   gcc version 4.8.5 20150623 (Red Hat 4.8.5-39) (GCC) 
   ```
 
-## Current compilation:
-
-```
-gfortran  -ffixed-line-length-132 -Ofast -c om_core.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_ekm.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_sst.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_leap.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_equi.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_forc.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_qflux.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_tios.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_mem.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_wrap.F
-gfortran  -ffixed-line-length-132 -Ofast -c fodb.F
-gfortran  -ffixed-line-length-132 -Ofast -c om_main.F
-gcc -Wno-implicit-function-declaration -Ofast -c om_c.c
-gcc -Wno-implicit-function-declaration -Ofast -c codb.c
-gcc -Wno-implicit-function-declaration -Ofast -c daio.c
-gcc -Wno-implicit-function-declaration -Ofast -c sio.c
-gfortran  -ffixed-line-length-132 -Ofast  -o tcom om_main.o wrap-mod.o data-mod.o sst-mod.o om_core.o om_ekm.o om_sst.o om_leap.o om_equi.o om_forc.o om_qflux.o om_tios.o om_mem.o om_wrap.o fodb.o  om_c.o codb.o daio.o sio.o -lnetcdf -lnetcdff
-```
-
 ### Commands to produce file trees:
 
 ```
@@ -243,14 +222,10 @@ ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's
 ```
 ## Youtube links:
 
-https://doi.org/10.1038/s41558-019-0505-x
+### ocean-model/RUN/output/
 
-```
-ocean-model/RUN/output/
-
-SST_SST full in om_run2f: <https://youtu.be/JA97IWPmwxs>
-DYN_PRES in om_run2f: <https://youtu.be/5oRMWWAK1sM>
-TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
-TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
-TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>
-```
+ * SST_SST full in om_run2f: <https://youtu.be/JA97IWPmwxs>
+ * DYN_PRES in om_run2f: <https://youtu.be/5oRMWWAK1sM>
+ * TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
+ * TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
+ * TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>

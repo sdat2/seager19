@@ -8,5 +8,5 @@ setup(
     description="ENSO MRes project 2020",
     url="https://github.com/sdat2/seager19",
     packages=find_packages(),
-    test_suite="src.tests.test_all.suite",
+    # test_suite="src.tests.test_all.suite",
 )
