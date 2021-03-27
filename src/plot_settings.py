@@ -1,45 +1,42 @@
 # -*- coding: utf-8 -*-
-"""
-plot_settings.py
-================
+"""A file for setting a consistent set of plotting settings across
+the project.
 
-usage:
+Example:
+    Usage with simple plots::
 
-.. code-block:: python
-   :linenos:
+        from src.plot_settings import (
+            ps_defaults,
+            label_subplots,
+            get_dim,
+            set_dim,
+            PALETTE,
+            STD_CLR_LIST,
+            CAM_BLUE,
+            BRICK_RED,
+            OX_BLUE,
+        )
 
-    from src.plot_settings import (
-        ps_defaults,
-        label_subplots,
-        get_dim,
-        set_dim,
-        PALETTE,
-        STD_CLR_LIST,
-        CAM_BLUE,
-        BRICK_RED,
-        OX_BLUE,
-    )
+        ps_defaults(use_tex=True)
 
-    ps_defaults(use_tex=True)
+        # ---- example set of graphs ---
 
-    # ---- example set of graphs ---
+        import numpy as np
+        import matplotlib.pyplot as plt
 
-    import numpy as np
-    import matplotlib.pyplot as plt
+        fig, axs = plt.subplots(2, 2)
 
-    fig, axs = plt.subplots(2, 2)
+        x = np.linspace(0, np.pi, num=100)
+        axs[0, 0].plot(x, np.sin(x), color=STD_CLR_LIST[0])
+        axs[0, 1].plot(x, np.cos(x), color=STD_CLR_LIST[1])
+        axs[1, 0].plot(x, np.sinc(x), color=STD_CLR_LIST[2])
+        axs[1, 1].plot(x, np.abs(x), color=STD_CLR_LIST[3])
 
-    x = np.linspace(0, np.pi, num=100)
-    axs[0, 0].plot(x, np.sin(x), color=STD_CLR_LIST[0])
-    axs[0, 1].plot(x, np.cos(x), color=STD_CLR_LIST[1])
-    axs[1, 0].plot(x, np.sinc(x), color=STD_CLR_LIST[2])
-    axs[1, 1].plot(x, np.abs(x), color=STD_CLR_LIST[3])
+        # set size
+        set_dim(fig, fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
 
-    # set size
-    set_dim(fig, fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
-
-    # label subplots
-    label_subplots(axs, start_from=0, fontsize=10)
+        # label subplots
+        label_subplots(axs, start_from=0, fontsize=10)
 
 """
 import itertools

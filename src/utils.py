@@ -11,18 +11,14 @@ def timeit(method: any) -> None:
     Add @timeit to the function you want to time.
 
     Args:
-        method (any):  the function that it takes as an inputv
+        method (any):  the function that it takes as an input
 
-    Examples:
-        Usage with time collection.
+    Example:
+        Here is an example using the tracking functionality::
 
-    .. code-block:: python
-        :linenos:
-
-        >>> tmp_log_data={}
-        >>> part = spin_forward(400, co, particles=copy.deepcopy(particles),
-        ...                    log_time=tmp_log_d)
-        >>> spin_round_time[key].append(tmp_log_data['SPIN_FORWARD']
+            >>> tmp_log_data={}
+            >>> part = spin_forward(log_time=tmp_log_d)
+            >>> spin_round_time[key].append(tmp_log_data['SPIN_FORWARD']
 
     """
 
@@ -32,7 +28,7 @@ def timeit(method: any) -> None:
         result = method(*args, **kw)
         te = time.perf_counter()
         if "log_time" in kw:
-            name = kw.get("log_name", method.__name__.upper())
+            name = kw.get("log_name", method.__name__.lower())
             kw["log_time"][name] = te - ts
         else:
             print("%r  %2.5f s\n" % (method.__name__, (te - ts)))
