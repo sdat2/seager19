@@ -138,7 +138,7 @@ def label_subplots(
 
 
 def get_dim(
-    width: float = REPORT_TEXTWIDTH_PT,
+    width: float = 398.3386,
     fraction_of_line_width: float = 1,
     ratio: float = (5 ** 0.5 - 1) / 2,
 ) -> Tuple[float, float]:
