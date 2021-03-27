@@ -1,6 +1,11 @@
 # NOTE: These requirements are used for developing code on the repo. 
 # As a standard they include certain formatters and linters.
 
+# core packages
+xarray==0.17
+cartopy==0.18
+matplotlib==3
+
 # local package
 -e ../.
 

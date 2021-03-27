@@ -1,12 +1,8 @@
 prefix: ./env
 channels:
-  - conda-forge
   - defaults
 dependencies:
   - python=3.8
-  - xarray=0.17
-  - cartopy=0.18
-  - matplotlib=3
   - pip
   - pip:
     - -r file:dev-requirements.txt
