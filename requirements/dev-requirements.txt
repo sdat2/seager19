@@ -2,7 +2,7 @@
 # As a standard they include certain formatters and linters.
 
 # local package
-# -e ../.
+-e ../.
 
 # external requirements (mostly linters and formatters)
 flake8              # flake8 linter
@@ -11,8 +11,8 @@ mypy                # python type checker
 black               # automatic formatting provider
 isort               # automatic import sorter
 python-dotenv       # environment variable manager
-pylint              # use pylint instead
-
+pylint              # use pylint instead of flake8
+pre-commit          # perform checks on code
 
 # linear algebra and general data analysis
 numpy               # arrays, linear algebra
@@ -22,10 +22,11 @@ pandas              # tabular data analysis
 scipy               # scipy
 
 # interactive computing
-jupyterlab          # jupyter notebooks
 tqdm                # loading bar
+jupyterlab          # jupyter notebooks
 jupyter
 ipython
+jupyterthemes       # change the color of jupyter-notebooks etc
 
 # useful xarray extensions
 eccodes
