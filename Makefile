@@ -1,4 +1,4 @@
-.PHONY: clean lint format test env report jupyter_pro
+.PHONY: clean lint format test env report jupyter_pro jupyter_dark jupyter_light
 
 #################################################################################
 # GLOBALS                                                                       #

@@ -7,18 +7,19 @@ from sys import getsizeof
 
 def timeit(method: any) -> None:
     """timeit is a wrapper for performance analysis which should
-    return the time taken for a function to run. Alters log_time dict if fed in.
-    Add @timeit to the function you want to time.
+    return the time taken for a function to run. Alters `log_time` `dict` if fed in.
+    Add @timeit to the function you want to time. Function needs `**kwargs` if
+    you want it to be able to feed in `log_time` `dict`.
 
     Args:
         method (any):  the function that it takes as an input
 
-    Example:
+    Examples:
         Here is an example using the tracking functionality::
 
-            >>> tmp_log_data={}
+            >>> tmp_log_d={}
             >>> part = spin_forward(log_time=tmp_log_d)
-            >>> spin_round_time[key].append(tmp_log_data['spin_forward'])
+            >>> spin_round_time[key].append(tmp_log_d['spin_forward'])
 
     """
 
