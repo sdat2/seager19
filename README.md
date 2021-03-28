@@ -5,7 +5,7 @@
     <img src='https://readthedocs.org/projects/seager19/badge/?version=latest' alt='Documentation Status' />
 </a>
 
-![SST](gifs/SST_SST2_in_om_run2f.gif)
+![SST output over time period](gifs/SST_SST2_in_om_run2f.gif)
 
 ## Purpose
 
@@ -16,7 +16,7 @@ _Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal
 <https://doi.org/10.1038/s41558-019-0505-x>
 
 
-### Short summary of paper:
+### Summary of paper:
 
 - There is a west-east warm-to-cold contrast in the Pacific.
 
@@ -26,6 +26,7 @@ _Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal
 
 - Their cleverer simple linear model agrees with observations.
 
+### Citation:
 
 The citation for this paper is:
 
@@ -42,12 +43,15 @@ The citation for this paper is:
   publisher={Nature Publishing Group}
 }
 ```
+### Podcast:
 
 The paper is discussed in a podcast available at:
 
 <https://deep-convection.org/2020/04/13/episode-5-richard-seager/>
 
 
+
+## Code
 The code and data was taken from:
 
 <http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.PublicationsData/.Seager_etal_NCC-2019/>
@@ -107,9 +111,9 @@ The code is structured into folders:
    |-requirements
 ```
 
-# Model from the Methods Appendix to Seager et al. 2019
+## Model from the Methods Appendix to Seager et al. 2019
 
-## Atmos and Ocean reanalysis
+### Atmos and Ocean reanalysis
 
 - ECMWF ERA-40 1958-78 & ERA-Interim 1979-2017
   - Wind at 2m from surface, 
@@ -118,7 +122,7 @@ The code is structured into folders:
   - SST, 
   - themocline depth (20C isotherm).
 
-## Atmospheric Model
+### Atmospheric Model
 
   (u, v, w) = (u'cos(pi z/zT), v'cos(pi z/zT), w'sin(pi z/zT))
 
@@ -143,9 +147,9 @@ the geopotential:
 
   phi = - (g zT/ pi theta_00) theta
 
-## Ocean Model
+### Ocean Model
 
-## Youtube links:
+## Videos of outputs:
 
 ### ocean-model/RUN/output/
 

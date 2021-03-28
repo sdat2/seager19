@@ -1,4 +1,4 @@
-.PHONY: clean lint format env jupyter_pro
+.PHONY: clean lint format test env jupyter_pro
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -36,6 +36,10 @@ format:
 	black atmos
 	black src
 	black docs
+
+## Test src directory using pylint
+test:
+	pytest --pyargs src
 
 ## Set up python interpreter environment and install basic dependencies
 env:
