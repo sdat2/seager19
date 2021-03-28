@@ -15,13 +15,13 @@ atmos-model
     mask-360x181.nc
     ts-ECMWF-clim.nc          # read in by TCAM.py
     mask-360x180.nc          
-    clt-ECMWF-clim60.nc      # read in by dQ.py
-    ts-ECMWF-trend.nc        # read in by TCAM.py
-    sst-ECMWF-trend.nc       # read in by TCAM.py
-    rh-fixed-clim60.nc       # read in by dQ.py
-    rh-ECMWF-clim60.nc       # read in by dQ.py
-    sfcWind-ECMWF-clim.nc    # read in by TCAM.py
-    pr-ECMWF-clim.nc         # read in by TCAM.py
+    clt-ECMWF-clim60.nc       # read in by dQ.py
+    ts-ECMWF-trend.nc         # read in by TCAM.py
+    sst-ECMWF-trend.nc        # read in by TCAM.py
+    rh-fixed-clim60.nc        # read in by dQ.py
+    rh-ECMWF-clim60.nc        # read in by dQ.py
+    sfcWind-ECMWF-clim.nc     # read in by TCAM.py
+    pr-ECMWF-clim.nc          # read in by TCAM.py
   tmp/
     S91-Hq1800-PrcpLand1.nc
     S91-Hq1800-PrcpLand0.nc

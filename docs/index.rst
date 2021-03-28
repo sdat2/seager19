@@ -18,9 +18,9 @@ Welcome to the src documentation!
 
    self
    README.md
-   DOCS.md
-   getting_started
    src
+   getting_started
+   DOCS.md
    about
 
 
