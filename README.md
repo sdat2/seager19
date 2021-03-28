@@ -4,6 +4,10 @@
 <a href='https://seager19.readthedocs.io/en/latest/?badge=latest'>
     <img src='https://readthedocs.org/projects/seager19/badge/?version=latest' alt='Documentation Status' />
 </a>
+<a href='https://travis-ci.com/sdat2/seager19'>
+    <img src='https://travis-ci.com/sdat2/seager19.svg?branch=main' alt='Build Status' />
+</a>
+
 
 ![SST output over time period](gifs/SST_SST2_in_om_run2f.gif)
 

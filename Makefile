@@ -1,4 +1,4 @@
-.PHONY: clean lint format test env jupyter_pro
+.PHONY: clean lint format test env report jupyter_pro
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -36,6 +36,10 @@ format:
 	black atmos
 	black src
 	black docs
+
+## get report submodule
+report:
+	git submodule add https://git.overleaf.com/601198e28142a0508a615f15 report
 
 ## Test src directory using pylint
 test:
