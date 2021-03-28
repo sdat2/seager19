@@ -24,6 +24,7 @@ OUTPUT/
 *.o 
 *.mod
 netcdf*
+*.gif
 # *.tios
 # *.ing
 # ocean-model/DATA/tau-ECMWF.y

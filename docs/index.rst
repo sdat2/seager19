@@ -12,6 +12,8 @@ Welcome to the src documentation!
    :caption: Contents:
 
    self
+   README.md
+   DOCS.md
    getting_started
    src
    about
