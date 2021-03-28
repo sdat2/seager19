@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = "GeoGraph - Package Documentation"
+project = "Seager et.~al 19 Replication"
 copyright = "2021, Simon Thomas"  # pylint: disable=redefined-builtin
 author = "sdat2"
 

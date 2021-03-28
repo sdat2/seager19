@@ -7,7 +7,7 @@ pyshp
 six
 xarray==0.17
 # cartopy
-matplotlib==3
+matplotlib>=3.3
 
 # external requirements (mostly linters and formatters)
 flake8              # flake8 linter
