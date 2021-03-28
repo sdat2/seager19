@@ -15,12 +15,6 @@ REPORT_PATH = pathlib.Path(os.path.join(PROJECT_PATH, "report"))
 FIGURE_PATH = pathlib.Path(os.path.join(REPORT_PATH, "figures"))
 
 # Data directory on GWS
-GWS_DATA_DIR = pathlib.Path(
-    "/gws/nopw/j04/ai4er/guided-team-challenge/2021/biodiversity"
+GWS_DIR = pathlib.Path(
+    "/gws/nopw/j04/ai4er"
 )
-
-# Coordinate reference systems (crs)
-WGS84 = "EPSG:4326"  # WGS84 standard crs (latitude, longitude)
-UTM35N = "EPSG:32635"  # https://epsg.io/32635 - preferred crs for chernobyl region
-UCS2000_TM10 = "EPSG:6384"  # https://epsg.io/6384 - reference system for ukaraine
-PREFERRED_CRS = UTM35N  # backwards compatability - preferred crs for chernobyl region

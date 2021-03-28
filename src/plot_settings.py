@@ -103,12 +103,13 @@ def label_subplots(
     y_pos: float = 0.95,
 ) -> None:
     """Adds (a), (b), (c) at the top left of each subplot panel.
-    Labelling order achieved through ravelling the input list / array.
+    Labelling order achieved through ravelling the input `list` / `np.array`.
 
     Args:
-        axs (Sequence[matplotlib.axes]): list or array of subplot axes.
+        axs (Sequence[matplotlib.axes]): `list` or `np.array` of
+            `matplotlib.pyplot.axes`.
         labels (Sequence[str]): A sequence of labels for the subplots.
-        start_from (int, optional): skips first ${start_from} labels. Defaults to 0.
+        start_from (int, optional): skips first `start_from` labels. Defaults to 0.
         fontsize (int, optional): Font size for labels. Defaults to 10.
         x_pos (float, optional): Relative x position of labels. Defaults to 0.02.
         y_pos (float, optional): Relative y position of labels. Defaults to 0.95.
