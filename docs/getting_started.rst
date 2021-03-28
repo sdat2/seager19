@@ -1,7 +1,7 @@
 Getting Started
 ====================================
 
-.. image:: ../gifs/viewer_demo.gif
+.. image:: ../gifs/SST_SST2_in_om_run2f.gif
   :width: 500
   :alt: viewer demo
 
