@@ -15,6 +15,10 @@ make latexpdf
 
 Note: this last command requires a latex installation, which Jasmin servers don't seem to have.
 
+```
+open _build/html/index.html 
+```
+
 ## Other important commands
 
 To update the module references in the rst files

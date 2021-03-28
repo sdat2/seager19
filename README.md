@@ -107,12 +107,6 @@ The code is structured into folders:
    |-requirements
 ```
 
-## To get report run: 
-
-```
-git submodule add https://git.overleaf.com/601198e28142a0508a615f15 report
-```
-
 # Model from the Methods Appendix to Seager et al. 2019
 
 ## Atmos and Ocean reanalysis
@@ -151,15 +145,6 @@ the geopotential:
 
 ## Ocean Model
 
-### Commands to produce file trees:
-
-```
-find . -not -path '*/\.*' | python -c "import sys as s;s.a=[];[setattr(s,'a',list(filter(lambda p: c.startswith(p+'/'),s.a)))or (s.stdout.write('  '*len(s.a)+c[len(s.a[-1])+1 if s.a else 0:])or True) and s.a.append(c[:-1]) for c in s.stdin]"
-```
-
-```
-ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
-```
 ## Youtube links:
 
 ### ocean-model/RUN/output/
