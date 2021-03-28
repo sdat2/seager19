@@ -122,6 +122,15 @@ The code is structured into folders:
   - SST, 
   - themocline depth (20C isotherm).
 
+![gifs/clt_in_clt-ECMWF-clim60.gif](gifs/clt_in_clt-ECMWF-clim60.gif)
+![gifs/dQdf_in_dQdf-sample.gif](gifs/dQdf_in_dQdf-sample.gif)
+![gifs/pr_in_pr-ECMWF-clim.gif](gifs/pr_in_pr-ECMWF-clim.gif)
+![gifs/ps_in_ps-ECMWF-clim.gif](gifs/ps_in_ps-ECMWF-clim.gif)
+![gifs/rh_in_rh-ECMWF-clim60.gif](gifs/rh_in_rh-ECMWF-clim60.gif)
+![gifs/sst_in_sst-ECMWF-clim.gif](gifs/sst_in_sst-ECMWF-clim.gif)
+![gifs/ts_in_ts-ECMWF-clim60.gif](gifs/ts_in_ts-ECMWF-clim60.gif)
+
+
 ### Atmospheric Model
 
   (u, v, w) = (u'cos(pi z/zT), v'cos(pi z/zT), w'sin(pi z/zT))

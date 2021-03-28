@@ -1,0 +1,13 @@
+language: python
+
+python:
+  - "3.8"
+
+# command to install dependencies
+install:
+  - pip install -r requirements/requirements.txt
+  - pip install -e .
+
+# command to run tests
+script:
+  - pytest --pyargs src
