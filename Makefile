@@ -27,14 +27,15 @@ clean:
 ## Lint src directory using flake8
 lint:
 	pylint --ignore-patterns=lint_test src
-	pylint --ignore-patterns=lint_test atmos-model
+	pylint --ignore-patterns=lint_test atmos
 	# flake8 atmos-model
 	# flake8 src
 
 ## Format src directory using black
 format: 
-	black atmos-model
+	black atmos
 	black src
+	black docs
 
 ## Set up python interpreter environment and install basic dependencies
 env:

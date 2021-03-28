@@ -15,6 +15,4 @@ REPORT_PATH = pathlib.Path(os.path.join(PROJECT_PATH, "report"))
 FIGURE_PATH = pathlib.Path(os.path.join(REPORT_PATH, "figures"))
 
 # Data directory on GWS
-GWS_DIR = pathlib.Path(
-    "/gws/nopw/j04/ai4er"
-)
+GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er")
