@@ -3,6 +3,8 @@
  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 [![Documentation Status](https://readthedocs.org/projects/seager19/badge/?version=latest)](https://seager19.readthedocs.io/en/latest/?badge=latest)
 
+![SST](gifs/SST_SST2_in_om_run2f.gif)
+
 A repository to contain and analyse the code from:
 
 ## Seager et al. 2019, Nature Climate Change
