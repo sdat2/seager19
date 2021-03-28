@@ -51,14 +51,18 @@ The citation for this paper is:
 
 The paper is discussed in a podcast available at:
 
-<https://deep-convection.org/2020/04/13/episode-5-richard-seager/>
-
+<a href='https://deep-convection.org/2020/04/13/episode-5-richard-seager/'>
+    <img src='https://deep-convection.org/wp-content/uploads/2020/02/DC_logo_small_rectangular.png' alt='Deep Convection Season 1 Episode 5' width='150' />
+</a>
 
 
 ## Code
+
 The code and data was taken from:
 
-<http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.PublicationsData/.Seager_etal_NCC-2019/>
+<a href='http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.PublicationsData/.Seager_etal_NCC-2019/'>
+<img src='https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Columbia_University_shield.svg/1200px-Columbia_University_shield.svg.png', width='150'>
+</a>
 
 The Python code for the atmosphere model is in a Juypter Notebook. The ocean model code is built on legacy Fortran 90 and C code.
 
