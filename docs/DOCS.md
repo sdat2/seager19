@@ -22,3 +22,10 @@ To update the module references in the rst files
 ```
 sphinx-apidoc -f -o . ..
 ```
+
+# Symbolic links
+
+docs/README.md and docs/gifs/ 
+are both symbolic links to items in the main directory.
+
+This was done to trick sphinx into working, and seems to have worked so far.

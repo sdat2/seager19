@@ -7,6 +7,11 @@ Home - src Documentation
 ==============================
 Welcome to the src documentation!
 
+.. image:: gifs/SST_SST2_in_om_run2f.gif
+  :width: 500
+  :alt: viewer demo
+
+
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
