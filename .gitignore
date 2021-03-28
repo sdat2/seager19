@@ -27,16 +27,16 @@ netcdf*
 # *.tios
 # *.ing
 # ocean-model/DATA/tau-ECMWF.y
-ocean-model/DATA*/
-ocean-model/RUN/DATA*/
-ocean-model/RUN/output*/
-ocean-model/SRC/DATA*/
-ocean-model/SRC/output*/
-ocean-model/SRC/tcom       # I think this is the executable
-ocean-model/SRC/tios2cdf   # I think this is the executable
-ocean-model/SRC/old-object/
-atmos-model/DATA*/
-atmos-model/tmp/
+ocean/DATA*/
+ocean/RUN/DATA*/
+ocean/RUN/output*/
+ocean/SRC/DATA*/
+ocean/SRC/output*/
+ocean/SRC/tcom         # I think this is the executable
+ocean/SRC/tios2cdf     # I think this is the executable
+ocean/SRC/old-object/
+atmos/DATA*/
+atmos/tmp/
 
 
 # C extensions
@@ -170,6 +170,9 @@ dmypy.json
 .idea/
 .vscode/
 .animations/
-ocean-model/SRC/tcom
-ocean-model/SRC/tios2cdf
+ocean/SRC/tcom
+ocean/SRC/tios2cdf
 etc/
+DATA-bk/
+DATA/
+output-bk/

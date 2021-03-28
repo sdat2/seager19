@@ -27,9 +27,6 @@ jtplot.style(theme=’monokai’, context=’notebook’, ticks=True, grid=False
 git reset --soft HEAD~1
 git push -f
 
-git add notebooks/explaratory/sdat2*
-git add 
-
 wandb login 42ceaac64e4f3ae24181369f4c77d9ba0d1c64e5
 
     python3 src/models/xgb.py 
