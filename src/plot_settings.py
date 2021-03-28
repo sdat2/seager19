@@ -4,24 +4,24 @@ the project.
 Example:
     Usage with simple plots::
 
-        #from src.plot_settings import (
-        #    ps_defaults,
-        #    label_subplots,
-        #    get_dim,
-        #    set_dim,
-        #    PALETTE,
-        #    STD_CLR_LIST,
-        #    CAM_BLUE,
-        #    BRICK_RED,
-        #    OX_BLUE,
-        #)
+        from src.plot_settings import (
+            ps_defaults,
+            label_subplots,
+            get_dim,
+            set_dim,
+            PALETTE,
+            STD_CLR_LIST,
+            CAM_BLUE,
+            BRICK_RED,
+            OX_BLUE,
+        )
 
         ps_defaults(use_tex=True)
 
         # ---- example set of graphs ---
 
-        #import numpy as np
-        #import matplotlib.pyplot as plt
+        import numpy as np
+        import matplotlib.pyplot as plt
 
         fig, axs = plt.subplots(2, 2)
 

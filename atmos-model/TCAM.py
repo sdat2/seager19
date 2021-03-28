@@ -18,8 +18,6 @@ import os
 
 
 def TDMAsolver(nx, ny, a, b, c, d):
-    import numpy as np
-
     nf = ny  # number of equations
     ac, bc, cc, dc = map(np.array, (a, b, c, d))  # copy arrays
 
