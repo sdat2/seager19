@@ -64,6 +64,8 @@ def ps_defaults(use_tex: bool = True) -> None:
         # Use 10pt font in plots, to match 10pt font in document
         "axes.labelsize": 10,
         "font.size": 10,
+        "figure.dpi": 600,
+        "savefig.dpi": 600,
         # Make the legend/label fonts a little smaller
         "legend.fontsize": 10,
         "xtick.labelsize": 9,
@@ -74,7 +76,7 @@ def ps_defaults(use_tex: bool = True) -> None:
         # "font.monospace": [],
         "lines.linewidth": 1.0,
         "scatter.marker": "+",
-        "image.cmap": "RdYlBu_r",
+        "image.cmap": "viridis",
     }
     matplotlib.rcParams.update(p_general)
     matplotlib.style.use("seaborn-colorblind")

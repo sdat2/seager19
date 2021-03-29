@@ -15,17 +15,18 @@ def timeit(method: any) -> None:
         method (any):  the function that it takes as an input
 
     Examples:
-        Here is an example using the tracking functionality::
+        Here is an example with the tracking functionality and without::
 
             >>> @timeit
             ... def loop(**kwargs):
             ...     total = 0
-            ...     for i in range(10e5):
-            ...         for j in range(10e5):
+            ...     for i in range(int(10e2)):
+            ...         for j in range(int(10e2)):
             ...             total += 1
             >>> tmp_log_d={}
             >>> part = loop(log_time=tmp_log_d)
             >>> print(tmp_log_d["loop"])
+            >>> loop()
     """
 
     @wraps(method)

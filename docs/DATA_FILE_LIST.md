@@ -25,7 +25,7 @@ atmos
     sst-ECMWF-clim.nc         # read in by TCAM.py
     mask-360x181.nc
     ts-ECMWF-clim.nc          # read in by TCAM.py
-    mask-360x180.nc           
+    mask-360x180.nc           # mask
     clt-ECMWF-clim60.nc       # read in by dQ.py
     ts-ECMWF-trend.nc         # read in by TCAM.py
     sst-ECMWF-trend.nc        # read in by TCAM.py
@@ -36,7 +36,7 @@ atmos
   tmp/
     S91-Hq1800-PrcpLand1.nc
     S91-Hq1800-PrcpLand0.nc
-ocean-model
+ocean
   RUN
     output
       om_spin.20y.restart
