@@ -3,7 +3,7 @@ This file is used to save all project wide constants such as the path of the
 source folder, the project path, etc.
 
 Example:
-    Usage::
+    Import statement at top of script::
         from src.constants import PROJECT_PATH, FIGURE_PATH, GWS_DIR
 """
 

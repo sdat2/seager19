@@ -1,11 +1,15 @@
 
-## Data structure
+## Initial Code/Data structure
 
- - Are the files with the same names in different places identical?
- - If so, why is there so much duplication of data?
+ - This section shows the initial structure of the code and 
+   data.
+ - From inspection, files with the same names in different
+  dircetories are identical.
+ - How to couple the ocean and atmospheric model is not 
+   immediately apparent.
 
 ```
-atmos-model
+atmos
   DATA/      # everything ending with clim60 read by dQ.py
     ps-ECMWF-clim.nc          # read in by TCAM.py
     ts-ECMWF-clim60.nc        # read in by dQ.py
@@ -14,7 +18,7 @@ atmos-model
     sst-ECMWF-clim.nc         # read in by TCAM.py
     mask-360x181.nc
     ts-ECMWF-clim.nc          # read in by TCAM.py
-    mask-360x180.nc          
+    mask-360x180.nc           
     clt-ECMWF-clim60.nc       # read in by dQ.py
     ts-ECMWF-trend.nc         # read in by TCAM.py
     sst-ECMWF-trend.nc        # read in by TCAM.py
@@ -29,7 +33,7 @@ ocean-model
   RUN
     output
       om_spin.20y.restart
-      om_run2f.nc           # Full time period videos made (>624 frames) and put on youtube.
+      om_run2f.nc           
       om_spin.nc
       om_spin.save
       om_run2f.save
@@ -92,17 +96,18 @@ ocean-model
 
 ## Code structure:
 
- - Duplication of code between `jupyter-notebook` and the `python` script.
+ - Duplication of code between `jupyter-notebook`s and the `python` scripts.
+ - Executables `om_run2f`, `tios2cdf`.
 
 ```
-ocean-model
+atmos
   TCAM.ipynb
   TCAM.py
   dQ.py
   dQ.ipynb
   DATA/
   tmp/
-atmos-model
+ocean
   RUN
     run-model
     diag.tios
