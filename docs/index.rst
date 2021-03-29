@@ -19,6 +19,7 @@ Welcome to the src documentation!
    self
    README.md
    DATA_FILE_LIST.md
+   MRes.md
    src
    getting_started
    DOCS.md

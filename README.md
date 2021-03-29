@@ -28,7 +28,7 @@ _Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal
 
 - In observations it has increased.
 
-- Their cleverer simple linear model agrees with observations.
+- Their simple linear model agrees with observations.
 
 ### Citation:
 
@@ -110,7 +110,7 @@ The code is structured into folders:
    |---README.md --> lists file structure of this model.
    |---DATA
    |---RUN
-   |-----run-model --> run this with bash to run model?
+   |-----run-model
    |-----DATA
    |-----output
    |---SRC
