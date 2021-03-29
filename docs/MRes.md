@@ -49,14 +49,39 @@ easier to demonstrate simple AI tools upon it.
 
 [4] Iserles, A. Numerical  Solution  of  Differential  Equations Lent Term 2021 (Centre for Mathematical Sciences, University of Cambridge, 2021)
 
-## Based on this MRes project, there we would proceed to a PhD project.
+## Potential PhD project.
 
-The current broad title of this project would be:
+The current deliberately broad title of this project would be:
 
 _Investigating the bias in the predicted risk from Tropical Cyclones_
 
 This could either be focus on:
 
- - The bias in GCMs, and how this would be expected to effect broad proxies for tropical cyclone activity, such as potential intensity.
- - A more focussed look at how the risk from tropical cyclones
-   can be parameterised from its characteristics and the characteristics of the coast, involving more extensive extreme value theory.
+ - [1] The bias in GCMs, and how this would be expected to effect broad proxies 
+   for tropical cyclone activity, such as potential intensity.
+ - [2] A more focussed look at how the risk from tropical cyclones
+   can be parameterised from its characteristics and the characteristics of the coast, 
+   involving more extensive extreme value theory.
+
+To achieve this I am in contact with Talea Mayo (storm surge expert), and Dan Chavas (tropical cyclone expert).
+
+## Focus 1
+
+The potential intensity index is a good indicator of the maximum size that a storm 
+could reach in a given climate, which is dependent on the sea surface temperature and 
+the temperature of the troposphere.
+There are various cyclone genesis indices.
+
+
+
+## Focus 2
+
+The second focus would be more in line 
+with Talea Mayo's work, as she has a number 
+of prerun high resolution model outputs 
+from tropical cyclones hitting the coast.
+My MSci Project <https://bit.ly/msci-report> 
+showed that you can predict the responsiveness of
+a coastline to a windstess fairly well with a very simple physical model.
+
+
