@@ -118,6 +118,10 @@ def label_subplots(
     Returns:
         void; alters the `matplotlib.pyplot.axes` objects
 
+    Examples:
+        Here is an example of using this function::
+
+            >>> label_subplots(axs, start_from=0, fontsize=10)
     """
     if isinstance(axs, list):
         axs = np.asarray(axs)
@@ -158,6 +162,11 @@ def get_dim(
     Returns:
         fig_dim (tuple):
             Dimensions of figure in inches
+
+    Examples:
+        Here is an example of using this function::
+
+            >>> dim_tuple = get_dim(fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
     """
 
     # Width of figure
@@ -197,6 +206,11 @@ def set_dim(
 
     Returns:
         void; alters current figure to have the desired dimensions
+
+    Examples:
+        Here is an example of using this function::
+
+            >>> set_dim(fig, fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
     """
     fig.set_size_inches(
         get_dim(width=width, fraction_of_line_width=fraction_of_line_width, ratio=ratio)

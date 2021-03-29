@@ -17,10 +17,15 @@ def timeit(method: any) -> None:
     Examples:
         Here is an example using the tracking functionality::
 
+            >>> @timeit
+            ... def loop(**kwargs):
+            ...     total = 0
+            ...     for i in range(10e5):
+            ...         for j in range(10e5):
+            ...             total += 1
             >>> tmp_log_d={}
-            >>> part = spin_forward(log_time=tmp_log_d)
-            >>> spin_round_time[key].append(tmp_log_d['spin_forward'])
-
+            >>> part = loop(log_time=tmp_log_d)
+            >>> print(tmp_log_d["loop"])
     """
 
     @wraps(method)
