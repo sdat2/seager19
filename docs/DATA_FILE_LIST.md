@@ -8,6 +8,13 @@
  - How to couple the ocean and atmospheric model is not 
    immediately apparent.
 
+### Data
+
+ - Given the duplication of data, it should be possible to 
+   reduce the ammount to a managable ammount, and either
+   keep it on `git-lfs` or create 
+   an automatic import script from Dropbox.
+
 ```
 atmos
   DATA/      # everything ending with clim60 read by dQ.py
@@ -94,10 +101,11 @@ ocean-model
       tau-ECMWF-clim.y
 ```
 
-## Code structure:
+### Code:
 
  - Duplication of code between `jupyter-notebook`s and the `python` scripts.
  - Executables `om_run2f`, `tios2cdf`.
+ - The mixture of `Fortran`/`C` files in the ocean model is currently pretty inpenetrable.
 
 ```
 atmos
