@@ -4,6 +4,7 @@ source folder, the project path, etc.
 
 Example:
     Import statement at top of script::
+
         from src.constants import PROJECT_PATH, FIGURE_PATH, GWS_DIR
 """
 
@@ -20,3 +21,4 @@ FIGURE_PATH = pathlib.Path(os.path.join(REPORT_PATH, "figures"))
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er")
+REPORT_WIDTH = 398.3386  # in pixels

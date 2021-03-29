@@ -44,6 +44,7 @@ from typing import Sequence, Tuple
 import matplotlib
 import numpy as np
 import seaborn as sns
+from src.constants import REPORT_WIDTH
 
 
 def ps_defaults(use_tex: bool = True) -> None:
@@ -138,16 +139,17 @@ def label_subplots(
 
 
 def get_dim(
-    width: float = 398.3386,
+    width: float = REPORT_WIDTH,
     fraction_of_line_width: float = 1,
     ratio: float = (5 ** 0.5 - 1) / 2,
 ) -> Tuple[float, float]:
     """Return figure height, width in inches to avoid scaling in latex.
-
-       Default is golden ratio, with figur occupying full page width.
+       Default width is `src.constants.REPORT_WIDTH`.
+       Default ratio is golden ratio, with figure occupying full page width.
 
     Args:
-        width (float): Textwidth of the report to make fontsizes match.
+        width (float, optional): Textwidth of the report to make fontsizes match.
+            Defaults to `src.constants.REPORT_WIDTH`.
         fraction_of_line_width (float, optional): Fraction of the document width
             which you wish the figure to occupy.  Defaults to 1.
         ratio (float, optional): Fraction of figure width that the figure height
@@ -176,15 +178,18 @@ def get_dim(
 
 def set_dim(
     fig: matplotlib.pyplot.figure,
-    width: float = 398.3386,
+    width: float = REPORT_WIDTH,
     fraction_of_line_width: float = 1,
     ratio: float = (5 ** 0.5 - 1) / 2,
 ) -> None:
     """Set aesthetic figure dimensions to avoid scaling in latex.
+       Default width is `src.constants.REPORT_WIDTH`.
+       Default ratio is golden ratio, with figure occupying full page width.
 
     Args:
         fig (matplotlib.pyplot.figure): Figure object to resize.
         width (float): Textwidth of the report to make fontsizes match.
+            Defaults to `src.constants.REPORT_WIDTH`.
         fraction_of_line_width (float, optional): Fraction of the document width
             which you wish the figure to occupy.  Defaults to 1.
         ratio (float, optional): Fraction of figure width that the figure height
