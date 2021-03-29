@@ -5,18 +5,21 @@
 ## Part 1
 Seager et al. 2019 [1] shows that the observed trend in ENSO can
 be reproduced with a simple coupled physical model.
-No sensitivity analysis is this paper. Given that the model takes around 30 minutes to run at the moment, it would be quite achievable to do the number of 
+No sensitivity analysis is this paper. Given that the model takes around 30 minutes to run at the moment, 
+it would be quite achievable to do the number of 
 model runs neccessary to achieve this. 
 Of particular interest might be the model's sensitivity to the 
 drag coefficient, as they note that they chose a much 
 higher value than normal so as to replicate the amplitude of 
 ENSO.
-This sensitivity analysis could first be achieved using a Gaussian Process (GP) with a radial basis function (RBF) kernel of a given smoothness,
+This sensitivity analysis could first be achieved using a Gaussian Process (GP)
+with a radial basis function (RBF) kernel of a given smoothness,
 as the number of data points will initially be quite small (<10^{4}).
 From this initial baseline we could expand to more sophisticated
 sensitivity analyses, and/or more complicated model settings.
 
 Scientific questions to be addressed would include:
+
  - Can we replicate the results displayed in Seager et al. 2019?
  - How robust is the model to the parameters chosen?
  - Can the sensitivity of the model to the parameters be understood from the physical processes underlying it?
@@ -30,6 +33,7 @@ did to CMIP5,
 to see if the same bias exists (it seems it does, in e.g. [2]).
 
 Scientific questions to be addressed would include:
+
  - Do any particular model families perform better, and is there a physical reason for this.
  - What are the likely effects of these biases on risk 
    from e.g. Tropical cyclones (using a metric like the 
@@ -63,14 +67,20 @@ This could either be focus on:
    can be parameterised from its characteristics and the characteristics of the coast, 
    involving more extensive extreme value theory.
 
-To achieve this I am in contact with Talea Mayo (storm surge expert), and Dan Chavas (tropical cyclone expert).
+To achieve this I am in contact with Talea Mayo (storm surge expert), 
+and Dan Chavas (tropical cyclone expert).
 
 ## Focus 1
 
-The potential intensity index is a good indicator of the maximum size that a storm 
-could reach in a given climate, which is dependent on the sea surface temperature and 
+The potential intensity index is a good indicator of the maximum size that a storm
+could reach in a given climate, which is dependent on the sea surface temperature and
 the temperature of the troposphere.
-There are various cyclone genesis indices.
+There are also various cyclone genesis indices.
+The biases in the global climate models are non stationary.
+Correcting the bias in global climate models would require 
+some understanding of what the true sentivities of the climate
+to the forcing. Perhaps a combination of physical models 
+and ML emulators can improve this understanding.
 
 
 
