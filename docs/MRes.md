@@ -4,9 +4,9 @@
 
 ## Part 1
 
-Seager et al. 2019 [1] shows that the observed trend in ENSO can
+Seager et al. 2019 [1] shows that CMIP models do not follow the observed trend in ENSO, but that this trend can be reproduced
 be reproduced with a simple coupled physical model.
-No sensitivity analysis is this paper. Given that the model 
+There was no sensitivity analysis of the model in this paper. Given that the model 
 takes around 30 minutes to run at the moment, 
 it would be quite achievable to do the number of 
 model runs neccessary to achieve this. 
@@ -111,6 +111,3 @@ may take roughly 1 million years to properly converge to an extreme value
 distribution. Theforefore, ways to pool data from different points along the 
 coast would probably be neccessary to be able to achieve anything reliable 
 within reasonable computational expense.
-
-
-
