@@ -7,6 +7,8 @@
 <a href='https://travis-ci.com/sdat2/seager19'>
     <img src='https://travis-ci.com/sdat2/seager19.svg?branch=main' alt='Build Status' />
 </a>
+<a href='https://coveralls.io/github/sdat2/seager19?branch=main'><img src='https://coveralls.io/repos/github/sdat2/seager19/badge.svg?branch=main' alt='Coverage Status' /></a>
+
 
 
 ![SST output over time period](gifs/SST_SST2_in_om_run2f.gif)
@@ -64,62 +66,8 @@ The code and data was taken from:
 <img src='https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Columbia_University_shield.svg/1200px-Columbia_University_shield.svg.png', width='150'>
 </a>
 
-The Python code for the atmosphere model is in a Juypter Notebook. The ocean model code is built on legacy Fortran 90 and C code.
 
-The data is currently not stored in the github repository, as it takes up roughly 3.5 GB.
-
-### Code Makeup
-
-
-From running the command
-
-      cloc $(git ls-files)
-
-
-The initial state off the code was:
-
-      48 text files.
-      45 unique files.                              
-      14 files ignored.
-
-github.com/AlDanial/cloc v 1.84  T=0.10 s (349.4 files/s, 149217.5 lines/s)
-
- | Language                |       files       |     blank      |    comment      |       code | 
- | ----------------------- | ----------------- | -------------- | --------------- | ---------- | 
- | Fortran 77              |          15       |      1364      |       1365      |       6170 | 
- | C                       |           5       |       493      |        200      |       2746 | 
- | Jupyter Notebook        |           2       |         0      |        517      |        474 | 
- | Python                  |           2       |       172      |        100      |        397 | 
- | C/C++ Header            |           8       |        88      |         18      |        365 | 
- | make                    |           1       |        15      |          1      |         36 | 
- | Markdown                |           1       |         0      |          0      |          1 | 
- | SUM:                    |          34       |      2132      |       2201      |      10189 | 
-
-
-### Code structure 
-
-The code is structured into folders:
-
-```
-   |-animations
-   |-atmos
-   |---README.md --> lists file structure of this model.
-   |---DATA
-   |---tmp
-   |-ocean
-   |---README.md --> lists file structure of this model.
-   |---DATA
-   |---RUN
-   |-----run-model
-   |-----DATA
-   |-----output
-   |---SRC
-   |-----DATA
-   |-----output
-   |-requirements
-```
-
-## Model from the Methods Appendix to Seager et al. 2019
+## Model from the Methods Appendix
 
 ### Atmos and Ocean reanalysis
 

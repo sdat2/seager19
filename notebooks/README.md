@@ -15,14 +15,11 @@ To avoid having to reload the notebook when you change code from underlying impo
 %load_ext autoreload             # loads the autoreload package into ipython kernel
 %autoreload 2                    # sets autoreload mode to automatically reload modules when they change
 %config IPCompleter.greedy=True  # enables tab completion
-```
-
-
-```
 from jupyterthemes import jtplot
-jtplot.style(theme=’monokai’, context=’notebook’, ticks=True, grid=False)
+jtplot.style(theme='monokai', context='notebook', ticks=True, grid=False)
 ```
 
+pip freeze > diff-requirements.txt
 ## If you commit and push something accidentally
 git reset --soft HEAD~1
 git push -f

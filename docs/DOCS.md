@@ -1,7 +1,7 @@
 ## How to create Sphinx docs
 
 
-With the dev environment activated, and Sphinx installed you can create the html version by running the following command from this directory:
+With the dev environment activated, and Sphinx installed you can create the html version by running the following command from this `docs` directory:
 
 ```
 make html

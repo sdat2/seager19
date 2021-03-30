@@ -11,8 +11,6 @@ from src.plot_settings import (
     OX_BLUE,
 )
 from src.constants import PROJECT_PATH
-from src.utils import get_byte_size
-
 
 def test_plot() -> None:
     """Function to make example plot."""

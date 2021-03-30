@@ -18,7 +18,7 @@ Welcome to the src documentation!
 
    self
    README.md
-   DATA_FILE_LIST.md
+   INIT.md
    MRes.md
    src
    getting_started
@@ -32,5 +32,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-

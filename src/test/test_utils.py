@@ -1,4 +1,4 @@
-"""Test utils.py"""
+"""Test `src.utils.py`"""
 import numpy as np
 from src.utils import timeit, get_byte_size
 
