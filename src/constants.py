@@ -19,6 +19,13 @@ PROJECT_PATH = pathlib.Path(os.path.dirname(SRC_PATH))
 REPORT_PATH = pathlib.Path(os.path.join(PROJECT_PATH, "report"))
 FIGURE_PATH = pathlib.Path(os.path.join(REPORT_PATH, "figures"))
 
+
+OCEAN_PATH = PROJECT_PATH / "ocean"
+OCEAN_DATA_PATH = OCEAN_PATH / "DATA"
+ATMOS_PATH = PROJECT_PATH / "atmos"
+ATMOS_DATA_PATH = ATMOS_PATH / "DATA"
+ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
+
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er")
 

@@ -23,8 +23,8 @@ def timeit(method: any) -> None:
             ...     for i in range(int(10e2)):
             ...         for j in range(int(10e2)):
             ...             total += 1
-            >>> tmp_log_d={}
-            >>> part = loop(log_time=tmp_log_d)
+            >>> tmp_log_d = {}
+            >>> loop(log_time=tmp_log_d)
             >>> print(tmp_log_d["loop"])
             >>> loop()
     """
