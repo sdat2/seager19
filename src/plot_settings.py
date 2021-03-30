@@ -47,7 +47,7 @@ import seaborn as sns
 from src.constants import REPORT_WIDTH
 
 
-def ps_defaults(use_tex: bool = True) -> None:
+def ps_defaults(use_tex: bool = True, dpi: int=600) -> None:
     """Apply plotting style to produce nice looking figures.
     Call this at the start of a script which uses `matplotlib`.
     Can enable `matplotlib` LaTeX backend if it is available.
@@ -55,6 +55,9 @@ def ps_defaults(use_tex: bool = True) -> None:
     Args:
         use_tex (bool, optional): Whether or not to use latex matplotlib backend.
             Defaults to True.
+        dpi (int, optional): Which dpi to set for the figures.
+            Defaults to 600 dpi (high quality). 150 dpi probably
+            fine for notebooks. Largest dpi needed for presentations.
     """
     # matplotlib.use('agg') this used to be required for jasmin
     p_general = {
@@ -64,8 +67,8 @@ def ps_defaults(use_tex: bool = True) -> None:
         # Use 10pt font in plots, to match 10pt font in document
         "axes.labelsize": 10,
         "font.size": 10,
-        "figure.dpi": 600,
-        "savefig.dpi": 600,
+        "figure.dpi": dpi,
+        "savefig.dpi": dpi,
         # Make the legend/label fonts a little smaller
         "legend.fontsize": 10,
         "xtick.labelsize": 9,

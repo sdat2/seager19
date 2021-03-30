@@ -15,8 +15,15 @@ To avoid having to reload the notebook when you change code from underlying impo
 %load_ext autoreload             # loads the autoreload package into ipython kernel
 %autoreload 2                    # sets autoreload mode to automatically reload modules when they change
 %config IPCompleter.greedy=True  # enables tab completion
+```
+
+Cell for nice plotting when using `jupyter_dark`
+
+```
 from jupyterthemes import jtplot
-jtplot.style(theme='monokai', context='notebook', ticks=True, grid=False)
+jtplot.style(theme="grade3", context="notebook", ticks=True, grid=False)
+from src.plot_settings import ps_defaults
+ps_defaults(use_tex=False, dpi=300)
 ```
 
 pip freeze > diff-requirements.txt
