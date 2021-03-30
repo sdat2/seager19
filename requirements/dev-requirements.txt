@@ -19,6 +19,10 @@ pylint              # use pylint instead of flake8
 pre-commit          # perform checks on code
 autoreload
 
+#testing
+pytest
+coveralls
+
 # documentation
 sphinx
 sphinx_autodoc_typehints

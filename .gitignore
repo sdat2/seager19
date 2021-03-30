@@ -5,6 +5,7 @@ __pycache__/
 *.o
 
 # DATA
+.coveralls.yml
 .idea/
 .vscode/
 data/

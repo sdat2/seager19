@@ -21,8 +21,9 @@ pre-commit          # perform checks on code
 autoreload
 
 
-# ci:
+# testing
 pytest
+coveralls
 
 # Documentation:
 sphinx

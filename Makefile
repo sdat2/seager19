@@ -43,7 +43,9 @@ report:
 
 ## Test src directory using pylint
 test:
-	pytest --pyargs src
+	# pytest --pyargs src
+	coverage run --source=src -m pytest --pyargs src
+	# to update badge: coveralls
 
 ## Set up python interpreter environment and install basic dependencies
 env:

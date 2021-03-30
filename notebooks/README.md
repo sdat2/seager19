@@ -11,6 +11,7 @@ For example, for `Tom Baker Adams` a valid name would be `1.0_tba_data-analysis,
 
 ## Useful initialization cell
 To avoid having to reload the notebook when you change code from underlying imports, we recommend the following handy initialization cell for jupyter notebooks:
+
 ```
 %load_ext autoreload             # loads the autoreload package into ipython kernel
 %autoreload 2                    # sets autoreload mode to automatically reload modules when they change
@@ -23,17 +24,13 @@ Cell for nice plotting when using `jupyter_dark`
 from jupyterthemes import jtplot
 jtplot.style(theme="grade3", context="notebook", ticks=True, grid=False)
 from src.plot_settings import ps_defaults
-ps_defaults(use_tex=False, dpi=300)
+ps_defaults(use_tex=False, dpi=150)
 ```
 
-pip freeze > diff-requirements.txt
+
 ## If you commit and push something accidentally
+
+```
 git reset --soft HEAD~1
 git push -f
-
-wandb login 42ceaac64e4f3ae24181369f4c77d9ba0d1c64e5
-
-    python3 src/models/xgb.py 
-    git add src/models/xgb.py
-    git add requirements/dev-requirements.txt
-    git commit -m "fix: dev-requirements.txt"
+```
