@@ -56,7 +56,7 @@ easier to demonstrate simple ML tools upon it.
 
 [4] Iserles, A. Numerical  Solution  of  Differential  Equations Lent Term 2021 (Centre for Mathematical Sciences, University of Cambridge, 2021)
 
-![Katrina hurricane image](https://cdn.britannica.com/74/121674-050-C458B2B5/satellite-image-National-Oceanic-and-Atmospheric-Administration-August-28-2005.jpg)
+![Hurricane Katrina at Landfall: Credit NASA](https://cdn.britannica.com/74/121674-050-C458B2B5/satellite-image-National-Oceanic-and-Atmospheric-Administration-August-28-2005.jpg)
 
 ## Potential PhD project.
 
@@ -69,8 +69,8 @@ This could focus on:
  1.  The bias in GCMs, and how this would be expected to effect broad proxies 
    for tropical cyclone activity, such as potential intensity.
 
-   and/or
-
+   _and / or_
+  
  2. A more focussed look at how the risk from tropical cyclones
    can be parameterised from its characteristics and the characteristics of the coast, 
    involving more extensive extreme value theory.
