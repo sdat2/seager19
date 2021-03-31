@@ -19,8 +19,8 @@ Welcome to the src documentation!
    self
    README.md
    INIT.md
-   sdat2-OCEAN-data-exporation.ipynb
-   sdat2-ATMOS-data-exporation.ipynb
+   sdat2-OCEAN-data-exploration.ipynb
+   sdat2-ATMOS-data-exploration.ipynb
    MRes.md
    src
    getting_started
