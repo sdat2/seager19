@@ -37,6 +37,7 @@ def animate_prediction(
             Defaults to "joint_val.mp4".
 
     """
+
     def gen_frame_func(
         x_da: xr.DataArray, y_da: xr.DataArray, pred_da: xr.DataArray
     ) -> any:

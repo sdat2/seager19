@@ -38,11 +38,12 @@ Example:
         label_subplots(axs, start_from=0, fontsize=10)
 
 """
+import numpy as np
+from sys import platform
 import itertools
 from distutils.spawn import find_executable
 from typing import Sequence, Tuple
 import matplotlib
-import numpy as np
 import seaborn as sns
 from src.constants import REPORT_WIDTH
 
@@ -59,7 +60,8 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
             Defaults to 600 dpi (high quality). 150 dpi probably
             fine for notebooks. Largest dpi needed for presentations.
     """
-    matplotlib.use("TkAgg")
+    if platform == "darwin":
+        matplotlib.use("TkAgg")
     # matplotlib.use('agg') this used to be required for jasmin
     p_general = {
         "font.family": "STIXGeneral",  # Nice alternative font.

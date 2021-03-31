@@ -9,8 +9,8 @@ def test_animate_prediction() -> None:
     print("testing animate prediction")
     da = (
         xr.tutorial.load_dataset("air_temperature")
-        .air.isel(time=slice(0, 12))
-        .rename({"time": "year", "lat": "y", "lon":"x"})
+        .air.isel(time=slice(0, 3))
+        .rename({"time": "year", "lat": "y", "lon": "x"})
         - 150
     ) / 150
     x_da_band = xr.concat(
