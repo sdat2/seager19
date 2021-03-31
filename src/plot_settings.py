@@ -47,7 +47,7 @@ import seaborn as sns
 from src.constants import REPORT_WIDTH
 
 
-def ps_defaults(use_tex: bool = True, dpi: int=600) -> None:
+def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     """Apply plotting style to produce nice looking figures.
     Call this at the start of a script which uses `matplotlib`.
     Can enable `matplotlib` LaTeX backend if it is available.

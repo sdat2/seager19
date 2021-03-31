@@ -61,4 +61,5 @@ wandb              # automatic recording of runs
 
 # graphics
 imageio
+imageio-ffmpeg
 seaborn

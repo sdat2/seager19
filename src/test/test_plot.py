@@ -12,6 +12,7 @@ from src.plot_settings import (
 )
 from src.constants import PROJECT_PATH
 
+
 def test_plot() -> None:
     """Function to make example plot."""
     for use_tex in [False, True]:

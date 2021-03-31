@@ -8,6 +8,7 @@ animate_prediction - specifically designed to plot inputs and results
 
 """
 import imageio
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
@@ -37,6 +38,7 @@ def animate_prediction(
             Defaults to "joint_val.mp4".
 
     """
+    matplotlib.use('TkAgg')
 
     def gen_frame_func(
         x_da: xr.DataArray, y_da: xr.DataArray, pred_da: xr.DataArray
@@ -98,25 +100,23 @@ def animate_prediction(
 
             xr.DataArray(
                 data=y_da.isel(year=index).values,
-                dims=["y", "x", "band"],
+                dims=["y", "x"],
                 coords=dict(
                     y=y_da.coords["y"].values,
                     x=y_da.coords["x"].values,
-                    band=["red", "green", "blue"],
                     Y="esa_cci",
                 ),
-            ).plot.imshow(ax=ax5)
+            ).plot(ax=ax5)
 
             xr.DataArray(
-                data=np.round_(pred_da.isel(year=index)).values.astype("int16"),
-                dims=["y", "x", "band"],
+                data=pred_da.isel(year=index),
+                dims=["y", "x"],
                 coords=dict(
                     y=y_da.coords["y"].values,
                     x=y_da.coords["x"].values,
-                    band=["red", "green", "blue"],
                     Y="predicted_classes",
                 ),
-            ).plot.imshow(ax=ax6)
+            ).plot(ax=ax6)
             fig.canvas.draw()
             image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
             image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
