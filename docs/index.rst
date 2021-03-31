@@ -32,6 +32,8 @@ probably a better read.
    self
    README.md
    INIT.md
+   dQ.ipynb
+   TCAM.ipynb
    sdat2-OCEAN-data-exploration.ipynb
    sdat2-ATMOS-data-exploration.ipynb
    MRes.md
