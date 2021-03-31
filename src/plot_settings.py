@@ -59,6 +59,7 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
             Defaults to 600 dpi (high quality). 150 dpi probably
             fine for notebooks. Largest dpi needed for presentations.
     """
+    matplotlib.use("TkAgg")
     # matplotlib.use('agg') this used to be required for jasmin
     p_general = {
         "font.family": "STIXGeneral",  # Nice alternative font.

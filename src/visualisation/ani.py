@@ -7,16 +7,15 @@ animate_prediction - specifically designed to plot inputs and results
     from the xgboost algorithm over Chenobyl.
 
 """
-import imageio
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+import imageio
 from src.plot_settings import label_subplots, ps_defaults
 from src.utils import timeit
-from tqdm import tqdm
 
-ps_defaults(use_tex=False)
+ps_defaults(use_tex=False, dpi=200)
 
 
 @timeit
@@ -38,8 +37,6 @@ def animate_prediction(
             Defaults to "joint_val.mp4".
 
     """
-    matplotlib.use('TkAgg')
-
     def gen_frame_func(
         x_da: xr.DataArray, y_da: xr.DataArray, pred_da: xr.DataArray
     ) -> any:
@@ -54,10 +51,10 @@ def animate_prediction(
         """
 
         def make_frame(index: int) -> np.array:
-            """[summary]
+            """Make an individual frame of the animation.
 
             Args:
-                index (int): [description]
+                index (int): The time index.
 
             Returns:
                 image (np.array): np.frombuffer output that can be fed into imageio

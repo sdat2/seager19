@@ -1,5 +1,4 @@
 """test `src.visualisation.ani.py`"""
-import numpy as np
 import pandas as pd
 import xarray as xr
 from src.visualisation.ani import animate_prediction
