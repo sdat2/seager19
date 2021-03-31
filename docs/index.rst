@@ -7,16 +7,18 @@ Home - seager19 Documentation
 ==============================
 Welcome to the seager19 documentation!
 
-<a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src=https://img.shields.io/badge/License-MIT-blue.svg></a>
- <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-<a href='https://seager19.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/seager19/badge/?version=latest' alt='Documentation Status' />
-</a>
-<a href='https://travis-ci.com/sdat2/seager19'>
-    <img src='https://travis-ci.com/sdat2/seager19.svg?branch=main' alt='Build Status' />
-</a>
-<a href='https://coveralls.io/github/sdat2/seager19?branch=main'><img src='https://coveralls.io/repos/github/sdat2/seager19/badge.svg?branch=main' alt='Coverage Status' /></a>
+This webpage/document explores the code and data 
+used in the seager19 MRes project, and some of the 
+motivations for different choices made. The 
+first section `seager19` contains the main 
+`README.md` of the repository, so as to reduce duplication,
+and this should provide a reasonable introduction to the 
+repository as a whole.
 
+The online version of this documentation is able to include
+more interactive features such as gifs of the results.
+Therefore, I suggest that the web version is 
+probably a better read.
 
 .. image:: gifs/SST_SST2_in_om_run2f.gif
   :width: 500

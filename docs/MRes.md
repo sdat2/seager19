@@ -66,12 +66,13 @@ _Investigating the bias in the predicted risk from Tropical Cyclones_
 
 This could focus on:
 
- 1.  The bias in GCMs, and how this would be expected to effect broad proxies 
+
+(1)  The bias in GCMs, and how this would be expected to effect broad proxies 
    for tropical cyclone activity, such as potential intensity.
 
    _and / or_
   
- 2. A more focussed look at how the risk from tropical cyclones
+ (2) A more focussed look at how the risk from tropical cyclones
    can be parameterised from its characteristics and the characteristics of the coast, 
    involving more extensive extreme value theory.
 

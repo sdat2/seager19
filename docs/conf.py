@@ -18,9 +18,9 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = "Seager et. al 2019 Replication"
+project = "Seager et al. 2019 Replication"
 copyright = "2021, Simon Thomas"  # pylint: disable=redefined-builtin
-author = "sdat2"
+author = "Simon D. A. Thomas"
 
 
 # -- General configuration ---------------------------------------------------
