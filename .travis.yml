@@ -2,6 +2,7 @@ language: python
 
 python:
   - "3.8"
+  - "3.7"
 
 # command to install dependencies
 install:
@@ -12,3 +13,6 @@ install:
 script:
   # - pytest --pyargs src
   - coverage run --source=src -m pytest --pyargs src
+
+after_success:
+  - coveralls

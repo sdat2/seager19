@@ -10,7 +10,6 @@
 <a href='https://coveralls.io/github/sdat2/seager19?branch=main'><img src='https://coveralls.io/repos/github/sdat2/seager19/badge.svg?branch=main' alt='Coverage Status' /></a>
 
 
-
 ![SST output over time period](gifs/SST_SST2_in_om_run2f.gif)
 
 ## Purpose
