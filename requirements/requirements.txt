@@ -31,7 +31,7 @@ sphinx_autodoc_typehints
 sphinx_rtd_theme
 sphinx-markdown-tables
 recommonmark
-
+nbsphinx
 
 # linear algebra and general data analysis
 numpy               # arrays, linear algebra
