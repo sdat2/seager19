@@ -4,7 +4,7 @@
 
 ## Part 1
 
-Seager et al. 2019 [1] shows that CMIP models do not follow the observed trend in ENSO, but that this trend can be reproduced
+Seager et al. 2019 [1] shows that CMIP models do not follow the observed trend in ENSO, but that this trend can
 be reproduced with a simple coupled physical model.
 There was no sensitivity analysis of the model in this paper. Given that the model 
 takes around 30 minutes to run at the moment, 
