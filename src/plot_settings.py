@@ -1,5 +1,4 @@
-"""A file for setting a consistent set of plotting settings across
-the project.
+"""Sets a consistent plotting settings across the project.
 
 Example:
     Usage with simple plots::

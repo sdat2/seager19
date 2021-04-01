@@ -1,6 +1,6 @@
-"""
-This file is used to save all project wide constants such as the path of the
-source folder, the project path, etc.
+"""This file is used to save all possible project wide constants.
+
+Includes source folder, the project path, etc.
 
 Example:
     Import statement at top of script::

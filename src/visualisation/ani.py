@@ -1,12 +1,10 @@
-"""
-ani.py
-======
-A set of functions to animate particular results.
+"""ani.py - A set of functions to animate particular results.
 
 animate_prediction - specifically designed to plot inputs and results
     from the xgboost algorithm over Chenobyl.
 
 """
+from typing import Callable
 import numpy as np
 import xarray as xr
 from tqdm import tqdm
@@ -25,9 +23,9 @@ def animate_prediction(
     pred_da: xr.DataArray,
     video_path: str = "joint_val.mp4",
 ) -> None:
-    """This function animates the inputs, labels, and the corresponding
-       predictions of the model.
-       Based on code originally from Tom Anderson: tomand@bas.ac.uk.
+    """This function animates the inputs, labels, predictions.
+
+    Based on code originally from Tom Anderson: tomand@bas.ac.uk.
 
     Args:
         x_da (xr.DataArray): 3 or 6 bands, 4 seasons, 20 years
@@ -40,14 +38,16 @@ def animate_prediction(
 
     def gen_frame_func(
         x_da: xr.DataArray, y_da: xr.DataArray, pred_da: xr.DataArray
-    ) -> any:
+    ) -> Callable:
         """Create imageio frame function for xarray.DataArray visualisation.
+
         Args:
             x_da (xr.DataArray): 3 or 6 bands, 4 seasons, 20 years
             y_da (xr.DataArray): 1 band, 20 years
             pred_da (xr.DataArray): 1 band, 20 years
+
         Returns:
-            make_frame (function): function to create each frame.
+            make_frame (Callable): function to create each frame.
 
         """
 

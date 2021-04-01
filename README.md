@@ -9,7 +9,7 @@
 </a>
 <a href='https://coveralls.io/github/sdat2/seager19?branch=main'><img src='https://coveralls.io/repos/github/sdat2/seager19/badge.svg?branch=main' alt='Coverage Status' /></a>
 <a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/ci.yml/badge.svg' alt='CI' /></a>
-<a href=https://www.python.org/downloads/release/python-388><img src='https://img.shields.io/badge/python-3.8-blue.svg' alt='Python 3.8' /></a>
+<a href=https://www.python.org/downloads/release/python-388/><img src='https://img.shields.io/badge/python-3.8-blue.svg' alt='Python 3.8' /></a>
 
 ![SST output over time period](gifs/SST_SST2_in_om_run2f.gif)
 

@@ -1,18 +1,19 @@
 """General project util functions"""
+from typing import Callable
 import inspect
 import time
 from functools import wraps
 from sys import getsizeof
 
 
-def timeit(method: any) -> None:
+def timeit(method: Callable) -> Callable:
     """timeit is a wrapper for performance analysis which should
     return the time taken for a function to run. Alters `log_time` `dict` if fed in.
     Add @timeit to the function you want to time. Function needs `**kwargs` if
     you want it to be able to feed in `log_time` `dict`.
 
     Args:
-        method (any):  the function that it takes as an input
+        method (Callable):  the function that it takes as an input
 
     Examples:
         Here is an example with the tracking functionality and without::
