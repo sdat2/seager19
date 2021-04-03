@@ -1,7 +1,7 @@
-.. _om_ekm:
+.. _ocean_model:
 
-om\_ekm
--------
+ocean_model
+-----------
 
 .. f:autosrcfile:: om_ekm.F
 

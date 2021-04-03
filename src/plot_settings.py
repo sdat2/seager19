@@ -61,7 +61,7 @@ def label_subplots(
 
     Args:
         axs (Sequence[matplotlib.axes.Axes]): `list` or `np.array` of
-            `matplotlib.pyplot.axes`.
+            `matplotlib.axes.Axes`.
         labels (Sequence[str]): A sequence of labels for the subplots.
         start_from (int, optional): skips first `start_from` labels. Defaults to 0.
         fontsize (int, optional): Font size for labels. Defaults to 10.

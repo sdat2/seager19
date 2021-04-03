@@ -38,9 +38,8 @@ probably a better read.
    sdat2-ATMOS-data-exploration.ipynb
    MRes.md
    src
-   ocean.SRC
+   omod
    getting_started
-   om_test
    DOCS.md
    about
 

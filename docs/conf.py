@@ -45,7 +45,7 @@ extensions = [
     "sphinxfortran.fortran_domain",
     "sphinxfortran.fortran_autodoc",
     # "sphinx.ext.todo",
-    # "sphinx.ext.mathjax",
+    "sphinx.ext.mathjax",
 ]
 
 fortran_src = [
