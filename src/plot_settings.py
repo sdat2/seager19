@@ -55,7 +55,7 @@ def label_subplots(
     x_pos: float = 0.02,
     y_pos: float = 0.95,
 ) -> None:
-    """Adds (a), (b), (c) at the top left of each subplot panel.
+    """Adds e.g. (a), (b), (c) at the top left of each subplot panel.
 
     Labelling order achieved through ravelling the input `list` / `np.array`.
 
@@ -168,6 +168,7 @@ def set_dim(
         Here is an example of using this function::
 
             >>> set_dim(fig, fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
+
     """
     fig.set_size_inches(
         get_dim(width=width, fraction_of_line_width=fraction_of_line_width, ratio=ratio)
@@ -186,6 +187,16 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
         dpi (int, optional): Which dpi to set for the figures.
             Defaults to 600 dpi (high quality). 150 dpi probably
             fine for notebooks. Largest dpi needed for presentations.
+
+    Example:
+        Basic setting the plotting defaults::
+
+            >>> ps_defaults()
+
+        Setting defaults for a jupyter notebook::
+
+            >>> ps_defaults(use_tex=False, dpi=150)
+
     """
     if platform == "darwin":
         matplotlib.use("TkAgg")

@@ -1,4 +1,4 @@
-"""Test the plot settings."""
+"""Test the plot settings in `src.plot_settings`."""
 import os
 import numpy as np
 import matplotlib.pyplot as plt

@@ -52,21 +52,6 @@ fortran_src = [
     "ocean/SRC/*",
 ]
 
-list_of_src_files = [
-    "ocean/SRC/data-mod.F",
-    "ocean/SRC/om_ekm.F",
-    "ocean/SRC/om_equi.F",
-    "ocean/SRC/om_forc.F",
-    "ocean/SRC/om_leap.F",
-    "ocean/SRC/om_main.F",
-    "ocean/SRC/om_mem.F",
-    "ocean/SRC/om_qflux.F",
-    "ocean/SRC/om_sst.F",
-    "ocean/SRC/om_tios.F",
-    "ocean/SRC/om_wrap.F",
-    "ocean/SRC/wrap-mod.F",
-]
-
 fortran_ext = ["f90", "F90", "f95", "F95", "F"]
 
 # fortran_ext = ["*.f", "*.f90", "*.f95", "*.F"]
