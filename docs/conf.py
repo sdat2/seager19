@@ -52,7 +52,7 @@ fortran_src = [
     "ocean/SRC/*",
 ]
 
-gen_src = [
+list_of_src_files = [
     "ocean/SRC/data-mod.F",
     "ocean/SRC/om_ekm.F",
     "ocean/SRC/om_equi.F",
@@ -74,9 +74,12 @@ fortran_ext = ["f90", "F90", "f95", "F95", "F"]
 fortran_indent = 4
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
+    "python": ("https://docs.python.org/3.8", None),
     "sphinx": ("http://www.sphinx-doc.org/en/stable", None),
     "sphinxfortran": ("http://sphinx-fortran.readthedocs.io/en/latest/", None),
+    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.

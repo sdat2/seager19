@@ -8,6 +8,8 @@ six
 xarray==0.17
 # cartopy
 matplotlib>=3.3
+seaborn
+
 
 # external requirements (mostly linters and formatters)
 flake8              # flake8 linter
@@ -33,7 +35,6 @@ sphinx-markdown-tables
 recommonmark
 nbsphinx
 sphinx-fortran
-vacumm
 
 # linear algebra and general data analysis
 numpy               # arrays, linear algebra
@@ -65,4 +66,3 @@ wandb              # automatic recording of runs
 # graphics
 imageio
 imageio-ffmpeg
-seaborn

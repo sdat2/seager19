@@ -47,66 +47,8 @@ import seaborn as sns
 from src.constants import REPORT_WIDTH
 
 
-def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
-    """Apply plotting style to produce nice looking figures.
-
-    Call this at the start of a script which uses `matplotlib`.
-    Can enable `matplotlib` LaTeX backend if it is available.
-
-    Args:
-        use_tex (bool, optional): Whether or not to use latex matplotlib backend.
-            Defaults to True.
-        dpi (int, optional): Which dpi to set for the figures.
-            Defaults to 600 dpi (high quality). 150 dpi probably
-            fine for notebooks. Largest dpi needed for presentations.
-    """
-    if platform == "darwin":
-        matplotlib.use("TkAgg")
-
-    x_default, y_default = get_dim()
-
-    p_general = {
-        "font.family": "STIXGeneral",  # Nice alternative font.
-        # "font.family": "serif",
-        # "font.serif": [],
-        # Use 10pt font in plots, to match 10pt font in document
-        "axes.labelsize": 10,
-        "font.size": 10,
-        "figure.dpi": dpi,
-        "savefig.dpi": dpi,
-        # Make the legend/label fonts a little smaller
-        "legend.fontsize": 10,
-        "xtick.labelsize": 9,
-        "ytick.labelsize": 9,
-        # Set the font for maths
-        "mathtext.fontset": "cm",
-        # "font.sans-serif": ["DejaVu Sans"],  # gets rid of error messages
-        # "font.monospace": [],
-        "lines.linewidth": 1.0,
-        "scatter.marker": "+",
-        "image.cmap": "viridis",
-    }
-    matplotlib.rcParams.update(p_general)
-    matplotlib.style.use("seaborn-colorblind")
-
-    if use_tex and find_executable("latex"):
-        p_setting = {
-            "pgf.texsystem": "pdflatex",
-            "text.usetex": True,
-            "pgf.preamble": (
-                r"\usepackage[utf8x]{inputenc} \usepackage[T1]{fontenc}"
-                + r"\usepackage[separate -uncertainty=true]{siunitx}"
-            ),
-        }
-    else:
-        p_setting = {
-            "text.usetex": False,
-        }
-    matplotlib.rcParams.update(p_setting)
-
-
 def label_subplots(
-    axs: Sequence[matplotlib.pyplot.axes],
+    axs: Sequence[matplotlib.axes.Axes],
     labels: Sequence[str] = [chr(ord("`") + z) for z in range(1, 27)],
     start_from: int = 0,
     fontsize: int = 10,
@@ -118,7 +60,7 @@ def label_subplots(
     Labelling order achieved through ravelling the input `list` / `np.array`.
 
     Args:
-        axs (Sequence[matplotlib.axes]): `list` or `np.array` of
+        axs (Sequence[matplotlib.axes.Axes]): `list` or `np.array` of
             `matplotlib.pyplot.axes`.
         labels (Sequence[str]): A sequence of labels for the subplots.
         start_from (int, optional): skips first `start_from` labels. Defaults to 0.
@@ -127,7 +69,7 @@ def label_subplots(
         y_pos (float, optional): Relative y position of labels. Defaults to 0.95.
 
     Returns:
-        void; alters the `matplotlib.pyplot.axes` objects
+        void; alters the `matplotlib.axes.Axes` objects
 
     Examples:
         Here is an example of using this function::
@@ -200,7 +142,7 @@ def get_dim(
 
 
 def set_dim(
-    fig: matplotlib.pyplot.figure,
+    fig: matplotlib.figure.Figure,
     width: float = REPORT_WIDTH,
     fraction_of_line_width: float = 1,
     ratio: float = (5 ** 0.5 - 1) / 2,
@@ -211,7 +153,7 @@ def set_dim(
     Default ratio is golden ratio, with figure occupying full page width.
 
     Args:
-        fig (matplotlib.pyplot.figure): Figure object to resize.
+        fig (matplotlib.figure.Figure): Figure object to resize.
         width (float): Textwidth of the report to make fontsizes match.
             Defaults to `src.constants.REPORT_WIDTH`.
         fraction_of_line_width (float, optional): Fraction of the document width
@@ -230,6 +172,63 @@ def set_dim(
     fig.set_size_inches(
         get_dim(width=width, fraction_of_line_width=fraction_of_line_width, ratio=ratio)
     )
+
+
+def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
+    """Apply plotting style to produce nice looking figures.
+
+    Call this at the start of a script which uses `matplotlib`.
+    Can enable `matplotlib` LaTeX backend if it is available.
+
+    Args:
+        use_tex (bool, optional): Whether or not to use latex matplotlib backend.
+            Defaults to True.
+        dpi (int, optional): Which dpi to set for the figures.
+            Defaults to 600 dpi (high quality). 150 dpi probably
+            fine for notebooks. Largest dpi needed for presentations.
+    """
+    if platform == "darwin":
+        matplotlib.use("TkAgg")
+
+    p_general = {
+        "font.family": "STIXGeneral",  # Nice alternative font.
+        # "font.family": "serif",
+        # "font.serif": [],
+        # Use 10pt font in plots, to match 10pt font in document
+        "axes.labelsize": 10,
+        "font.size": 10,
+        "figure.dpi": dpi,
+        "savefig.dpi": dpi,
+        # Make the legend/label fonts a little smaller
+        "legend.fontsize": 10,
+        "xtick.labelsize": 9,
+        "ytick.labelsize": 9,
+        # Set the font for maths
+        "mathtext.fontset": "cm",
+        # "font.sans-serif": ["DejaVu Sans"],  # gets rid of error messages
+        # "font.monospace": [],
+        "figure.figsize": get_dim(),
+        "lines.linewidth": 1.0,
+        "scatter.marker": "+",
+        "image.cmap": "viridis",
+    }
+    matplotlib.rcParams.update(p_general)
+    matplotlib.style.use("seaborn-colorblind")
+
+    if use_tex and find_executable("latex"):
+        p_setting = {
+            "pgf.texsystem": "pdflatex",
+            "text.usetex": True,
+            "pgf.preamble": (
+                r"\usepackage[utf8x]{inputenc} \usepackage[T1]{fontenc}"
+                + r"\usepackage[separate -uncertainty=true]{siunitx}"
+            ),
+        }
+    else:
+        p_setting = {
+            "text.usetex": False,
+        }
+    matplotlib.rcParams.update(p_setting)
 
 
 STD_CLR_LIST = [

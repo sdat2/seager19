@@ -31,7 +31,6 @@ sphinx-markdown-tables
 recommonmark
 nbsphinx
 sphinx-fortran
-vacumm
 
 
 # linear algebra and general data analysis

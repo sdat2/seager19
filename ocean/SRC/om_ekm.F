@@ -1,27 +1,30 @@
-subroutine ekman(nx,ny,nmodes,F,G,rs,fcor,um,vm,uscl,dscl,hvmsf,hmixx,hstarp,dx,dy,u1,v1,u_ekman,v_ekman) 
-!   INPUT: 
-!     nx,ny 
-!     nmodes      number of modes 
-!     ii,jj       compressed to i,j indices  (from om_sst.h)
-!     F, G        wind stresses 
-!     rs          friction parameter (1/s)
-!     fcor        dimensional Coriolis parameter 
-!     um(k)
-!     vm(k)       modal solution to SWEs 
-!     uscl(k)     velocity scale 
-!     dscl(k)	  scaling for vertical displacement (m)
-!     hvmsf       surface values of eigenfunctions 
-!     hmixx       depth of surface layer 
-!     hstarp      1./(vertical sum of lighthill coefs)  (1/m)
-!     dx,dy       grid spacings (m) 
-!
-!
-!   OUTPUT: 
-!     u_ekman,v_ekman       ekman flow field
-!     u1,v1                 total velocity in surface layer  
+c-------------------------------------------------------------------------- 
+      subroutine ekman(nx,ny,nmodes,F,G,rs,fcor,um,vm,uscl,dscl,
+     *     hvmsf,hmixx,hstarp,dx,dy,u1,v1,u_ekman,v_ekman) 
       use wsst
       implicit none 
       include 'om_sst.h'
+c-------------------------------------------------------------------------- 
+
+c   INPUT: 
+c     nx,ny 
+c     nmodes      number of modes 
+c     ii,jj       compressed to i,j indices  (from om_sst.h)
+c     F, G        wind stresses 
+c     rs          friction parameter (1/s)
+c     fcor        dimensional Coriolis parameter 
+c     um(k)
+c     vm(k)       modal solution to SWEs 
+c     uscl(k)     velocity scale 
+c     dscl(k)	  scaling for vertical displacement (m)
+c     hvmsf       surface values of eigenfunctions 
+c     hmixx       depth of surface layer 
+c     hstarp      1./(vertical sum of lighthill coefs)  (1/m)
+c     dx,dy       grid spacings (m) 
+c 
+c  OUTPUT: 
+c     u_ekman,v_ekman       ekman flow field
+c     u1,v1                 total velocity in surface layer  
 
       integer nx,ny,nmodes
       real rs,hs,hstarp(nx,ny),dx,dy,F(ny,nx),G(ny,nx),fcor(ny),
@@ -32,14 +35,14 @@ subroutine ekman(nx,ny,nmodes,F,G,rs,fcor,um,vm,uscl,dscl,hvmsf,hmixx,hstarp,dx,
       integer i,j,k,kk,mode
       real hstar,fco,denom,denomi,facm,dudx,dvdy,hvm
  
-!   first compute the surface Ekman flow: 
+c   first compute the surface Ekman flow: 
  
       do k = 1, npt_u
          i = ii(k)  
          j = jj(k)  
          hstar = 1./hmixx(i,j) - hstarp(i,j)
-!         print*,'hstar,hmixx(i,j),hstarp(i,j)',hstar,hmixx(i,j),hstarp(i,j)
-!         stop
+c         print*,'hstar,hmixx(i,j),hstarp(i,j)',hstar,hmixx(i,j),hstarp(i,j)
+c         stop
          if (hstar.lt.0.) then
             print*,'hstar is negative in ekman! '
             print*,i,j,hmixx(i,j),1./hstarp(i,j),hstar
@@ -53,10 +56,10 @@ subroutine ekman(nx,ny,nmodes,F,G,rs,fcor,um,vm,uscl,dscl,hvmsf,hmixx,hstarp,dx,
          v_ekman(i,j) = denomi* (rs* G(j,i) - fco* F(j,i)) 
       enddo 
  
-!   set no normal flow boundary conditions: 
+c   set no normal flow boundary conditions: 
       call bcset2(nx,ny,u_ekman,v_ekman)
 
-!   compute total surface flow: 
+c   compute total surface flow: 
 
       do k = 1, npt_u
          i = ii(k)  
