@@ -79,7 +79,7 @@ intersphinx_mapping = {
     "sphinxfortran": ("http://sphinx-fortran.readthedocs.io/en/latest/", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
     "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
-    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
+    "matplotlib": ("https://matplotlib.org/stable", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
