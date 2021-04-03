@@ -49,6 +49,7 @@ from src.constants import REPORT_WIDTH
 
 def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     """Apply plotting style to produce nice looking figures.
+
     Call this at the start of a script which uses `matplotlib`.
     Can enable `matplotlib` LaTeX backend if it is available.
 
@@ -61,7 +62,9 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     """
     if platform == "darwin":
         matplotlib.use("TkAgg")
-    # matplotlib.use('agg') this used to be required for jasmin
+
+    x_default, y_default = get_dim()
+
     p_general = {
         "font.family": "STIXGeneral",  # Nice alternative font.
         # "font.family": "serif",
@@ -111,6 +114,7 @@ def label_subplots(
     y_pos: float = 0.95,
 ) -> None:
     """Adds (a), (b), (c) at the top left of each subplot panel.
+
     Labelling order achieved through ravelling the input `list` / `np.array`.
 
     Args:
@@ -129,6 +133,7 @@ def label_subplots(
         Here is an example of using this function::
 
             >>> label_subplots(axs, start_from=0, fontsize=10)
+
     """
     if isinstance(axs, list):
         axs = np.asarray(axs)
@@ -155,8 +160,9 @@ def get_dim(
     ratio: float = (5 ** 0.5 - 1) / 2,
 ) -> Tuple[float, float]:
     """Return figure height, width in inches to avoid scaling in latex.
-       Default width is `src.constants.REPORT_WIDTH`.
-       Default ratio is golden ratio, with figure occupying full page width.
+
+    Default width is `src.constants.REPORT_WIDTH`.
+    Default ratio is golden ratio, with figure occupying full page width.
 
     Args:
         width (float, optional): Textwidth of the report to make fontsizes match.
@@ -174,6 +180,7 @@ def get_dim(
         Here is an example of using this function::
 
             >>> dim_tuple = get_dim(fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
+
     """
 
     # Width of figure
@@ -199,8 +206,9 @@ def set_dim(
     ratio: float = (5 ** 0.5 - 1) / 2,
 ) -> None:
     """Set aesthetic figure dimensions to avoid scaling in latex.
-       Default width is `src.constants.REPORT_WIDTH`.
-       Default ratio is golden ratio, with figure occupying full page width.
+
+    Default width is `src.constants.REPORT_WIDTH`.
+    Default ratio is golden ratio, with figure occupying full page width.
 
     Args:
         fig (matplotlib.pyplot.figure): Figure object to resize.

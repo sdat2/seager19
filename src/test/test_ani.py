@@ -1,12 +1,11 @@
-"""test `src.visualisation.ani.py`"""
+"""Test `src.visualisation.ani.py`."""
 import pandas as pd
 import xarray as xr
 from src.visualisation.ani import animate_prediction
 
 
 def test_animate_prediction() -> None:
-    """test `src.visualisation.ani.animate_prediction` """
-    print("testing animate prediction")
+    """Test `src.visualisation.ani.animate_prediction`."""
     da = (
         xr.tutorial.load_dataset("air_temperature")
         .air.isel(time=slice(0, 7))

@@ -15,6 +15,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
+sys.path.insert(0, os.path.abspath("../ocean/SRC"))
 
 # -- Project information -----------------------------------------------------
 
@@ -31,12 +32,52 @@ author = "Simon D. A. Thomas"
 
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    # "vacumm.sphinxext.fortran_domain",
+    # "vacumm.sphinxext.fortran_autodoc",
+    "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
     "recommonmark",
     "sphinx_markdown_tables",
     "nbsphinx",
+    "sphinxfortran.fortran_domain",
+    "sphinxfortran.fortran_autodoc",
+    # "sphinx.ext.todo",
+    # "sphinx.ext.mathjax",
 ]
+
+fortran_src = [
+    "ocean/SRC/*",
+]
+
+gen_src = [
+    "ocean/SRC/data-mod.F",
+    "ocean/SRC/om_ekm.F",
+    "ocean/SRC/om_equi.F",
+    "ocean/SRC/om_forc.F",
+    "ocean/SRC/om_leap.F",
+    "ocean/SRC/om_main.F",
+    "ocean/SRC/om_mem.F",
+    "ocean/SRC/om_qflux.F",
+    "ocean/SRC/om_sst.F",
+    "ocean/SRC/om_tios.F",
+    "ocean/SRC/om_wrap.F",
+    "ocean/SRC/wrap-mod.F",
+]
+
+fortran_ext = ["f90", "F90", "f95", "F95", "F"]
+
+# fortran_ext = ["*.f", "*.f90", "*.f95", "*.F"]
+
+fortran_indent = 4
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "sphinx": ("http://www.sphinx-doc.org/en/stable", None),
+    "sphinxfortran": ("http://sphinx-fortran.readthedocs.io/en/latest/", None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

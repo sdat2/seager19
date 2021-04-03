@@ -1,4 +1,4 @@
-"""General project util functions"""
+"""General project utility functions."""
 from typing import Callable
 import inspect
 import time
@@ -7,10 +7,11 @@ from sys import getsizeof
 
 
 def timeit(method: Callable) -> Callable:
-    """timeit is a wrapper for performance analysis which should
-    return the time taken for a function to run. Alters `log_time` `dict` if fed in.
-    Add @timeit to the function you want to time. Function needs `**kwargs` if
-    you want it to be able to feed in `log_time` `dict`.
+    """`timeit` is a wrapper for performance analysis.
+
+    It should return the time taken for a function to run. Alters `log_time` `dict`
+    if fed in. Add @timeit to the function you want to time. Function needs
+    `**kwargs` if you want it to be able to feed in `log_time` `dict`.
 
     Args:
         method (Callable):  the function that it takes as an input
@@ -28,6 +29,7 @@ def timeit(method: Callable) -> Callable:
             >>> loop(log_time=tmp_log_d)
             >>> print(tmp_log_d["loop"])
             >>> loop()
+
     """
 
     @wraps(method)
@@ -46,12 +48,14 @@ def timeit(method: Callable) -> Callable:
 
 
 def human_readable_size(num: int, suffix: str = "B") -> str:
-    """
-    Convert a number of bytes into human readable format.
+    """Convert a number of bytes into human readable format.
+
     This function is meant as a helper function for `get_byte_size`.
+
     Args:
         num (int): The number of bytes to convert
         suffix (str, optional): The suffix to use for bytes. Defaults to 'B'.
+
     Returns:
         str: A human readable version of the number of bytes.
     """
@@ -64,17 +68,20 @@ def human_readable_size(num: int, suffix: str = "B") -> str:
 
 
 def calculate_byte_size_recursively(obj: object, seen: set = None) -> int:
-    """
-    Recursively calculate size of objects in memory in bytes.
+    """Recursively calculate size of objects in memory in bytes.
+
     From: https://github.com/bosswissam/pysize. Meant as a helper function for
     `get_byte_size`.
+
     Args:
         obj (object): The python object to get the size of
         seen (set, optional): This variable is needed to for the recusrive
             function evaluations, to ensure each object only gets counted once.
             Leave it at "None" to get the full byte size of an object. Defaults to None.
+
     Returns:
         int: The size of the object in bytes
+
     """
 
     # Note: getsizeof alone is not enough, as it only returns the size of the top
@@ -121,12 +128,14 @@ def calculate_byte_size_recursively(obj: object, seen: set = None) -> int:
 
 
 def get_byte_size(obj: object) -> str:
-    """
-    Return human readable size of a python object in bytes.
+    """Return human readable size of a python object in bytes.
+
     Args:
         obj (object): The python object to analyse
+
     Returns:
         str: Human readable string with the size of the object
+
     """
 
     return human_readable_size(calculate_byte_size_recursively(obj))

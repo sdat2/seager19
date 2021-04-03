@@ -1,8 +1,6 @@
-seager19
-========
+SRC
+===
 
 .. toctree::
    :maxdepth: 4
 
-   setup
-   src

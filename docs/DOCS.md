@@ -27,6 +27,10 @@ To update the module references in the rst files
 sphinx-apidoc -f -o . ..
 ```
 
+```
+sphinx-apidoc -f -o . ../ocean/SRC/
+```
+
 ### Symbolic links
 
 docs/README.md and docs/gifs/ 

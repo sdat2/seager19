@@ -6,6 +6,7 @@ Example:
     Import statement at top of script::
 
         from src.constants import PROJECT_PATH, FIGURE_PATH, GWS_DIR
+
 """
 
 # Place all your constants here
