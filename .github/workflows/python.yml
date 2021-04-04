@@ -1,6 +1,4 @@
-# This is a basic workflow to help you get started with Actions
-
-name: CI
+name: python
 
 # Controls when the action will run. 
 on:
@@ -23,13 +21,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      
-      
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - uses: actions/checkout@v2    
         
       - name: pylinter
         # You may pin to the exact commit or the version.
@@ -39,20 +31,14 @@ jobs:
           # directory to run linting on
           python-root: src # optional, default is .
           # flake8 flags
-          flake8-flags: src # optional, default is 
+          flake8-flags: #src # optional, default is 
           # mypy flags
-          mypy-flags: src # optional, default is 
+          mypy-flags: #src # optional, default is 
           # optional exit on isort errors
-          fail-on-isort: src # optional
+          fail-on-isort: #src # optional
           # skip flake8 checks
-          skip-flake8: src # optional
+          skip-flake8: #src # optional
           # skip mypy checks
-          skip-mypy: src # optional
+          skip-mypy: #src # optional
           # skip isort checks
-          skip-isort: src # optional
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          skip-isort: #src # optional

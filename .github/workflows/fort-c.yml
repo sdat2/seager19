@@ -1,4 +1,4 @@
-name: Fortran/C CI
+name: Fortran/C
 
 on:
   push:

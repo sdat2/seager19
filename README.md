@@ -9,7 +9,7 @@
     <img src='https://travis-ci.com/sdat2/seager19.svg?branch=main' alt='Build Status' />
 </a>
 <a href='https://coveralls.io/github/sdat2/seager19?branch=main'><img src='https://coveralls.io/repos/github/sdat2/seager19/badge.svg?branch=main' alt='Coverage Status' /></a>
-<a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/ci.yml/badge.svg' alt='CI' /></a>
+<a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/python.yml/badge.svg' alt='CI' /></a>
 <a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/fort-c.yml/badge.svg' alt='fort-c' /></a>
 
 ![SST output over time period](gifs/SST_SST2_in_om_run2f.gif)
