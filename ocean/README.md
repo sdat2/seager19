@@ -137,3 +137,61 @@ Ocean model file structure:
     daio.c
     om_test.log
 ```
+
+```
+GNU Fortran (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
+Copyright (C) 2015 Free Software Foundation, Inc.
+
+GNU Fortran comes with NO WARRANTY, to the extent permitted by law.
+You may redistribute copies of GNU Fortran
+under the terms of the GNU General Public License.
+For more information about these matters, see the file named COPYING
+```
+
+```
+gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
+```
+before_install:
+  - sudo apt-get install gfortran
+
+matrix:
+  include:
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.6
+          packages:
+            - GCC-4.8.5
+      env:
+        - MATRIX_EVAL="CC=gcc-4.8.5 && CXX=g++-4.8.5"
+```
+```
+language: c
+sudo: required
+before_install:
+  - sudo apt-get install gfortran
+
+script:
+  - gfortran -fprofile-arcs -ftest-coverage -O0 hello.f90 -o hello
+  - ./hello
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+```
+```
+before_install:
+  sudo apt-get install python-software-properties
+  sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+  sudo apt-get update
+  sudo apt-get install gcc-4.8
+  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+  sudo apt-get install gfortran-4.8
+```
