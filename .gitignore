@@ -23,7 +23,6 @@ OUTPUT/
 *.mp4
 *.swp
 *.o 
-*.mod
 netcdf*
 *.gif
 # *.tios
