@@ -13,6 +13,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: check gfortran
+      run: gfortran --version
+    - name: check gcc
+      run: gcc --version
     - name: make
       run: make
       working-directory: ocean/SRC
