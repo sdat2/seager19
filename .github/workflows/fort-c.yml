@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Fortran/C CI
 
 on:
   push:
@@ -13,18 +13,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: check gfortran
-      run: gfortran --version
-    - name: check gcc
-      run: gcc --version
-    - name: updata apt-get
+    - name: update apt-get
       run: sudo apt-get update
     - name: install netcdf
       run: sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev 
     - name: check netcdf
       run: nc-config --all
+    - name: check gfortran
+      run: gfortran --version
+    - name: check gcc
+      run: gcc --version
     - name: make
       run: make
+      working-directory: ocean/SRC
+    - name: make tios2cdf
+      run: make tios2cdf
       working-directory: ocean/SRC
     #- name: make check
     #  run: make check
