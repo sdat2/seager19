@@ -17,6 +17,8 @@ jobs:
       run: gfortran --version
     - name: check gcc
       run: gcc --version
+    - name: updata apt-get
+      run: sudo apt-get update
     - name: install netcdf
       run: sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev 
     - name: check netcdf
