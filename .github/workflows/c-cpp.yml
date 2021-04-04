@@ -18,7 +18,7 @@ jobs:
     - name: check gcc
       run: gcc --version
     - name: install netcdf
-      run: sudo apt-get install libnetcdf-dev libnetcdff-dev
+      run: sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev 
     - name: check netcdf
       run: nc-config --all
     - name: make
