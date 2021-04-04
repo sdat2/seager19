@@ -17,6 +17,10 @@ jobs:
       run: gfortran --version
     - name: check gcc
       run: gcc --version
+    - name: install netcdf
+      run: sudo apt-get install libnetcdf-dev libnetcdff-dev
+    - name: check netcdf
+      run: nc-config --all
     - name: make
       run: make
       working-directory: ocean/SRC
