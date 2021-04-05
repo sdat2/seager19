@@ -3,7 +3,7 @@
 Seeks to replicate::
 
     ```
-    \begin{ingrid}
+    \\begin{ingrid}
 
     (DATA/qflx-0.nc)readCDF .X /XM exch def
     (DATA/qflx-0.nc)readCDF .Y /YM exch def
@@ -17,7 +17,7 @@ Seeks to replicate::
     L /Z renameGRID
     (qflx)rn
     (DATA/qflx.nc)writeCDF
-    \end{ingrid}
+    \\end{ingrid}
     ```
 
 Example:
@@ -34,8 +34,8 @@ from src.utils import timeit
 
 
 @timeit
-def linear_qflx_replacement():
-    """Uses xarray linear interpolation to replace netcdf with qflx in."""
+def linear_qflx_replacement() -> None:
+    """Uses `xarray` linear interpolation to replace netcdf with qflx in."""
     sst_qflx = xr.open_dataset(
         OCEAN_OUTPUT_PATH / "om_diag.nc", decode_times=False
     ).SST_QFLX.rename({"L_01": "Z", "T_01": "T", "X_01": "X", "Y_01": "Y"})

@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.o
-*.exe 
+*.exe
 
 # DATA
 .coveralls.yml
@@ -13,6 +13,7 @@ data/
 DATA/
 output/
 OUTPUT/
+ocean/SRC/backup
 *.save
 *.output
 *.data
@@ -23,7 +24,7 @@ OUTPUT/
 *.netcdf
 *.mp4
 *.swp
-*.o 
+*.o
 netcdf*
 *.gif
 # *.tios

@@ -2,7 +2,9 @@
 
 # usage: bash ./run-model.sh
 
-RUN_NAME="_T2"
+RUN_NAME="R3"
+
+mkdir ${RUN_NAME}
 
 ## step: i file, -o tios files
 # STEP 1: om_spin, spin.tios
@@ -33,7 +35,7 @@ echo "B: $(date)" >> timing.txt
 
 ../SRC/tios2cdf.exe -f output/om_spin # 3 seconds
 
-cp output/om_spin.nc output/om_spin${RUN_NAME}.nc 
+cp output/om_spin.nc ${RUN_NAME}/om_spin.nc 
 
 echo "C: $(date)" >> timing.txt
 
@@ -50,7 +52,7 @@ echo "E: $(date)" >> timing.txt
 
 ../SRC/tios2cdf.exe -f output/om_diag # < 1 seconds
 
-cp output/om_diag.nc output/om_diag${RUN_NAME}.nc 
+cp output/om_diag.nc ${RUN_NAME}/om_diag.nc 
 
 echo "F: $(date)" >> timing.txt
 
@@ -78,10 +80,26 @@ echo "H: $(date)" >> timing.txt
 
 ../SRC/tios2cdf.exe -f output/om_run2f     # 9 seconds
 
-cp output/om_run2f.nc output/om_run2f${RUN_NAME}.nc 
+cp output/om_run2f.nc ${RUN_NAME}/om_run2f.nc 
 
 echo "I: $(date)" >> timing.txt
 
 rm -rf output/om_run2f.data output/om_run2f.indx     # < 1 seconds
 
 echo "J: $(date)" >> timing.txt
+
+# Step 4: Copy files.
+
+cp om_diag ${RUN_NAME}/
+cp om_diag.tr ${RUN_NAME}/
+cp om_diag.log ${RUN_NAME}/
+cp om_spin ${RUN_NAME}/
+cp om_spin.tr ${RUN_NAME}/
+cp om_spin.log ${RUN_NAME}/
+cp om_run2f ${RUN_NAME}/
+cp om_run2f.tr ${RUN_NAME}/
+cp om_run2f.log ${RUN_NAME}/
+cp month.tios ${RUN_NAME}/
+cp spin.tios ${RUN_NAME}/
+cp month.tios ${RUN_NAME}/
+cp diag.tios ${RUN_NAME}/
