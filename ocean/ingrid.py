@@ -1,6 +1,27 @@
-"""Script to cut out spin up conditions. 
+"""Script to cut out spin up conditions.
+
+Seeks to replicate::
+
+    ```
+    \begin{ingrid}
+
+    (DATA/qflx-0.nc)readCDF .X /XM exch def
+    (DATA/qflx-0.nc)readCDF .Y /YM exch def
+
+    (output/om_diag.nc)readCDF .SST_QFLX
+    T last 11 sub last RANGE 
+    T /T (months since 1960-01-01) periodic 0.5 1 11.5 NewEvenGRID replaceGRID
+    /X X periodic setgridtype def
+    Y -91 1 91 evengridAverage
+    0 replaceNaN
+    L /Z renameGRID
+    (qflx)rn
+    (DATA/qflx.nc)writeCDF
+    \end{ingrid}
+    ```
 
 Example:
+
     Usage within the `ocean.RUN.run-model.sh` script::
         >>> Python3 ingrid.py
 
