@@ -23,7 +23,8 @@ Seeks to replicate::
 Example:
 
     Usage within the `ocean.RUN.run-model.sh` script::
-        >>> Python3 ingrid.py
+        >>> conda activate ../env
+        >>> python3 ingrid.py
 
 """
 import numpy as np
@@ -76,7 +77,7 @@ def linear_qflx_replacement():
         X=np.array(list(range(0, 360))),
         kwargs={"fill_value": 0.0},
         method="linear",
-    ).fillna(0)
+    ).fillna(0.0)
     sst_qflx_subset = sst_qflx_subset.astype("float32")
     sst_qflx_subset.to_netcdf(OCEAN_DATA_PATH / "qflx.nc")
 
