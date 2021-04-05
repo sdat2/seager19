@@ -1,0 +1,63 @@
+"""Script to cut out spin up conditions. 
+
+Example:
+    Usage within the `ocean.RUN.run-model.sh` script::
+        >>> Python3 ingrid.py
+
+"""
+import numpy as np
+import xarray as xr
+from src.constants import OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH
+from src.utils import timeit
+
+@timeit
+def linear_qflx_replacement():
+    sst_qflx = xr.open_dataset(
+        OCEAN_OUTPUT_PATH / "om_diag.nc", decode_times=False
+    ).SST_QFLX.rename({"L_01": "Z", "T_01": "T", "X_01": "X", "Y_01": "Y"})
+    lent = len(sst_qflx.coords["T"])
+    sst_qflx_subset = sst_qflx.isel(T=slice(lent - 12, lent + 1)).rename("qflx")
+    sst_qflx_subset.coords["T"] = [x + 0.5 for x in range(12)]
+    sst_qflx_subset.attrs = {
+        "units": "unitless",
+        "file_missing_value": -987654.0,
+        "long_name": "qflx",
+        "longname": "qflx",
+    }
+    sst_qflx_subset.coords["T"].attrs = {
+        "modulus": 12.0,
+        "modulo": 12.0,
+        "pointwidth": 1.0,
+        "calendar": "360",
+        "gridtype": 1,
+        "units": "months since 1960-01-01",
+    }
+    sst_qflx_subset.coords["Z"].attrs = {
+        "long_name": "Level",
+        "gridtype": 0,
+        "units": "level",
+    }
+    sst_qflx_subset.coords["Y"].attrs = {
+        "uniquename": "Y",
+        "pointwidth": 1.0,
+        "gridtype": 0,
+        "units": "degree_north",
+    }
+    sst_qflx_subset.coords["X"].attrs = {
+        "modulus": 360.0,
+        "uniquename": "X",
+        "pointwidth": 1.0,
+        "gridtype": 1,
+        "units": "degree_east",
+    }
+    sst_qflx_subset = sst_qflx_subset.interp(
+        Y=np.array(list(range(-90, 91))),
+        X=np.array(list(range(0, 360))),
+        kwargs={"fill_value": 0.0},
+        method="linear",
+    ).fillna(0)
+    sst_qflx_subset = sst_qflx_subset.astype("float32")
+    sst_qflx_subset.to_netcdf(OCEAN_DATA_PATH / "qflx.nc")
+
+
+linear_qflx_replacement()

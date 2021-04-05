@@ -32,7 +32,7 @@ jobs:
     - name: make all
       run: make all
       working-directory: ocean/SRC
-    #- name: make check
-    #  run: make check
-    #- name: make distcheck
-    #  run: make distcheck
+    # - name: make check
+    #   run: make check
+    # - name: make distcheck
+    #   run: make distcheck
