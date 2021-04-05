@@ -1,7 +1,7 @@
  # Folder that the ocean model is run from.
 
 ```bash
-sh ./run-model
+sh ./run-model.sh
 ```
  
 The timings end up getting stored in `timing.txt`.

@@ -1,13 +1,13 @@
 # https://opensource.com/article/18/8/what-how-makefile#:~:text=The%20make%20utility%20requires%20a,be%20installed%20using%20make%20install%20.
 ARCH = Linux
-FC    = gfortran # f95 #f95 # gfortran # change to f95 ?
+FC    = gfortran  # works fine for gfortran-4.8 or gfortran-5.5
 CC    = gcc
 LCDF   = -lnetcdf -lnetcdff
 
 FFLAGS = -ffixed-line-length-132 -Ofast
 CFLAGS = -Wno-implicit-function-declaration -Ofast
 
-MODEL  = tcom
+MODEL  = tcom.exe
 
 default: $(MODEL)
 
@@ -33,10 +33,10 @@ LIBS    = $(LCDF)
 $(MODEL):	$(OBJM) $(OBJF) $(OBJ0) $(OBJC)
 	$(FC) $(FFLAGS) $(LDOPT) -o $(MODEL) om_main.o $(OBJM) $(OBJF) $(OBJC) $(LIBS)
 
-tios2cdf: fodb.o $(OBJC)
-	$(CC) $(CFLAGS) -o tios2cdf tios2cdf.c fodb.o $(OBJC) $(LIBS) -lgfortran
+tios2cdf.exe: fodb.o $(OBJC)
+	$(CC) $(CFLAGS) -o tios2cdf.exe tios2cdf.c fodb.o $(OBJC) $(LIBS) -lgfortran
 
-all: $(MODEL) tios2cdf
+all: $(MODEL) tios2cdf.exe
 
 om_forc.o: wdata.mod wsst.mod wrap.mod
 om_core.o om_forc.o om_sst.o om_tios.o : om_core.h 

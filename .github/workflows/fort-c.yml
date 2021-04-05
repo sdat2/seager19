@@ -26,8 +26,11 @@ jobs:
     - name: make
       run: make
       working-directory: ocean/SRC
-    - name: make tios2cdf
-      run: make tios2cdf
+    - name: make tios2cdf.exe
+      run: make tios2cdf.exe
+      working-directory: ocean/SRC
+    - name: make all
+      run: make all
       working-directory: ocean/SRC
     #- name: make check
     #  run: make check
