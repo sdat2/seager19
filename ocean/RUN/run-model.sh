@@ -1,12 +1,29 @@
-# usage: sh ./run-model.sh
+#!/bin/sh
 
-# STEP 1 -  spinup the dynamics - ignore the sst equation and use climo windstress
+# usage: bash ./run-model.sh
+
+RUN_NAME="_T2"
+
 
 # STEP 1: om_spin, spin.tios
 # STEP 2: om_diag, diag.tios 
 # STEP 3: om_run2f, month.tios 
 
-RUN_NAME="_T1"
+# STEP 0: Compile
+
+pwd
+
+cd ../SRC
+
+pwd
+
+make all
+
+cd ../RUN
+
+pwd
+
+# STEP 1 -  spinup the dynamics - ignore the sst equation and use climo windstress
 
 echo "A: $(date)" >> timing.txt
 
