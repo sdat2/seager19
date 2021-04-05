@@ -1,4 +1,5 @@
-# usage: sh ./comp-dat.sh 
+#!/bin/bash
+# usage: bash ./comp-dat.sh 
 diff -rq RUN/DATA/ SRC/DATA/
 diff -rq DATA/ SRC/DATA/
 diff -rq RUN/DATA/ DATA/

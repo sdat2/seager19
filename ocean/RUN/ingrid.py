@@ -9,7 +9,7 @@ Seeks to replicate::
     (DATA/qflx-0.nc)readCDF .Y /YM exch def
 
     (output/om_diag.nc)readCDF .SST_QFLX
-    T last 11 sub last RANGE 
+    T last 11 sub last RANGE
     T /T (months since 1960-01-01) periodic 0.5 1 11.5 NewEvenGRID replaceGRID
     /X X periodic setgridtype def
     Y -91 1 91 evengridAverage
@@ -23,7 +23,7 @@ Seeks to replicate::
 Example:
 
     Usage within the `ocean.RUN.run-model.sh` script::
-        >>> conda activate ../env
+        >>> conda activate ../../env
         >>> python3 ingrid.py
 
 """
@@ -32,8 +32,10 @@ import xarray as xr
 from src.constants import OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH
 from src.utils import timeit
 
+
 @timeit
 def linear_qflx_replacement():
+    """Uses xarray linear interpolation to replace netcdf with qflx in."""
     sst_qflx = xr.open_dataset(
         OCEAN_OUTPUT_PATH / "om_diag.nc", decode_times=False
     ).SST_QFLX.rename({"L_01": "Z", "T_01": "T", "X_01": "X", "Y_01": "Y"})

@@ -1,3 +1,4 @@
+#!/bin/bash
 # usage: sh ./backup-data.sh 
 name='bk'
 cp -avr RUN/DATA/ RUN/DATA-${name}/

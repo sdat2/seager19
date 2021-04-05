@@ -1,4 +1,5 @@
-# usage: sh ./comp-data.sh 
+#!/bin/bash
+# usage: bash ./comp-data.sh 
 name='bk'
 diff -rq RUN/DATA/ RUN/DATA-${name}/
 diff -rq RUN/output/ RUN/output-${name}/

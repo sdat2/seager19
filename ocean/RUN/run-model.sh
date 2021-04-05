@@ -62,11 +62,11 @@ cp -f output/om_diag.save output/om_diag.2y.restart # < 1 seconds
 # pop it into DATA/qflx.nc with your favorite tool
 # /usr/local/bin/ingrid qflx.ing
 
-conda activate ../../env
+# conda activate ../../env
 
-which python3 
+# which python3 
 
-python3 ingrid.py
+# python3 ingrid.py
 
 # STEP 3 -- run the dynamics + sst in full mode
 
