@@ -4,12 +4,12 @@
 
 RUN_NAME="_T2"
 
-
+## step: i file, -o tios files
 # STEP 1: om_spin, spin.tios
 # STEP 2: om_diag, diag.tios 
 # STEP 3: om_run2f, month.tios 
 
-# STEP 0: Compile
+# STEP 0 -- Compile
 
 pwd
 
@@ -23,7 +23,7 @@ cd ../RUN
 
 pwd
 
-# STEP 1 -  spinup the dynamics - ignore the sst equation and use climo windstress
+# STEP 1 -- spinup the dynamics - ignore the sst equation and use climo windstress
 
 echo "A: $(date)" >> timing.txt
 
@@ -62,6 +62,11 @@ cp -f output/om_diag.save output/om_diag.2y.restart # < 1 seconds
 # pop it into DATA/qflx.nc with your favorite tool
 # /usr/local/bin/ingrid qflx.ing
 
+conda activate ../../env
+
+which python3 
+
+python3 ingrid.py
 
 # STEP 3 -- run the dynamics + sst in full mode
 
