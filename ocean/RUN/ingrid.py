@@ -34,7 +34,7 @@ from src.utils import timeit
 
 
 @timeit
-def linear_qflx_replacement() -> None:
+def linear_qflx_replacement(output_file_name: str = "qflx.nc") -> None:
     """Uses `xarray` linear interpolation to replace netcdf with qflx in."""
     sst_qflx = xr.open_dataset(
         OCEAN_OUTPUT_PATH / "om_diag.nc", decode_times=False
@@ -75,13 +75,29 @@ def linear_qflx_replacement() -> None:
         "units": "degree_east",
     }
     sst_qflx_subset = sst_qflx_subset.interp(
-        Y=np.array(list(range(-90, 91))),
-        X=np.array(list(range(0, 360))),
+        Y=np.array(list(range(-90, 91)), dtype="float32"),
+        X=np.array(list(range(0, 360)), dtype="float32"),
         kwargs={"fill_value": 0.0},
         method="linear",
     ).fillna(0.0)
     sst_qflx_subset = sst_qflx_subset.astype("float32")
-    sst_qflx_subset.to_netcdf(OCEAN_DATA_PATH / "qflx.nc")
+    sst_qflx_subset.to_netcdf(OCEAN_DATA_PATH / output_file_name)
 
 
-linear_qflx_replacement()
+def test() -> None:
+    """Test the qflx replacement function."""
+    linear_qflx_replacement(output_file_name="qflx-test.nc")
+    qflx_test = xr.open_dataarray(OCEAN_DATA_PATH / "qflx-test.nc", decode_times=False)
+    qflx_old = xr.open_dataarray(OCEAN_DATA_PATH / "qflx-0.nc", decode_times=False)
+
+    print(qflx_test)
+
+    print(qflx_old)
+
+    # xr.testing.assert_equal(qflx_test, qflx_old)
+    xr.testing.assert_allclose(qflx_test, qflx_old, atol=1e-2)
+
+
+if __name__ == "__main__":
+    # main
+    linear_qflx_replacement()

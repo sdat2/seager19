@@ -2,7 +2,7 @@
 
 # usage: bash ./run-model.sh
 
-RUN_NAME="R3"
+RUN_NAME="R5"
 
 mkdir ${RUN_NAME}
 
@@ -88,7 +88,7 @@ rm -rf output/om_run2f.data output/om_run2f.indx     # < 1 seconds
 
 echo "J: $(date)" >> timing.txt
 
-# Step 4: Copy files.
+# Step 4 -- copy files
 
 cp om_diag ${RUN_NAME}/
 cp om_diag.tr ${RUN_NAME}/
