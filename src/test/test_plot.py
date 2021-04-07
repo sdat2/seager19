@@ -43,8 +43,26 @@ def test_map_plot() -> None:
     ps_defaults(use_tex=False)
     ax = map_setup()
     da = xr.tutorial.open_dataset("rasm").load().Tair.isel(time=0)
-    da.plot.imshow(ax=ax, transform=ccrs.PlateCarree(), cbar_kwargs={"shrink": 0.5})
+    da.plot.imshow(
+        ax=ax,
+        transform=ccrs.PlateCarree(),
+        # transform=ccrs.Robinson(central_longitude=180),
+        cbar_kwargs={"shrink": 0.5},
+    )  # transform=ccrs.PlateCarree(),
     time_title(ax, da.time.values)
     plt.tight_layout()
     plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "map_example.png")), dpi=800)
+    plt.clf()
+
+    _, axes = plt.subplots(
+        2, 2, subplot_kw={"projection": ccrs.Robinson(central_longitude=180)}
+    )
+    for ax in axes.ravel():
+        ax = map_setup(ax=ax)
+        da.plot.imshow(ax=ax, transform=ccrs.PlateCarree(), cbar_kwargs={"shrink": 0.5})
+        time_title(ax, da.time.values)
+    plt.tight_layout()
+    plt.savefig(
+        str(os.path.join(PROJECT_PATH, "gifs", "multi_map_example.png")), dpi=800
+    )
     plt.clf()

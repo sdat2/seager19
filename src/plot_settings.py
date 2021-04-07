@@ -274,13 +274,22 @@ BRICK_RED = "#CB4154"
 
 @timeit
 def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
-    """Apply default map.
+    """Apply default map (Robinson centred on the Pacific).
 
     Args:
         ax (matplotlib.axes.Axes): the axes to format. Defaults to None.
 
     Returns:
         matplotlib.axes.Axes: axes object in Robinson config.
+
+    Example:
+
+        When using multiple subplots::
+            fig, axes = plt.subplots(
+               2, 2, subplot_kw={"projection": ccrs.Robinson(central_longitude=180)}
+            )
+            for ax in axes.ravel():
+                ax = map_setup(ax=ax)
 
     """
     if ax is None:
@@ -293,12 +302,14 @@ def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
 def time_title(
     ax: matplotlib.axes.Axes,
     time: np.datetime64,
+    date_time_formatter: str = DATE_TITLE_FORMAT,
 ) -> None:
-    """Time title.
+    """Add time title.
 
     Args:
-        ax (matplotlib.axes.Axes): [description]
-        time (np.datetime64): [description]
+        ax (matplotlib.axes.Axes): axis to add title to.
+        time (np.datetime64): time string.
+        date_time_formatter (str, optional): Default is `DATE_TITLE_FORMAT`.
 
     Examples:
         Usage example::
@@ -306,4 +317,4 @@ def time_title(
             >>> time_title(ax, xr_da.time.values[index])
 
     """
-    ax.set_title(pd.to_datetime(str(time)).strftime(DATE_TITLE_FORMAT))
+    ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
