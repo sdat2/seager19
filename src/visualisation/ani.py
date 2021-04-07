@@ -13,12 +13,14 @@ Adapted for gif output:
 """
 from typing import Callable
 import numpy as np
+import pandas as pd
 import xarray as xr
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import imageio
 from src.plot_settings import label_subplots, ps_defaults
 from src.utils import timeit
+from src.constants import DATE_TITLE_FORMAT
 
 ps_defaults(use_tex=False, dpi=200)
 
@@ -33,6 +35,7 @@ def animate_xr_da(
     Args:
         xr_da (xr.DataArray): input xr.DataArray.
         video_path (str, optional): Video path. Defaults to "output.mp4".
+
     """
 
     def gen_frame_func(
@@ -62,12 +65,19 @@ def animate_xr_da(
             """
             fig, ax1 = plt.subplots(1, 1)
 
-            xr_da.isel(year=index).plot.imshow(ax=ax1, vmin=vmin, vmax=vmax)
+            xr_da.isel(time=index).plot.imshow(ax=ax1, vmin=vmin, vmax=vmax)
+            ax1.set_title(
+                pd.to_datetime(str(xr_da.time.values[index])).strftime(
+                    DATE_TITLE_FORMAT
+                )
+            )
+            plt.tight_layout()
 
             fig.canvas.draw()
             image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
             image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
             plt.close()
+
             return image
 
         return make_frame
@@ -79,16 +89,13 @@ def animate_xr_da(
     ) -> None:
         """Generate video of an `xarray.DataArray`.
 
-        The full set of time coordinates of the datasets are used.
-
         Args:
-            x_da (xr.DataArray): 3 or 6 bands, 4 seasons, 20 years
-            y_da (xr.DataArray): 1 band, 20 years
-            pred_da (xr.DataArray): 1 band, 20 years
-            video_path (str, optional): relative text path to output mp4 file.
+            xr_da (xr.DataArray): input xarray.DataArray
+            video_path (str, optional): output path to save.
+            fps (int, optional): frames per second.
 
         """
-        video_indices = list(range(len(xr_da.year.values)))
+        video_indices = list(range(len(xr_da.time.values)))
         make_frame = gen_frame_func(xr_da)
         imageio.mimsave(
             video_path,
@@ -222,6 +229,7 @@ def animate_prediction(
             y_da (xr.DataArray): 1 band, 20 years
             pred_da (xr.DataArray): 1 band, 20 years
             video_path (str, optional): relative text path to output mp4 file.
+            fps (int, optional): frames per second.
 
         """
         video_indices = list(range(len(y_da.year.values)))

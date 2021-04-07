@@ -33,3 +33,6 @@ GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er")
 
 # Report WIDTH
 REPORT_WIDTH = 398.3386  # in pixels
+
+# DATE FORMAT for plotting titles
+DATE_TITLE_FORMAT = "%Y.%m.%d      %H:%M"

@@ -214,6 +214,13 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
         "legend.fontsize": 10,
         "xtick.labelsize": 9,
         "ytick.labelsize": 9,
+        "date.autoformatter.year": "%Y",
+        "date.autoformatter.month": "%Y-%m",
+        "date.autoformatter.day": "%Y-%m-%d",
+        "date.autoformatter.hour": "%m-%d %H",
+        "date.autoformatter.minute": "%Y-%m-%d %H:%M:%S",
+        "date.autoformatter.second": "%H:%M:%S",
+        "date.autoformatter.microsecond": "%M:%S.%f",
         # Set the font for maths
         "mathtext.fontset": "cm",
         # "font.sans-serif": ["DejaVu Sans"],  # gets rid of error messages
