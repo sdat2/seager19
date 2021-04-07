@@ -36,6 +36,8 @@ Example:
         # label subplots
         label_subplots(axs, start_from=0, fontsize=10)
 
+southern_ocean_axes_setup - SO - up to 30 deg South to 90 degrees south.
+
 """
 import numpy as np
 from sys import platform
@@ -43,8 +45,12 @@ import itertools
 from distutils.spawn import find_executable
 from typing import Sequence, Tuple
 import matplotlib
+import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
-from src.constants import REPORT_WIDTH
+import cartopy.crs as ccrs
+from src.constants import REPORT_WIDTH, DATE_TITLE_FORMAT
+from src.utils import timeit
 
 
 def label_subplots(
@@ -264,3 +270,40 @@ PALETTE = itertools.cycle(_paper_colors)
 CAM_BLUE = "#a3c1ad"
 OX_BLUE = "#002147"
 BRICK_RED = "#CB4154"
+
+
+@timeit
+def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
+    """Apply default map.
+
+    Args:
+        ax (matplotlib.axes.Axes): the axes to format. Defaults to None.
+
+    Returns:
+        matplotlib.axes.Axes: axes object in Robinson config.
+
+    """
+    if ax is None:
+        ax = plt.axes(projection=ccrs.Robinson(central_longitude=180))
+    ax.set_global()
+    ax.coastlines()
+    return ax
+
+
+def time_title(
+    ax: matplotlib.axes.Axes,
+    time: np.datetime64,
+) -> None:
+    """Time title.
+
+    Args:
+        ax (matplotlib.axes.Axes): [description]
+        time (np.datetime64): [description]
+
+    Examples:
+        Usage example::
+
+            >>> time_title(ax, xr_da.time.values[index])
+
+    """
+    ax.set_title(pd.to_datetime(str(time)).strftime(DATE_TITLE_FORMAT))

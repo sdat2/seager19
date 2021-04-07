@@ -2,7 +2,6 @@ language: python
 
 python:
   - "3.8"
-  # - "3.7"
 
 # command to install dependencies
 install:
@@ -30,5 +29,6 @@ script:
   # - pytest --pyargs src
   - coverage run --source=src -m pytest --pyargs src
 
+# after success call coveralls to update badge for coverage
 after_success:
   - coveralls

@@ -13,14 +13,12 @@ Adapted for gif output:
 """
 from typing import Callable
 import numpy as np
-import pandas as pd
 import xarray as xr
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import imageio
-from src.plot_settings import label_subplots, ps_defaults
+from src.plot_settings import label_subplots, ps_defaults, time_title
 from src.utils import timeit
-from src.constants import DATE_TITLE_FORMAT
 
 ps_defaults(use_tex=False, dpi=200)
 
@@ -66,11 +64,7 @@ def animate_xr_da(
             fig, ax1 = plt.subplots(1, 1)
 
             xr_da.isel(time=index).plot.imshow(ax=ax1, vmin=vmin, vmax=vmax)
-            ax1.set_title(
-                pd.to_datetime(str(xr_da.time.values[index])).strftime(
-                    DATE_TITLE_FORMAT
-                )
-            )
+            time_title(ax1, xr_da.time.values[index])
             plt.tight_layout()
 
             fig.canvas.draw()
