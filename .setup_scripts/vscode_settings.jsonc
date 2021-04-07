@@ -35,6 +35,8 @@
     "autoDocstring.includeExtendedSummary": true,
     // Start each docstring on a new line
     "autoDocstring.startOnNewLine": true,
+    // format docstrings using sphinx
+    // "autoDocstring.docstringFormat": "google",
     // Enable linting
     "python.linting.enabled": true,
     // Set linter to be flake8 (will then use the setup.cfg file for linting rules)

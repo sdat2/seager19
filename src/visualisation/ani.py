@@ -1,9 +1,15 @@
 """ani.py - A set of functions to animate particular results.
 
+animate_xr_da - animation for individual xr.DataArray.
+
 animate_prediction - specifically designed to plot inputs and results
     from the xgboost algorithm over Chenobyl.
 
 Based on code originally from Tom Anderson: tomand@bas.ac.uk.
+
+Adapted for gif output:
+    https://imageio.readthedocs.io/en/stable/format_gif-fi.html#gif-fi
+
 """
 from typing import Callable
 import numpy as np
@@ -15,6 +21,83 @@ from src.plot_settings import label_subplots, ps_defaults
 from src.utils import timeit
 
 ps_defaults(use_tex=False, dpi=200)
+
+
+@timeit
+def animate_xr_da(
+    xr_da: xr.DataArray,
+    video_path: str = "output.mp4",
+) -> None:
+    """Animate an `xr.DataArray`.
+
+    Args:
+        xr_da (xr.DataArray): input xr.DataArray.
+        video_path (str, optional): Video path. Defaults to "output.mp4".
+    """
+
+    def gen_frame_func(
+        xr_da: xr.DataArray,
+    ) -> Callable:
+        """Create imageio frame function for `xarray.DataArray` visualisation.
+
+        Args:
+            x_da (xr.DataArray): input xr.DataArray.
+
+        Returns:
+            make_frame (Callable): function to create each frame.
+
+        """
+        vmin = xr_da.min(skipna=True)
+        vmax = xr_da.max(skipna=True)
+
+        def make_frame(index: int) -> np.array:
+            """Make an individual frame of the animation.
+
+            Args:
+                index (int): The time index.
+
+            Returns:
+                image (np.array): np.frombuffer output that can be fed into imageio
+
+            """
+            fig, ax1 = plt.subplots(1, 1)
+
+            xr_da.isel(year=index).plot.imshow(ax=ax1, vmin=vmin, vmax=vmax)
+
+            fig.canvas.draw()
+            image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
+            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            plt.close()
+            return image
+
+        return make_frame
+
+    def xarray_to_video(
+        xr_da: xr.DataArray,
+        video_path: str,
+        fps: int = 5,
+    ) -> None:
+        """Generate video of an `xarray.DataArray`.
+
+        The full set of time coordinates of the datasets are used.
+
+        Args:
+            x_da (xr.DataArray): 3 or 6 bands, 4 seasons, 20 years
+            y_da (xr.DataArray): 1 band, 20 years
+            pred_da (xr.DataArray): 1 band, 20 years
+            video_path (str, optional): relative text path to output mp4 file.
+
+        """
+        video_indices = list(range(len(xr_da.year.values)))
+        make_frame = gen_frame_func(xr_da)
+        imageio.mimsave(
+            video_path,
+            [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
+            fps=fps,
+        )
+        print("Video " + video_path + " made.")
+
+    xarray_to_video(xr_da, video_path, fps=5)
 
 
 @timeit

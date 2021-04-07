@@ -1,14 +1,14 @@
 """Test `src.visualisation.ani.py`."""
 import pandas as pd
 import xarray as xr
-from src.visualisation.ani import animate_prediction
+from src.visualisation.ani import animate_prediction, animate_xr_da
 
 
 def test_animate_prediction() -> None:
     """Test `src.visualisation.ani.animate_prediction`."""
     da = (
         xr.tutorial.load_dataset("air_temperature")
-        .air.isel(time=slice(0, 7))
+        .air.isel(time=slice(0, 10))
         .rename({"time": "year", "lat": "y", "lon": "x"})
         - 150
     ) / 150
@@ -22,3 +22,14 @@ def test_animate_prediction() -> None:
     y_da = da
     pred_da = da
     animate_prediction(x_da, y_da, pred_da)
+
+
+def test_animate_xr_da() -> None:
+    """Test `src.visualisation.ani.animate_xr_da`."""
+    da = (
+        xr.tutorial.load_dataset("air_temperature")
+        .air.isel(time=slice(0, 10))
+        .rename({"time": "year", "lat": "y", "lon": "x"})
+        - 150
+    ) / 150
+    animate_xr_da(da)

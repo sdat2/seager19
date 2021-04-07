@@ -57,7 +57,7 @@ def label_subplots(
 ) -> None:
     """Adds e.g. (a), (b), (c) at the top left of each subplot panel.
 
-    Labelling order achieved through ravelling the input `list` / `np.array`.
+    Labelling order achieved through ravelling the input `list` or `np.array`.
 
     Args:
         axs (Sequence[matplotlib.axes.Axes]): `list` or `np.array` of
