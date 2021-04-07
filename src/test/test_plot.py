@@ -66,3 +66,25 @@ def test_map_plot() -> None:
         str(os.path.join(PROJECT_PATH, "gifs", "multi_map_example.png")), dpi=800
     )
     plt.clf()
+
+    p = (
+        xr.tutorial.open_dataset("rasm")
+        .load()
+        .Tair.isel(time=[0, 4])
+        .plot(
+            transform=ccrs.PlateCarree(),
+            col="time",
+            subplot_kws={"projection": ccrs.Robinson(central_longitude=180)},
+        )
+    )
+
+    for ax in p.axes.flat:
+        ax = map_setup(ax=ax)
+
+    plt.tight_layout()
+    plt.savefig(
+        str(os.path.join(PROJECT_PATH, "gifs", "facet_map_example.png")),
+        bbox_inches="tight",
+        dpi=800,
+    )
+    plt.clf()
