@@ -1,13 +1,5 @@
-.. _ocean_model:
-
 ocean_model
 -----------
-
-.. f:autosrcfile:: om_ekm.F
-    :search_mode: basename
-    :objtype: function subroutine
-
-.. f:automodule:: om_ekm.F
 
 .. f:program:: om_ekm
 
@@ -29,11 +21,10 @@ ocean_model
 
 .. f:program:: om_wrap
 
-.. f:program:: sst-mod.F
+.. f:program:: 'sst-mod'
 
-.. f:program:: wrap-mod.F
+.. f:program:: 'wrap-mod'
 
 .. f:program:: fodb
 
 .. f:program:: om_leap
-

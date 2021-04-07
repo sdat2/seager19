@@ -7,7 +7,7 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c     this subroutine precomputes various quantities, indexing stuff
 c          and coefficients for tridiagonal solves
-
+c
 c     input:
 c        k       : vertical mode number
 c        nxr     : number of grid points in zonal direction

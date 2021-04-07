@@ -3,6 +3,7 @@
 animate_prediction - specifically designed to plot inputs and results
     from the xgboost algorithm over Chenobyl.
 
+Based on code originally from Tom Anderson: tomand@bas.ac.uk.
 """
 from typing import Callable
 import numpy as np
@@ -24,8 +25,6 @@ def animate_prediction(
     video_path: str = "joint_val.mp4",
 ) -> None:
     """This function animates the inputs, labels, predictions.
-
-    Based on code originally from Tom Anderson: tomand@bas.ac.uk.
 
     Args:
         x_da (xr.DataArray): 3 or 6 bands, 4 seasons, 20 years
@@ -59,6 +58,7 @@ def animate_prediction(
 
             Returns:
                 image (np.array): np.frombuffer output that can be fed into imageio
+
             """
             if len(x_da.band.values) == 3:
                 fig, ((ax1, ax2), (ax3, ax4), (ax5, ax6)) = plt.subplots(
@@ -130,13 +130,16 @@ def animate_prediction(
         video_path: str,
         fps: int = 5,
     ) -> None:
-        """Generate video of an xarray.DataArray.
+        """Generate video of an `xarray.DataArray`.
+
         The full set of time coordinates of the datasets are used.
+
         Args:
             x_da (xr.DataArray): 3 or 6 bands, 4 seasons, 20 years
             y_da (xr.DataArray): 1 band, 20 years
             pred_da (xr.DataArray): 1 band, 20 years
             video_path (str, optional): relative text path to output mp4 file.
+
         """
         video_indices = list(range(len(y_da.year.values)))
         make_frame = gen_frame_func(x_da, y_da, pred_da)

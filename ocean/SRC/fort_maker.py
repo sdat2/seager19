@@ -1,4 +1,4 @@
-"""Make fortran90 documentation?"""
+"""Make fortran documentation automatically."""
 from sphinxfortran import fortran_autodoc
 import os
 

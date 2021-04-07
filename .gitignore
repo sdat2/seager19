@@ -173,8 +173,6 @@ dmypy.json
 .idea/
 .vscode/
 .animations/
-ocean/SRC/tcom
-ocean/SRC/tios2cdf
 etc/
 DATA-bk/
 DATA/
