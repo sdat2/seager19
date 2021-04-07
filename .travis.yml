@@ -20,7 +20,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-	- conda env create --prefix=./env -f requirements/environment.yml
+  - conda env create --prefix=./env -f requirements/environment.yml
   - conda activate ./env
 # - pip install -r requirements/requirements.txt
 # - pip install -e .
