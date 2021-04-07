@@ -5,11 +5,6 @@ animate_xr_da - animation for individual xr.DataArray.
 animate_prediction - specifically designed to plot inputs and results
     from the xgboost algorithm over Chenobyl.
 
-Based on code originally from Tom Anderson: tomand@bas.ac.uk.
-
-Adapted for gif output:
-    https://imageio.readthedocs.io/en/stable/format_gif-fi.html#gif-fi
-
 """
 from typing import Callable
 import numpy as np

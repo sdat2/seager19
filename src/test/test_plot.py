@@ -46,9 +46,8 @@ def test_map_plot() -> None:
     da.plot.imshow(
         ax=ax,
         transform=ccrs.PlateCarree(),
-        # transform=ccrs.Robinson(central_longitude=180),
         cbar_kwargs={"shrink": 0.5},
-    )  # transform=ccrs.PlateCarree(),
+    )
     time_title(ax, da.time.values)
     plt.tight_layout()
     plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "map_example.png")), dpi=800)
