@@ -21,7 +21,8 @@ def test_animate_prediction() -> None:
     )
     y_da = da
     pred_da = da
-    animate_prediction(x_da, y_da, pred_da)
+    animate_prediction(x_da, y_da, pred_da, video_path="gifs/tepr_output.mp4")
+    animate_prediction(x_da, y_da, pred_da, video_path="gifs/tepr_output.gif")
 
 
 def test_animate_xr_da() -> None:
@@ -32,5 +33,5 @@ def test_animate_xr_da() -> None:
         .rename({"time": "time", "lat": "y", "lon": "x"})
         - 150
     ) / 150
-    animate_xr_da(da)
-    animate_xr_da(da, video_path="output.gif")
+    animate_xr_da(da, video_path="gifs/test_output.mp4")
+    animate_xr_da(da, video_path="gifs/test_output.gif")
