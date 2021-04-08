@@ -2,9 +2,12 @@
 
 # usage: bash ./run-model.sh
 
-RUN_NAME="R5"
+RUN_NAME="R7"
 
 mkdir ${RUN_NAME}
+
+# R6 failed possibly due to ingrid.
+# R7 recompiled some files.
 
 ## step: i file, -o tios files
 # STEP 1: om_spin, spin.tios
@@ -64,11 +67,11 @@ cp -f output/om_diag.save output/om_diag.2y.restart # < 1 seconds
 # pop it into DATA/qflx.nc with your favorite tool
 # /usr/local/bin/ingrid qflx.ing
 
-# conda activate ../../env
+conda activate ../../env
 
-# which python3 
+which python3
 
-# python3 ingrid.py
+python3 ingrid.py
 
 # STEP 3 -- run the dynamics + sst in full mode
 
