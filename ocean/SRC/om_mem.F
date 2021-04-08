@@ -1,9 +1,9 @@
-c-------------------------------------------------
+!-------------------------------------------------
       subroutine model_memory 
       use wrap
       implicit none
       include 'om_wrap.h'
-c-------------------------------------------------
+!-------------------------------------------------
       integer nxyz,mxyz,mzm,mxyzp,i
  
       nxy  = nx*ny
@@ -12,7 +12,7 @@ c-------------------------------------------------
       mxyzp = (nxy + nx) * nmodes
       mzm  = nz * nmodes
 
-c  3D---------------------------------------------
+!  3D---------------------------------------------
       allocate (tp(nx*ny*MAXNZ))
       tp = 0.
 
@@ -42,7 +42,7 @@ c  3D---------------------------------------------
       vn = 0.
 
 
-c  2D---------------------------------------------
+!  2D---------------------------------------------
 
       allocate (tdeep(nxy))
       allocate (htherm(nxy))
@@ -89,7 +89,7 @@ c  2D---------------------------------------------
 
       allocate (iox(nxy))
 
-c  1D---------------------------------------------
+!  1D---------------------------------------------
 
       allocate (hvm(nz*nmodes*nxy))
       allocate (vvm(nz*nmodes*nxy))
@@ -147,8 +147,8 @@ c--------------------------------------
       allocate (im2d(npt2))
       allocate (blcf(4*npt2))
 
-c      print*,'datagrid_memory:',mxp,xd(1),xd(mxp)
-c      print*,'datagrid_memory:',myp,yd(1),yd(myp)
+!      print*,'datagrid_memory:',mxp,xd(1),xd(mxp)
+!      print*,'datagrid_memory:',myp,yd(1),yd(myp)
 
       idatgr = 1
       

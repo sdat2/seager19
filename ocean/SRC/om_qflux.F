@@ -1,15 +1,15 @@
-c---------------------------------------------
+!---------------------------------------------
       subroutine qflux(nstep, tenso, npt, nx, ny, iox, slat, qnet,
      *                 qfp,sst, sstt, qflxt, dQdTt, dQdft, f1prime, tp)
 
       use wdata
       include 'om_data.h'
-c---------------------------------------------
-c.....AML(TCC - linearized heat fluxes from data)
-c        sst     calculated sst
-c        sstf    sst data
-c        qflxf    qflx data
-c        f1prime  change in f1 (greenhouse gas forcing) from 1958 to 2014
+!---------------------------------------------
+!.....AML(TCC - linearized heat fluxes from data)
+!        sst     calculated sst
+!        sstf    sst data
+!        qflxf    qflx data
+!        f1prime  change in f1 (greenhouse gas forcing) from 1958 to 2014
 
       integer iox(npt)
       real sst(1), qnet(1), sstt(1), ut(1),vt(1),wt(1), qflxt(1),
@@ -89,9 +89,9 @@ c        f1prime  change in f1 (greenhouse gas forcing) from 1958 to 2014
       call interp_u2t(nx,ny,dQdTf(1,3),dQdTt)
       call interp_u2t(nx,ny,dQdff(1,3),dQdft)
 
-c   qnet = dQdT * (t1 - sst) + dQdf * fprime
-c     where fprime = f1p * (t-tstart)/(tend-tstart)
-c     and f1p ramps in time from 0 to f1prime (~= -0.006)
+!   qnet = dQdT * (t1 - sst) + dQdf * fprime
+!     where fprime = f1p * (t-tstart)/(tend-tstart)
+!     and f1p ramps in time from 0 to f1prime (~= -0.006)
 
       tstart = date2enso(1,1,1958)
       tend   = date2enso(1,1,2015)
@@ -105,19 +105,19 @@ c     and f1p ramps in time from 0 to f1prime (~= -0.006)
       return
       end
 
-c---------------------------------------------
+!---------------------------------------------
       subroutine qflux_init (npt, nx, ny, xv, yv, iox, slat,
      *                      sstt,qflxt,dQdTt,dQdft,tp)
       use wdata
       include 'om_data.h'
-c---------------------------------------------
+!---------------------------------------------
       integer iox(npt), tp(1)
       real xv(nx),yv(ny),sstt(nx,ny)
       real qflxt(nx,ny), dQdTt(nx,ny), dQdft(nx,ny)
             
       nxy = nx*ny
 
-c--------------------------------------------------
+!--------------------------------------------------
       allocate (sstf(nxy,3))
       call odb_open(idf_sst, fbsst(1:n_sst), 0)
       call odb_rddm(idf_sst, 'T', nsst)
@@ -136,7 +136,7 @@ c--------------------------------------------------
          sstf(k,3) = sstf(k,1) + tscl * (sstf(k,2) - sstf(k,1)) 
       enddo
 
-c--------------------------------------------------
+!--------------------------------------------------
       allocate (qflxf(nxy,3))
       call odb_open(idf_qflx, fbqflx(1:n_qflx), 0)
       call odb_rddm(idf_qflx, 'T', nqflx)
@@ -155,7 +155,7 @@ c--------------------------------------------------
          qflxf(k,3) = qflxf(k,1) + tscl * (qflxf(k,2) - qflxf(k,1)) 
       enddo
       
-c--------------------------------------------------
+!--------------------------------------------------
       allocate (dQdTf(nxy,3))
       call odb_open(idf_dQdT, fbdQdT(1:n_dQdT), 0)
       call odb_rddm(idf_dQdT, 'T', ndQdT)
@@ -174,7 +174,7 @@ c--------------------------------------------------
          dQdTf(k,3) = dQdTf(k,1) + tscl * (dQdTf(k,2) - dQdTf(k,1)) 
       enddo
       
-c-------------------------------------------------
+!-------------------------------------------------
       allocate (dQdff(nxy,3))
       call odb_open(idf_dQdf, fbdQdf(1:n_dQdf), 0)
       call odb_rddm(idf_dQdf, 'T', ndQdf)
@@ -218,12 +218,12 @@ c-------------------------------------------------
       return
       end
       
-c---------------------------------------------------------------------------
+!---------------------------------------------------------------------------
       subroutine interp_u2t(nx,ny,fu,ft)
       use wsst
       implicit none 
       include 'om_sst.h'
-c---------------------------------------------------------------------------
+!---------------------------------------------------------------------------
       integer nx,ny
       real fu(nx,ny),ft(nx,ny) 
 
