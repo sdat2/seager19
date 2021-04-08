@@ -763,11 +763,11 @@ C  Eigenvalue output goes to EV
       INCLUDE 'om_equi.h'
 *----------------------------------------------------------------------
 C	equiv4		- subroutine to calculate eigenvectors
-
+C
 C	The DO loop at line 700 does not compile properly
 C	with optimization levels 2 or 3
 C	(unless you include a write statement in the loop)
-
+C
 C	Input -  	Desc
 C	NMODES	common	number of modes (includes barotropic)
 C	EV	common	eigenvalues
@@ -775,11 +775,11 @@ C	NSQ	common	buoyancy frequency squared in rad/sec squared
 C	TEMP1	common  temperature	
 C	DZ	common	array of depth differences
 C	GPINV	common  inverse reduced gravity for bottom layer
-
+C
 C	HVM	selected horizontal velocity mode values
 C	VVM	selected vertical velocity mode values
 C	HCM	selected heat content mode values
-
+C
 C	AHMIX0	meqsf	depth of T=20 degrees
 C	AHMIXP	meqsf	vertical velocity mode value at z=ahmix0
 

@@ -117,7 +117,7 @@ c---------------------------------------------
             
       nxy = nx*ny
 
-c------
+c--------------------------------------------------
       allocate (sstf(nxy,3))
       call odb_open(idf_sst, fbsst(1:n_sst), 0)
       call odb_rddm(idf_sst, 'T', nsst)
@@ -136,7 +136,7 @@ c------
          sstf(k,3) = sstf(k,1) + tscl * (sstf(k,2) - sstf(k,1)) 
       enddo
 
-c------
+c--------------------------------------------------
       allocate (qflxf(nxy,3))
       call odb_open(idf_qflx, fbqflx(1:n_qflx), 0)
       call odb_rddm(idf_qflx, 'T', nqflx)
@@ -155,7 +155,7 @@ c------
          qflxf(k,3) = qflxf(k,1) + tscl * (qflxf(k,2) - qflxf(k,1)) 
       enddo
       
-c------
+c--------------------------------------------------
       allocate (dQdTf(nxy,3))
       call odb_open(idf_dQdT, fbdQdT(1:n_dQdT), 0)
       call odb_rddm(idf_dQdT, 'T', ndQdT)
@@ -174,7 +174,7 @@ c------
          dQdTf(k,3) = dQdTf(k,1) + tscl * (dQdTf(k,2) - dQdTf(k,1)) 
       enddo
       
-c------
+c-------------------------------------------------
       allocate (dQdff(nxy,3))
       call odb_open(idf_dQdf, fbdQdf(1:n_dQdf), 0)
       call odb_rddm(idf_dQdf, 'T', ndQdf)
@@ -237,5 +237,3 @@ c---------------------------------------------------------------------------
 
       return
       end
-
-

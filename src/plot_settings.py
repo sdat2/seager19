@@ -36,8 +36,6 @@ Example:
         # label subplots
         label_subplots(axs, start_from=0, fontsize=10)
 
-southern_ocean_axes_setup - SO - up to 30 deg South to 90 degrees south.
-
 """
 import numpy as np
 from sys import platform
@@ -283,7 +281,6 @@ def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
         matplotlib.axes.Axes: axes object in Robinson config.
 
     Example:
-
         When using multiple subplots::
             fig, axes = plt.subplots(
                2, 2, subplot_kw={"projection": ccrs.Robinson(central_longitude=180)}
@@ -309,10 +306,11 @@ def time_title(
     Args:
         ax (matplotlib.axes.Axes): axis to add title to.
         time (np.datetime64): time string.
-        date_time_formatter (str, optional): Default is `DATE_TITLE_FORMAT`.
+        date_time_formatter (str, optional): Default is
+            `src.constants.DATE_TITLE_FORMAT`.
 
     Examples:
-        Usage example::
+        Usage with an xarray.Datarray object::
 
             >>> time_title(ax, xr_da.time.values[index])
 

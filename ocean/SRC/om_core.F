@@ -175,8 +175,8 @@ c
 c        d(hm)/dt + d(um)/dx + d(vm)/dy = Q - r*hm + nu*(h_xx + h_yy)
 c
 c      on an A-grid
-
-
+c
+c
 c     input:
 c        nxr      : number of grid points in zonal direction
 c        nyr      : number of grid points in meridional direction
@@ -1979,13 +1979,13 @@ c  filter x direction:
             ipt = lpt_e(in)
             i = ival(ipt)
             j = jval(ipt)
-            w(j,i) = x(j,i) + coef*0.50*(x(j,i-1)-x(j,i))
+            w(j,i) = x(j,i) + coef*0.50*(x(j,i-1) -x(j,i))
          end do
          do in = 1, npt_w
             ipt = lpt_w(in)
             i = ival(ipt)
             j = jval(ipt)
-            w(j,i) = x(j,i) + coef*0.50*(x(j,i+1)-x(j,i))
+            w(j,i) = x(j,i) + coef*0.50*(x(j,i+1) -x(j,i))
          end do
       endif
 

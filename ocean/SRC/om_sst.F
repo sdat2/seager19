@@ -7,7 +7,7 @@ c--------------------------------------------------------------------------
       include 'om_sst.h'
 c-------------------------------------------------------------------------- 
 c     SST advection equation on a A-GRID
-
+c
 c     delt     time step (s)
 c     HSFC     depth of surface layer (m)
 c     u1,v1    surface layer horizontal velocity components 
@@ -190,14 +190,14 @@ c     upwelling is causing trouble:
 c         TDEEP = MIN(TDEEP,SST-.5)
 c old way was to fit hmodel to h20 and then h20 to tdeep
 c orig    tdeep(i,j) = tdeeph_ERA(h20)  
-
+c
 c  could use a linear fit instead:
 c         h20_0  = 60
 c         tdeep0 = 24
 c         h20_1  = 180
 c         tdeep1 = 28.4
 c         tdeep(i,j) = tdeep0 + hmodel* (tdeep1- tdeep0)/ (h20_1- h20_0)
-
+c
 c we're not using this for now:
 c
       enddo
@@ -537,5 +537,4 @@ c  ..
   20  continue
       return
       end
-
 
