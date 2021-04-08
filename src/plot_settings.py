@@ -37,11 +37,11 @@ Example:
         label_subplots(axs, start_from=0, fontsize=10)
 
 """
+from typing import Sequence, Tuple
 import numpy as np
 from sys import platform
 import itertools
 from distutils.spawn import find_executable
-from typing import Sequence, Tuple
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd

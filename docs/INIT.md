@@ -1,11 +1,11 @@
 
 # Initial Code/Data structure
 
- - This section shows the initial structure of the code and 
+- This section shows the initial structure of the code and
    data.
- - From inspection, files with the same names in different
+- From inspection, files with the same names in different
   dircetories are identical.
- - How to couple the ocean and atmospheric model is not 
+- How to couple the ocean and atmospheric model is not
    immediately apparent.
 
 ## Summary
@@ -13,37 +13,38 @@
 
 The Python code for the atmosphere model is in a Juypter Notebook. The ocean model code is built on legacy Fortran 90 and C code.
 
-
 From running the command
 
-      cloc $(git ls-files)
-
+```bash
+  cloc $(git ls-files)
+```
 
 The initial state off the code was:
 
-      48 text files.
-      45 unique files.                              
-      14 files ignored.
+```txt
+    48 text files.
+    45 unique files.s
+    14 files ignored.
+```
 
 github.com/AlDanial/cloc v 1.84  T=0.10 s (349.4 files/s, 149217.5 lines/s)
 
- | Language                |       files       |     blank      |    comment      |       code | 
- | ----------------------- | ----------------- | -------------- | --------------- | ---------- | 
- | Fortran 77              |          15       |      1364      |       1365      |       6170 | 
- | C                       |           5       |       493      |        200      |       2746 | 
- | Jupyter Notebook        |           2       |         0      |        517      |        474 | 
- | Python                  |           2       |       172      |        100      |        397 | 
- | C/C++ Header            |           8       |        88      |         18      |        365 | 
- | make                    |           1       |        15      |          1      |         36 | 
- | Markdown                |           1       |         0      |          0      |          1 | 
- | SUM:                    |          34       |      2132      |       2201      |      10189 | 
+ | Language                |       files       |     blank      |    comment      |       code |
+ | ----------------------- | ----------------- | -------------- | --------------- | ---------- |
+ | Fortran 77              |          15       |      1364      |       1365      |       6170 |
+ | C                       |           5       |       493      |        200      |       2746 |
+ | Jupyter Notebook        |           2       |         0      |        517      |        474 |
+ | Python                  |           2       |       172      |        100      |        397 |
+ | C/C++ Header            |           8       |        88      |         18      |        365 |
+ | make                    |           1       |        15      |          1      |         36 |
+ | Markdown                |           1       |         0      |          0      |          1 |
+ | SUM:                    |          34       |      2132      |       2201      |      10189 |
 
-
-### Code structure 
+### Code structure
 
 The code is structured into folders:
 
-```
+```txt
    |-animations
    |-atmos
    |---README.md --> lists file structure of this model.
@@ -63,17 +64,18 @@ The code is structured into folders:
 ```
 
 ## Detailed
- - File by file structure.
+
+- File by file structure.
 
 ### Data
 
- - The data is currently not stored in the github repository, as it takes up roughly 3.5 GB.
- - Given the duplication of data, it should be possible to 
+- The data is currently not stored in the github repository, as it takes up roughly 3.5 GB.
+- Given the duplication of data, it should be possible to
    reduce the ammount to a managable ammount, and either
-   keep it on `git-lfs` or create 
+   keep it on `git-lfs` or create
    an automatic import script from Dropbox.
 
-```
+```txt
 atmos
   DATA/      # everything ending with clim60 read by dQ.py
     ps-ECMWF-clim.nc          # read in by TCAM.py
@@ -159,13 +161,13 @@ ocean
       tau-ECMWF-clim.y
 ```
 
-### Code:
+### Code
 
- - Duplication of code between `jupyter-notebook`s and the `python` scripts.
- - Executables `om_run2f`, `tios2cdf`.
- - The mixture of `Fortran`/`C` files in the ocean model is currently pretty inpenetrable.
+- Duplication of code between `jupyter-notebook`s and the `python` scripts.
+- Executables `om_run2f`, `tios2cdf`.
+- The mixture of `Fortran77`/`C` files in the ocean model is currently pretty inpenetrable.
 
-```
+```txt
 atmos
   TCAM.ipynb
   TCAM.py
@@ -230,4 +232,3 @@ ocean
     daio.c
     om_test.log
 ```
-

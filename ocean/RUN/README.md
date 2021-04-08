@@ -1,17 +1,15 @@
- # Folder that the ocean model is run from.
+## Folder that the ocean model is run from.
 
 ```bash
 sh ./run-model.sh
 ```
- 
+
 The timings end up getting stored in `timing.txt`.
 
-
-From what I understand so far, it seems that the 
+From what I understand so far, it seems that the
 model parameters are fed in at compilation of the model.
 
-
-```
+```bash
  reading file for land/sea mask: DATA/om_mask.nc
  Using a time step of:    10.3655691     hours
  mode=           1   c,dt,hx,hy=   2.98355699      0.307775855      0.307775885      0.307775855    

@@ -6,12 +6,12 @@
 
 Seager et al. 2019 [1] shows that CMIP models do not follow the observed trend in ENSO, but that this trend can
 be reproduced with a simple coupled physical model.
-There was no sensitivity analysis of the model in this paper. Given that the model 
-takes around 30 minutes to run at the moment, 
-it would be quite achievable to do the number of 
-model runs neccessary to achieve this. 
-Of particular interest might be the model's sensitivity to the 
-drag coefficient, as they note that they chose a much 
+There was no sensitivity analysis of the model in this paper. Given that the model
+takes around 30 minutes to run at the moment,
+it would be quite achievable to do the number of
+model runs neccessary to achieve this.
+Of particular interest might be the model's sensitivity to the
+drag coefficient, as they note that they chose a much
 higher value than normal so as to replicate the amplitude of ENSO.
 This sensitivity analysis could first be achieved using a Gaussian Process (GP)
 with a radial basis function (RBF) kernel of a given smoothness,
@@ -21,10 +21,10 @@ sensitivity analyses, and/or more complicated model settings.
 
 Scientific questions to be addressed would include:
 
- - Can we replicate the results displayed in Seager et al. 2019?
- - How robust is the model to the parameters chosen?
- - Can the sensitivity of the model to the parameters be understood from the physical processes underlying it?
- - How skillful are different emulation functions at fitting input/output of the model?
+- Can we replicate the results displayed in Seager et al. 2019?
+- How robust is the model to the parameters chosen?
+- Can the sensitivity of the model to the parameters be understood from the physical processes underlying it?
+- How skillful are different emulation functions at fitting input/output of the model?
 
 ## Part 2
 
@@ -35,16 +35,15 @@ to see if the same bias exists (it seems it does, in e.g. [2]).
 
 Scientific questions to be addressed would include:
 
- - Do any particular model families perform better, and is there a physical reason for this.
- - What are the likely effects of these biases on risk 
-   from e.g. Tropical cyclones (using a metric like the 
+- Do any particular model families perform better, and is there a physical reason for this.
+- What are the likely effects of these biases on risk
+   from e.g. Tropical cyclones (using a metric like the
    potential intensity).
 
 ## Skills learnt
 
-This project will be a good opportunity to learn about numerical solutions to differential equations [3, 4]. From the rubric at <https://ai4er-cdt.esc.cam.ac.uk> this project would include the primary application areas of _Weather, Climate and Air Quality_, as well as touching on _Natural Hazards_ as this bias in CMIP will effect the frequency and intensity of tropical cyclones (and therefore their effects such as storm surges, as in my MSci thesis <https://bit.ly/msci-report>).  The methodology of this project will primarily be within _2. Environmental modelling_.  The model used is quite low down in the hierarchy of models, and so it will be much 
-easier to demonstrate simple ML tools upon it. 
-
+This project will be a good opportunity to learn about numerical solutions to differential equations [3, 4]. From the rubric at <https://ai4er-cdt.esc.cam.ac.uk> this project would include the primary application areas of _Weather, Climate and Air Quality_, as well as touching on _Natural Hazards_ as this bias in CMIP will effect the frequency and intensity of tropical cyclones (and therefore their effects such as storm surges, as in my MSci thesis <https://bit.ly/msci-report>).  The methodology of this project will primarily be within _2. Environmental modelling_.  The model used is quite low down in the hierarchy of models, and so it will be much
+easier to demonstrate simple ML tools upon it.
 
 ### Citations
 
@@ -58,7 +57,7 @@ easier to demonstrate simple ML tools upon it.
 
 ![Hurricane Katrina at Landfall: Credit NASA](https://cdn.britannica.com/74/121674-050-C458B2B5/satellite-image-National-Oceanic-and-Atmospheric-Administration-August-28-2005.jpg)
 
-## Potential PhD project.
+## Potential PhD project
 
 The current deliberately broad title of this project would be:
 
@@ -66,17 +65,16 @@ _Investigating the bias in the predicted risk from Tropical Cyclones_
 
 This could focus on:
 
-
-(1)  The bias in GCMs, and how this would be expected to effect broad proxies 
+(1)  The bias in GCMs, and how this would be expected to effect broad proxies
    for tropical cyclone activity, such as potential intensity.
 
-   _and / or_
+_and / or_
   
  (2) A more focussed look at how the risk from tropical cyclones
    can be parameterised from its characteristics and the characteristics of the coast, 
    involving more extensive extreme value theory.
 
-To achieve this I am in contact with Talea Mayo (storm surge expert), 
+To achieve this I am in contact with Talea Mayo (storm surge expert),
 and Dan Chavas (tropical cyclone expert).
 
 ### Focus 1
@@ -95,20 +93,19 @@ These biases probably arise from errors in the coupled parameterisations,
 and errors in the parameterisation of convection. There are probably many
 interesting numerical experiments that could be done to investigate this.
 
-
 ### Focus 2
 
-The second focus would be more in line 
-with Talea Mayo's work, as she has a number 
-of prerun high resolution model outputs 
+The second focus would be more in line
+with Talea Mayo's work, as she has a number
+of prerun high resolution model outputs
 from tropical cyclones hitting the coast.
-My MSci Project <https://bit.ly/msci-report> 
+My MSci Project <https://bit.ly/msci-report>
 showed that you can predict the responsiveness of
 a coastline to a windstess fairly well with a very simple physical model.
 To properly cacluate the return period for a given coastline,
-quite a lot of data is required. 
-In fact, if we consider a single point at the coast, it 
+quite a lot of data is required.
+In fact, if we consider a single point at the coast, it
 may take roughly 1 million years to properly converge to an extreme value
-distribution. Theforefore, ways to pool data from different points along the 
-coast would probably be neccessary to be able to achieve anything reliable 
+distribution. Theforefore, ways to pool data from different points along the
+coast would probably be neccessary to be able to achieve anything reliable
 within reasonable computational expense.

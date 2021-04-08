@@ -22,8 +22,7 @@ _Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal
 
 <https://doi.org/10.1038/s41558-019-0505-x>
 
-
-### Summary of paper:
+### Summary of paper
 
 - There is a west-east warm-to-cold contrast in the Pacific.
 
@@ -33,11 +32,11 @@ _Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal
 
 - Their simple linear model agrees with observations.
 
-### Citation:
+### Citation
 
 The citation for this paper is:
 
-```
+```bibtex
 @article{seager2019strengthening,
   title={Strengthening tropical Pacific zonal sea surface temperature gradient consistent with rising greenhouse gases},
   author={Seager, Richard and Cane, Mark and Henderson, Naomi and Lee, Dong-Eun and Abernathey, Ryan and Zhang, Honghai},
@@ -51,14 +50,13 @@ The citation for this paper is:
 }
 ```
 
-### Podcast:
+### Podcast
 
 The paper is discussed in a podcast available at:
 
 <a href='https://deep-convection.org/2020/04/13/episode-5-richard-seager/'>
     <img src='https://deep-convection.org/wp-content/uploads/2020/02/DC_logo_small_rectangular.png' alt='Deep Convection Season 1 Episode 5' width='150' />
 </a>
-
 
 ## Code
 
@@ -68,13 +66,12 @@ The code and data was taken from:
 <img src='https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Columbia_University_shield.svg/1200px-Columbia_University_shield.svg.png', width='150'>
 </a>
 
-
-## Videos of outputs:
+## Videos of outputs
 
 ### ocean-model/RUN/output/
 
- * SST_SST full in om_run2f: <https://youtu.be/JA97IWPmwxs>
- * DYN_PRES in om_run2f: <https://youtu.be/5oRMWWAK1sM>
- * TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
- * TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
- * TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>
+* SST_SST full in om_run2f: <https://youtu.be/JA97IWPmwxs>
+* DYN_PRES in om_run2f: <https://youtu.be/5oRMWWAK1sM>
+* TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
+* TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
+* TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>

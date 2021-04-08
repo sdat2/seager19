@@ -2,7 +2,7 @@
 
 # usage: bash ./run-model.sh
 
-RUN_NAME="R9"
+RUN_NAME="R1"
 
 mkdir ${RUN_NAME}
 

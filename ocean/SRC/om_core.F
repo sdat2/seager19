@@ -1,30 +1,29 @@
-c----------------------------------------------------------------------
       subroutine inc_init (nxr,nyr,nxyc,k,mask,dt,hx,hy,fc,rayl,rlap,
      *                     um,vm,hm,un,vn,hn,vmy,ischeme,ifper)
 
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
-c     this subroutine precomputes various quantities, indexing stuff
-c          and coefficients for tridiagonal solves
-c
-c     input:
-c        k       : vertical mode number
-c        nxr     : number of grid points in zonal direction
-c        nyr     : number of grid points in meridional direction
-c        nxyc    : number of water points as calculated by make_iox
-c        mask    : land mask (0=land, nonzero=ocean, or edge of ocean)
-c        dt      : time step in scaled time units
-c        hx      : zonal grid spacing (scaled)
-c        hy      : meridional grid spacing (scaled)
-c        fc      : scaled coriolis parameter
-c        rayl    : scaled Rayleigh coefficients
-c        rlap    : scaled Laplacian diffusion coefficients
-c        hr      : initial pressure  (scaled)
-c        ur      : initial zonal velocity (scaled)
-c        vr      : initial meridional velocity (scaled)
-c        txr     : initial zonal momentum forcing term (scaled)
-c        tyr     : initial meridional momentum forcing term (scaled)
+!
+!     this subroutine precomputes various quantities, indexing stuff
+!          and coefficients for tridiagonal solves
+!
+!     input:
+!        k       : vertical mode number
+!        nxr     : number of grid points in zonal direction
+!        nyr     : number of grid points in meridional direction
+!        nxyc    : number of water points as calculated by make_iox
+!        mask    : land mask (0=land, nonzero=ocean, or edge of ocean)
+!        dt      : time step in scaled time units
+!        hx      : zonal grid spacing (scaled)
+!        hy      : meridional grid spacing (scaled)
+!        fc      : scaled coriolis parameter
+!        rayl    : scaled Rayleigh coefficients
+!        rlap    : scaled Laplacian diffusion coefficients
+!        hr      : initial pressure  (scaled)
+!        ur      : initial zonal velocity (scaled)
+!        vr      : initial meridional velocity (scaled)
+!        txr     : initial zonal momentum forcing term (scaled)
+!        tyr     : initial meridional momentum forcing term (scaled)
       common /constants/ xconv,yconv,rl
 
       real xconv,yconv,delx,dely,rl
@@ -160,29 +159,27 @@ c  set up for leapfrog
       return
       end
       
-c----------------------------------------------------------------------
       subroutine inc (nstep,k,nxr,nyr,hm,um,vm,vmy,F,G,Q,ifper)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
-c
-c     solves:
-c
-c        d(um)/dt - fcor*vm  + d(hm)/dx = F - r*um + nu*(u_xx + u_yy)
-c
-c        d(vm)/dt + fcor*um  + d(hm)/dy = G - r*vm + nu*(v_xx + v_yy)
-c
-c        d(hm)/dt + d(um)/dx + d(vm)/dy = Q - r*hm + nu*(h_xx + h_yy)
-c
-c      on an A-grid
-c
-c
-c     input:
-c        nxr      : number of grid points in zonal direction
-c        nyr      : number of grid points in meridional direction
-c        hm,um,vm : k-th scaled mode
-c        F,G      : momentum forcing
-c        Q        : mass forcing
+!
+!     solves:
+!
+!        d(um)/dt - fcor*vm  + d(hm)/dx = F - r*um + nu*(u_xx + u_yy)
+!
+!        d(vm)/dt + fcor*um  + d(hm)/dy = G - r*vm + nu*(v_xx + v_yy)
+!
+!        d(hm)/dt + d(um)/dx + d(vm)/dy = Q - r*hm + nu*(h_xx + h_yy)
+!
+!      on an A-grid
+!
+!
+!     input:
+!        nxr      : number of grid points in zonal direction
+!        nyr      : number of grid points in meridional direction
+!        hm,um,vm : k-th scaled mode
+!        F,G      : momentum forcing
+!        Q        : mass forcing
 
       logical ifper
       integer nstep, k, nxr, nyr
@@ -191,13 +188,13 @@ c        Q        : mass forcing
 
       integer i,j,ipt
 
-c  add terms at the old time
+!  add terms at the old time
       call add_diff(k,nxr,nyr,hm,um,vm,F,G,Q)
 
       call make_rhs4uh(k,nxr,nyr,hm,um,vm,vmy,F,Q)
       call add2rhs4uh(k,nxr,nyr,F,Q)
 
-c  add terms at the new time
+!  add terms at the new time
       call make_rhs4v(k,nxr,nyr,hm,um,vm,G)
       call add2rhs4v(k,nxr,nyr,G)
       
@@ -251,11 +248,11 @@ c  add terms at the new time
       return
       end
       
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine make_indis(nx,ny,nxyc,k,mask,dt,hx,ifper,ischeme)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer nx,ny,mask(nx,ny),k,nxyc,ischeme
       real dt,hx
 
@@ -264,11 +261,11 @@ c----------------------------------------------------------------------
       common /filter/ nshap,nshapb,nshapxd,nshapyd,shapi_coef,shapb_coef
      *               , shaph_coef, nshapt, shapi_coefx, shapi_coefy
 
-c    NB: - mask is assumed to be defined on an A-grid which is the one
-c           in LOAM (in a cell-centered view, the land intersects
-c                 the cells through the middle; creating half and 
-c                 quarter sized cells around the boundary of the ocean)
-c           therefore, each water segment must be at least 2 grid points wide
+!    NB: - mask is assumed to be defined on an A-grid which is the one
+!           in LOAM (in a cell-centered view, the land intersects
+!                 the cells through the middle; creating half and 
+!                 quarter sized cells around the boundary of the ocean)
+!           therefore, each water segment must be at least 2 grid points wide
 
       logical ifper
       integer i,j,mw,me,ms,mn,idtx,ipt,ix,is
@@ -325,50 +322,50 @@ c           therefore, each water segment must be at least 2 grid points wide
          if (j.lt.ny) mn = mask(i,j+1)
             
          if (mw.eq.0) then
-c                add grid point to list of western boundary points
+!                add grid point to list of western boundary points
             npt_w = npt_w + 1
             lpt_w(npt_w) = ipt
-c               print*,'pt_w',npt_w,ipt
+!               print*,'pt_w',npt_w,ipt
          endif
          if (me.eq.0) then
-c                add grid point to list of eastern boundary points
+!               add grid point to list of eastern boundary points
             npt_e = npt_e + 1
             lpt_e(npt_e) = ipt
          endif
          if (mn.eq.0) then
-c                add grid point to list of northern boundary points
+!                add grid point to list of northern boundary points
             npt_n = npt_n + 1
             lpt_n(npt_n) = ipt
          endif
          if (ms.eq.0) then
-c                add grid point to list of southern boundary points
+!               add grid point to list of southern boundary points
             npt_s = npt_s + 1
             lpt_s(npt_s) = ipt
          endif
          if (mw*me.ne.0) then
-c                add grid point to list of interior (x) points
+!                add grid point to list of interior (x) points
             nptix = nptix + 1
             lptix(nptix) = ipt
          else
-c                add grid point to list of boundary (x) points
+!                add grid point to list of boundary (x) points
             npt_ew = npt_ew + 1
             lpt_ew(npt_ew) = ipt
          endif
          if (ms*mn.ne.0) then
-c                add grid point to list of interior (y) points
+!                add grid point to list of interior (y) points
             nptiy = nptiy + 1
             lptiy(nptiy) = ipt
          else
-c                add grid point to list of boundary (y) points
+!                add grid point to list of boundary (y) points
             npt_ns = npt_ns + 1
             lpt_ns(npt_ns) = ipt
          endif
          if (ms*mn*me*mw.ne.0) then
-c                add grid point to list of interior points
+!                add grid point to list of interior points
             nptixy = nptixy + 1
             lptixy(nptixy) = ipt
          else
-c                add grid point to list of boundary points
+!                add grid point to list of boundary points
             npt_b = npt_b + 1
             lpt_b(npt_b) = ipt
             if (ms+me.eq.0.or.ms+mw.eq.0.or.mn+me.eq.0.or.mn+mw.eq.0) then
@@ -418,7 +415,7 @@ c                add grid point to list of boundary points
       idtx = int(dt/hx)
       alf = dt/hx - idtx
 
-c     find params for left characteristics of interior points
+!     find params for left characteristics of interior points
       nrt_lc(k) = 0
       nbt_lc(k) = 0
       not_lc(k) = 0
@@ -437,8 +434,8 @@ c     find params for left characteristics of interior points
                goto 10
             endif
          enddo
-c            characteristic did not intersect boundary
-c               takeoff point is in the interval:  (i1,i2]
+!            characteristic did not intersect boundary
+!               takeoff point is in the interval:  (i1,i2]
          i2 = i - idtx
          i1 = i2 - 1
          i0 = i2 - 2
@@ -455,7 +452,7 @@ c               takeoff point is in the interval:  (i1,i2]
    10    continue
       enddo
 
-c     find params for right characteristics of interior points
+!     find params for right characteristics of interior points
       nrt_rc(k) = 0
       nbt_rc(k) = 0
       not_rc(k) = 0
@@ -474,8 +471,8 @@ c     find params for right characteristics of interior points
                goto 20
             endif
          enddo
-c            characteristic did not intersect boundary
-c               and takeoff point is in the interval:  [i1,i2)
+!            characteristic did not intersect boundary
+!               and takeoff point is in the interval:  [i1,i2)
          i1 = i + idtx
          i2 = i1 + 1
          i3 = i1 + 2
@@ -492,7 +489,7 @@ c               and takeoff point is in the interval:  [i1,i2)
    20    continue
       enddo
 
-c     find params for left characteristics of eastern boundary
+!     find params for left characteristics of eastern boundary
       nrt_eb(k) = 0
       nbt_eb(k) = 0
       not_eb(k) = 0
@@ -511,8 +508,8 @@ c     find params for left characteristics of eastern boundary
                goto 30
             endif
          enddo
-c            characteristic did not intersect boundary
-c               and takeoff point is in the interval:  (i1,i2]
+!            characteristic did not intersect boundary
+!               and takeoff point is in the interval:  (i1,i2]
          i2 = i - idtx
          i1 = i2 - 1
          i0 = i2 - 2
@@ -531,7 +528,7 @@ c               and takeoff point is in the interval:  (i1,i2]
       enddo
 
 
-c     find params for right characteristic of western boundary points
+!     find params for right characteristic of western boundary points
       nrt_wb(k) = 0
       nbt_wb(k) = 0
       not_wb(k) = 0
@@ -545,14 +542,14 @@ c     find params for right characteristic of western boundary points
             if (mm.eq.0) then  !characteristic intersects boundary
                not_wb(k) = not_wb(k) + 1
                lot_wb(not_wb(k),k) = ipt
-c               print*,'ot_wb',not_wb(k),ipt
+!               print*,'ot_wb',not_wb(k),ipt
                it_r(i,j,k) = i + is  ! i value of boundary point
                dt_r(i,j,k) = is*hx/dt
                goto 40
             endif
          enddo
-c            characteristic did not intersect boundary
-c               and takeoff point is in the interval:  [i1,i2)
+!            characteristic did not intersect boundary
+!               and takeoff point is in the interval:  [i1,i2)
          i1 = i + idtx
          i2 = i1 + 1
          i3 = i1 + 2
@@ -560,11 +557,11 @@ c               and takeoff point is in the interval:  [i1,i2)
          if (i0.lt.1.or.i3.gt.nx.or.mask(i0,j)*mask(i3,j).eq.0) then     
             nbt_wb(k) = nbt_wb(k) + 1
             lbt_wb(nbt_wb(k),k) = ipt
-c               print*,'bt_wb',nbt_wb(k),ipt
+!               print*,'bt_wb',nbt_wb(k),ipt
          else
             nrt_wb(k) = nrt_wb(k) + 1
             lrt_wb(nrt_wb(k),k) = ipt
-c               print*,'rt_wb',nrt_wb(k),ipt
+!               print*,'rt_wb',nrt_wb(k),ipt
          endif
          it_r(i,j,k) = i1
          at_r(i,j,k) = alf        ! distance from i1 to takeoff point
@@ -572,7 +569,7 @@ c               print*,'rt_wb',nrt_wb(k),ipt
    40    continue
       enddo
 
-c     make a list of all points within nshapd of the boundary
+!     make a list of all points within nshapd of the boundary
   200 continue
 
       if (k.eq.1) then
@@ -692,18 +689,18 @@ c     make a list of all points within nshapd of the boundary
       end
 
 
-c----------------------------------------------------------------------|
+!----------------------------------------------------------------------|
       subroutine trisolv(np,rhs,v,a,b,c,bcleft,bcright)
       implicit none
       include 'om_para.h'
-c----------------------------------------------------------------------|
-c       tridiagonal solve for the system:
-c   a(i)*v(i-1) + b(i)*v(i) + c(i)*v(i+1) = rhs(i)
-c       where  v(1) and v(n) are known
-c       
-c       on entry, rhs contains the righthand side
-c       on exit , v contains the solution 
-c----------------------------------------------------------------------|
+!----------------------------------------------------------------------|
+!       tridiagonal solve for the system:
+!   a(i)*v(i-1) + b(i)*v(i) + c(i)*v(i+1) = rhs(i)
+!       where  v(1) and v(n) are known
+!       
+!       on entry, rhs contains the righthand side
+!       on exit , v contains the solution 
+!----------------------------------------------------------------------|
       
       integer np,i,im
       real p(NYMAX),q(NYMAX),denom
@@ -734,11 +731,11 @@ c----------------------------------------------------------------------|
       return
       end
       
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine make_rhs4uh_cons(k,nxr,nyr,hm,um,vm,vmy,F,Q)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
      
       integer i,j,in,ipt,i1,i2,ins,ind,ib
@@ -751,7 +748,7 @@ c----------------------------------------------------------------------
       tk = tau(k)
 
       do in = 1, nrt_lc(k)
-c---double characteristic case: left characteristic, cubic interpolation
+!---double characteristic case: left characteristic, cubic interpolation
          ipt = lrt_lc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -772,7 +769,7 @@ c---double characteristic case: left characteristic, cubic interpolation
       enddo
 
       do in = 1, nbt_lc(k)
-c---double characteristic case: left characteristic, linear interpolation
+!---double characteristic case: left characteristic, linear interpolation
          ipt = lbt_lc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -793,7 +790,7 @@ c---double characteristic case: left characteristic, linear interpolation
       enddo
 
       do in = 1, not_lc(k)
-c---double characteristic case: left characteristic intersects boundary
+!---double characteristic case: left characteristic intersects boundary
          ipt = lot_lc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -810,7 +807,7 @@ c---double characteristic case: left characteristic intersects boundary
 
 
       do in = 1, nrt_rc(k)
-c---double characteristic case: right characteristic, cubic interpolation
+!---double characteristic case: right characteristic, cubic interpolation
          ipt = lrt_rc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -831,7 +828,7 @@ c---double characteristic case: right characteristic, cubic interpolation
       enddo
 
       do in = 1, nbt_rc(k)
-c---double characteristic case: right characteristic, linear interpolation
+!---double characteristic case: right characteristic, linear interpolation
          ipt = lbt_rc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -852,7 +849,7 @@ c---double characteristic case: right characteristic, linear interpolation
       enddo
 
       do in = 1, not_rc(k)
-c---double characteristic case: right characteristic intersects boundary
+!---double characteristic case: right characteristic intersects boundary
          ipt = lot_rc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -868,7 +865,7 @@ c---double characteristic case: right characteristic intersects boundary
       enddo
 
       do in = 1, nrt_eb(k)
-c---single characteristic case: left characteristic, cubic interp
+!---single characteristic case: left characteristic, cubic interp
          ipt = lrt_eb(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -889,7 +886,7 @@ c---single characteristic case: left characteristic, cubic interp
       enddo
 
       do in = 1, nbt_eb(k)
-c---single characteristic case: left characteristic, linear interp
+!---single characteristic case: left characteristic, linear interp
          ipt = lbt_eb(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -910,7 +907,7 @@ c---single characteristic case: left characteristic, linear interp
       enddo
       
       do in = 1, nrt_wb(k)
-c---single characteristic case: right characteristic, cubic interp
+!---single characteristic case: right characteristic, cubic interp
          ipt = lrt_wb(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -932,7 +929,7 @@ c---single characteristic case: right characteristic, cubic interp
       enddo
 
       do in = 1, nbt_wb(k)
-c---single characteristic case: right characteristic, linear interp
+!---single characteristic case: right characteristic, linear interp
          ipt = lbt_wb(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -955,11 +952,11 @@ c---single characteristic case: right characteristic, linear interp
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine make_rhs4uh(k,nxr,nyr,hm,um,vm,vmy,F,Q)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
      
       integer i,j,in,ipt,i1,i2,ins,ind,ib
@@ -972,7 +969,7 @@ c----------------------------------------------------------------------
       tk = tau(k)
 
       do in = 1, nrt_lc(k)
-c---double characteristic case: left characteristic, cubic interpolation
+!---double characteristic case: left characteristic, cubic interpolation
          ipt = lrt_lc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1014,7 +1011,7 @@ c---double characteristic case: left characteristic, linear interpolation
       enddo
 
       do in = 1, not_lc(k)
-c---double characteristic case: left characteristic intersects boundary
+!---double characteristic case: left characteristic intersects boundary
          ipt = lot_lc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1031,7 +1028,7 @@ c---double characteristic case: left characteristic intersects boundary
 
 
       do in = 1, nrt_rc(k)
-c---double characteristic case: right characteristic, cubic interpolation
+!---double characteristic case: right characteristic, cubic interpolation
          ipt = lrt_rc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1052,7 +1049,7 @@ c---double characteristic case: right characteristic, cubic interpolation
       enddo
 
       do in = 1, nbt_rc(k)
-c---double characteristic case: right characteristic, linear interpolation
+!---double characteristic case: right characteristic, linear interpolation
          ipt = lbt_rc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1073,7 +1070,7 @@ c---double characteristic case: right characteristic, linear interpolation
       enddo
 
       do in = 1, not_rc(k)
-c---double characteristic case: right characteristic intersects boundary
+!---double characteristic case: right characteristic intersects boundary
          ipt = lot_rc(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1089,7 +1086,7 @@ c---double characteristic case: right characteristic intersects boundary
       enddo
 
       do in = 1, nrt_eb(k)
-c---single characteristic case: left characteristic, cubic interp
+!---single characteristic case: left characteristic, cubic interp
          ipt = lrt_eb(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1108,7 +1105,7 @@ c---single characteristic case: left characteristic, cubic interp
       enddo
 
       do in = 1, nbt_eb(k)
-c---single characteristic case: left characteristic, linear interp
+!---single characteristic case: left characteristic, linear interp
          ipt = lbt_eb(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1127,7 +1124,7 @@ c---single characteristic case: left characteristic, linear interp
       enddo
       
       do in = 1, nrt_wb(k)
-c---single characteristic case: right characteristic, cubic interp
+!---single characteristic case: right characteristic, cubic interp
          ipt = lrt_wb(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1147,7 +1144,7 @@ c---single characteristic case: right characteristic, cubic interp
       enddo
 
       do in = 1, nbt_wb(k)
-c---single characteristic case: right characteristic, linear interp
+!---single characteristic case: right characteristic, linear interp
          ipt = lbt_wb(in,k)
          i = ival(ipt)
          j = jval(ipt)
@@ -1168,11 +1165,11 @@ c---single characteristic case: right characteristic, linear interp
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine add2rhs4uh_cons(k,nxr,nyr,F,Q)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
 
       integer in,ipt,i,j
@@ -1208,11 +1205,11 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine add2rhs4uh(k,nxr,nyr,F,Q)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
 
       integer in,ipt,i,j
@@ -1247,11 +1244,11 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine make_rhs4v(k,nxr,nyr,hm,um,vm,G)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
 
       integer in,ipt,i,j,jp,jm
@@ -1281,11 +1278,11 @@ c----------------------------------------------------------------------
       return
       end
       
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine add2rhs4v(k,nxr,nyr,G)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
 
       integer in,ipt,i,j,jp,jm
@@ -1306,11 +1303,11 @@ c----------------------------------------------------------------------
       return
       end
       
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine solve_v (nx, ny, mx, my, rr, vm , rgamm, rgamc, rgamp)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
 
       integer i, nx, ny, mx, my
       real bcleft,bcright,rr(my,mx),vm(ny,nx)
@@ -1326,11 +1323,11 @@ c----------------------------------------------------------------------
       return
       end
       
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine solve_uh_cons(k,nxr,nyr,hm,um,vm,vmy)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
 
       integer in,ipt,i,j
@@ -1373,11 +1370,11 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine solve_uh(k,nxr,nyr,hm,um,vm,vmy)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
 
       integer in,ipt,i,j
@@ -1419,11 +1416,11 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine make_vy(key,tyk,nxr,nyr,vm,vmy)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer nxr,nyr,key
       real tyk,vm(nyr,nxr),vmy(nyr,nxr)
 
@@ -1466,12 +1463,12 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine bcset(nxr,nyr,um,vm)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
-*  no-slip boundary conditions
+!----------------------------------------------------------------------
+!  no-slip boundary conditions
       integer nxr,nyr
       real um(nyr,nxr),vm(nyr,nxr)
 
@@ -1493,12 +1490,12 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine bcset2(nxr,nyr,um,vm)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
-*  no-slip boundary conditions
+!----------------------------------------------------------------------
+!  no-slip boundary conditions
       integer nxr,nyr
       real um(nxr,nyr),vm(nxr,nyr)
 
@@ -1520,10 +1517,10 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine lin_interp(alf,uc,u)
       implicit none
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
 
       real alf, uc(4,3),u(3)
 
@@ -1536,10 +1533,10 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine cub_interp(alf,uc,u)
       implicit none
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
 
       real alf, uc(4,3),u(3)
       
@@ -1562,18 +1559,18 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine shap(key,nx,ny,w,coefx,coefy)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer nx, ny, key
       real w(ny,nx),coefx,coefy
 
       real x(NYMAX,NXMAX)
       integer in, ipt, i, j
       
-c  filter y direction:
+!  filter y direction:
       do i = 1,nx
          do j = 1,ny
             x(j,i) = w(j,i)
@@ -1614,7 +1611,7 @@ c  filter y direction:
          end do
       endif
 
-c  filter x direction:
+!  filter x direction:
       do i = 1,nx
          do j = 1,ny
             x(j,i) = w(j,i)
@@ -1658,22 +1655,22 @@ c  filter x direction:
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine shap_cons(nx,ny,h,shaph_coef)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
-c
-c     conservative filter for full box discretization near boundaries
-c
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
+!
+!     conservative filter for full box discretization near boundaries
+!
+!----------------------------------------------------------------------
       integer nx, ny, key
       real h(ny,nx),shaph_coef
 
       real x(NYMAX,NXMAX),coef,wc,wp,wm,hc,hyp,hym,hxp,hxm
       integer in, ipt, i, j
       
-c  filter y direction:
+!  filter y direction:
       do i = 1,nx
          do j = 1,ny
             x(j,i) = h(j,i)
@@ -1758,11 +1755,11 @@ c  filter x direction:
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine filt (nstep, nx, ny, h, u, v, vy, rdt)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer nstep, nx, ny, k
       real h(ny,nx), u(ny,nx), v(ny,nx), rdt, vy(ny,nx)
 
@@ -1779,8 +1776,8 @@ c----------------------------------------------------------------------
                call shap_cons(nx,ny,h,shaph_coef)
                call shap_bound(1,nx,ny,u,shapb_coef)
                call shap_bound(2,nx,ny,v,shapb_coef)
-c               call shap_bound_cons(1,nx,ny,u,shapb_coef)
-c               call shap_bound_cons(2,nx,ny,v,shapb_coef)
+!               call shap_bound_cons(1,nx,ny,u,shapb_coef)
+!               call shap_bound_cons(2,nx,ny,v,shapb_coef)
             endif
          enddo
       endif
@@ -1798,11 +1795,11 @@ c               call shap_bound_cons(2,nx,ny,v,shapb_coef)
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine Rayleigh_friction (nx, ny, u, v, h, rdt)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer nx, ny
       real u(ny,nx), v(ny,nx), h(ny,nx), rdt
 
@@ -1822,11 +1819,11 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine shap_bound_cons(key,nx,ny,w,coef)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer key, nx, ny
       real w(ny,nx),coef
       integer i, j, in, ipt
@@ -1835,7 +1832,7 @@ c----------------------------------------------------------------------
 
       co = coef*0.25
 
-c  filter y direction:
+!  filter y direction:
       do i = 1,nx
          do j = 1,ny
             x(j,i) = w(j,i)
@@ -1870,7 +1867,7 @@ c  filter y direction:
          end do
       endif
       
-c  filter x direction:
+!  filter x direction:
       do i = 1,nx
          do j = 1,ny
             x(j,i) = w(j,i)
@@ -1908,18 +1905,18 @@ c  filter x direction:
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine shap_bound(key,nx,ny,w,coef)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer key, nx, ny
       real w(ny,nx),coef
       integer i, j, in, ipt
 
       real x(NYMAX,NXMAX),co
 
-c  filter y direction:
+!  filter y direction:
       do i = 1,nx
          do j = 1,ny
             x(j,i) = w(j,i)
@@ -1954,7 +1951,7 @@ c  filter y direction:
          end do
       endif
 
-c  filter x direction:
+!  filter x direction:
       do i = 1,nx
          do j = 1,ny
             x(j,i) = w(j,i)
@@ -1992,11 +1989,11 @@ c  filter x direction:
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine filt_v (nstep, nx, ny, v, rdt)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer nstep, nx, ny, k
       real v(ny,nx), rdt
 
@@ -2024,11 +2021,11 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine filt_uh (nstep, nx, ny, h, u, v, vy, rdt)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer nstep, nx, ny, k
       real h(ny,nx), u(ny,nx), v(ny,nx), rdt, vy(ny,nx)
 
@@ -2044,8 +2041,8 @@ c----------------------------------------------------------------------
             if ( mod(nstep,nshapb).eq.0) then
                call shap_cons(nx,ny,h,shaph_coef)
                call shap_bound(1,nx,ny,u,shapb_coef)
-c               call shap_bound_cons(1,nx,ny,u,shapb_coef)
-c               call shap_bound_cons(2,nx,ny,v,shapb_coef)
+!               call shap_bound_cons(1,nx,ny,u,shapb_coef)
+!               call shap_bound_cons(2,nx,ny,v,shapb_coef)
             endif
          enddo
       endif
@@ -2062,11 +2059,11 @@ c               call shap_bound_cons(2,nx,ny,v,shapb_coef)
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine Rayleigh_friction2 (nx, ny, u, v, vy, h, rdt)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer nx, ny
       real u(ny,nx), v(ny,nx), h(ny,nx), rdt, vy(ny,nx)
 
@@ -2087,11 +2084,11 @@ c----------------------------------------------------------------------
       return
       end
 
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       subroutine add_diff(k,nxr,nyr,hm,um,vm,F,G,Q)
       implicit none
       include 'om_core.h'
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       integer k,nxr,nyr
       real F(nyr,nxr),G(nyr,nxr),Q(nyr,nxr)
      *     ,hm(nyr,nxr),um(nyr,nxr),vm(nyr,nxr)
@@ -2101,7 +2098,7 @@ c----------------------------------------------------------------------
       
       coef = vnu(k)
       coefx = vnu(k)
-c#why?      coefy = vnu(k)/10.
+!#why?      coefy = vnu(k)/10.
       coefy = vnu(k)
       if (coef.eq.0.) return
 

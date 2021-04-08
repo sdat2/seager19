@@ -21,9 +21,9 @@ ocean_model
 
 .. f:program:: om_wrap
 
-.. f:program:: 'sst-mod'
+.. f:program:: sst-mod
 
-.. f:program:: 'wrap-mod'
+.. f:program:: wrap-mod
 
 .. f:program:: fodb
 
