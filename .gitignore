@@ -25,22 +25,13 @@ ocean/SRC/backup
 *.mp4
 *.swp
 *.o
-netcdf*
 *.gif
-# *.tios
-# *.ing
-# ocean-model/DATA/tau-ECMWF.y
 ocean/DATA*/
 ocean/RUN/DATA*/
-ocean/RUN/output*/
-ocean/SRC/DATA*/
-ocean/SRC/output*/
-ocean/SRC/tcom         # I think this is the executable
-ocean/SRC/tios2cdf     # I think this is the executable
-ocean/SRC/old-object/
+ocean/output/
 atmos/DATA*/
 atmos/tmp/
-
+wandb/
 
 # C extensions
 *.so
