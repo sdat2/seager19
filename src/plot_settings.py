@@ -317,3 +317,9 @@ def time_title(
     """
     if isinstance(time, np.datetime64):
         ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
+    elif isinstance(time, (float, np.floating)):
+        # TODO: this is only good for the data format in this file.
+        ax.set_title("%2.3f months after 1960" % time)
+    else:
+        print("!Warning!: input of type " + str(type(time))
+              + " does not lead to title plotting.")

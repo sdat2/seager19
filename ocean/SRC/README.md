@@ -1,4 +1,4 @@
-# Source folder for ocean model.
+# Source folder for ocean model
 
 This requires `gfortran` and compatible `netcdf` libraries
 

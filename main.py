@@ -21,24 +21,14 @@ def start_wandb() -> None:
     wandb.init(
         project="seager19",
         entity="sdat2",
-        name="test_6",
+        name="test_7",
         notes="test run, uploading files",
     )
-
-
-start_wandb()
-
-# 2. Save model inputs and hyperparameters
-# wandb.config
-# config.learning_rate = 0.01
 
 
 def compile_all() -> None:
     """Compile the Fortran/C"""
     os.system("cd ocean/SRC\npwd\nmake all")
-
-
-compile_all()
 
 
 def run(command: str) -> None:
@@ -58,7 +48,7 @@ def run(command: str) -> None:
 
 @timeit
 def run_all() -> None:
-    """run all the FORTRAN files."""
+    """run all the executables."""
     run("../SRC/tcom.exe -i om_spin -t spin.tios")
     run("../SRC/tios2cdf.exe -f output/om_spin")
     run("rm -rf output/om_spin.data output/om_spin.indx")
@@ -82,28 +72,30 @@ def copy_output_rdir(file_name: str) -> None:
     run("cd output\n cp " + file_name + " " + str(wandb.run.dir))
 
 
-for x in [
-    "om_diag",
-    "om_diag.tr",
-    "om_diag.log",
-    "om_spin",
-    "om_spin.tr",
-    "om_spin.log",
-    "om_run2f",
-    "om_run2f.tr",
-    "om_run2f.log",
-    "month.tios",
-    "spin.tios",
-    "diag.tios",
-]:
-    copy_run_rdir(x)
+def copy_all() -> None:
+    """Copy all relevant files to wandb folder."""
+    for x in [
+        "om_diag",
+        "om_diag.tr",
+        "om_diag.log",
+        "om_spin",
+        "om_spin.tr",
+        "om_spin.log",
+        "om_run2f",
+        "om_run2f.tr",
+        "om_run2f.log",
+        "month.tios",
+        "spin.tios",
+        "diag.tios",
+    ]:
+        copy_run_rdir(x)
 
-for x in [
-    "om_spin.nc",
-    "om_diag.nc",
-    "om_run2f.nc",
-]:
-    copy_output_rdir(x)
+    for x in [
+        "om_spin.nc",
+        "om_diag.nc",
+        "om_run2f.nc",
+    ]:
+        copy_output_rdir(x)
 
 
 # 3. Log metrics over time to visualize performance
@@ -132,9 +124,18 @@ def animate_sst() -> None:
         sst = xr.open_dataset(
             os.path.join(wandb.run.dir, i[0] + ".nc"), decode_times=False
         ).SST_SST.rename(i[1])
+        sst.attrs["units"] = "degrees Celsius"
         animate_xr_da(
             sst.isel(Z=0), video_path=os.path.join(wandb.run.dir, i[0] + "_SST.gif")
         )
 
 
-animate_sst()
+if __name__ == "__main__":
+    start_wandb()
+    compile_all()
+    # run_all()
+    copy_all()
+    animate_sst()
+    # 2. Save model inputs and hyperparameters
+    # wandb.config
+    # config.learning_rate = 0.01
