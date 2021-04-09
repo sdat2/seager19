@@ -47,6 +47,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import cartopy.crs as ccrs
+import cmocean
 from src.constants import REPORT_WIDTH, DATE_TITLE_FORMAT
 from src.utils import timeit
 
@@ -301,7 +302,7 @@ def time_title(
     time: np.datetime64,
     date_time_formatter: str = DATE_TITLE_FORMAT,
 ) -> None:
-    """Add time title.
+    """Add time title to axes.
 
     Args:
         ax (matplotlib.axes.Axes): axis to add title to.
@@ -319,7 +320,37 @@ def time_title(
         ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
     elif isinstance(time, (float, np.floating)):
         # TODO: this is only good for the data format in this file.
-        ax.set_title("%2.3f months after 1960" % time)
+        ax.set_title("%2.1f months after 1960" % time)
     else:
-        print("!Warning!: input of type " + str(type(time))
-              + " does not lead to title plotting.")
+        print(
+            "!Warning!: input of type "
+            + str(type(time))
+            + " does not lead to title plotting."
+        )
+
+
+def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
+    """Get cmap from a string.
+
+    Args:
+        variable_name (str): name of variable to give colormap
+
+    Returns:
+        matplotlib.colors.LinearSegmentedColormap: colormap
+    """
+    map_d = {"u": "v",
+             "v": "v",
+             "sst": "sst",
+             "salt": "sss",
+             "haline": "sss",
+             "delta": "delta"}
+    cmap_map_d = {
+        "sst": cmocean.cm.thermal,
+        "sss": cmocean.cm.haline,
+        "v": cmocean.cm.speed,
+        "delta": cmocean.cm.balance,
+    }
+
+    cmapt = cmap_map_d[map_d[variable_name]]
+    # cmap.set_bad(color="grey")
+    return cmapt

@@ -88,8 +88,9 @@ def linear_qflx_replacement(output_file_name: str = "qflx.nc") -> None:
         method="linear",
     ).fillna(0.0)
     sst_qflx_subset = sst_qflx_subset.astype("float32")
-    sst_qflx_subset.to_netcdf(OCEAN_DATA_PATH / output_file_name,
-                              format="NETCDF3_CLASSIC")
+    sst_qflx_subset.to_netcdf(
+        OCEAN_DATA_PATH / output_file_name, format="NETCDF3_CLASSIC"
+    )
 
 
 def test() -> None:

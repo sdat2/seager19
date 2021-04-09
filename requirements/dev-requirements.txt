@@ -2,10 +2,10 @@
 # As a standard they include certain formatters and linters.
 
 # core packages
-xarray==0.17
-matplotlib>=3.1
+xarray==0.17       # The most recent version as fo the start of the project.
+matplotlib>=3.1    # if lower this can cause some issues.
 
-# local package
+# local package from setup.py
 -e ../.
 
 # external requirements (mostly linters and formatters)
@@ -17,7 +17,7 @@ isort               # automatic import sorter
 python-dotenv       # environment variable manager
 pylint              # use pylint instead of flake8
 pre-commit          # perform checks on code
-autoreload
+# autoreload        # useful?
 
 #testing
 pytest
@@ -50,8 +50,8 @@ jupyterthemes       # change the color of jupyter-notebooks etc
 # useful xarray extensions
 eccodes
 dask[complete]      # allows more lazy operation for xarray.
-bottleneck
-nc-time-axis
+bottleneck          # useful for operations on arrays.
+nc-time-axis        # Hopefully this allows time to be decoded
 netCDF4             # makes sure that the default driver is netCDF4.
 
 # configuration inputs.
@@ -61,6 +61,10 @@ hydra-core
 wandb              # automatic recording of runs
 
 # graphics
-imageio
-imageio-ffmpeg
+imageio            # make animations
+imageio-ffmpeg     # animations driver
+
+# improved plotting
 seaborn
+cmocean
+cmocean[plots]

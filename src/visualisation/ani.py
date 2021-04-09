@@ -10,9 +10,10 @@ from typing import Callable
 import numpy as np
 import xarray as xr
 from tqdm import tqdm
+import matplotlib
 import matplotlib.pyplot as plt
 import imageio
-from src.plot_settings import label_subplots, ps_defaults, time_title
+from src.plot_settings import label_subplots, ps_defaults, time_title, cmap
 from src.utils import timeit
 
 ps_defaults(use_tex=False, dpi=200)
@@ -22,14 +23,21 @@ ps_defaults(use_tex=False, dpi=200)
 def animate_xr_da(
     xr_da: xr.DataArray,
     video_path: str = "output.mp4",
+    vcmap: any = cmap("sst"),
 ) -> None:
     """Animate an `xr.DataArray`.
 
     Args:
         xr_da (xr.DataArray): input xr.DataArray.
         video_path (str, optional): Video path. Defaults to "output.mp4".
+        vcmap (any, optional): cmap for variable. Defaults to cmap("sst").
 
     """
+
+    if isinstance(vcmap, str):
+        vcmap = cmap(vcmap)
+
+    assert isinstance(vcmap, matplotlib.colors.LinearSegmentedColormap)
 
     def gen_frame_func(
         xr_da: xr.DataArray,
@@ -58,7 +66,7 @@ def animate_xr_da(
             """
             fig, ax1 = plt.subplots(1, 1)
 
-            xr_da.isel(time=index).plot.imshow(ax=ax1, vmin=vmin, vmax=vmax)
+            xr_da.isel(time=index).plot.imshow(ax=ax1, cmap=vcmap, vmin=vmin, vmax=vmax)
             time_title(ax1, xr_da.time.values[index])
             plt.tight_layout()
 
