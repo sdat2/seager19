@@ -12,7 +12,7 @@ For example, for `Tom Baker Adams` a valid name would be `1.0_tba_data-analysis,
 ## Useful initialization cell
 To avoid having to reload the notebook when you change code from underlying imports, we recommend the following handy initialization cell for jupyter notebooks:
 
-```
+```python
 %load_ext autoreload             # loads the autoreload package into ipython kernel
 %autoreload 2                    # sets autoreload mode to automatically reload modules when they change
 %config IPCompleter.greedy=True  # enables tab completion
@@ -20,7 +20,7 @@ To avoid having to reload the notebook when you change code from underlying impo
 
 Cell for nice plotting when using `jupyter_dark`
 
-```
+```python
 from jupyterthemes import jtplot
 jtplot.style(theme="grade3", context="notebook", ticks=True, grid=False)
 from src.plot_settings import ps_defaults

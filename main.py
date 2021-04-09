@@ -1,24 +1,30 @@
 """A file to run model runs from with wandb.
 
+Basically a wrapper for bash commands.
+
 Example:
    Usage::
        python3 main.py
 
 """
-# Flexible integration for any Python script
 import os
 import time
+import xarray as xr
 import wandb
 from src.constants import FIGURE_PATH, OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH
+from src.visualisation.ani import animate_xr_da
+from src.utils import timeit
 
 
 def start_wandb() -> None:
+    """Intialises wandb for run."""
     wandb.init(
         project="seager19",
         entity="sdat2",
-        name="test_5",
+        name="test_6",
         notes="test run, uploading files",
     )
+
 
 start_wandb()
 
@@ -26,12 +32,11 @@ start_wandb()
 # wandb.config
 # config.learning_rate = 0.01
 
-os.system("echo Test!")
-os.system("pwd")
-
 
 def compile_all() -> None:
+    """Compile the Fortran/C"""
     os.system("cd ocean/SRC\npwd\nmake all")
+
 
 compile_all()
 
@@ -51,6 +56,7 @@ def run(command: str) -> None:
     print(full_command + " %2.5f s\n" % ((te - ts)))
 
 
+@timeit
 def run_all() -> None:
     """run all the FORTRAN files."""
     run("../SRC/tcom.exe -i om_spin -t spin.tios")
@@ -66,12 +72,15 @@ def run_all() -> None:
     run("rm -rf output/om_run2f.data output/om_run2f.indx")
 
 
-def copy_src_rdir(file_name: str) -> None:
+def copy_run_rdir(file_name: str) -> None:
+    """Copy a file from the ocean/RUN directory."""
     run("cp " + file_name + " " + str(wandb.run.dir))
 
 
 def copy_output_rdir(file_name: str) -> None:
+    """Copy a file from the ocean/output directory."""
     run("cd output\n cp " + file_name + " " + str(wandb.run.dir))
+
 
 for x in [
     "om_diag",
@@ -87,24 +96,45 @@ for x in [
     "spin.tios",
     "diag.tios",
 ]:
-    copy_src_rdir(x)
+    copy_run_rdir(x)
 
 for x in [
     "om_spin.nc",
     "om_diag.nc",
-    "om_run2f.nc"
+    "om_run2f.nc",
 ]:
-   copy_output_rdir(x)
+    copy_output_rdir(x)
 
-# Model training here
 
 # 3. Log metrics over time to visualize performance
 # wandb.log({"loss": loss})
 # wandb.log(cfd)
-file_prefix = os.path.join(wandb.run.dir, wandb.run.name)
-print(file_prefix)
-figure_prefix = os.path.join(FIGURE_PATH, wandb.run.name)
-qflx_path = os.path.join(OCEAN_DATA_PATH, "qflx.nc")
-print(qflx_path)
-print(OCEAN_DATA_PATH)
-print(OCEAN_OUTPUT_PATH)
+def print_locations() -> None:
+    """Check that the locations are right."""
+    file_prefix = os.path.join(wandb.run.dir, wandb.run.name)
+    print(file_prefix)
+    figure_prefix = os.path.join(FIGURE_PATH, wandb.run.name)
+    print(figure_prefix)
+    qflx_path = os.path.join(OCEAN_DATA_PATH, "qflx.nc")
+    print(qflx_path)
+    print(OCEAN_DATA_PATH)
+    print(OCEAN_OUTPUT_PATH)
+
+
+@timeit
+def animate_sst() -> None:
+    """Animate the sst into gifs."""
+    for i in [
+        # "om_spin.nc",
+        ["om_diag", {"T_01": "time", "Y_01": "y", "X_01": "x", "L_01": "Z"}],
+        ["om_run2f", {"T_03": "time", "Y_03": "y", "X_03": "x", "L_03": "Z"}],
+    ]:
+        sst = xr.open_dataset(
+            os.path.join(wandb.run.dir, i[0] + ".nc"), decode_times=False
+        ).SST_SST.rename(i[1])
+        animate_xr_da(
+            sst.isel(Z=0), video_path=os.path.join(wandb.run.dir, i[0] + "_SST.gif")
+        )
+
+
+animate_sst()

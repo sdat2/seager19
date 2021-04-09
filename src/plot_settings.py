@@ -315,4 +315,5 @@ def time_title(
             >>> time_title(ax, xr_da.time.values[index])
 
     """
-    ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
+    if isinstance(time, np.datetime64):
+        ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))

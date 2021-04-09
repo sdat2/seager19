@@ -82,6 +82,10 @@ jupyter_dark:
 jupyter_light:
 	jt -r
 
+## create a new notebook with default cells:
+notebook:
+	cp .setup_scripts/default.ipynb notebooks/exploratory/new.ipynb
+
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
