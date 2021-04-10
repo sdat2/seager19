@@ -6,7 +6,7 @@ import xarray as xr
 import recursive_diff
 from src.data_loading.ingrid import linear_qflx_replacement
 from src.constants import OCEAN_DATA_PATH
-from src.data_loading import get_data
+from src.data_loading.download import get_data
 
 
 def test_ingrid() -> None:

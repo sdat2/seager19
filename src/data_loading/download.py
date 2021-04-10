@@ -92,8 +92,15 @@ def get_data(atmos: bool = True, ocean: bool = True):
         for pair in item[1]:
             url = pair[0]
             name = pair[1]
-            get_and_unzip(direc, url, name)
+            full_direc = os.path.join(direc, os.path.splitext(pair[1])[0])
+            if not os.path.exists(full_direc):
+                print("Dowloading " + full_direc)
+                # get_and_unzip(direc, url, name)
+                print(full_direc + " created.")
+            else:
+                print(full_direc + " already exists, not going to redownload")
 
 
 if __name__ == "__main__":
+    # python3 src/data_loading/download.py
     get_data()
