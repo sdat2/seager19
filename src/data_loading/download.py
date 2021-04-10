@@ -79,8 +79,8 @@ def get_data() -> None:
         for pair in item[1]:
             url = pair[0]
             name = pair[1]
-            full_direc = os.path.join(direc, os.path.splitext(pair[1])[0])
-            if not os.path.exists(full_direc):
+            full_direc = str(os.path.join(direc, os.path.splitext(pair[1])[0]))
+            if not os.path.exists(full_direc): # or "ocean/DATA" in full_direc:
                 print("Dowloading " + full_direc)
                 get_and_unzip(direc, url, name)
                 print(full_direc + " created.")
