@@ -13,7 +13,8 @@ def test_timeit() -> None:
         for _ in range(int(10e2)):
             for _ in range(int(10e2)):
                 total += 1
-        for kwarg in kwargs:  # to remove pylint error
+        for kwarg in kwargs:
+            # to remove pylint error
             print(kwarg)
 
     tmp_log_d = {}
