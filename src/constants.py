@@ -20,7 +20,7 @@ PROJECT_PATH = pathlib.Path(os.path.dirname(SRC_PATH))
 REPORT_PATH = pathlib.Path(os.path.join(PROJECT_PATH, "report"))
 FIGURE_PATH = pathlib.Path(os.path.join(REPORT_PATH, "figures"))
 
-
+# PATHS to the models
 OCEAN_PATH = PROJECT_PATH / "ocean"
 OCEAN_DATA_PATH = OCEAN_PATH / "DATA"
 OCEAN_OUTPUT_PATH = OCEAN_PATH / "output"

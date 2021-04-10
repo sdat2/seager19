@@ -21,7 +21,7 @@ def start_wandb() -> None:
     wandb.init(
         project="seager19",
         entity="sdat2",
-        name="test_7",
+        name="test_8",
         notes="test run, uploading files",
     )
 
@@ -98,9 +98,6 @@ def copy_all() -> None:
         copy_output_rdir(x)
 
 
-# 3. Log metrics over time to visualize performance
-# wandb.log({"loss": loss})
-# wandb.log(cfd)
 def print_locations() -> None:
     """Check that the locations are right."""
     file_prefix = os.path.join(wandb.run.dir, wandb.run.name)
@@ -125,6 +122,8 @@ def animate_sst() -> None:
             os.path.join(wandb.run.dir, i[0] + ".nc"), decode_times=False
         ).SST_SST.rename(i[1])
         sst.attrs["units"] = "degrees Celsius"
+        # sst.coords["x"] = "$^{\circ}$E"
+        # sst.coords["y"] = "$^{\circ}$N"
         animate_xr_da(
             sst.isel(Z=0), video_path=os.path.join(wandb.run.dir, i[0] + "_SST.gif")
         )
@@ -139,3 +138,6 @@ if __name__ == "__main__":
     # 2. Save model inputs and hyperparameters
     # wandb.config
     # config.learning_rate = 0.01
+    # 3. Log metrics over time to visualize performance
+    # wandb.log({"loss": loss})
+    # wandb.log(cfd)

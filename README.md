@@ -70,8 +70,8 @@ The code and data was taken from:
 
 ### ocean-model/RUN/output/
 
-* SST_SST full in om_run2f: <https://youtu.be/JA97IWPmwxs>
-* DYN_PRES in om_run2f: <https://youtu.be/5oRMWWAK1sM>
-* TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
-* TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
-* TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>
+- SST_SST full in om_run2f: <https://youtu.be/JA97IWPmwxs>
+- DYN_PRES in om_run2f: <https://youtu.be/5oRMWWAK1sM>
+- TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
+- TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
+- TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>

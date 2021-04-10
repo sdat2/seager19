@@ -141,9 +141,7 @@ def get_dim(
     # Figure height in inches
     fig_height_in = fig_width_in * ratio
 
-    fig_dim = (fig_width_in, fig_height_in)
-
-    return fig_dim
+    return (fig_width_in, fig_height_in)
 
 
 def set_dim(
@@ -320,6 +318,7 @@ def time_title(
         ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
     elif isinstance(time, (float, np.floating)):
         # TODO: this is only good for the data format in this file.
+        # It would be better to have this as an option
         ax.set_title("%2.1f months after 1960" % time)
     else:
         print(
@@ -330,20 +329,24 @@ def time_title(
 
 
 def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
-    """Get cmap from a string.
+    """Get cmap from a variable name string.
 
     Args:
         variable_name (str): name of variable to give colormap
 
     Returns:
-        matplotlib.colors.LinearSegmentedColormap: colormap
+        matplotlib.colors.LinearSegmentedColormap: sensible colormap
     """
+
+    # collate the variables into a smaller number
     map_d = {"u": "v",
              "v": "v",
              "sst": "sst",
              "salt": "sss",
              "haline": "sss",
              "delta": "delta"}
+
+    # map to cmocean colormaps
     cmap_map_d = {
         "sst": cmocean.cm.thermal,
         "sss": cmocean.cm.haline,
@@ -351,6 +354,10 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
         "delta": cmocean.cm.balance,
     }
 
+    # get cmapt
     cmapt = cmap_map_d[map_d[variable_name]]
-    # cmap.set_bad(color="grey")
+
+    # make the map green-ish for nan values
+    cmapt.set_bad(color="#15b01a") # "#96f97b") # "gray")
+
     return cmapt
