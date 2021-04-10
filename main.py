@@ -11,7 +11,9 @@ import os
 import time
 import xarray as xr
 import wandb
-from src.constants import FIGURE_PATH, OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH
+import hydra
+from omegaconf import DictConfig, OmegaConf
+from src.constants import FIGURE_PATH, OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH, SRC_PATH
 from src.visualisation.ani import animate_xr_da
 from src.utils import timeit
 from src.data_loading.ingrid import linear_qflx_replacement
@@ -22,7 +24,7 @@ def start_wandb() -> None:
     wandb.init(
         project="seager19",
         entity="sdat2",
-        name="test_10",
+        name="test_11",
         notes="test run, animating files",
     )
 
@@ -48,20 +50,23 @@ def run(command: str) -> None:
 
 
 @timeit
-def run_all() -> None:
+@hydra.main(config_path=os.path.join(SRC_PATH, "configs"), config_name="config")
+def run_all(cfg: DictConfig) -> None:
     """run all the executables."""
-    run("../SRC/tcom.exe -i om_spin -t spin.tios")
-    run("../SRC/tios2cdf.exe -f output/om_spin")
-    run("rm -rf output/om_spin.data output/om_spin.indx")
-    run("cp -f output/om_spin.save output/om_spin.20y.restart")
-    run("../SRC/tcom.exe -i om_diag -t diag.tios")
-    run("../SRC/tios2cdf.exe -f output/om_diag")
-    run("rm -rf output/om_diag.data output/om_diag.indx")
-    run("cp -f output/om_diag.save output/om_diag.2y.restart")
-    linear_qflx_replacement()
-    run("../SRC/tcom.exe -i om_run2f -t month.tios")
-    run("../SRC/tios2cdf.exe -f output/om_run2f")
-    run("rm -rf output/om_run2f.data output/om_run2f.indx")
+    print(OmegaConf.to_yaml(cfg))
+    if cfg.run:
+        run("../SRC/tcom.exe -i om_spin -t spin.tios")
+        run("../SRC/tios2cdf.exe -f output/om_spin")
+        run("rm -rf output/om_spin.data output/om_spin.indx")
+        run("cp -f output/om_spin.save output/om_spin.20y.restart")
+        run("../SRC/tcom.exe -i om_diag -t diag.tios")
+        run("../SRC/tios2cdf.exe -f output/om_diag")
+        run("rm -rf output/om_diag.data output/om_diag.indx")
+        run("cp -f output/om_diag.save output/om_diag.2y.restart")
+        linear_qflx_replacement()
+        run("../SRC/tcom.exe -i om_run2f -t month.tios")
+        run("../SRC/tios2cdf.exe -f output/om_run2f")
+        run("rm -rf output/om_run2f.data output/om_run2f.indx")
 
 
 def copy_run_rdir(file_name: str) -> None:

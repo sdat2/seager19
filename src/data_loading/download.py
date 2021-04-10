@@ -24,9 +24,10 @@ def get_and_unzip(direc: str, url: str, name: str) -> None:
         name (str): name of file.
     """
 
+    write_path = os.path.join(direc, name)
+
     @timeit
     def get_zip() -> None:
-        write_path = os.path.join(direc, name)
         req = requests.get(url, stream=True)
         with open(write_path, "wb") as file:
             for chunk in tqdm(req.iter_content(chunk_size=128)):
@@ -34,12 +35,19 @@ def get_and_unzip(direc: str, url: str, name: str) -> None:
 
     @timeit
     def un_zip() -> None:
-        write_path = os.path.join(direc, name)
         with zipfile.ZipFile(write_path, "r") as zip_ref:
             zip_ref.extractall(direc)
 
+    @timeit   
+    def clean_up() -> None:
+        os.remove(write_path)
+        mac_path = os.path.join(direc, "__MACOSX")
+        if os.path.exists(mac_path):
+            os.rmdir(mac_path)
+
     get_zip()
     un_zip()
+    clean_up()
 
 
 @timeit
