@@ -20,21 +20,11 @@ Seeks to replicate::
     \\end{ingrid}
     ```
 
-Example:
-
-    Usage within the `ocean.RUN.run-model.sh` script::
-        >>> conda activate ../../env
-        >>> python3 ingrid.py
-
-    Test this progam::
-        >>> pytest ocean/RUN/ingrid.py
-
 """
 import numpy as np
 import xarray as xr
 from src.constants import OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH
 from src.utils import timeit
-import recursive_diff
 
 
 @timeit
@@ -103,27 +93,3 @@ def linear_qflx_replacement(output_file_name: str = "qflx.nc") -> None:
     }
     output_ds = sst_qflx_subset.to_dataset()
     output_ds.to_netcdf(OCEAN_DATA_PATH / output_file_name, format="NETCDF3_CLASSIC")
-
-
-def test_ingrid() -> None:
-    """Test the qflx replacement function."""
-
-    linear_qflx_replacement(output_file_name="qflx-test.nc")
-    qflx_test = xr.open_dataarray(OCEAN_DATA_PATH / "qflx-test.nc", decode_times=False)
-    qflx_old = xr.open_dataarray(OCEAN_DATA_PATH / "qflx.nc", decode_times=False)
-
-    print(qflx_test)
-
-    print(qflx_old)
-
-    # xr.testing.assert_equal(qflx_test, qflx_old)
-    xr.testing.assert_allclose(qflx_test, qflx_old, atol=1e-2)
-
-    for x in recursive_diff.recursive_diff(qflx_test, qflx_old, abs_tol=1e-2):
-        print(x)
-        assert False
-
-
-if __name__ == "__main__":
-    # main
-    linear_qflx_replacement()

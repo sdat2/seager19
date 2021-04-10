@@ -3,7 +3,7 @@
 Basically a wrapper for bash commands.
 
 Example:
-   Usage::
+   Usage of script::
        python3 main.py
 
 """
@@ -14,6 +14,7 @@ import wandb
 from src.constants import FIGURE_PATH, OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH
 from src.visualisation.ani import animate_xr_da
 from src.utils import timeit
+from src.data_loading.ingrid import linear_qflx_replacement
 
 
 def start_wandb() -> None:
@@ -57,6 +58,7 @@ def run_all() -> None:
     run("../SRC/tios2cdf.exe -f output/om_diag")
     run("rm -rf output/om_diag.data output/om_diag.indx")
     run("cp -f output/om_diag.save output/om_diag.2y.restart")
+    # linear_qflx_replacement()
     run("../SRC/tcom.exe -i om_run2f -t month.tios")
     run("../SRC/tios2cdf.exe -f output/om_run2f")
     run("rm -rf output/om_run2f.data output/om_run2f.indx")
@@ -132,7 +134,7 @@ def animate_sst() -> None:
 if __name__ == "__main__":
     start_wandb()
     compile_all()
-    # run_all()
+    run_all()
     copy_all()
     animate_sst()
     # 2. Save model inputs and hyperparameters

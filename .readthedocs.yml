@@ -18,6 +18,7 @@ sphinx:
 formats:
    - pdf
 
+# Conda required to install cartopy properly
 conda:
   environment: requirements/environment.yml
 

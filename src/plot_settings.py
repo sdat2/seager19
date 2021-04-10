@@ -252,6 +252,7 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     matplotlib.rcParams.update(p_setting)
 
 
+# Standard color list
 STD_CLR_LIST = [
     "#4d2923ff",
     "#494f1fff",
@@ -288,8 +289,11 @@ def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
                 ax = map_setup(ax=ax)
 
     """
+
     if ax is None:
-        ax = plt.axes(projection=ccrs.Robinson(central_longitude=180))
+        # ax = plt.axes(projection=ccrs.Robinson(central_longitude=180))
+        ax = plt.axes(projection=ccrs.Mollweide(central_longitude=180))
+
     ax.set_global()
     ax.coastlines()
     return ax
@@ -315,6 +319,7 @@ def time_title(
 
     """
     if isinstance(time, np.datetime64):
+        # use pandas to format time
         ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
     elif isinstance(time, (float, np.floating)):
         # TODO: this is only good for the data format in this file.
@@ -336,15 +341,18 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
 
     Returns:
         matplotlib.colors.LinearSegmentedColormap: sensible colormap
+
     """
 
     # collate the variables into a smaller number
-    map_d = {"u": "v",
-             "v": "v",
-             "sst": "sst",
-             "salt": "sss",
-             "haline": "sss",
-             "delta": "delta"}
+    map_d = {
+        "u": "v",
+        "v": "v",
+        "sst": "sst",
+        "salt": "sss",
+        "haline": "sss",
+        "delta": "delta",
+    }
 
     # map to cmocean colormaps
     cmap_map_d = {
@@ -358,6 +366,6 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     cmapt = cmap_map_d[map_d[variable_name]]
 
     # make the map green-ish for nan values
-    cmapt.set_bad(color="#15b01a") # "#96f97b") # "gray")
+    cmapt.set_bad(color="#15b01a")  # "#96f97b") # "gray")
 
     return cmapt

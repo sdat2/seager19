@@ -28,6 +28,20 @@ ATMOS_PATH = PROJECT_PATH / "atmos"
 ATMOS_DATA_PATH = ATMOS_PATH / "DATA"
 ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
 
+# Dropbox links
+DROP_ATMOS_DATA = (
+    "https://www.dropbox.com/sh/hwzj8ynbxn84pg6/AACmK5UF8HKb1_L9Y8pUOfQRa?dl=0"
+)
+DROP_ATMOS_TMP = (
+    "https://www.dropbox.com/sh/b8z8uz8uxapxc1s/AABZDaAa-4d6Gkl-vy_Q5AN8a?dl=0"
+)
+DROP_OCEAN_DATA = (
+    "https://www.dropbox.com/sh/1jpzob3ab6uynfz/AACFOv4YS8f_5dK0kPVjR3Gka?dl=0"
+)
+DROP_OCEAN_OUTPUT = (
+    "https://www.dropbox.com/sh/1jpzob3ab6uynfz/AACFOv4YS8f_5dK0kPVjR3Gka?dl=0"
+)
+
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er")
 

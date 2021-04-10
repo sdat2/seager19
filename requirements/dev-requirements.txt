@@ -22,6 +22,7 @@ pre-commit          # perform checks on code
 #testing
 pytest
 coveralls
+recursive_diff     # test netcdfs
 
 # documentation
 sphinx
@@ -68,3 +69,7 @@ imageio-ffmpeg     # animations driver
 seaborn
 cmocean
 cmocean[plots]
+
+# downloads
+requests
+zipfile38
