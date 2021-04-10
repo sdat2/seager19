@@ -11,7 +11,7 @@ from src.data_loading import get_data
 
 def test_ingrid() -> None:
     """Test the qflx replacement function."""
-    
+
     get_data()
 
     linear_qflx_replacement(output_file_name="qflx-test.nc")
