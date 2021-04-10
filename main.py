@@ -58,7 +58,7 @@ def run_all() -> None:
     run("../SRC/tios2cdf.exe -f output/om_diag")
     run("rm -rf output/om_diag.data output/om_diag.indx")
     run("cp -f output/om_diag.save output/om_diag.2y.restart")
-    # linear_qflx_replacement()
+    linear_qflx_replacement()
     run("../SRC/tcom.exe -i om_run2f -t month.tios")
     run("../SRC/tios2cdf.exe -f output/om_run2f")
     run("rm -rf output/om_run2f.data output/om_run2f.indx")

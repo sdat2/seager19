@@ -1,8 +1,5 @@
 """Download the data from dropbox links
 
-# import shutil
-# from typing import List
-
 from src.data_loading import get_data
 
 """
@@ -12,14 +9,8 @@ import zipfile
 from tqdm import tqdm
 from src.utils import timeit
 from src.constants import (
-    OCEAN_DATA_PATH,
-    OCEAN_OUTPUT_PATH,
-    ATMOS_TMP_PATH,
-    ATMOS_DATA_PATH,
-    DROP_ATMOS_DATA,
-    DROP_ATMOS_TMP,
-    DROP_OCEAN_OUTPUT,
-    DROP_OCEAN_DATA,
+    OCEAN_PATH,
+    ATMOS_PATH,
 )
 
 
@@ -52,16 +43,12 @@ def get_and_unzip(direc: str, url: str, name: str) -> None:
 
 
 @timeit
-def get_data(atmos: bool = True, ocean: bool = True):
+def get_data() -> None:
     """Download the relevant dataset from a Dropbox link and extract it."""
-
-    if atmos and ocean:
-        print(OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH, ATMOS_TMP_PATH, ATMOS_DATA_PATH)
-        print(DROP_ATMOS_DATA, DROP_ATMOS_TMP, DROP_OCEAN_OUTPUT, DROP_OCEAN_DATA)
 
     lol = [
         [
-            "atmos",
+            str(ATMOS_PATH),
             [
                 ["https://www.dropbox.com/s/j7x3bjfnb8fdw3b/tmp.zip?raw=1", "tmp.zip"],
                 [
@@ -71,7 +58,7 @@ def get_data(atmos: bool = True, ocean: bool = True):
             ],
         ],
         [
-            "ocean",
+            str(OCEAN_PATH),
             [
                 [
                     "https://www.dropbox.com/s/luoo402lzbsyi5r/DATA.zip?raw=1",
