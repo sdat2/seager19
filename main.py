@@ -22,8 +22,8 @@ def start_wandb() -> None:
     wandb.init(
         project="seager19",
         entity="sdat2",
-        name="test_8",
-        notes="test run, uploading files",
+        name="test_10",
+        notes="test run, animating files",
     )
 
 
@@ -112,23 +112,64 @@ def print_locations() -> None:
     print(OCEAN_OUTPUT_PATH)
 
 
+def rdict(index: int) -> dict:
+    """Returns renaming dict for xarray.DataArray.
+
+    Args:
+        index (int): index on coords
+
+    Returns:
+        dict: renaming dict.
+    """
+    return {
+        "T_0" + str(index): "time",
+        "Y_0" + str(index): "y",
+        "X_0" + str(index): "x",
+        "L_0" + str(index): "Z",
+    }
+
+
 @timeit
-def animate_sst() -> None:
+def animate_all() -> None:
     """Animate the sst into gifs."""
-    for i in [
-        # "om_spin.nc",
-        ["om_diag", {"T_01": "time", "Y_01": "y", "X_01": "x", "L_01": "Z"}],
-        ["om_run2f", {"T_03": "time", "Y_03": "y", "X_03": "x", "L_03": "Z"}],
+    cmap_d = {
+        "DYN_PRES": "delta",
+        "SST_QFLX": "delta",
+        "SST_SST": "sst",
+        "TDEEP_HTHERM": "sst",
+        "TDEEP_TDEEP": "sst",
+        "TDEEP_HMODEL": "sst",
+    }
+    unit_d = {"SST_SST": "$^{\circ}$C"}
+    for x in [
+        "om_diag",
+        "om_run2f",
     ]:
-        sst = xr.open_dataset(
-            os.path.join(wandb.run.dir, i[0] + ".nc"), decode_times=False
-        ).SST_SST.rename(i[1])
-        sst.attrs["units"] = "degrees Celsius"
-        # sst.coords["x"] = "$^{\circ}$E"
-        # sst.coords["y"] = "$^{\circ}$N"
-        animate_xr_da(
-            sst.isel(Z=0), video_path=os.path.join(wandb.run.dir, i[0] + "_SST.gif")
-        )
+        ds = xr.open_dataset(str(OCEAN_OUTPUT_PATH / x) + ".nc", decode_times=False)
+
+        for y in ds.variables:
+            y = str(y)
+            if "X_" not in y:
+                if "Y_" not in y:
+                    if "L_" not in y:
+                        if "T_" not in y or "SST" in y:
+                            if "GRID" != y:
+                                print(y)
+                                da = ds[y]
+                                for key in da.coords:
+                                    num = str(key)[3]
+                                da = da.rename(rdict(num))
+                                if y in unit_d:
+                                    da.attrs["units"] = unit_d[y]
+                                da.coords["x"].attrs["units"] = "$^{\circ}$E"
+                                da.coords["y"].attrs["units"] = "$^{\circ}$N"
+                                animate_xr_da(
+                                    da.where(da != 0.0).isel(Z=0),
+                                    video_path=os.path.join(
+                                        wandb.run.dir, x + "_" + y + ".gif"
+                                    ),
+                                    vcmap=cmap_d[y],
+                                )
 
 
 if __name__ == "__main__":
@@ -136,7 +177,7 @@ if __name__ == "__main__":
     compile_all()
     run_all()
     copy_all()
-    animate_sst()
+    animate_all()
     # 2. Save model inputs and hyperparameters
     # wandb.config
     # config.learning_rate = 0.01

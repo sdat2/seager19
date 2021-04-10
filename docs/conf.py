@@ -46,13 +46,18 @@ extensions = [
     "sphinxfortran.fortran_autodoc",
     # "sphinx.ext.todo",
     "sphinx.ext.mathjax",
+    "sphinx_c_autodoc",
+    "sphinx_c_autodoc.napoleon",
 ]
+
+c_autodoc_roots = ["ocean/SRC/"]
+
 
 fortran_src = [
-    "ocean/SRC/*",
+    "ocean/SRC/",
 ]
 
-fortran_ext = ["f90", "F90", "f95", "F95", "F"]
+fortran_ext = ["F"]
 
 # fortran_ext = ["*.f", "*.f90", "*.f95", "*.F"]
 

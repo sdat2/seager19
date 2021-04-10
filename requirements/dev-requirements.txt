@@ -32,6 +32,7 @@ sphinx-markdown-tables
 recommonmark
 nbsphinx
 sphinx-fortran
+sphinx-c-autodoc
 
 
 # linear algebra and general data analysis

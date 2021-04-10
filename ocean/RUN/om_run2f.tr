@@ -1,0 +1,74 @@
++Debug                0
++Output_dir           "output"
++Base_file            "output/om_run2f"
++Save_file            "output/om_run2f.save"
++Restart_file         "output/om_diag.2y.restart"
++Density_file         "DATA/rzk.pro"
++Temp_file            "temp_data"
++Salt_file            "salt_data"
++Wind_file            "DATA/tau-ECMWF"
++SST_file             "DATA/sst-ECMWF-clim.nc"
++QFLX_file            "DATA/qflx.nc"
++dQdT_file            "DATA/dQdT-sample.nc"
++dQdf_file            "DATA/dQdf-sample.nc"
++Cloud_file           "cld_data"
++Solar_file           "slr_data"
++Wndspd_file          "wndspd_data"
++Uwnd_file            "uwnd_data"
++Vwnd_file            "vwnd_data"
++Airhum_file          "ahum_data"
++Airtem_file          "atem_data"
++Restart              4
++Scheme               1
++Qflux_diag           0
++Wind_forc            1
++Mass_forc            0
++Mass_bx              -20
++Mass_by              55
++Mass_bx_width        10
++Mass_by_width        10
++Mass_value           1.5e+07
++Wind_tauxy           [1 1 ]
++Wind_drag_fac        1.8
++SST_forc             1
++f1prime              -0.006
++Rlx_time_sst         0  days
++Ekman_forc           1
++Ekman_r              2  days
++SST_gamma            0.75
++Ekman_hsfc           50
++Periodic             1
++Mask_file            "DATA/om_mask.nc"
++NZ                   1
++Z_profile            [0 ]
++NUMMODE              2
++HEQUIVF              0
++VERTICAL_PROFILE_TYPE 0
++VERTICAL_HMIX_PARAM  0.5
++PROFILE_LAT          0
++PROFILE_LON          180
++ZIS                  "depth"
++ZTOP                 0
++ZBOT                 5500
++ZCUT                 6000
++A_Rayleigh           1e-08
++A_Laplacian          4000
++Shap_inter_step      0
++Shap_bound_step      1
++Shap_bound_repeat    1
++Shap_bound_xdist     1
++Shap_bound_ydist     1
++Shap_inter_coef      1
++Shap_inter_coefx     1
++Shap_inter_coefy     1
++Shap_bound_coef      1
++Shap_h_coef          1
++Time_step            0.0416667  days
++Time_mul             1
++Run_time             58  years
++Save_step            365  days
++Year                 1958
++Day                  0
++Sec                  0
++Spline_B             [-65.218 1.8782 -0.00334 ]
++Spline_file          "DATA/spline_ECMWF.txt"

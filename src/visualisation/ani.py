@@ -33,8 +33,11 @@ def animate_xr_da(
         vcmap (any, optional): cmap for variable. Defaults to cmap("sst").
 
     """
+    balanced_colormap = False
 
     if isinstance(vcmap, str):
+        if vcmap == "delta":
+            balanced_colormap = True
         vcmap = cmap(vcmap)
 
     assert isinstance(vcmap, matplotlib.colors.LinearSegmentedColormap)
@@ -53,6 +56,8 @@ def animate_xr_da(
         """
         vmin = xr_da.min(skipna=True)
         vmax = xr_da.max(skipna=True)
+        if balanced_colormap:
+            vmin, vmax = [np.min([vmin, -vmax]), np.max([vmax, -vmin])]
 
         def make_frame(index: int) -> np.array:
             """Make an individual frame of the animation.

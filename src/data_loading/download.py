@@ -19,9 +19,9 @@ def get_and_unzip(direc: str, url: str, name: str) -> None:
     """Get the data and unzip it.
 
     Args:
-        direc (str): directory to put the data in
-        url (str): url of the zip file
-        name (str): name of file
+        direc (str): directory to put the data in.
+        url (str): url of the zip file.
+        name (str): name of file.
     """
 
     @timeit
@@ -80,7 +80,7 @@ def get_data() -> None:
             url = pair[0]
             name = pair[1]
             full_direc = str(os.path.join(direc, os.path.splitext(pair[1])[0]))
-            if not os.path.exists(full_direc): # or "ocean/DATA" in full_direc:
+            if not os.path.exists(full_direc):  #  or "ocean/DATA" in full_direc:
                 print("Dowloading " + full_direc)
                 get_and_unzip(direc, url, name)
                 print(full_direc + " created.")
