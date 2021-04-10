@@ -16,7 +16,7 @@ def test_ingrid() -> None:
 
     linear_qflx_replacement(output_file_name="qflx-test.nc")
     qflx_test = xr.open_dataarray(OCEAN_DATA_PATH / "qflx-test.nc", decode_times=False)
-    qflx_old = xr.open_dataarray(OCEAN_DATA_PATH / "qflx-backup.nc", decode_times=False)
+    qflx_old = xr.open_dataarray(OCEAN_DATA_PATH / "qflx.nc", decode_times=False)
 
     print(qflx_test)
 
