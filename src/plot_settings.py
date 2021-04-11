@@ -309,7 +309,7 @@ def time_title(
 
     Args:
         ax (matplotlib.axes.Axes): axis to add title to.
-        time (np.datetime64): time string.
+        time (Union[np.datetime64, float, cftime.Datetime360Day]): time string.
         date_time_formatter (str, optional): Default is
             `src.constants.DATE_TITLE_FORMAT`.
 
@@ -369,6 +369,6 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     cmapt = cmap_map_d[map_d[variable_name]]
 
     # make the map green-ish for nan values
-    cmapt.set_bad(color="#15b01a")  # "#96f97b") # "gray")
+    cmapt.set_bad(color="#15b01a")
 
     return cmapt

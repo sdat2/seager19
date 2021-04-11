@@ -4,7 +4,7 @@ Basically a wrapper for bash commands.
 
 Example:
    Usage of script::
-       python3 main.py
+       python3 main.py run_name=test19
 
 """
 import os
@@ -20,7 +20,7 @@ from src.constants import (
     SRC_PATH,
     OCEAN_RUN_PATH,
     OCEAN_SRC_PATH,
-    PROJECT_PATH
+    PROJECT_PATH,
 )
 from src.visualisation.ani import animate_xr_da
 from src.utils import timeit, fix_calendar
@@ -172,15 +172,22 @@ def animate_all() -> None:
     for x in [
         "om_diag",
         "om_run2f",
-        # "qflx",
-        # "qflx-0",
+        "qflx",
+        "qflx-0",
     ]:
-        animate_ds(
-            xr.open_dataset(
-                str(os.path.join(wandb.run.dir, x)) + ".nc", decode_times=False
-            ),
-            x,
-        )
+        if "qflx" not in x:
+            animate_ds(
+                xr.open_dataset(
+                    str(os.path.join(wandb.run.dir, x)) + ".nc", decode_times=False
+                ),
+                x,
+            )
+        else:
+            ds = xr.open_dataset(
+                    str(os.path.join(wandb.run.dir, x)) + ".nc", decode_times=False
+                ).rename({"T": "time", "Y": "y",
+                         "X": "x", "Z": "Z",})
+            animate_ds(ds, x)
 
 
 @timeit
@@ -206,9 +213,13 @@ def animate_ds(ds: xr.Dataset, file_name: str) -> None:
                         if "GRID" != y:
                             print(y)
                             da = ds[y]
-                            for key in da.coords:
-                                num = str(key)[3]
-                            da = da.rename(rdict(num))
+                            if ("T_01" in da.coords
+                                or "T_02" in da.coords
+                                or "T_03" in da.coords
+                                or "T_04" in da.coords):
+                                for key in da.coords:
+                                    num = str(key)[3]
+                                da = da.rename(rdict(num))
                             if y in unit_d:
                                 da.attrs["units"] = unit_d[y]
                             da.coords["x"].attrs["units"] = "$^{\circ}$E"
@@ -221,7 +232,7 @@ def animate_ds(ds: xr.Dataset, file_name: str) -> None:
                             if y in unit_d:
                                 da.attrs["units"] = unit_d[y]
                             da.attrs["long_name"] = y
-                            da.attrs["name"] = y                            
+                            da.attrs["name"] = y
                             animate_xr_da(
                                 da,
                                 video_path=os.path.join(
