@@ -176,7 +176,7 @@ def animate_all() -> None:
 
 @timeit
 def animate_ds(ds: xr.Dataset, file_name: str) -> None:
-    """animate the ds."""
+    """Animate the `xarray.Dataset`."""
     cmap_d = {
         "DYN_PRES": "delta",
         "SST_QFLX": "delta",
@@ -216,6 +216,11 @@ def animate_ds(ds: xr.Dataset, file_name: str) -> None:
 @timeit
 @hydra.main(config_path=os.path.join(SRC_PATH, "configs"), config_name="config")
 def main(cfg: DictConfig):
+    """The main function to run the model and animations.
+
+    Args:
+        cfg (DictConfig): The hyrda dict config from the wrapper.
+    """
     print(OmegaConf.to_yaml(cfg))
     start_wandb()
     compile_all()

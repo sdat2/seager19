@@ -1,7 +1,8 @@
 """General project utility functions."""
-from typing import Callable
+from typing import Callable, Union
 import inspect
 import time
+import xarray as xr
 from functools import wraps
 from sys import getsizeof
 
@@ -45,6 +46,32 @@ def timeit(method: Callable) -> Callable:
         return result
 
     return timed
+
+
+def fix_calendar(
+    xr_in: Union[xr.Dataset, xr.DataArray], timevar: str = "T"
+) -> Union[xr.Dataset, xr.DataArray]:
+    """Fix and decode the calendar.
+
+    Args:
+        xr_in (Union[xr.Dataset, xr.DataArray]): the xarray object input
+        timevar (str, optional): The time variable name. Defaults to "T".
+
+    Returns:
+        Union[xr.Dataset, xr.DataArray]: same type and xr_in with fixed calendar.
+    """
+    if isinstance(xr_in, xr.DataArray):
+        ds = xr_in.to_dataset()
+    else:
+        ds = xr_in
+    if ds[timevar].attrs["calendar"] == "360":
+        ds[timevar].attrs["calendar"] = "360_day"
+    ds = xr.decode_cf(ds)
+    if isinstance(xr_in, xr.DataArray):
+        xr_out = ds.to_array()
+    else:
+        xr_out = ds
+    return xr_out
 
 
 def human_readable_size(num: int, suffix: str = "B") -> str:
