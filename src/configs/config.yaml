@@ -1,7 +1,5 @@
 ###################################################################################################
-mech:
-  ingrid: true
-  user: sdat2
-
+ingrid: true
+user: sdat2
 run: true
 animate: false

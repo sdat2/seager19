@@ -4,6 +4,7 @@ from src.data_loading import get_data
 
 """
 import os
+import shutil
 import requests
 import zipfile
 from tqdm import tqdm
@@ -43,7 +44,7 @@ def get_and_unzip(direc: str, url: str, name: str) -> None:
         os.remove(write_path)
         mac_path = os.path.join(direc, "__MACOSX")
         if os.path.exists(mac_path):
-            os.rmdir(mac_path)
+            shutil.rmtree(mac_path)
 
     get_zip()
     un_zip()
@@ -93,7 +94,7 @@ def get_data() -> None:
                 get_and_unzip(direc, url, name)
                 print(full_direc + " created.")
             else:
-                print(full_direc + " already exists, not going to redownload")
+                print(full_direc + " already exists, not going to redownload.")
 
 
 if __name__ == "__main__":

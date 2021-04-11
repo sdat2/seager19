@@ -50,10 +50,8 @@ def run(command: str) -> None:
 
 
 @timeit
-@hydra.main(config_path=os.path.join(SRC_PATH, "configs"), config_name="config")
 def run_all(cfg: DictConfig) -> None:
     """run all the executables."""
-    print(OmegaConf.to_yaml(cfg))
     if cfg.run:
         run("../SRC/tcom.exe -i om_spin -t spin.tios")
         run("../SRC/tios2cdf.exe -f output/om_spin")
@@ -63,7 +61,8 @@ def run_all(cfg: DictConfig) -> None:
         run("../SRC/tios2cdf.exe -f output/om_diag")
         run("rm -rf output/om_diag.data output/om_diag.indx")
         run("cp -f output/om_diag.save output/om_diag.2y.restart")
-        linear_qflx_replacement()
+        if cfg.ingrid:
+            linear_qflx_replacement()
         run("../SRC/tcom.exe -i om_run2f -t month.tios")
         run("../SRC/tios2cdf.exe -f output/om_run2f")
         run("rm -rf output/om_run2f.data output/om_run2f.indx")
@@ -176,13 +175,17 @@ def animate_all() -> None:
                                     vcmap=cmap_d[y],
                                 )
 
-
-if __name__ == "__main__":
+@hydra.main(config_path=os.path.join(SRC_PATH, "configs"), config_name="config")
+def main(cfg: DictConfig):
+    print(OmegaConf.to_yaml(cfg))
     start_wandb()
     compile_all()
-    run_all()
+    run_all(cfg)
     copy_all()
     animate_all()
+
+if __name__ == "__main__":
+    main()
     # 2. Save model inputs and hyperparameters
     # wandb.config
     # config.learning_rate = 0.01
