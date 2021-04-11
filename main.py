@@ -213,11 +213,17 @@ def animate_ds(ds: xr.Dataset, file_name: str) -> None:
                                 da.attrs["units"] = unit_d[y]
                             da.coords["x"].attrs["units"] = "$^{\circ}$E"
                             da.coords["y"].attrs["units"] = "$^{\circ}$N"
-                            print(da)
+                            da = da.where(da != 0.0).isel(Z=0)
+                            da = fix_calendar(da, timevar="time")
+                            if "variable" in da.dims:
+                                da = da.isel(variable=0)
+                            da = da.rename(y)
+                            if y in unit_d:
+                                da.attrs["units"] = unit_d[y]
+                            da.attrs["long_name"] = y
+                            da.attrs["name"] = y                            
                             animate_xr_da(
-                                fix_calendar(
-                                    da.where(da != 0.0).isel(Z=0), timevar="time"
-                                ),
+                                da,
                                 video_path=os.path.join(
                                     wandb.run.dir, file_name + "_" + y + ".gif"
                                 ),

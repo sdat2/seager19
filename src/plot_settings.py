@@ -37,7 +37,7 @@ Example:
         label_subplots(axs, start_from=0, fontsize=10)
 
 """
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Union
 import numpy as np
 from sys import platform
 import itertools
@@ -47,6 +47,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import cartopy.crs as ccrs
+import cftime
 import cmocean
 from src.constants import REPORT_WIDTH, DATE_TITLE_FORMAT
 from src.utils import timeit
@@ -301,7 +302,7 @@ def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
 
 def time_title(
     ax: matplotlib.axes.Axes,
-    time: np.datetime64,
+    time: Union[np.datetime64, float, cftime.Datetime360Day],
     date_time_formatter: str = DATE_TITLE_FORMAT,
 ) -> None:
     """Add time title to axes.
@@ -321,6 +322,8 @@ def time_title(
     if isinstance(time, np.datetime64):
         # use pandas to format time
         ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
+    elif isinstance(time, cftime.Datetime360Day):
+        ax.set_title(time.strftime()[0:10])
     elif isinstance(time, (float, np.floating)):
         # TODO: this is only good for the data format in this file.
         # It would be better to have this as an option

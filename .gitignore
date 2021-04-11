@@ -14,6 +14,7 @@ DATA/
 output/
 outputs/
 OUTPUT/
+logs/
 ocean/SRC/backup
 *.save
 *.output

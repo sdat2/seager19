@@ -3,7 +3,7 @@ import xarray as xr
 import numpy as np
 from src.utils import timeit, get_byte_size, human_readable_size, fix_calendar
 from src.data_loading.download import get_data
-from src.constants import OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH
+from src.constants import OCEAN_DATA_PATH   #, OCEAN_OUTPUT_PATH
 
 
 def test_timeit() -> None:
@@ -48,11 +48,12 @@ def test_fix_calendar() -> None:
     da_new = fix_calendar(
         xr.open_dataset(OCEAN_DATA_PATH / "qflx.nc", decode_times=False).qflx
     )
-    da_new = fix_calendar(
-        xr.open_dataset(OCEAN_OUTPUT_PATH / "qflx.nc", decode_times=False)
-    )
+    #  ds_other = fix_calendar(
+    #     xr.open_dataset(OCEAN_OUTPUT_PATH / "om_diag.nc", decode_times=False),
+    #  )
     print(ds_new)
     print(da_new)
+    #  print(ds_other)
 
 
 def test_get_byte_size() -> None:
@@ -61,7 +62,7 @@ def test_get_byte_size() -> None:
     print(get_byte_size(list(range(int(10e4)))))
     print(get_byte_size("test string"))
     print(get_byte_size({"great": 1, "test": 0, "ok": -1}))
-    # print(get_byte_size(xr.tutorial.load_dataset("air_temperature").air))
+    #  print(get_byte_size(xr.tutorial.load_dataset("air_temperature").air))
     assert isinstance(get_byte_size(np.zeros(int(10e4))), str)
 
 
