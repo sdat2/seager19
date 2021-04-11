@@ -3,6 +3,23 @@ project: seager19
 user: sdat2
 run_name: test_13
 notes: test hydra, animating files
-run: false
+run: true
 ingrid: true
 animate: true
+# bugs:
+#   bug1: "errorA"
+#   bug2: "errorB"
+atm:
+  eps_days: 0.75
+  K_days: 10
+  efrac: 2.0  # multiply epsu by efrac to get epsv
+  Hq: 1800
+  PrcpLand: 1  # use data precip trends over land
+  wnspmin: 4
+  rho00: 0.3
+  prmax: float(20.0 / 3600 / 24)
+  r: 0.80
+  nx: 180
+  ny: 60
+  YN: 60
+  YS: -${atm.YN}

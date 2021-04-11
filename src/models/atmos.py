@@ -1,44 +1,12 @@
-# coding: utf-8
-
-# ### Use $T_s$ trend to calculate all other trends
-
-# In[ ]:
-
-
+"""src.models.atmos."""
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
-
-# get_ipython().run_line_magic("matplotlib", "inline")
 from scipy.interpolate import interp2d
-import os
+from scipy.fftpack import fft, ifft
+from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH
 
-
-# In[ ]:
-
-
-def TDMAsolver(nx, ny, a, b, c, d):
-    nf = ny  # number of equations
-    ac, bc, cc, dc = map(np.array, (a, b, c, d))  # copy arrays
-
-    for it in range(1, nf):
-        mc = ac[it, :] / bc[it - 1, :]
-        bc[it, :] = bc[it, :] - mc * cc[it - 1, :]
-        dc[it, :] = dc[it, :] - mc * dc[it - 1, :]
-
-    xc = bc
-    xc[-1, :] = dc[-1, :] / bc[-1, :]
-
-    for il in range(nf - 2, -1, -1):
-        xc[il, :] = (dc[il, :] - cc[il, :] * xc[il + 1, :]) / bc[il, :]
-
-    return xc
-
-
-# In[ ]:
-
-
-# Make changes here ----------
 eps_days = 0.75
 K_days = 10
 efrac = 2.0  # multiply epsu by efrac to get epsv
@@ -52,18 +20,7 @@ nx = 180
 ny = 60
 YN = 60
 YS = -YN
-
-basedir = os.path.join("tmp", "S91")
-
-if not os.path.isdir("tmp"):
-    os.makedirs("tmp")
-
 NumberIterations = 50
-
-
-# In[ ]:
-
-
 gravity = 9.8
 ZT = 15000
 Th00 = 300
@@ -72,8 +29,6 @@ rEarth = 6.37e6
 omega2 = 2 * (2 * np.pi / 86400)
 L = 2.5e6
 cpair = 1000
-
-outfile = basedir + "-Hq" + str(Hq) + "-PrcpLand" + str(PrcpLand) + ".nc"
 B = gravity * np.pi / (NBSQ * Th00 * ZT)
 eps = 1.0 / (eps_days * 86400)
 epsu = eps
@@ -81,7 +36,6 @@ epsv = efrac * eps
 K1 = B / (K_days * 86400)
 epsp = (np.pi / ZT) ** 2 / (NBSQ * K_days * 86400)
 beta = omega2 / rEarth
-
 # make grids
 dx = 360 / nx
 dy = (YN - YS) / ny
@@ -96,16 +50,6 @@ dym = dY * rEarth * np.pi / 180
 dym2 = dym * dym
 
 
-def fcor(Y):
-    return omega2 * Y * np.pi / 180
-
-
-fcu = fcor(Yu)
-
-
-# In[ ]:
-
-
 # need to have the correct ordering of the wave numbers for fft
 N = nx
 if N % 2 == 0:
@@ -118,10 +62,22 @@ else:
     )
 
 
-# In[ ]:
+def fcor(y: float) -> float:
+    """Corriolis force coeff.
+
+    Args:
+        y (float): latitude
+
+    Returns:
+        float: Corriolis force coeff.
+    """
+    return omega2 * y * np.pi / 180
 
 
-def f_qa(ts, sp):
+fcu = fcor(Yu)
+
+
+def f_qa(ts: float, sp: float):
     # ts: sst in Kelvin
     # sp: surface pressure in mb
     # return qs: surface specific humidity
@@ -148,8 +104,6 @@ def f_E(mask, qa, wnsp):
 
 
 def f_MC(qa, u, v):
-    from scipy.fftpack import fft, ifft
-
     # qa: surface air humidity
     # u,v: low level winds in m/s (N.B., v is on Yv points, u,q are on Yu points)
     # return Moisture Convergence in kg/m^2/s
@@ -165,7 +119,22 @@ def f_MC(qa, u, v):
     return -Hq * (qux + qvy) * rhoair
 
 
-# In[ ]:
+def tdma_solver(nx: int, ny: int, a, b, c, d):
+    nf = ny  # number of equations
+    ac, bc, cc, dc = map(np.array, (a, b, c, d))  # copy arrays
+
+    for it in range(1, nf):
+        mc = ac[it, :] / bc[it - 1, :]
+        bc[it, :] = bc[it, :] - mc * cc[it - 1, :]
+        dc[it, :] = dc[it, :] - mc * dc[it - 1, :]
+
+    xc = bc
+    xc[-1, :] = dc[-1, :] / bc[-1, :]
+
+    for il in range(nf - 2, -1, -1):
+        xc[il, :] = (dc[il, :] - cc[il, :] * xc[il + 1, :]) / bc[il, :]
+
+    return xc
 
 
 def S91_solver(Q1):
@@ -189,7 +158,7 @@ def S91_solver(Q1):
     )
     dk = -epsu * DQ + 1.0j * km[np.newaxis, :] * AfQ
 
-    vtk = TDMAsolver(nx, ny - 2, ak, bk, ck, dk)
+    vtk = tdma_solver(nx, ny - 2, ak, bk, ck, dk)
 
     z = np.zeros((1, nx))
     vt = np.concatenate((z, vtk, z), axis=0)
@@ -205,10 +174,7 @@ def S91_solver(Q1):
     return (u, v, phi)
 
 
-# In[ ]:
-
-
-def smooth121(da: xr.DataArray, sdims, NSmooths: int = 1, perdims: list = []):
+def smooth121(da: xr.DataArray, sdims: list, NSmooths: int = 1, perdims: list = []):
     """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time
     Usage
     -----
@@ -241,10 +207,6 @@ def smooth121(da: xr.DataArray, sdims, NSmooths: int = 1, perdims: list = []):
     return v.where(mask, np.nan).transpose(*origdims)
 
 
-# In[ ]:
-
-
-# Define the new Dataset
 ds = xr.Dataset({"X": ("X", X), "Yu": ("Yu", Yu), "Yv": ("Yv", Yv)})
 ds.X.attrs = [("units", "degree_east")]
 ds.Yu.attrs = [("units", "degree_north")]
@@ -258,10 +220,6 @@ ds["epsv"] = eps_days / efrac
 ds.epsv.attrs = [("units", "day")]
 ds["Hq"] = Hq
 ds.Hq.attrs = [("units", "m")]
-
-
-# In[ ]:
-
 
 # CLIMATOLOGIES
 
@@ -281,10 +239,6 @@ ds["tsClim"] = (["Yu", "X"], fts(X, Yu))
 ds["prClim"] = (["Yu", "X"], fpr(X, Yu))
 ds["spClim"] = (["Yu", "X"], fsp(X, Yu))
 
-
-# In[ ]:
-
-
 # TRENDS
 dsTrend = xr.open_dataset("DATA/ts-ECMWF-trend.nc")
 ftsTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.ts, kind="linear")
@@ -301,9 +255,6 @@ ds["prTrend"] = (["Yu", "X"], prTrend)
 ds["prTrend"] = smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
 
-# In[ ]:
-
-
 dsmask = xr.open_dataset("DATA/mask-360x180.nc")
 fmask = interp2d(dsmask.X, dsmask.Y, dsmask.mask, kind="linear")
 ds["mask"] = (["Yu", "X"], fmask(X, Yu))
@@ -315,10 +266,6 @@ wnspClim[wnspClim < wnspmin] = wnspmin
 mask = ds.mask.values
 wend = wnspClim
 wbeg = wnspClim
-
-
-# In[ ]:
-
 
 tsend = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
 tsbeg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
@@ -340,10 +287,6 @@ Ebeg = f_E(mask, qabeg, wnspClim)
 PRbeg = Ebeg
 PRbeg[PRbeg < 0] = 0
 # PRbeg[PRbeg>prmax] = prmax
-
-
-# In[ ]:
-
 
 Qth = Qthend
 PR = PRend
@@ -372,9 +315,6 @@ phiend = phi1
 PRend = PR
 
 
-# In[ ]:
-
-
 Qth = Qthbeg
 PR = PRbeg
 E1 = Ebeg
@@ -400,9 +340,6 @@ ubeg = u1
 vbeg = v1
 phibeg = phi1
 PRbeg = PR
-
-
-# In[ ]:
 
 
 # save and plot the trends
@@ -439,20 +376,179 @@ ds["qabeg"] = (["Yu", "X"], qabeg)
 ds["phitrend"] = smooth121(ds.phitrend, ["X"], NSmooths=1, perdims=["X"])
 
 
-# In[ ]:
-
-
 ds.utrend.attrs = [("units", "m/s")]
 ds.vtrend.attrs = [("units", "m/s")]
 ds.phitrend.attrs = [("units", "m2/s2")]
 ds.PRtrend.attrs = [("units", "m/s")]
 ds.Qthtrend.attrs = [("units", "K/s")]
 
+
+basedir = os.path.join("tmp", "S91")
+
+if not os.path.isdir("tmp"):
+    os.makedirs("tmp")
+
+outfile = basedir + "-Hq" + str(Hq) + "-PrcpLand" + str(PrcpLand) + ".nc"
 print(outfile)
-dict = {
+
+en_dict = {
     "K": {"dtype": "f4"},
     "epsu": {"dtype": "f4"},
     "epsv": {"dtype": "f4"},
     "Hq": {"dtype": "f4"},
 }
-ds.to_netcdf(outfile, encoding=dict)
+ds.to_netcdf(outfile, encoding=en_dict)
+
+
+rhoa = 1.225
+cE = 0.00125
+L = 2.5e6
+eps = 0.97
+sigma = 5.67e-8
+ps = 1000
+es0 = 6.11
+delta = 1.0
+f2 = 0.05
+# 'a' should decrease when deep convection happens above 28 degC
+# a = Ts-T0;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
+a = 0.6
+
+mem = "EEEf"
+
+names = {
+    "E": "ECMWF",
+    "F": "ECMWF-orig",
+    "B": "CMIP5-39m",
+    "C": "CMIP5",
+    "D": "CMIP5-orig",
+    "H": "HadGEM2",
+    "f": "fixed",
+    "e": "fixed78",
+    "g": "fixed82",
+    "W": "WHOI",
+    "M": "MERRA",
+    "I": "ISCCP",
+}
+vars = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+
+# basic parameters
+T0 = 273.15
+f1bar = 0.39
+Ubar = 5.0
+Tsbar = T0 + 25
+Cbar = 0.6
+wnspmin = 4.0
+
+# Find linearization of Q_LH (latent heating)
+const1 = rhoa * cE * L
+
+def f_es(T):
+    return es0 * np.exp(17.67 * (T - T0) / (T - T0 + 243.5))
+
+def f_qs(T):
+    return 0.622 * f_es(T) / ps
+
+def f_dqsdT(T):
+    return f_qs(T) * (17.67 * 243.5) / (T - T0 + 243.5) ** 2
+
+def f_QLH(T, U, rh):
+    return const1 * U * f_qs(T) * (1 - rh)
+
+def f_dQLHdT(T, U, rh):
+    return const1 * U * f_dqsdT(T) * (1 - rh)
+
+
+# Find linearization of Q_LW (longwave)
+const2 = eps * sigma
+
+
+def f_Ta(T):
+    return T - delta
+
+
+def f_ebar(T, rh):
+    qa = rh * f_qs(T)
+    return qa * ps / 0.622
+
+
+def f_QLW1(T, C, f, rh):
+    Ta = f_Ta(T)
+    return const2 * (1 - a * C ** 2) * Ta ** 4 * (f - f2 * np.sqrt(f_ebar(T, rh)))
+
+
+def f_QLW2(T):
+    return 4 * eps * sigma * T ** 3 * (T - f_Ta(T))
+
+
+def f_QLW(T, f, rh):
+    return f_QLW1(T, f, rh) + f_QLW2(T)
+
+
+def f_dQLWdf(T, C):
+    return const2 * (1 - a * C ** 2) * T ** 4
+
+
+def f_dQLWdT(T, C, f, rh):
+    ebar = f_ebar(T, rh)
+    qs = f_qs(T)
+    dqsdT = f_dqsdT(T)
+    return const2 * (
+        (1 - a * C ** 2)
+        * T ** 3
+        * (4 * f - f2 * np.sqrt(ebar) * (4 + T * dqsdT / 2 / qs))
+        + 12 * T ** 2 * delta
+    )
+
+files = []
+
+for i, m in enumerate(mem):
+    name = names[m]
+    var = vars[i]
+    file = os.path.join("DATA", var + "-" + name + "-clim60.nc")
+    print(name, var, file)
+    print(file)
+    assert os.path.isfile(file)
+    files += [file]
+
+dclim = xr.open_mfdataset(files, decode_times=False)
+
+# set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
+#       Q'_LW = ALW(Tsbar,Cbar,f1bar)* Tsprime + BLW(Tsbar,Cbar) * f1prime
+#       Q'_LH = ALH(Tsbar,Ubar) * Tsprime
+Tsb = 1.0 * dclim.ts
+tmp = 1.0 * dclim.sfcWind.stack(z=("lon", "lat")).load()
+tmp[tmp < wnspmin] = wnspmin
+Ub = tmp.unstack("z").T
+Cb = dclim.clt / 100.0
+rh = dclim.rh / 100.0
+f1p = -0.003
+
+ALH0 = f_dQLHdT(Tsb, Ubar, rh)
+ALW0 = f_dQLWdT(Tsb, Cbar, f1bar, rh)
+BLW0 = f_dQLWdf(Tsb, Cbar)
+dTse0 = -BLW0 * f1p / (ALH0 + ALW0)
+dclim["dTse0"] = dTse0
+
+ALH1 = f_dQLHdT(Tsb, Ub, rh)
+ALW1 = f_dQLWdT(Tsb, Cbar, f1bar, rh)
+BLW1 = f_dQLWdf(Tsb, Cbar)
+dTse1 = -BLW1 * f1p / (ALH1 + ALW1)
+dclim["dTse1"] = dTse1
+
+ALH2 = f_dQLHdT(Tsb, Ubar, rh)
+ALW2 = f_dQLWdT(Tsb, Cb, f1bar, rh)
+BLW2 = f_dQLWdf(Tsb, Cb)
+dTse2 = -BLW2 * f1p / (ALH2 + ALW2)
+dclim["dTse2"] = dTse2
+
+ALH = f_dQLHdT(Tsb, Ub, rh)
+ALW = f_dQLWdT(Tsb, Cb, f1bar, rh)
+BLW = f_dQLWdf(Tsb, Cb)
+dTse = -BLW * f1p / (ALH + ALW)
+
+dclim["dTse"] = dTse
+dclim["ALH"] = ALH
+dclim["ALW"] = ALW
+dclim["BLW"] = BLW
+dclim["QLW"] = ALW + BLW * f1p / dTse
+# dclim.to_netcdf('Q.nc')

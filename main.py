@@ -4,13 +4,14 @@ Basically a wrapper for bash commands.
 
 Example:
    Usage of script::
-       python3 main.py run_name=test19
+       python3 main.py run_name=test22
 
 """
 import os
 import time
 import xarray as xr
 import wandb
+import logging
 import hydra
 from omegaconf import DictConfig, OmegaConf
 from src.constants import (
@@ -27,6 +28,9 @@ from src.utils import timeit, fix_calendar
 from src.data_loading.ingrid import linear_qflx_replacement
 
 
+log = logging.getLogger(__name__)
+
+
 def start_wandb(cfg: DictConfig) -> None:
     """Intialises wandb for run."""
     run_dir = os.path.join(PROJECT_PATH, "logs", cfg.run_name)
@@ -39,6 +43,7 @@ def start_wandb(cfg: DictConfig) -> None:
         save_code=True,
         name=cfg.run_name,
         notes=cfg.notes,
+        config=cfg,
     )
 
 
@@ -65,20 +70,20 @@ def run(command: str) -> None:
 @timeit
 def run_all(cfg: DictConfig) -> None:
     """run all the executables."""
-    if cfg.run:
-        run("../SRC/tcom.exe -i om_spin -t spin.tios")
-        run("../SRC/tios2cdf.exe -f output/om_spin")
-        run("rm -rf output/om_spin.data output/om_spin.indx")
-        run("cp -f output/om_spin.save output/om_spin.20y.restart")
-        run("../SRC/tcom.exe -i om_diag -t diag.tios")
-        run("../SRC/tios2cdf.exe -f output/om_diag")
-        run("rm -rf output/om_diag.data output/om_diag.indx")
-        run("cp -f output/om_diag.save output/om_diag.2y.restart")
-        if cfg.ingrid:
-            linear_qflx_replacement()
-        run("../SRC/tcom.exe -i om_run2f -t month.tios")
-        run("../SRC/tios2cdf.exe -f output/om_run2f")
-        run("rm -rf output/om_run2f.data output/om_run2f.indx")
+    log.info("Run.")
+    run("../SRC/tcom.exe -i om_spin -t spin.tios")
+    run("../SRC/tios2cdf.exe -f output/om_spin")
+    run("rm -rf output/om_spin.data output/om_spin.indx")
+    run("cp -f output/om_spin.save output/om_spin.20y.restart")
+    run("../SRC/tcom.exe -i om_diag -t diag.tios")
+    run("../SRC/tios2cdf.exe -f output/om_diag")
+    run("rm -rf output/om_diag.data output/om_diag.indx")
+    run("cp -f output/om_diag.save output/om_diag.2y.restart")
+    if cfg.ingrid:
+        linear_qflx_replacement()
+    run("../SRC/tcom.exe -i om_run2f -t month.tios")
+    run("../SRC/tios2cdf.exe -f output/om_run2f")
+    run("rm -rf output/om_run2f.data output/om_run2f.indx")
 
 
 def copy_run_rdir(file_name: str) -> None:
@@ -172,8 +177,8 @@ def animate_all() -> None:
     for x in [
         "om_diag",
         "om_run2f",
-        "qflx",
-        "qflx-0",
+        # "qflx",
+        # "qflx-0",
     ]:
         if "qflx" not in x:
             animate_ds(
@@ -184,9 +189,15 @@ def animate_all() -> None:
             )
         else:
             ds = xr.open_dataset(
-                    str(os.path.join(wandb.run.dir, x)) + ".nc", decode_times=False
-                ).rename({"T": "time", "Y": "y",
-                         "X": "x", "Z": "Z",})
+                str(os.path.join(wandb.run.dir, x)) + ".nc", decode_times=False
+            ).rename(
+                {
+                    "T": "time",
+                    "Y": "y",
+                    "X": "x",
+                    "Z": "Z",
+                }
+            )
             animate_ds(ds, x)
 
 
@@ -213,10 +224,12 @@ def animate_ds(ds: xr.Dataset, file_name: str) -> None:
                         if "GRID" != y:
                             print(y)
                             da = ds[y]
-                            if ("T_01" in da.coords
+                            if (
+                                "T_01" in da.coords
                                 or "T_02" in da.coords
                                 or "T_03" in da.coords
-                                or "T_04" in da.coords):
+                                or "T_04" in da.coords
+                            ):
                                 for key in da.coords:
                                     num = str(key)[3]
                                 da = da.rename(rdict(num))
@@ -252,12 +265,16 @@ def main(cfg: DictConfig):
 
     """
     print(OmegaConf.to_yaml(cfg))
+    print(cfg)
+    """
     start_wandb(cfg)
     compile_all()
-    run_all(cfg)
+    if cfg.run:
+        run_all(cfg)
     copy_all()
     if cfg.animate:
         animate_all()
+    """
 
 
 if __name__ == "__main__":
