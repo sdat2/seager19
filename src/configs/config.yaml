@@ -1,5 +1,8 @@
 ###################################################################################################
-ingrid: true
+project: seager19
 user: sdat2
-run: true
-animate: false
+run_name: test_13
+notes: test hydra, animating files
+run: false
+ingrid: true
+animate: true

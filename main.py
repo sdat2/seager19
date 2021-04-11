@@ -20,19 +20,25 @@ from src.constants import (
     SRC_PATH,
     OCEAN_RUN_PATH,
     OCEAN_SRC_PATH,
+    PROJECT_PATH
 )
 from src.visualisation.ani import animate_xr_da
-from src.utils import timeit
+from src.utils import timeit, fix_calendar
 from src.data_loading.ingrid import linear_qflx_replacement
 
 
-def start_wandb() -> None:
+def start_wandb(cfg: DictConfig) -> None:
     """Intialises wandb for run."""
+    run_dir = os.path.join(PROJECT_PATH, "logs", cfg.run_name)
+    if not os.path.exists(run_dir):
+        os.makedirs(run_dir)
     wandb.init(
-        project="seager19",
-        entity="sdat2",
-        name="test_11",
-        notes="test run, animating files",
+        project=cfg.project,
+        entity=cfg.user,
+        dir=run_dir,
+        save_code=True,
+        name=cfg.run_name,
+        notes=cfg.notes,
     )
 
 
@@ -166,11 +172,14 @@ def animate_all() -> None:
     for x in [
         "om_diag",
         "om_run2f",
-        "qflx",
-        "qflx-0",
+        # "qflx",
+        # "qflx-0",
     ]:
         animate_ds(
-            xr.open_dataset(str(wandb.run.dir / x) + ".nc", decode_times=False), x
+            xr.open_dataset(
+                str(os.path.join(wandb.run.dir, x)) + ".nc", decode_times=False
+            ),
+            x,
         )
 
 
@@ -204,8 +213,11 @@ def animate_ds(ds: xr.Dataset, file_name: str) -> None:
                                 da.attrs["units"] = unit_d[y]
                             da.coords["x"].attrs["units"] = "$^{\circ}$E"
                             da.coords["y"].attrs["units"] = "$^{\circ}$N"
+                            print(da)
                             animate_xr_da(
-                                da.where(da != 0.0).isel(Z=0),
+                                fix_calendar(
+                                    da.where(da != 0.0).isel(Z=0), timevar="time"
+                                ),
                                 video_path=os.path.join(
                                     wandb.run.dir, file_name + "_" + y + ".gif"
                                 ),
@@ -220,16 +232,19 @@ def main(cfg: DictConfig):
 
     Args:
         cfg (DictConfig): The hyrda dict config from the wrapper.
+
     """
     print(OmegaConf.to_yaml(cfg))
-    start_wandb()
+    start_wandb(cfg)
     compile_all()
     run_all(cfg)
     copy_all()
-    animate_all()
+    if cfg.animate:
+        animate_all()
 
 
 if __name__ == "__main__":
+    # pylint: disable=no-value-for-parameter
     main()
     # 2. Save model inputs and hyperparameters
     # wandb.config

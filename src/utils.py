@@ -59,18 +59,30 @@ def fix_calendar(
 
     Returns:
         Union[xr.Dataset, xr.DataArray]: same type and xr_in with fixed calendar.
+
     """
+    # make all into dataset
     if isinstance(xr_in, xr.DataArray):
         ds = xr_in.to_dataset()
     else:
         ds = xr_in
-    if ds[timevar].attrs["calendar"] == "360":
+
+    # add 360_day attribute
+    if "calendar" not in ds[timevar].attrs:
         ds[timevar].attrs["calendar"] = "360_day"
+    else:
+        if ds[timevar].attrs["calendar"] == "360":
+            ds[timevar].attrs["calendar"] = "360_day"
+
+    # decode
     ds = xr.decode_cf(ds)
+
+    # transform back into original type
     if isinstance(xr_in, xr.DataArray):
         xr_out = ds.to_array()
     else:
         xr_out = ds
+
     return xr_out
 
 
