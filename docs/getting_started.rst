@@ -5,13 +5,19 @@ How to get started with the src package.
 Installation
 --------------
 
-Download repo and set up::
+Download repo and set up:
+
+.. code-block:: bash
 
     git clone https://github.com/sdat2/seager19.git
 
     cd seager19
 
     make env
+
+    conda activate ./env    
+
+    make test        # Also downloads the data.
 
     make jupyter_pro
 

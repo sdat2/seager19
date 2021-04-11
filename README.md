@@ -75,3 +75,21 @@ The code and data was taken from:
 - TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
 - TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
 - TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>
+
+## Setup
+
+```bash
+    git clone https://github.com/sdat2/seager19.git
+
+    cd seager19
+
+    make env
+
+    conda activate ./env    
+
+    make test        # Also downloads the data.
+
+    make jupyter_pro
+
+    make report
+```

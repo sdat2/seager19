@@ -12,6 +12,7 @@ __pycache__/
 data/
 DATA/
 output/
+outputs/
 OUTPUT/
 ocean/SRC/backup
 *.save

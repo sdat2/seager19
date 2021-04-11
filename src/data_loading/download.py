@@ -39,7 +39,7 @@ def get_and_unzip(direc: str, url: str, name: str) -> None:
         with zipfile.ZipFile(write_path, "r") as zip_ref:
             zip_ref.extractall(direc)
 
-    @timeit   
+    @timeit
     def clean_up() -> None:
         os.remove(write_path)
         mac_path = os.path.join(direc, "__MACOSX")
