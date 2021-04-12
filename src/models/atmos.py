@@ -70,6 +70,110 @@ else:
             np.float64
     )
 
+rho_air = 1.225
+cE = 0.00125
+L = 2.5e6        # latent heat
+eps = 0.97
+stefan_boltzman_const = 5.67e-8
+ps = 1000        # pressure at the surface?
+es0 = 6.11       # es0 = 6.11
+delta = 1.0
+f2 = 0.05
+# 'a' should decrease when deep convection happens above 28 degC
+# a = Ts-temp_0c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
+a = 0.6
+
+# basic parameters
+temp_0c = 273.15
+f1bar = 0.39
+Ubar = 5.0
+temp_surface_bar = temp_0c + 25
+Cbar = 0.6
+wnspmin = 4.0
+
+# Find linearization of Q_LH (latent heating)
+const1 = rho_air * cE * L
+
+mem = "EEEf"
+
+names = {
+    "E": "ECMWF",
+    "F": "ECMWF-orig",
+    "B": "CMIP5-39m",
+    "C": "CMIP5",
+    "D": "CMIP5-orig",
+    "H": "HadGEM2",
+    "f": "fixed",
+    "e": "fixed78",
+    "g": "fixed82",
+    "W": "WHOI",
+    "M": "MERRA",
+    "I": "ISCCP",
+}
+var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+
+
+def f_es(T):
+    return es0 * np.exp(17.67 * (T - temp_0c) / (T - temp_0c + 243.5))
+
+
+def f_qs(T):
+    return 0.622 * f_es(T) / ps
+
+
+def f_dqsdT(T):
+    return f_qs(T) * (17.67 * 243.5) / (T - temp_0c + 243.5) ** 2
+
+
+def f_QLH(T, U, rh):
+    return const1 * U * f_qs(T) * (1 - rh)
+
+
+def f_dQLHdT(T, U, rh):
+    return const1 * U * f_dqsdT(T) * (1 - rh)
+
+
+# Find linearization of Q_LW (longwave)
+const2 = eps * stefan_boltzman_const
+
+
+def f_Ta(T):
+    return T - delta
+
+
+def f_ebar(T, rh):
+    qa = rh * f_qs(T)
+    return qa * ps / 0.622
+
+
+def f_QLW1(T, C, f, rh):
+    Ta = f_Ta(T)
+    return const2 * (1 - a * C ** 2) * Ta ** 4 * (f - f2 * np.sqrt(f_ebar(T, rh)))
+
+
+def f_QLW2(T):
+    return 4 * eps * stefan_boltzman_const * T ** 3 * (T - f_Ta(T))
+
+
+# def f_QLW(T, f, rh):
+#     return f_QLW1(T, f, rh) + f_QLW2(T)
+
+
+def f_dQLWdf(T, C):
+    return const2 * (1 - a * C ** 2) * T ** 4
+
+
+def f_dQLWdT(T, C, f, rh):
+    ebar = f_ebar(T, rh)
+    qs = f_qs(T)
+    dqsdT = f_dqsdT(T)
+    return const2 * (
+        (1 - a * C ** 2)
+        * T ** 3
+        * (4 * f - f2 * np.sqrt(ebar) * (4 + T * dqsdT / 2 / qs))
+        + 12 * T ** 2 * delta
+    )
+
 
 def fcor(y: float) -> float:
     """Corriolis force coeff.
@@ -169,12 +273,12 @@ def S91_solver(Q1):
 
     z = np.zeros((1, nx))
     vt = np.concatenate((z, vtk, z), axis=0)
-    Av = (vt[1:ny, :] + vt[0 : ny - 1, :]) / 2.0
-    fAv = fcu[:, np.newaxis] * Av
-    Dv = (vt[1:ny, :] - vt[0 : ny - 1, :]) / dym
+    av = (vt[1:ny, :] + vt[0 : ny - 1, :]) / 2.0
+    fav = fcu[:, np.newaxis] * av
+    dv = (vt[1:ny, :] - vt[0 : ny - 1, :]) / dym
     coeff = epsu * epsp + km * km
-    ut = (epsp * fAv + 1.0j * (Q1t + Dv) * km[np.newaxis, :]) / coeff[np.newaxis, :]
-    phit = -(Q1t + 1.0j * ut * km[np.newaxis, :] + Dv) / epsp
+    ut = (epsp * fav + 1.0j * (Q1t + dv) * km[np.newaxis, :]) / coeff[np.newaxis, :]
+    phit = -(Q1t + 1.0j * ut * km[np.newaxis, :] + dv) / epsp
     v = ifft(vt).real
     u = ifft(ut).real
     phi = ifft(phit).real
@@ -214,41 +318,40 @@ def smooth121(
     return v.where(mask, np.nan).transpose(*origdims)
 
 
-ds = xr.Dataset({"X": ("X", x_axis), "Yu": ("Yu", Yu), "Yv": ("Yv", Yv)})
-ds.X.attrs = [("units", "degree_east")]
-ds.Yu.attrs = [("units", "degree_north")]
-ds.Yv.attrs = [("units", "degree_north")]
-
-ds["K"] = k_days
-ds.K.attrs = [("units", "day")]
-ds["epsu"] = eps_days
-ds.epsu.attrs = [("units", "day")]
-ds["epsv"] = eps_days / efrac
-ds.epsv.attrs = [("units", "day")]
-ds["hq"] = hq
-ds.hq.attrs = [("units", "m")]
-
-# CLIMATOLOGIES
-
-dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "sfcWind-ECMWF-clim.nc"))
-fwnsp = interp2d(dsClim.X, dsClim.Y, dsClim.sfcWind, kind="linear")
-dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-clim.nc"))
-fts = interp2d(dsClim.X, dsClim.Y, dsClim.ts, kind="linear")
-dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-clim.nc"))
-fpr = interp2d(dsClim.X, dsClim.Y, dsClim.pr, kind="linear")
-dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ps-ECMWF-clim.nc"))
-fsp = interp2d(dsClim.X, dsClim.Y, dsClim.ps, kind="linear")
-
-wnsp = fwnsp(x_axis, Yu)
-wnsp[wnsp < wnspmin] = wnspmin
-ds["wnspClim"] = (["Yu", "X"], wnsp)
-ds["tsClim"] = (["Yu", "X"], fts(x_axis, Yu))
-ds["prClim"] = (["Yu", "X"], fpr(x_axis, Yu))
-ds["spClim"] = (["Yu", "X"], fsp(x_axis, Yu))
-
-
 def output_trends():
     """output trends ds"""
+    ds = xr.Dataset({"X": ("X", x_axis), "Yu": ("Yu", Yu), "Yv": ("Yv", Yv)})
+    ds.X.attrs = [("units", "degree_east")]
+    ds.Yu.attrs = [("units", "degree_north")]
+    ds.Yv.attrs = [("units", "degree_north")]
+
+    ds["K"] = k_days
+    ds.K.attrs = [("units", "day")]
+    ds["epsu"] = eps_days
+    ds.epsu.attrs = [("units", "day")]
+    ds["epsv"] = eps_days / efrac
+    ds.epsv.attrs = [("units", "day")]
+    ds["hq"] = hq
+    ds.hq.attrs = [("units", "m")]
+
+    # CLIMATOLOGIES
+
+    dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "sfcWind-ECMWF-clim.nc"))
+    fwnsp = interp2d(dsClim.X, dsClim.Y, dsClim.sfcWind, kind="linear")
+    dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-clim.nc"))
+    fts = interp2d(dsClim.X, dsClim.Y, dsClim.ts, kind="linear")
+    dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-clim.nc"))
+    fpr = interp2d(dsClim.X, dsClim.Y, dsClim.pr, kind="linear")
+    dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ps-ECMWF-clim.nc"))
+    fsp = interp2d(dsClim.X, dsClim.Y, dsClim.ps, kind="linear")
+
+    wnsp = fwnsp(x_axis, Yu)
+    wnsp[wnsp < wnspmin] = wnspmin
+    ds["wnspClim"] = (["Yu", "X"], wnsp)
+    ds["tsClim"] = (["Yu", "X"], fts(x_axis, Yu))
+    ds["prClim"] = (["Yu", "X"], fpr(x_axis, Yu))
+    ds["spClim"] = (["Yu", "X"], fsp(x_axis, Yu))
+
     # TRENDS
     dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
     ftsTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.ts, kind="linear")
@@ -408,110 +511,6 @@ def output_trends():
 
 
 ###--------------------------- Begin dQ ----------------------------
-
-rho_air = 1.225
-cE = 0.00125
-L = 2.5e6        # latent heat
-eps = 0.97
-stefan_boltzman_const = 5.67e-8
-ps = 1000        # pressure at the surface?
-es0 = 6.11       # es0 = 6.11
-delta = 1.0
-f2 = 0.05
-# 'a' should decrease when deep convection happens above 28 degC
-# a = Ts-temp_0c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
-a = 0.6
-
-mem = "EEEf"
-
-names = {
-    "E": "ECMWF",
-    "F": "ECMWF-orig",
-    "B": "CMIP5-39m",
-    "C": "CMIP5",
-    "D": "CMIP5-orig",
-    "H": "HadGEM2",
-    "f": "fixed",
-    "e": "fixed78",
-    "g": "fixed82",
-    "W": "WHOI",
-    "M": "MERRA",
-    "I": "ISCCP",
-}
-var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
-
-# basic parameters
-temp_0c = 273.15
-f1bar = 0.39
-Ubar = 5.0
-temp_surface_bar = temp_0c + 25
-Cbar = 0.6
-wnspmin = 4.0
-
-# Find linearization of Q_LH (latent heating)
-const1 = rho_air * cE * L
-
-
-def f_es(T):
-    return es0 * np.exp(17.67 * (T - temp_0c) / (T - temp_0c + 243.5))
-
-
-def f_qs(T):
-    return 0.622 * f_es(T) / ps
-
-
-def f_dqsdT(T):
-    return f_qs(T) * (17.67 * 243.5) / (T - temp_0c + 243.5) ** 2
-
-
-def f_QLH(T, U, rh):
-    return const1 * U * f_qs(T) * (1 - rh)
-
-
-def f_dQLHdT(T, U, rh):
-    return const1 * U * f_dqsdT(T) * (1 - rh)
-
-
-# Find linearization of Q_LW (longwave)
-const2 = eps * stefan_boltzman_const
-
-
-def f_Ta(T):
-    return T - delta
-
-
-def f_ebar(T, rh):
-    qa = rh * f_qs(T)
-    return qa * ps / 0.622
-
-
-def f_QLW1(T, C, f, rh):
-    Ta = f_Ta(T)
-    return const2 * (1 - a * C ** 2) * Ta ** 4 * (f - f2 * np.sqrt(f_ebar(T, rh)))
-
-
-def f_QLW2(T):
-    return 4 * eps * stefan_boltzman_const * T ** 3 * (T - f_Ta(T))
-
-
-# def f_QLW(T, f, rh):
-#     return f_QLW1(T, f, rh) + f_QLW2(T)
-
-
-def f_dQLWdf(T, C):
-    return const2 * (1 - a * C ** 2) * T ** 4
-
-
-def f_dQLWdT(T, C, f, rh):
-    ebar = f_ebar(T, rh)
-    qs = f_qs(T)
-    dqsdT = f_dqsdT(T)
-    return const2 * (
-        (1 - a * C ** 2)
-        * T ** 3
-        * (4 * f - f2 * np.sqrt(ebar) * (4 + T * dqsdT / 2 / qs))
-        + 12 * T ** 2 * delta
-    )
 
 
 def get_dclim() -> any:
