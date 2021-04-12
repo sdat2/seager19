@@ -2,8 +2,7 @@
 
 animate_xr_da - animation for individual xr.DataArray.
 
-animate_prediction - specifically designed to plot inputs and results
-    from the xgboost algorithm over Chenobyl.
+animate_prediction - plots inputs and outputs of old model.
 
 """
 import os
@@ -23,6 +22,9 @@ ps_defaults(use_tex=False, dpi=200)
 def _rdict(index: int) -> dict:
     """Returns renaming dict for xarray.DataArray.
 
+    Made to reformat the output datarrays of the Fortran
+    ocean model used.
+
     Args:
         index (int): index on coords
 
@@ -39,7 +41,13 @@ def _rdict(index: int) -> dict:
 
 @timeit
 def animate_ds(ds: xr.Dataset, file_name: str, output_dir: str) -> None:
-    """Animate the `xarray.Dataset`."""
+    """Animate the `xarray.Dataset`.
+
+    Args:
+        ds (xr.Dataset): xarray.Dataset to animate the variables of.
+        file_name (str): Name of dataset to be associated with the animations.
+        output_dir (str): Full path to output directory to put the animations in.
+    """
     cmap_d = {
         "DYN_PRES": "delta",
         "SST_QFLX": "delta",
@@ -89,6 +97,7 @@ def animate_ds(ds: xr.Dataset, file_name: str, output_dir: str) -> None:
                                 ),
                                 vcmap=cmap_d[y],
                             )
+
 
 @timeit
 def animate_xr_da(

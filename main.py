@@ -23,8 +23,8 @@ from src.constants import (
     OCEAN_SRC_PATH,
     PROJECT_PATH,
 )
-from src.visualisation.ani import animate_xr_da
-from src.utils import timeit, fix_calendar
+from src.visualisation.ani import animate_ds
+from src.utils import timeit
 from src.data_loading.ingrid import linear_qflx_replacement
 
 
@@ -154,7 +154,6 @@ def print_locations() -> None:
     print(OCEAN_OUTPUT_PATH)
 
 
-
 @timeit
 def animate_all() -> None:
     """Animate the sst into gifs."""
@@ -170,6 +169,7 @@ def animate_all() -> None:
                     str(os.path.join(wandb.run.dir, x)) + ".nc", decode_times=False
                 ),
                 x,
+                wandb.run.dir,
             )
         else:
             ds = xr.open_dataset(
@@ -182,7 +182,7 @@ def animate_all() -> None:
                     "Z": "Z",
                 }
             )
-            animate_ds(ds, x)
+            animate_ds(ds, x, wandb.run.dir)
 
 
 @timeit

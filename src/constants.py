@@ -29,25 +29,10 @@ OCEAN_OUTPUT_PATH = OCEAN_PATH / "output"
 ATMOS_PATH = PROJECT_PATH / "atmos"
 ATMOS_DATA_PATH = ATMOS_PATH / "DATA"
 ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
+GIF_PATH = PROJECT_PATH / "gifs"
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
-
-# mv wandb /gws/nopw/j04/ai4er/users/sdat2/
-# mv OLD /gws/nopw/j04/ai4er/users/sdat2/
-# mv tmp /gws/nopw/j04/ai4er/users/sdat2/
-# mv nemo_ba130o_1h_20040101-20040131_grid-combined.nc /gws/nopw/j04/ai4er/users/sdat2/
-# mv netcdf /gws/nopw/j04/ai4er/users/sdat2/
-# mv gtc-biodiversity /gws/nopw/j04/ai4er/users/sdat2/
-# mv surge /gws/nopw/j04/ai4er/users/sdat2/
-# mv etc /gws/nopw/j04/ai4er/users/sdat2/
-# mv Pytorch-UNet /gws/nopw/j04/ai4er/users/sdat2/
-# mv sosie /gws/nopw/j04/ai4er/users/sdat2/
-# mv milesial_Pytorch-UNet_master /gws/nopw/j04/ai4er/users/sdat2/
-# mv feb.sh /gws/nopw/j04/ai4er/users/sdat2/
-# mv import_katrina.sh /gws/nopw/j04/ai4er/users/sdat2/
-# mv read_xarray.py /gws/nopw/j04/ai4er/users/sdat2/
-# mv retry_download.sh /gws/nopw/j04/ai4er/users/sdat2/
 
 # Report WIDTH
 REPORT_WIDTH = 398.3386  # in pixels
