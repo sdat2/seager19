@@ -20,10 +20,10 @@ Download repo and set up:
     python3 src/data_loading/download.py
 
     make test        # Also downloads the data if needed.
-    
+
     make jupyter_pro
 
-    make report
+    make report      # this will link to the overleaf repository
 
 
 Basic Usage

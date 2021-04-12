@@ -15,4 +15,3 @@ def test_make_figure():
     atmos.make_figure()
     atmos.output_trends()
     atmos.output_dq()
-
