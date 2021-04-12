@@ -4,10 +4,10 @@ language: python
 python:
   - "3.8"
 
+sudo: required
 
-pre-install:
-  - sudo apt-get -y install gfortran
-  - sudo apt-get -y install gcc
+before_install:
+  - sudo apt-get install gfortran
 
 # command to install dependencies
 install:
