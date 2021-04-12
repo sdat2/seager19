@@ -4,6 +4,11 @@ language: python
 python:
   - "3.8"
 
+
+pre-install:
+  - sudo apt-get -y install gfortran
+  - sudo apt-get -y install gcc
+
 # command to install dependencies
 install:
   # We do this conditionally because it saves us some downloading if the

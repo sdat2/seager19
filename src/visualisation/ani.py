@@ -6,6 +6,7 @@ animate_prediction - specifically designed to plot inputs and results
     from the xgboost algorithm over Chenobyl.
 
 """
+import os
 from typing import Callable
 import numpy as np
 import xarray as xr
@@ -14,10 +15,80 @@ import matplotlib
 import matplotlib.pyplot as plt
 import imageio
 from src.plot_settings import label_subplots, ps_defaults, time_title, cmap
-from src.utils import timeit
+from src.utils import timeit, fix_calendar
 
 ps_defaults(use_tex=False, dpi=200)
 
+
+def _rdict(index: int) -> dict:
+    """Returns renaming dict for xarray.DataArray.
+
+    Args:
+        index (int): index on coords
+
+    Returns:
+        dict: renaming dict.
+    """
+    return {
+        "T_0" + str(index): "time",
+        "Y_0" + str(index): "y",
+        "X_0" + str(index): "x",
+        "L_0" + str(index): "Z",
+    }
+
+
+@timeit
+def animate_ds(ds: xr.Dataset, file_name: str, output_dir: str) -> None:
+    """Animate the `xarray.Dataset`."""
+    cmap_d = {
+        "DYN_PRES": "delta",
+        "SST_QFLX": "delta",
+        "SST_SST": "sst",
+        "qflx": "delta",
+        "QFLX": "delta",
+        "TDEEP_HTHERM": "sst",
+        "TDEEP_TDEEP": "sst",
+        "TDEEP_HMODEL": "sst",
+    }
+    unit_d = {"SST_SST": "$^{\circ}$C"}
+    for y in ds.variables:
+        y = str(y)
+        if "X_" not in y:
+            if "Y_" not in y:
+                if "L_" not in y:
+                    if "T_" not in y or "SST" in y:
+                        if "GRID" != y:
+                            print(y)
+                            da = ds[y]
+                            if (
+                                "T_01" in da.coords
+                                or "T_02" in da.coords
+                                or "T_03" in da.coords
+                                or "T_04" in da.coords
+                            ):
+                                for key in da.coords:
+                                    num = str(key)[3]
+                                da = da.rename(_rdict(num))
+                            if y in unit_d:
+                                da.attrs["units"] = unit_d[y]
+                            da.coords["x"].attrs["units"] = "$^{\circ}$E"
+                            da.coords["y"].attrs["units"] = "$^{\circ}$N"
+                            da = da.where(da != 0.0).isel(Z=0)
+                            da = fix_calendar(da, timevar="time")
+                            if "variable" in da.dims:
+                                da = da.isel(variable=0)
+                            da = da.rename(y)
+                            if y in unit_d:
+                                da.attrs["units"] = unit_d[y]
+                            da.attrs["long_name"] = y
+                            da.attrs["name"] = y
+                            animate_xr_da(
+                                da,
+                                video_path=os.path.join(
+                                    output_dir, file_name + "_" + y + ".gif"
+                                ),
+                                vcmap=cmap_d[y],
+                            )
 
 @timeit
 def animate_xr_da(

@@ -12,6 +12,8 @@
 <a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/python.yml/badge.svg' alt='python' /></a>
 <a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/fort-c.yml/badge.svg' alt='fort-c' /></a>
 
+Model run results: <https://wandb.ai/sdat2/seager19>
+
 ![SST output over time period](gifs/SST_SST2_in_om_run2f.gif)
 
 ## Purpose
