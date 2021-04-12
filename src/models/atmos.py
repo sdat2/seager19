@@ -7,6 +7,7 @@ from scipy.interpolate import interp2d
 from scipy.fftpack import fft, ifft
 from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH
 
+# begin TCAM
 eps_days = 0.75
 K_days = 10
 efrac = 2.0  # multiply epsu by efrac to get epsv
@@ -138,8 +139,6 @@ def tdma_solver(nx: int, ny: int, a, b, c, d):
 
 
 def S91_solver(Q1):
-    from scipy.fftpack import fft, ifft
-
     Q1t = fft(Q1)
     fQ = fcu[:, np.newaxis] * Q1t
     AfQ = (fQ[1 : ny - 1, :] + fQ[0 : ny - 2, :]) / 2.0
@@ -178,7 +177,7 @@ def smooth121(da: xr.DataArray, sdims: list, NSmooths: int = 1, perdims: list = 
     """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time
     Usage
     -----
-    Smooth121(DataArray,list1,Nsmooths=int1,perdims=list2)
+    Smooth121(xr.DataArray,list1,Nsmooths=int1,perdims=list2)
         name : xarray.DataArray - e.g., ds.var
         list1: list of dimensions over which to smooth - e.g., ['lat','lon']
         int1 : integer number of smooths to apply - e.g., 1
@@ -223,13 +222,13 @@ ds.Hq.attrs = [("units", "m")]
 
 # CLIMATOLOGIES
 
-dsClim = xr.open_dataset("DATA/sfcWind-ECMWF-clim.nc")
+dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "sfcWind-ECMWF-clim.nc"))
 fwnsp = interp2d(dsClim.X, dsClim.Y, dsClim.sfcWind, kind="linear")
-dsClim = xr.open_dataset("DATA/ts-ECMWF-clim.nc")
+dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-clim.nc"))
 fts = interp2d(dsClim.X, dsClim.Y, dsClim.ts, kind="linear")
-dsClim = xr.open_dataset("DATA/pr-ECMWF-clim.nc")
+dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-clim.nc"))
 fpr = interp2d(dsClim.X, dsClim.Y, dsClim.pr, kind="linear")
-dsClim = xr.open_dataset("DATA/ps-ECMWF-clim.nc")
+dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ps-ECMWF-clim.nc"))
 fsp = interp2d(dsClim.X, dsClim.Y, dsClim.ps, kind="linear")
 
 wnsp = fwnsp(X, Yu)
@@ -240,9 +239,9 @@ ds["prClim"] = (["Yu", "X"], fpr(X, Yu))
 ds["spClim"] = (["Yu", "X"], fsp(X, Yu))
 
 # TRENDS
-dsTrend = xr.open_dataset("DATA/ts-ECMWF-trend.nc")
+dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
 ftsTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.ts, kind="linear")
-dsTrend = xr.open_dataset("DATA/pr-ECMWF-trend.nc")
+dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-trend.nc"))
 fprTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.pr, kind="linear")
 
 tsTrend = ftsTrend(X, Yu)
@@ -255,7 +254,7 @@ ds["prTrend"] = (["Yu", "X"], prTrend)
 ds["prTrend"] = smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
 
-dsmask = xr.open_dataset("DATA/mask-360x180.nc")
+dsmask = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "mask-360x180.nc"))
 fmask = interp2d(dsmask.X, dsmask.Y, dsmask.mask, kind="linear")
 ds["mask"] = (["Yu", "X"], fmask(X, Yu))
 
@@ -383,10 +382,10 @@ ds.PRtrend.attrs = [("units", "m/s")]
 ds.Qthtrend.attrs = [("units", "K/s")]
 
 
-basedir = os.path.join("tmp", "S91")
+basedir = os.path.join(ATMOS_TMP_PATH, "S91")
 
-if not os.path.isdir("tmp"):
-    os.makedirs("tmp")
+if not os.path.isdir(ATMOS_TMP_PATH):
+    os.makedirs(ATMOS_TMP_PATH)
 
 outfile = basedir + "-Hq" + str(Hq) + "-PrcpLand" + str(PrcpLand) + ".nc"
 print(outfile)
@@ -399,7 +398,7 @@ en_dict = {
 }
 ds.to_netcdf(outfile, encoding=en_dict)
 
-
+### Begin dQ ------------------------------------------------------
 rhoa = 1.225
 cE = 0.00125
 L = 2.5e6
@@ -495,7 +494,8 @@ def f_dQLWdT(T, C, f, rh):
     return const2 * (
         (1 - a * C ** 2)
         * T ** 3
-        * (4 * f - f2 * np.sqrt(ebar) * (4 + T * dqsdT / 2 / qs))
+        * (4 * f - f2 * np.sqrt(ebar) 
+        * (4 + T * dqsdT / 2 / qs))
         + 12 * T ** 2 * delta
     )
 
@@ -504,7 +504,7 @@ files = []
 for i, m in enumerate(mem):
     name = names[m]
     var = vars[i]
-    file = os.path.join("DATA", var + "-" + name + "-clim60.nc")
+    file = os.path.join(ATMOS_DATA_PATH, var + "-" + name + "-clim60.nc")
     print(name, var, file)
     print(file)
     assert os.path.isfile(file)
@@ -552,3 +552,94 @@ dclim["ALW"] = ALW
 dclim["BLW"] = BLW
 dclim["QLW"] = ALW + BLW * f1p / dTse
 # dclim.to_netcdf('Q.nc')
+
+
+def make_figure(cmap="viridis"):
+    """Make figure.
+
+    Args:
+        cmap (str, optional): matplotlib colormap. Defaults to "viridis".
+    """
+    plt.figure(figsize=(8, 6))
+    plt.subplot(321)
+    dp = dclim.dTse0.plot.contourf(
+        levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
+    )
+    # ,vmin=-2,vmax=2,add_colorbar=0)
+    plt.title(r"$T^{\,\prime}_s$  for $\bar U,\bar C$")
+    plt.ylabel("latitude")
+    plt.xlabel("longitude")
+    cbar = plt.colorbar(dp)
+    plt.subplot(322)
+    dp = dclim.dTse1.plot.contourf(
+        levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
+    )
+    # ,vmin=-2,vmax=2,add_colorbar=0)
+    plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C$")
+    plt.ylabel("latitude")
+    plt.xlabel("longitude")
+    cbar = plt.colorbar(dp)
+    plt.subplot(323)
+    dp = dclim.dTse2.plot.contourf(
+        levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
+    )
+    # ,vmin=-2,vmax=2,add_colorbar=0)
+    plt.title(r"$T^{\,\prime}_s$  for $\bar U, \bar C(x,y)$")
+    plt.ylabel("latitude")
+    plt.xlabel("longitude")
+    cbar = plt.colorbar(dp)
+    plt.subplot(324)
+    dp = dclim.dTse.plot.contourf(levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0)
+    # ,vmin=-2,vmax=2,add_colorbar=0)
+    plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C(x,y)$")
+    plt.ylabel("latitude")
+    plt.xlabel("longitude")
+    cbar = plt.colorbar(dp)
+    plt.subplot(325)
+    dp = (dclim.clt / 100).plot.contourf(
+        levels=11, cmap=cmap, vmin=0.0, vmax=1.0, add_colorbar=0
+    )
+    # ,vmin=-2,vmax=2,add_colorbar=0)
+    plt.title(r"$\bar C(x,y)$")
+    plt.ylabel("latitude")
+    plt.xlabel("longitude")
+    cbar = plt.colorbar(dp)
+    plt.subplot(326)
+    dp = Ub.plot.contourf(levels=11, cmap=cmap, vmin=4.0, vmax=8.0, add_colorbar=0)
+    # ,vmin=-2,vmax=2,add_colorbar=0)
+    plt.title(r"$\bar U(x,y)$")
+    plt.ylabel("latitude")
+    plt.xlabel("longitude")
+    cbar = plt.colorbar(dp)
+    plt.tight_layout()
+    plt.savefig("Tsp4.eps", format="eps", dpi=1000)
+    plt.show()
+
+
+def output_dq():
+    # Now, save the dQdf and dQdT terms for using in TCOM:
+    dQdT = ALH + ALW
+    dQdf = BLW
+
+    # Define the new Dataset
+    dQ = xr.Dataset(
+        {
+            "lon": ("lon", dclim.lon),
+            "lat": ("lat", dclim.lat),
+            "dQdT": (["lat", "lon"], dQdT),
+            "dQdf": (["lat", "lon"], dQdf),
+        }
+    )
+    dQ.lon.attrs = dclim.lon.attrs
+    dQ.lat.attrs = dclim.lat.attrs
+    dQ.dQdT.attrs = [("units", "W/m^2/K")]
+    dQ.dQdf.attrs = [("units", "W/m^2")]
+    dQ["ALH"] = ALH
+    dQ["ALW"] = ALW
+    dQ["BLW"] = BLW
+    dQ["dTse"] = dTse
+    dQ["rh"] = rh
+    dQ["Ub"] = Ub
+    dQ["Cb"] = Cb
+    dQ["Tsb"] = Tsb
+    dQ.to_netcdf("dQ.nc")
