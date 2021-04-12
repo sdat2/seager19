@@ -46,25 +46,28 @@ beta = omega2 / radius_earth
 dx = 360 / nx
 dy = (YN - YS) / ny
 Yv = np.linspace(YS + dy / 2, YN - dy / 2, ny)
-X = np.linspace(0, 360 - dx, nx)
+x_axis = np.linspace(0, 360 - dx, nx)
 Yu = np.linspace(YS + dy, YN - dy, ny - 1)
 Yi = np.linspace(YS + 3 * dy / 2, YN - 3 * dy / 2, ny - 2)
-dX = X[1] - X[0]
-dY = Yv[1] - Yv[0]
-dxm = dX * radius_earth * np.pi / 180
-dym = dY * radius_earth * np.pi / 180
+x_spacing = x_axis[1] - x_axis[0]  # degrees
+y_spacing = Yv[1] - Yv[0]          # degrees
+dxm = x_spacing * radius_earth * np.pi / 180
+dym = y_spacing * radius_earth * np.pi / 180
 dym2 = dym * dym
-
 
 # need to have the correct ordering of the wave numbers for fft
 N = nx
 if N % 2 == 0:
     Kk = np.asarray(
-        list(range(0, N // 2)) + [0] + list(range(-N // 2 + 1, 0)), np.float64
+        list(range(0, N // 2)) + [0] 
+             + list(range(-N // 2 + 1, 0)), 
+             np.float64
     )
 else:
     Kk = np.asarray(
-        list(range(0, (N - 1) // 2)) + [0] + list(range(-(N - 1) // 2, 0)), np.float64
+        list(range(0, (N - 1) // 2)) + [0] 
+            + list(range(-(N - 1) // 2, 0)), 
+            np.float64
     )
 
 
@@ -103,7 +106,7 @@ def f_E(mask, qa, wnsp):
     # qa: surface air humidity
     # wnsp: surface windspeed in m/s
     # return Evap in kg/m^2/s
-    rho_air = 1.225
+    # rho_air = 1.225
     CsE = 0.0015 * (1 + mask / 2)
     # CsE = 0.0012
     return CsE * rho_air * (1 - r) * qa * wnsp / r
@@ -113,7 +116,7 @@ def f_MC(qa, u, v):
     # qa: surface air humidity
     # u,v: low level winds in m/s (N.B., v is on Yv points, u,q are on Yu points)
     # return Moisture Convergence in kg/m^2/s
-    rho_air = 1.225
+    # rho_air = 1.225
     qu = qa * u
     qux = ifft(1.0j * Kk * fft(qu) / radius_earth).real
     Aq = (qa[1 : ny - 1, :] + qa[0 : ny - 2, :]) / 2.0
@@ -181,18 +184,16 @@ def S91_solver(Q1):
 def smooth121(
     da: xr.DataArray, sdims: list, number_smooths: int = 1, perdims: list = []
 ):
-    """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time
-    Usage
-    -----
-    Smooth121(xr.DataArray,list1,Nsmooths=int1,perdims=list2)
-        name : xarray.DataArray - e.g., ds.var
-        list1: list of dimensions over which to smooth - e.g., ['lat','lon']
-        int1 : integer number of smooths to apply - e.g., 1
-        list2: list of dimension to be treated as period boundaries - e.g., ['lon']
+    """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time.
 
-    Example
-    -------
-        smooth_var = smooth121(ds.var, ['lon', 'lat], number_smooths = 2, perdims = ['lon'])
+    Args:
+        da (xr.DataArray): xarray.DataArray - e.g., ds.var
+        sdims (list): list of dimensions over which to smooth - e.g., ['lat','lon']
+        number_smooths (int, optional): integer number of smooths to apply - e.g., 1. 
+            Defaults to 1.
+        perdims (list, optional): list of dimension to be treated as period 
+            boundaries - e.g., ['lon']. Defaults to [].
+
     """
     mask = da.notnull()
     weight = xr.DataArray([0.25, 0.5, 0.25], dims=["window"])
@@ -213,7 +214,7 @@ def smooth121(
     return v.where(mask, np.nan).transpose(*origdims)
 
 
-ds = xr.Dataset({"X": ("X", X), "Yu": ("Yu", Yu), "Yv": ("Yv", Yv)})
+ds = xr.Dataset({"X": ("X", x_axis), "Yu": ("Yu", Yu), "Yv": ("Yv", Yv)})
 ds.X.attrs = [("units", "degree_east")]
 ds.Yu.attrs = [("units", "degree_north")]
 ds.Yv.attrs = [("units", "degree_north")]
@@ -238,12 +239,12 @@ fpr = interp2d(dsClim.X, dsClim.Y, dsClim.pr, kind="linear")
 dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ps-ECMWF-clim.nc"))
 fsp = interp2d(dsClim.X, dsClim.Y, dsClim.ps, kind="linear")
 
-wnsp = fwnsp(X, Yu)
+wnsp = fwnsp(x_axis, Yu)
 wnsp[wnsp < wnspmin] = wnspmin
 ds["wnspClim"] = (["Yu", "X"], wnsp)
-ds["tsClim"] = (["Yu", "X"], fts(X, Yu))
-ds["prClim"] = (["Yu", "X"], fpr(X, Yu))
-ds["spClim"] = (["Yu", "X"], fsp(X, Yu))
+ds["tsClim"] = (["Yu", "X"], fts(x_axis, Yu))
+ds["prClim"] = (["Yu", "X"], fpr(x_axis, Yu))
+ds["spClim"] = (["Yu", "X"], fsp(x_axis, Yu))
 
 
 def output_trends():
@@ -254,10 +255,10 @@ def output_trends():
     dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-trend.nc"))
     fprTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.pr, kind="linear")
 
-    tsTrend = ftsTrend(X, Yu)
+    tsTrend = ftsTrend(x_axis, Yu)
     ds["tsTrend"] = (["Yu", "X"], tsTrend)
 
-    prTrend = fprTrend(X, Yu)
+    prTrend = fprTrend(x_axis, Yu)
     prTrend[abs(Yu) > 25] = 0
     prTrend[prTrend > 5e-5] = 5e-5
     ds["prTrend"] = (["Yu", "X"], prTrend)
@@ -265,9 +266,9 @@ def output_trends():
 
     dsmask = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "mask-360x180.nc"))
     fmask = interp2d(dsmask.X, dsmask.Y, dsmask.mask, kind="linear")
-    ds["mask"] = (["Yu", "X"], fmask(X, Yu))
+    ds["mask"] = (["Yu", "X"], fmask(x_axis, Yu))
 
-    tsClim = ds.tsClim.values
+    # tsClim = ds.tsClim.values
     spClim = ds.spClim.values
     wnspClim = ds.wnspClim.values
     wnspClim[wnspClim < wnspmin] = wnspmin
@@ -292,9 +293,9 @@ def output_trends():
     qabeg = f_qa(tsbeg, spClim)
     # qabeg = f_qa2(tsbeg)
     Ebeg = f_E(mask, qabeg, wnspClim)
-    PRbeg = Ebeg
-    PRbeg[PRbeg < 0] = 0
-    # PRbeg[PRbeg>prmax] = prmax
+    pr_beg = Ebeg
+    pr_beg[pr_beg < 0] = 0
+    # pr_beg[pr_beg>prmax] = prmax
 
     Qth = Qthend
     PR = PRend
@@ -325,7 +326,7 @@ def output_trends():
     PRend = PR
 
     Qth = Qthbeg
-    PR = PRbeg
+    PR = pr_beg
     E1 = Ebeg
     qa1 = qabeg
 
@@ -346,20 +347,19 @@ def output_trends():
         PR[PR < 0] = 0
         # PR[PR > prmax] = prmax
 
-    MCbeg = MC1
+    mc_beg = MC1
     ubeg = u1
     vbeg = v1
     phibeg = phi1
-    PRbeg = PR
+    pr_beg = PR
 
     # save and plot the trends
     ds["utrend"] = (["Yu", "X"], uend - ubeg)
     ds["vtrend"] = (["Yv", "X"], vend - vbeg)
     ds["phitrend"] = (["Yu", "X"], phiend - phibeg)
     ds["tstrend"] = (["Yu", "X"], tsend - tsbeg)
-    ds["PRtrend"] = (["Yu", "X"], PRend - PRbeg)
+    ds["PRtrend"] = (["Yu", "X"], PRend - pr_beg)
     ds["Qthtrend"] = (["Yu", "X"], Qthend - Qthbeg)
-
     ds["uend"] = (["Yu", "X"], uend)
     ds["vend"] = (["Yv", "X"], vend)
     ds["wend"] = (["Yu", "X"], wend)
@@ -370,16 +370,15 @@ def output_trends():
     ds["Eend"] = (["Yu", "X"], Eend)
     ds["MCend"] = (["Yu", "X"], MCend)
     ds["qaend"] = (["Yu", "X"], qaend)
-
     ds["ubeg"] = (["Yu", "X"], ubeg)
     ds["vbeg"] = (["Yv", "X"], vbeg)
     ds["wbeg"] = (["Yu", "X"], wbeg)
     ds["phibeg"] = (["Yu", "X"], phibeg)
     ds["tsbeg"] = (["Yu", "X"], tsbeg)
-    ds["PRbeg"] = (["Yu", "X"], PRbeg)
+    ds["PRbeg"] = (["Yu", "X"], pr_beg)
     ds["Qthbeg"] = (["Yu", "X"], Qthbeg)
     ds["Ebeg"] = (["Yu", "X"], Ebeg)
-    ds["MCbeg"] = (["Yu", "X"], MCbeg)
+    ds["MCbeg"] = (["Yu", "X"], mc_beg)
     ds["qabeg"] = (["Yu", "X"], qabeg)
 
     # There is 2 gridpoint noise in the phi field - so add a smooth in X:
@@ -408,14 +407,15 @@ def output_trends():
     ds.to_netcdf(outfile, encoding=en_dict)
 
 
-### Begin dQ ------------------------------------------------------
+###--------------------------- Begin dQ ----------------------------
+
 rho_air = 1.225
 cE = 0.00125
-L = 2.5e6
+L = 2.5e6        # latent heat
 eps = 0.97
 stefan_boltzman_const = 5.67e-8
-ps = 1000
-es0 = 6.11
+ps = 1000        # pressure at the surface?
+es0 = 6.11       # es0 = 6.11
 delta = 1.0
 f2 = 0.05
 # 'a' should decrease when deep convection happens above 28 degC
@@ -514,60 +514,71 @@ def f_dQLWdT(T, C, f, rh):
     )
 
 
-files = []
+def get_dclim() -> any:
+    """opens the files, and applies functions
 
-for i, m in enumerate(mem):
-    name = names[m]
-    variable = var[i]
-    file = os.path.join(ATMOS_DATA_PATH, variable + "-" + name + "-clim60.nc")
-    print(name, variable, file)
-    print(file)
-    assert os.path.isfile(file)
-    files += [file]
+    Returns:
+        any: great.
+    """
+    files = []
 
-dclim = xr.open_mfdataset(files, decode_times=False)
+    for i, m in enumerate(mem):
+        name = names[m]
+        variable = var[i]
+        file = os.path.join(ATMOS_DATA_PATH, variable + "-" + name + "-clim60.nc")
+        print(name, variable, file)
+        print(file)
+        assert os.path.isfile(file)
+        files += [file]
 
-# set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
-# Q'_LW = (ALW(temp_surface_bar,Cbar,f1bar)* Tsprime 
-#          + BLW(temp_surface_bar,Cbar) * f1prime)
-# Q'_LH = ALH(temp_surface_bar,Ubar) * Tsprime
-Tsb = 1.0 * dclim.ts
-tmp = 1.0 * dclim.sfcWind.stack(z=("lon", "lat")).load()
-tmp[tmp < wnspmin] = wnspmin
-Ub = tmp.unstack("z").T
-Cb = dclim.clt / 100.0
-rh = dclim.rh / 100.0
-f1p = -0.003
+    dclim = xr.open_mfdataset(files, decode_times=False)
 
-ALH0 = f_dQLHdT(Tsb, Ubar, rh)
-ALW0 = f_dQLWdT(Tsb, Cbar, f1bar, rh)
-BLW0 = f_dQLWdf(Tsb, Cbar)
-dTse0 = -BLW0 * f1p / (ALH0 + ALW0)
-dclim["dTse0"] = dTse0
+    # set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
+    # Q'_LW = (ALW(temp_surface_bar,Cbar,f1bar)* Tsprime
+    #          + BLW(temp_surface_bar,Cbar) * f1prime)
+    # Q'_LH = ALH(temp_surface_bar,Ubar) * Tsprime
 
-ALH1 = f_dQLHdT(Tsb, Ub, rh)
-ALW1 = f_dQLWdT(Tsb, Cbar, f1bar, rh)
-BLW1 = f_dQLWdf(Tsb, Cbar)
-dTse1 = -BLW1 * f1p / (ALH1 + ALW1)
-dclim["dTse1"] = dTse1
+    Tsb = 1.0 * dclim.ts
+    tmp = 1.0 * dclim.sfcWind.stack(z=("lon", "lat")).load()
+    tmp[tmp < wnspmin] = wnspmin
+    Ub = tmp.unstack("z").T
+    Cb = dclim.clt / 100.0
+    rh = dclim.rh / 100.0
+    f1p = -0.003
 
-ALH2 = f_dQLHdT(Tsb, Ubar, rh)
-ALW2 = f_dQLWdT(Tsb, Cb, f1bar, rh)
-BLW2 = f_dQLWdf(Tsb, Cb)
-dTse2 = -BLW2 * f1p / (ALH2 + ALW2)
-dclim["dTse2"] = dTse2
+    ALH0 = f_dQLHdT(Tsb, Ubar, rh)
+    ALW0 = f_dQLWdT(Tsb, Cbar, f1bar, rh)
+    BLW0 = f_dQLWdf(Tsb, Cbar)
+    dTse0 = -BLW0 * f1p / (ALH0 + ALW0)
+    dclim["dTse0"] = dTse0
 
-ALH = f_dQLHdT(Tsb, Ub, rh)
-ALW = f_dQLWdT(Tsb, Cb, f1bar, rh)
-BLW = f_dQLWdf(Tsb, Cb)
-dTse = -BLW * f1p / (ALH + ALW)
+    ALH1 = f_dQLHdT(Tsb, Ub, rh)
+    ALW1 = f_dQLWdT(Tsb, Cbar, f1bar, rh)
+    BLW1 = f_dQLWdf(Tsb, Cbar)
+    dTse1 = -BLW1 * f1p / (ALH1 + ALW1)
+    dclim["dTse1"] = dTse1
 
-dclim["dTse"] = dTse
-dclim["ALH"] = ALH
-dclim["ALW"] = ALW
-dclim["BLW"] = BLW
-dclim["QLW"] = ALW + BLW * f1p / dTse
-# dclim.to_netcdf('Q.nc')
+    ALH2 = f_dQLHdT(Tsb, Ubar, rh)
+    ALW2 = f_dQLWdT(Tsb, Cb, f1bar, rh)
+    BLW2 = f_dQLWdf(Tsb, Cb)
+    dTse2 = -BLW2 * f1p / (ALH2 + ALW2)
+    dclim["dTse2"] = dTse2
+
+    ALH = f_dQLHdT(Tsb, Ub, rh)
+    ALW = f_dQLWdT(Tsb, Cb, f1bar, rh)
+    BLW = f_dQLWdf(Tsb, Cb)
+    dTse = -BLW * f1p / (ALH + ALW)
+
+    dclim["dTse"] = dTse
+    dclim["ALH"] = ALH
+    dclim["ALW"] = ALW
+    dclim["BLW"] = BLW
+    dclim["QLW"] = ALW + BLW * f1p / dTse
+    dclim.to_netcdf(os.path.join(PROJECT_PATH, "Q.nc"))
+    return dclim, Ub, ALH, ALW, BLW, dTse, rh, Ub, Cb, Tsb
+
+
+dclim, Ub, ALH, ALW, BLW, dTse, rh, Ub, Cb, Tsb = get_dclim()
 
 
 def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
