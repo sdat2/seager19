@@ -45,12 +45,12 @@ beta = omega2 / radius_earth
 # make grids
 dx = 360 / nx
 dy = (YN - YS) / ny
-Yv = np.linspace(YS + dy / 2, YN - dy / 2, ny)
+y_axis_v = np.linspace(YS + dy / 2, YN - dy / 2, ny)
 x_axis = np.linspace(0, 360 - dx, nx)
-Yu = np.linspace(YS + dy, YN - dy, ny - 1)
+y_axis_u = np.linspace(YS + dy, YN - dy, ny - 1)
 Yi = np.linspace(YS + 3 * dy / 2, YN - 3 * dy / 2, ny - 2)
 x_spacing = x_axis[1] - x_axis[0]  # degrees
-y_spacing = Yv[1] - Yv[0]          # degrees
+y_spacing = y_axis_v[1] - y_axis_v[0]  # degrees
 dxm = x_spacing * radius_earth * np.pi / 180
 dym = y_spacing * radius_earth * np.pi / 180
 dym2 = dym * dym
@@ -59,24 +59,20 @@ dym2 = dym * dym
 N = nx
 if N % 2 == 0:
     Kk = np.asarray(
-        list(range(0, N // 2)) + [0] 
-             + list(range(-N // 2 + 1, 0)), 
-             np.float64
+        list(range(0, N // 2)) + [0] + list(range(-N // 2 + 1, 0)), np.float64
     )
 else:
     Kk = np.asarray(
-        list(range(0, (N - 1) // 2)) + [0] 
-            + list(range(-(N - 1) // 2, 0)), 
-            np.float64
+        list(range(0, (N - 1) // 2)) + [0] + list(range(-(N - 1) // 2, 0)), np.float64
     )
 
 rho_air = 1.225
 cE = 0.00125
-L = 2.5e6        # latent heat
+L = 2.5e6  # latent heat
 eps = 0.97
 stefan_boltzman_const = 5.67e-8
-ps = 1000        # pressure at the surface?
-es0 = 6.11       # es0 = 6.11
+ps = 1000  # pressure at the surface?
+es0 = 6.11
 delta = 1.0
 f2 = 0.05
 # 'a' should decrease when deep convection happens above 28 degC
@@ -86,9 +82,9 @@ a = 0.6
 # basic parameters
 temp_0c = 273.15
 f1bar = 0.39
-Ubar = 5.0
+u_bar = 5.0
 temp_surface_bar = temp_0c + 25
-Cbar = 0.6
+c_bar = 0.6
 wnspmin = 4.0
 
 # Find linearization of Q_LH (latent heating)
@@ -187,14 +183,13 @@ def fcor(y: float) -> float:
     return omega2 * y * np.pi / 180
 
 
-fcu = fcor(Yu)
+fcu = fcor(y_axis_u)
 
 
 def f_qa(ts: float, sp: float):
     # ts: sst in Kelvin
     # sp: surface pressure in mb
     # return qs: surface specific humidity
-    es0 = 6.11
     efac = 0.622
     es = es0 * np.exp(17.67 * (ts - 273.15) / ((ts - 273.15) + 243.5))
     return efac * r * es / sp
@@ -218,7 +213,7 @@ def f_E(mask, qa, wnsp):
 
 def f_MC(qa, u, v):
     # qa: surface air humidity
-    # u,v: low level winds in m/s (N.B., v is on Yv points, u,q are on Yu points)
+    # u,v: low level winds in m/s (N.B., v is on y_axis_v points, u,q are on y_axis_u points)
     # return Moisture Convergence in kg/m^2/s
     # rho_air = 1.225
     qu = qa * u
@@ -286,16 +281,16 @@ def S91_solver(Q1):
 
 
 def smooth121(
-    da: xr.DataArray, sdims: list, number_smooths: int = 1, perdims: list = []
+    da: xr.DataArray, sdims: list, number_smooths: int = 1, perdims: list = list()
 ):
     """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time.
 
     Args:
         da (xr.DataArray): xarray.DataArray - e.g., ds.var
         sdims (list): list of dimensions over which to smooth - e.g., ['lat','lon']
-        number_smooths (int, optional): integer number of smooths to apply - e.g., 1. 
+        number_smooths (int, optional): integer number of smooths to apply - e.g., 1.
             Defaults to 1.
-        perdims (list, optional): list of dimension to be treated as period 
+        perdims (list, optional): list of dimension to be treated as period
             boundaries - e.g., ['lon']. Defaults to [].
 
     """
@@ -320,7 +315,9 @@ def smooth121(
 
 def output_trends():
     """output trends ds"""
-    ds = xr.Dataset({"X": ("X", x_axis), "Yu": ("Yu", Yu), "Yv": ("Yv", Yv)})
+    ds = xr.Dataset(
+        {"X": ("X", x_axis), "Yu": ("Yu", y_axis_u), "Yv": ("Yv", y_axis_v)}
+    )
     ds.X.attrs = [("units", "degree_east")]
     ds.Yu.attrs = [("units", "degree_north")]
     ds.Yv.attrs = [("units", "degree_north")]
@@ -345,12 +342,12 @@ def output_trends():
     dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ps-ECMWF-clim.nc"))
     fsp = interp2d(dsClim.X, dsClim.Y, dsClim.ps, kind="linear")
 
-    wnsp = fwnsp(x_axis, Yu)
+    wnsp = fwnsp(x_axis, y_axis_u)
     wnsp[wnsp < wnspmin] = wnspmin
     ds["wnspClim"] = (["Yu", "X"], wnsp)
-    ds["tsClim"] = (["Yu", "X"], fts(x_axis, Yu))
-    ds["prClim"] = (["Yu", "X"], fpr(x_axis, Yu))
-    ds["spClim"] = (["Yu", "X"], fsp(x_axis, Yu))
+    ds["tsClim"] = (["Yu", "X"], fts(x_axis, y_axis_u))
+    ds["prClim"] = (["Yu", "X"], fpr(x_axis, y_axis_u))
+    ds["spClim"] = (["Yu", "X"], fsp(x_axis, y_axis_u))
 
     # TRENDS
     dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
@@ -358,18 +355,18 @@ def output_trends():
     dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-trend.nc"))
     fprTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.pr, kind="linear")
 
-    tsTrend = ftsTrend(x_axis, Yu)
+    tsTrend = ftsTrend(x_axis, y_axis_u)
     ds["tsTrend"] = (["Yu", "X"], tsTrend)
 
-    prTrend = fprTrend(x_axis, Yu)
-    prTrend[abs(Yu) > 25] = 0
+    prTrend = fprTrend(x_axis, y_axis_u)
+    prTrend[abs(y_axis_u) > 25] = 0
     prTrend[prTrend > 5e-5] = 5e-5
     ds["prTrend"] = (["Yu", "X"], prTrend)
     ds["prTrend"] = smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
     dsmask = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "mask-360x180.nc"))
     fmask = interp2d(dsmask.X, dsmask.Y, dsmask.mask, kind="linear")
-    ds["mask"] = (["Yu", "X"], fmask(x_axis, Yu))
+    ds["mask"] = (["Yu", "X"], fmask(x_axis, y_axis_u))
 
     # tsClim = ds.tsClim.values
     spClim = ds.spClim.values
@@ -406,7 +403,7 @@ def output_trends():
     qa1 = qaend
 
     # Find total PR, u and v at end
-    for repeat in range(0, number_iterations):
+    for _ in range(0, number_iterations):
         # Start main calculation
         Qc = (
             np.pi * L * PR / (2 * cp_air * rho00 * height_tropopause)
@@ -434,7 +431,7 @@ def output_trends():
     qa1 = qabeg
 
     # Find total PR, u and v at beginning
-    for repeat in range(0, number_iterations):
+    for _ in range(0, number_iterations):
         # Start main calculation
         Qc = (
             np.pi * L * PR / (2 * cp_air * rho00 * height_tropopause)
@@ -533,39 +530,39 @@ def get_dclim() -> any:
     dclim = xr.open_mfdataset(files, decode_times=False)
 
     # set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
-    # Q'_LW = (ALW(temp_surface_bar,Cbar,f1bar)* Tsprime
-    #          + BLW(temp_surface_bar,Cbar) * f1prime)
-    # Q'_LH = ALH(temp_surface_bar,Ubar) * Tsprime
+    # Q'_LW = (ALW(temp_surface_bar,c_bar,f1bar)* Tsprime
+    #          + BLW(temp_surface_bar,c_bar) * f1prime)
+    # Q'_LH = ALH(temp_surface_bar,u_bar) * Tsprime
 
-    Tsb = 1.0 * dclim.ts
+    t_sb = 1.0 * dclim.ts
     tmp = 1.0 * dclim.sfcWind.stack(z=("lon", "lat")).load()
     tmp[tmp < wnspmin] = wnspmin
-    Ub = tmp.unstack("z").T
-    Cb = dclim.clt / 100.0
+    u_b = tmp.unstack("z").T
+    c_b = dclim.clt / 100.0
     rh = dclim.rh / 100.0
     f1p = -0.003
 
-    ALH0 = f_dQLHdT(Tsb, Ubar, rh)
-    ALW0 = f_dQLWdT(Tsb, Cbar, f1bar, rh)
-    BLW0 = f_dQLWdf(Tsb, Cbar)
+    ALH0 = f_dQLHdT(t_sb, u_bar, rh)
+    ALW0 = f_dQLWdT(t_sb, c_bar, f1bar, rh)
+    BLW0 = f_dQLWdf(t_sb, c_bar)
     dTse0 = -BLW0 * f1p / (ALH0 + ALW0)
     dclim["dTse0"] = dTse0
 
-    ALH1 = f_dQLHdT(Tsb, Ub, rh)
-    ALW1 = f_dQLWdT(Tsb, Cbar, f1bar, rh)
-    BLW1 = f_dQLWdf(Tsb, Cbar)
+    ALH1 = f_dQLHdT(t_sb, u_b, rh)
+    ALW1 = f_dQLWdT(t_sb, c_bar, f1bar, rh)
+    BLW1 = f_dQLWdf(t_sb, c_bar)
     dTse1 = -BLW1 * f1p / (ALH1 + ALW1)
     dclim["dTse1"] = dTse1
 
-    ALH2 = f_dQLHdT(Tsb, Ubar, rh)
-    ALW2 = f_dQLWdT(Tsb, Cb, f1bar, rh)
-    BLW2 = f_dQLWdf(Tsb, Cb)
+    ALH2 = f_dQLHdT(t_sb, u_bar, rh)
+    ALW2 = f_dQLWdT(t_sb, c_b, f1bar, rh)
+    BLW2 = f_dQLWdf(t_sb, c_b)
     dTse2 = -BLW2 * f1p / (ALH2 + ALW2)
     dclim["dTse2"] = dTse2
 
-    ALH = f_dQLHdT(Tsb, Ub, rh)
-    ALW = f_dQLWdT(Tsb, Cb, f1bar, rh)
-    BLW = f_dQLWdf(Tsb, Cb)
+    ALH = f_dQLHdT(t_sb, u_b, rh)
+    ALW = f_dQLWdT(t_sb, c_b, f1bar, rh)
+    BLW = f_dQLWdf(t_sb, c_b)
     dTse = -BLW * f1p / (ALH + ALW)
 
     dclim["dTse"] = dTse
@@ -574,10 +571,10 @@ def get_dclim() -> any:
     dclim["BLW"] = BLW
     dclim["QLW"] = ALW + BLW * f1p / dTse
     dclim.to_netcdf(os.path.join(PROJECT_PATH, "Q.nc"))
-    return dclim, Ub, ALH, ALW, BLW, dTse, rh, Ub, Cb, Tsb
+    return dclim, u_b, ALH, ALW, BLW, dTse, rh, c_b, t_sb
 
 
-dclim, Ub, ALH, ALW, BLW, dTse, rh, Ub, Cb, Tsb = get_dclim()
+dclim, u_b, ALH, ALW, BLW, dTse, rh, c_b, t_sb = get_dclim()
 
 
 def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
@@ -668,7 +665,14 @@ def output_dq():
     dq["BLW"] = BLW
     dq["dTse"] = dTse
     dq["rh"] = rh
-    dq["Ub"] = Ub
-    dq["Cb"] = Cb
-    dq["Tsb"] = Tsb
+    dq["Ub"] = u_b
+    dq["Cb"] = c_b
+    dq["Tsb"] = t_sb
     dq.to_netcdf(os.path.join(PROJECT_PATH, "dQ.nc"))
+
+
+if ___name___ == "__main__":
+    # get_dclim()
+    output_trends()
+    output_dq()
+    make_figure()
