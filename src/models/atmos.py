@@ -3,6 +3,7 @@
 pytest src/test/test_atmos.py
 python3 src/models/atmos.py
 """
+from typing import Tuple
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -109,76 +110,100 @@ names = {
 var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 
 
-def f_es(T):
-    return es0 * np.exp(17.67 * (T - temp_0c) / (T - temp_0c + 243.5))
+def f_es(temperature: xr.DataArray) -> xr.DataArray:
+    return es0 * np.exp(
+        17.67 * (temperature - temp_0c) / (temperature - temp_0c + 243.5)
+    )
 
 
-def f_qs(T):
-    return 0.622 * f_es(T) / ps
+def f_qs(temperature: xr.DataArray) -> xr.DataArray:
+    return 0.622 * f_es(temperature) / ps
 
 
-def f_dqsdT(T):
-    return f_qs(T) * (17.67 * 243.5) / (T - temp_0c + 243.5) ** 2
+def f_dqsdT(temperature: xr.DataArray) -> xr.DataArray:
+    return f_qs(temperature) * (17.67 * 243.5) / (temperature - temp_0c + 243.5) ** 2
 
 
-def f_QLH(T, U, rh):
-    return const1 * U * f_qs(T) * (1 - rh)
+def f_QLH(temperature: xr.DataArray, U: xr.DataArray, rh: xr.DataArray) -> xr.DataArray:
+    print("U", type(U))
+    return const1 * U * f_qs(temperature) * (1 - rh)
 
 
-def f_dQLHdT(T, U, rh):
-    return const1 * U * f_dqsdT(T) * (1 - rh)
+def f_dQLHdT(
+    temperature: xr.DataArray, U: xr.DataArray, rh: xr.DataArray
+) -> xr.DataArray:
+    print("U", type(U))
+    return const1 * U * f_dqsdT(temperature) * (1 - rh)
 
 
 # Find linearization of Q_LW (longwave)
 const2 = eps * stefan_boltzman_const
 
 
-def f_Ta(T):
-    return T - delta
+def f_Ta(temperature: xr.DataArray) -> xr.DataArray:
+    return temperature - delta
 
 
-def f_ebar(T, rh):
-    qa = rh * f_qs(T)
+def f_ebar(temperature: xr.DataArray, rh: xr.DataArray) -> xr.DataArray:
+    qa = rh * f_qs(temperature)
     return qa * ps / 0.622
 
 
-def f_QLW1(T, C, f, rh):
-    Ta = f_Ta(T)
-    return const2 * (1 - a * C ** 2) * Ta ** 4 * (f - f2 * np.sqrt(f_ebar(T, rh)))
+def f_QLW1(
+    temperature: xr.DataArray, C: xr.DataArray, f: float, rh: xr.DataArray
+) -> xr.DataArray:
+    print("rh", type(rh))
+    Ta = f_Ta(temperature)
+    return (
+        const2
+        * (1 - a * C ** 2)
+        * Ta ** 4
+        * (f - f2 * np.sqrt(f_ebar(temperature, rh)))
+    )
 
 
-def f_QLW2(T):
-    return 4 * eps * stefan_boltzman_const * T ** 3 * (T - f_Ta(T))
+def f_QLW2(temperature: xr.DataArray) -> xr.DataArray:
+    # print("temperature", type(temperature))
+    # print("C", type(C))
+    return (
+        4
+        * eps
+        * stefan_boltzman_const
+        * temperature ** 3
+        * (temperature - f_Ta(temperature))
+    )
 
 
 # def f_QLW(T, f, rh):
 #     return f_QLW1(T, f, rh) + f_QLW2(T)
 
 
-def f_dQLWdf(T, C):
-    return const2 * (1 - a * C ** 2) * T ** 4
+def f_dQLWdf(temperature: xr.DataArray, C: xr.DataArray) -> xr.DataArray:
+    return const2 * (1 - a * C ** 2) * temperature ** 4
 
 
-def f_dQLWdT(T, C, f, rh):
-    ebar = f_ebar(T, rh)
-    qs = f_qs(T)
-    dqsdT = f_dqsdT(T)
+def f_dQLWdT(
+    temperature: xr.DataArray, C: xr.DataArray, f: float, rh: xr.DataArray
+) -> xr.DataArray:
+    ebar = f_ebar(temperature, rh)
+    qs = f_qs(temperature)
+    dqsdT = f_dqsdT(temperature)
     return const2 * (
         (1 - a * C ** 2)
-        * T ** 3
-        * (4 * f - f2 * np.sqrt(ebar) * (4 + T * dqsdT / 2 / qs))
-        + 12 * T ** 2 * delta
+        * temperature ** 3
+        * (4 * f - f2 * np.sqrt(ebar) * (4 + temperature * dqsdT / 2 / qs))
+        + 12 * temperature ** 2 * delta
     )
 
 
-def fcor(y: float) -> float:
+def fcor(y: np.ndarray) -> np.ndarray:
     """Corriolis force coeff.
 
     Args:
-        y (float): latitude
+        y (np.ndarray): latitude
 
     Returns:
-        float: Corriolis force coeff.
+        np.ndarray: Corriolis force coeff.
     """
     return omega2 * y * np.pi / 180
 
@@ -186,7 +211,7 @@ def fcor(y: float) -> float:
 fcu = fcor(y_axis_u)
 
 
-def f_qa(ts: float, sp: float):
+def f_qa(ts: np.ndarray, sp: np.ndarray):
     # ts: sst in Kelvin
     # sp: surface pressure in mb
     # return qs: surface specific humidity
@@ -245,7 +270,8 @@ def tdma_solver(nx: int, ny: int, a, b, c, d):
     return xc
 
 
-def S91_solver(Q1):
+def S91_solver(Q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    # print("Q1", type(Q1))
     Q1t = fft(Q1)
     fQ = fcu[:, np.newaxis] * Q1t
     AfQ = (fQ[1 : ny - 1, :] + fQ[0 : ny - 2, :]) / 2.0
@@ -282,7 +308,7 @@ def S91_solver(Q1):
 
 def smooth121(
     da: xr.DataArray, sdims: list, number_smooths: int = 1, perdims: list = list()
-):
+) -> xr.DataArray:
     """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time.
 
     Args:
@@ -313,7 +339,7 @@ def smooth121(
     return v.where(mask, np.nan).transpose(*origdims)
 
 
-def output_trends():
+def output_trends() -> None:
     """output trends ds"""
     ds = xr.Dataset(
         {"X": ("X", x_axis), "Yu": ("Yu", y_axis_u), "Yv": ("Yv", y_axis_v)}
@@ -333,14 +359,14 @@ def output_trends():
 
     # CLIMATOLOGIES
 
-    dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "sfcWind-ECMWF-clim.nc"))
-    fwnsp = interp2d(dsClim.X, dsClim.Y, dsClim.sfcWind, kind="linear")
-    dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-clim.nc"))
-    fts = interp2d(dsClim.X, dsClim.Y, dsClim.ts, kind="linear")
-    dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-clim.nc"))
-    fpr = interp2d(dsClim.X, dsClim.Y, dsClim.pr, kind="linear")
-    dsClim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ps-ECMWF-clim.nc"))
-    fsp = interp2d(dsClim.X, dsClim.Y, dsClim.ps, kind="linear")
+    ds_clim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "sfcWind-ECMWF-clim.nc"))
+    fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
+    ds_clim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-clim.nc"))
+    fts = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ts, kind="linear")
+    ds_clim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-clim.nc"))
+    fpr = interp2d(ds_clim.X, ds_clim.Y, ds_clim.pr, kind="linear")
+    ds_clim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ps-ECMWF-clim.nc"))
+    fsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ps, kind="linear")
 
     wnsp = fwnsp(x_axis, y_axis_u)
     wnsp[wnsp < wnspmin] = wnspmin
@@ -350,18 +376,18 @@ def output_trends():
     ds["spClim"] = (["Yu", "X"], fsp(x_axis, y_axis_u))
 
     # TRENDS
-    dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
-    ftsTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.ts, kind="linear")
-    dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-trend.nc"))
-    fprTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.pr, kind="linear")
+    ds_trend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
+    fts_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.ts, kind="linear")
+    ds_trend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-trend.nc"))
+    fpr_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.pr, kind="linear")
 
-    tsTrend = ftsTrend(x_axis, y_axis_u)
-    ds["tsTrend"] = (["Yu", "X"], tsTrend)
+    ts_trend = fts_trend(x_axis, y_axis_u)
+    ds["tsTrend"] = (["Yu", "X"], ts_trend)
 
-    prTrend = fprTrend(x_axis, y_axis_u)
-    prTrend[abs(y_axis_u) > 25] = 0
-    prTrend[prTrend > 5e-5] = 5e-5
-    ds["prTrend"] = (["Yu", "X"], prTrend)
+    pr_trend = fpr_trend(x_axis, y_axis_u)
+    pr_trend[abs(y_axis_u) > 25] = 0
+    pr_trend[pr_trend > 5e-5] = 5e-5
+    ds["prTrend"] = (["Yu", "X"], pr_trend)
     ds["prTrend"] = smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
     dsmask = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "mask-360x180.nc"))
@@ -380,15 +406,15 @@ def output_trends():
     tsbeg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
     prend = (ds.prClim + ds.prTrend / 2).values
     prbeg = (ds.prClim - ds.prTrend / 2).values
-    Qthend = K1 * (tsend - 30) / B
-    Qthbeg = K1 * (tsbeg - 30) / B
+    q_th_end = K1 * (tsend - 30) / B
+    q_th_beg = K1 * (tsbeg - 30) / B
 
     qaend = f_qa(tsend, spClim)
     # qaend = f_qa2(tsend)
-    Eend = f_E(mask, qaend, wnspClim)
-    PRend = Eend
-    PRend[PRend < 0] = 0
-    # PRend[PRend>prmax] = prmax
+    e_end = f_E(mask, qaend, wnspClim)
+    pr_end = e_end
+    pr_end[pr_end < 0] = 0
+    # pr_end[pr_end>prmax] = prmax
 
     qabeg = f_qa(tsbeg, spClim)
     # qabeg = f_qa2(tsbeg)
@@ -397,9 +423,9 @@ def output_trends():
     pr_beg[pr_beg < 0] = 0
     # pr_beg[pr_beg>prmax] = prmax
 
-    Qth = Qthend
-    PR = PRend
-    E1 = Eend
+    Qth = q_th_end
+    PR = pr_end
+    E1 = e_end
     qa1 = qaend
 
     # Find total PR, u and v at end
@@ -423,9 +449,9 @@ def output_trends():
     uend = u1
     vend = v1
     phiend = phi1
-    PRend = PR
+    pr_end = PR
 
-    Qth = Qthbeg
+    Qth = q_th_beg
     PR = pr_beg
     E1 = Ebeg
     qa1 = qabeg
@@ -458,16 +484,16 @@ def output_trends():
     ds["vtrend"] = (["Yv", "X"], vend - vbeg)
     ds["phitrend"] = (["Yu", "X"], phiend - phibeg)
     ds["tstrend"] = (["Yu", "X"], tsend - tsbeg)
-    ds["PRtrend"] = (["Yu", "X"], PRend - pr_beg)
-    ds["Qthtrend"] = (["Yu", "X"], Qthend - Qthbeg)
+    ds["PRtrend"] = (["Yu", "X"], pr_end - pr_beg)
+    ds["Qthtrend"] = (["Yu", "X"], q_th_end - q_th_beg)
     ds["uend"] = (["Yu", "X"], uend)
     ds["vend"] = (["Yv", "X"], vend)
     ds["wend"] = (["Yu", "X"], wend)
     ds["phiend"] = (["Yu", "X"], phiend)
     ds["tsend"] = (["Yu", "X"], tsend)
-    ds["PRend"] = (["Yu", "X"], PRend)
-    ds["Qthend"] = (["Yu", "X"], Qthend)
-    ds["Eend"] = (["Yu", "X"], Eend)
+    ds["PRend"] = (["Yu", "X"], pr_end)
+    ds["Qthend"] = (["Yu", "X"], q_th_end)
+    ds["Eend"] = (["Yu", "X"], e_end)
     ds["MCend"] = (["Yu", "X"], MCend)
     ds["qaend"] = (["Yu", "X"], qaend)
     ds["ubeg"] = (["Yu", "X"], ubeg)
@@ -476,7 +502,7 @@ def output_trends():
     ds["phibeg"] = (["Yu", "X"], phibeg)
     ds["tsbeg"] = (["Yu", "X"], tsbeg)
     ds["PRbeg"] = (["Yu", "X"], pr_beg)
-    ds["Qthbeg"] = (["Yu", "X"], Qthbeg)
+    ds["Qthbeg"] = (["Yu", "X"], q_th_beg)
     ds["Ebeg"] = (["Yu", "X"], Ebeg)
     ds["MCbeg"] = (["Yu", "X"], mc_beg)
     ds["qabeg"] = (["Yu", "X"], qabeg)
@@ -631,7 +657,7 @@ def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
     plt.xlabel(lon)
     cbar = plt.colorbar(dp)
     plt.subplot(326)
-    dp = Ub.plot.contourf(levels=11, cmap=cmap, vmin=4.0, vmax=8.0, add_colorbar=0)
+    dp = u_b.plot.contourf(levels=11, cmap=cmap, vmin=4.0, vmax=8.0, add_colorbar=0)
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$\bar U(x,y)$")
     plt.ylabel(lat)
@@ -671,7 +697,7 @@ def output_dq():
     dq.to_netcdf(os.path.join(PROJECT_PATH, "dQ.nc"))
 
 
-if ___name___ == "__main__":
+if __name__ == "__main__":
     # get_dclim()
     output_trends()
     output_dq()
