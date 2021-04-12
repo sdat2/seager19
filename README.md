@@ -85,7 +85,9 @@ The code and data was taken from:
 
     make env
 
-    conda activate ./env    
+    conda activate ./env
+
+    python3 src/data_loading/download.py
 
     make test        # Also downloads the data.
 

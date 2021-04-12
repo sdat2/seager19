@@ -15,10 +15,12 @@ Download repo and set up:
 
     make env
 
-    conda activate ./env    
+    conda activate ./env
 
-    make test        # Also downloads the data.
+    python3 src/data_loading/download.py
 
+    make test        # Also downloads the data if needed.
+    
     make jupyter_pro
 
     make report
