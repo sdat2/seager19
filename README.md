@@ -91,6 +91,10 @@ The code and data was taken from:
 
     python3 src/data_loading/download.py
 
+    sudo apt-get install gfortran
+
+    sudo apt-get install gcc
+
     make test        # Also downloads the data.
 
     make jupyter_pro

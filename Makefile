@@ -27,7 +27,7 @@ clean:
 ## Lint src directory using flake8
 lint:
 	pylint --ignore-patterns=lint_test src
-	pylint --ignore-patterns=lint_test atmos
+	# pylint --ignore-patterns=lint_test atmos
 	# flake8 atmos-model
 	# flake8 src
 

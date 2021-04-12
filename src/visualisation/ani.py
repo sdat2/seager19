@@ -58,7 +58,7 @@ def animate_ds(ds: xr.Dataset, file_name: str, output_dir: str) -> None:
         "TDEEP_TDEEP": "sst",
         "TDEEP_HMODEL": "sst",
     }
-    unit_d = {"SST_SST": "$^{\circ}$C"}
+    unit_d = {"SST_SST": r"$^{\circ}$C"}
     for y in ds.variables:
         y = str(y)
         if "X_" not in y:
@@ -79,8 +79,8 @@ def animate_ds(ds: xr.Dataset, file_name: str, output_dir: str) -> None:
                                 da = da.rename(_rdict(num))
                             if y in unit_d:
                                 da.attrs["units"] = unit_d[y]
-                            da.coords["x"].attrs["units"] = "$^{\circ}$E"
-                            da.coords["y"].attrs["units"] = "$^{\circ}$N"
+                            da.coords["x"].attrs["units"] = r"$^{\circ}$E"
+                            da.coords["y"].attrs["units"] = r"$^{\circ}$N"
                             da = da.where(da != 0.0).isel(Z=0)
                             da = fix_calendar(da, timevar="time")
                             if "variable" in da.dims:

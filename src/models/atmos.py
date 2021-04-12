@@ -1,4 +1,8 @@
-"""src.models.atmos."""
+"""src.models.atmos.
+
+pytest src/test/test_atmos.py
+python3 src/models/atmos.py
+"""
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,10 +13,10 @@ from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH, PROJECT_P
 
 # begin TCAM
 eps_days = 0.75
-K_days = 10
+k_days = 10
 efrac = 2.0  # multiply epsu by efrac to get epsv
-Hq = 1800
-PrcpLand = 1  # use data precip trends over land
+hq = 1800
+prcp_land = 1  # use data precip trends over land
 wnspmin = 4
 rho00 = 0.3
 prmax = 20.0 / 3600 / 24
@@ -21,22 +25,23 @@ nx = 180
 ny = 60
 YN = 60
 YS = -YN
-NumberIterations = 50
+number_iterations = 50
 gravity = 9.8
-ZT = 15000
-Th00 = 300
+height_tropopause = 15000
+theta_00 = 300
 NBSQ = 3.0e-4
-rEarth = 6.37e6
+radius_earth = 6.37e6  # m
 omega2 = 2 * (2 * np.pi / 86400)
 L = 2.5e6
-cpair = 1000
-B = gravity * np.pi / (NBSQ * Th00 * ZT)
+cp_air = 1000
+B = gravity * np.pi / (NBSQ * theta_00 * height_tropopause)
 eps = 1.0 / (eps_days * 86400)
 epsu = eps
 epsv = efrac * eps
-K1 = B / (K_days * 86400)
-epsp = (np.pi / ZT) ** 2 / (NBSQ * K_days * 86400)
-beta = omega2 / rEarth
+K1 = B / (k_days * 86400)
+epsp = (np.pi / height_tropopause) ** 2 / (NBSQ * k_days * 86400)
+beta = omega2 / radius_earth
+
 # make grids
 dx = 360 / nx
 dy = (YN - YS) / ny
@@ -46,8 +51,8 @@ Yu = np.linspace(YS + dy, YN - dy, ny - 1)
 Yi = np.linspace(YS + 3 * dy / 2, YN - 3 * dy / 2, ny - 2)
 dX = X[1] - X[0]
 dY = Yv[1] - Yv[0]
-dxm = dX * rEarth * np.pi / 180
-dym = dY * rEarth * np.pi / 180
+dxm = dX * radius_earth * np.pi / 180
+dym = dY * radius_earth * np.pi / 180
 dym2 = dym * dym
 
 
@@ -98,26 +103,26 @@ def f_E(mask, qa, wnsp):
     # qa: surface air humidity
     # wnsp: surface windspeed in m/s
     # return Evap in kg/m^2/s
-    rhoair = 1.225
+    rho_air = 1.225
     CsE = 0.0015 * (1 + mask / 2)
     # CsE = 0.0012
-    return CsE * rhoair * (1 - r) * qa * wnsp / r
+    return CsE * rho_air * (1 - r) * qa * wnsp / r
 
 
 def f_MC(qa, u, v):
     # qa: surface air humidity
     # u,v: low level winds in m/s (N.B., v is on Yv points, u,q are on Yu points)
     # return Moisture Convergence in kg/m^2/s
-    rhoair = 1.225
+    rho_air = 1.225
     qu = qa * u
-    qux = ifft(1.0j * Kk * fft(qu) / rEarth).real
+    qux = ifft(1.0j * Kk * fft(qu) / radius_earth).real
     Aq = (qa[1 : ny - 1, :] + qa[0 : ny - 2, :]) / 2.0
     qv = Aq * v[1 : ny - 1, :]
     z = np.zeros((1, nx))
     qv = np.concatenate((z, qv, z), axis=0)
     # qvy = qv.diff('Yu')/dym
     qvy = (qv[1:ny, :] - qv[0 : ny - 1, :]) / dym
-    return -Hq * (qux + qvy) * rhoair
+    return -hq * (qux + qvy) * rho_air
 
 
 def tdma_solver(nx: int, ny: int, a, b, c, d):
@@ -142,7 +147,7 @@ def S91_solver(Q1):
     Q1t = fft(Q1)
     fQ = fcu[:, np.newaxis] * Q1t
     AfQ = (fQ[1 : ny - 1, :] + fQ[0 : ny - 2, :]) / 2.0
-    km = Kk / rEarth
+    km = Kk / radius_earth
     DQ = (Q1t[1 : ny - 1, :] - Q1t[0 : ny - 2, :]) / dym
     rk = 1.0j * km * beta - epsu * epsv * epsp - epsv * km ** 2
     fcp = fcu[1 : ny - 1] ** 2 / 4.0
@@ -173,7 +178,9 @@ def S91_solver(Q1):
     return (u, v, phi)
 
 
-def smooth121(da: xr.DataArray, sdims: list, NSmooths: int = 1, perdims: list = []):
+def smooth121(
+    da: xr.DataArray, sdims: list, number_smooths: int = 1, perdims: list = []
+):
     """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time
     Usage
     -----
@@ -185,7 +192,7 @@ def smooth121(da: xr.DataArray, sdims: list, NSmooths: int = 1, perdims: list = 
 
     Example
     -------
-        smooth_var = smooth121(ds.var, ['lon', 'lat], NSmooths = 2, perdims = ['lon'])
+        smooth_var = smooth121(ds.var, ['lon', 'lat], number_smooths = 2, perdims = ['lon'])
     """
     mask = da.notnull()
     weight = xr.DataArray([0.25, 0.5, 0.25], dims=["window"])
@@ -193,7 +200,7 @@ def smooth121(da: xr.DataArray, sdims: list, NSmooths: int = 1, perdims: list = 
     origdims = v.dims
 
     for dim in sdims:
-        for smooth in range(0, NSmooths):
+        for _ in range(0, number_smooths):
             if dim in perdims:
                 v0 = xr.concat([v.isel(**{dim: -1}), v, v.isel(**{dim: 0})], dim=dim)
             else:
@@ -211,14 +218,14 @@ ds.X.attrs = [("units", "degree_east")]
 ds.Yu.attrs = [("units", "degree_north")]
 ds.Yv.attrs = [("units", "degree_north")]
 
-ds["K"] = K_days
+ds["K"] = k_days
 ds.K.attrs = [("units", "day")]
 ds["epsu"] = eps_days
 ds.epsu.attrs = [("units", "day")]
 ds["epsv"] = eps_days / efrac
 ds.epsv.attrs = [("units", "day")]
-ds["Hq"] = Hq
-ds.Hq.attrs = [("units", "m")]
+ds["hq"] = hq
+ds.hq.attrs = [("units", "m")]
 
 # CLIMATOLOGIES
 
@@ -240,6 +247,7 @@ ds["spClim"] = (["Yu", "X"], fsp(X, Yu))
 
 
 def output_trends():
+    """output trends ds"""
     # TRENDS
     dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
     ftsTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.ts, kind="linear")
@@ -294,14 +302,16 @@ def output_trends():
     qa1 = qaend
 
     # Find total PR, u and v at end
-    for repeat in range(0, NumberIterations):
+    for repeat in range(0, number_iterations):
         # Start main calculation
-        Qc = np.pi * L * PR / (2 * cpair * rho00 * ZT)  # heating from precip
+        Qc = (
+            np.pi * L * PR / (2 * cp_air * rho00 * height_tropopause)
+        )  # heating from precip
         Q1 = B * (Qc + Qth)
         (u1, v1, phi1) = S91_solver(Q1)
         daMC = xr.DataArray(f_MC(qa1, u1, v1), dims=["Yu", "X"])
         MC1 = smooth121(daMC, ["Yu", "X"], perdims=["X"]).values
-        if PrcpLand:
+        if prcp_land:
             PR = (1 - mask) * (MC1 + E1) + mask * prend
         else:
             PR = (1 - mask) * (MC1 + E1)
@@ -320,14 +330,16 @@ def output_trends():
     qa1 = qabeg
 
     # Find total PR, u and v at beginning
-    for repeat in range(0, NumberIterations):
+    for repeat in range(0, number_iterations):
         # Start main calculation
-        Qc = np.pi * L * PR / (2 * cpair * rho00 * ZT)  # heating from precip
+        Qc = (
+            np.pi * L * PR / (2 * cp_air * rho00 * height_tropopause)
+        )  # heating from precip
         Q1 = B * (Qc + Qth)
         (u1, v1, phi1) = S91_solver(Q1)
         daMC = xr.DataArray(f_MC(qa1, u1, v1), dims=["Yu", "X"])
         MC1 = smooth121(daMC, ["Yu", "X"], perdims=["X"]).values
-        if PrcpLand:
+        if prcp_land:
             PR = (1 - mask) * (MC1 + E1) + mask * prbeg
         else:
             PR = (1 - mask) * (MC1 + E1)
@@ -371,7 +383,7 @@ def output_trends():
     ds["qabeg"] = (["Yu", "X"], qabeg)
 
     # There is 2 gridpoint noise in the phi field - so add a smooth in X:
-    ds["phitrend"] = smooth121(ds.phitrend, ["X"], NSmooths=1, perdims=["X"])
+    ds["phitrend"] = smooth121(ds.phitrend, ["X"], number_smooths=1, perdims=["X"])
 
     ds.utrend.attrs = [("units", "m/s")]
     ds.vtrend.attrs = [("units", "m/s")]
@@ -384,30 +396,30 @@ def output_trends():
     if not os.path.isdir(ATMOS_TMP_PATH):
         os.makedirs(ATMOS_TMP_PATH)
 
-    outfile = basedir + "-Hq" + str(Hq) + "-PrcpLand" + str(PrcpLand) + ".nc"
+    outfile = basedir + "-hq" + str(hq) + "-prcp_land" + str(prcp_land) + ".nc"
     print(outfile)
 
     en_dict = {
         "K": {"dtype": "f4"},
         "epsu": {"dtype": "f4"},
         "epsv": {"dtype": "f4"},
-        "Hq": {"dtype": "f4"},
+        "hq": {"dtype": "f4"},
     }
     ds.to_netcdf(outfile, encoding=en_dict)
 
 
 ### Begin dQ ------------------------------------------------------
-rhoa = 1.225
+rho_air = 1.225
 cE = 0.00125
 L = 2.5e6
 eps = 0.97
-sigma = 5.67e-8
+stefan_boltzman_const = 5.67e-8
 ps = 1000
 es0 = 6.11
 delta = 1.0
 f2 = 0.05
 # 'a' should decrease when deep convection happens above 28 degC
-# a = Ts-T0;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
+# a = Ts-temp_0c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
 a = 0.6
 
 mem = "EEEf"
@@ -426,22 +438,22 @@ names = {
     "M": "MERRA",
     "I": "ISCCP",
 }
-vars = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 
 # basic parameters
-T0 = 273.15
+temp_0c = 273.15
 f1bar = 0.39
 Ubar = 5.0
-Tsbar = T0 + 25
+temp_surface_bar = temp_0c + 25
 Cbar = 0.6
 wnspmin = 4.0
 
 # Find linearization of Q_LH (latent heating)
-const1 = rhoa * cE * L
+const1 = rho_air * cE * L
 
 
 def f_es(T):
-    return es0 * np.exp(17.67 * (T - T0) / (T - T0 + 243.5))
+    return es0 * np.exp(17.67 * (T - temp_0c) / (T - temp_0c + 243.5))
 
 
 def f_qs(T):
@@ -449,7 +461,7 @@ def f_qs(T):
 
 
 def f_dqsdT(T):
-    return f_qs(T) * (17.67 * 243.5) / (T - T0 + 243.5) ** 2
+    return f_qs(T) * (17.67 * 243.5) / (T - temp_0c + 243.5) ** 2
 
 
 def f_QLH(T, U, rh):
@@ -461,7 +473,7 @@ def f_dQLHdT(T, U, rh):
 
 
 # Find linearization of Q_LW (longwave)
-const2 = eps * sigma
+const2 = eps * stefan_boltzman_const
 
 
 def f_Ta(T):
@@ -479,11 +491,11 @@ def f_QLW1(T, C, f, rh):
 
 
 def f_QLW2(T):
-    return 4 * eps * sigma * T ** 3 * (T - f_Ta(T))
+    return 4 * eps * stefan_boltzman_const * T ** 3 * (T - f_Ta(T))
 
 
-def f_QLW(T, f, rh):
-    return f_QLW1(T, f, rh) + f_QLW2(T)
+# def f_QLW(T, f, rh):
+#     return f_QLW1(T, f, rh) + f_QLW2(T)
 
 
 def f_dQLWdf(T, C):
@@ -506,9 +518,9 @@ files = []
 
 for i, m in enumerate(mem):
     name = names[m]
-    var = vars[i]
-    file = os.path.join(ATMOS_DATA_PATH, var + "-" + name + "-clim60.nc")
-    print(name, var, file)
+    variable = var[i]
+    file = os.path.join(ATMOS_DATA_PATH, variable + "-" + name + "-clim60.nc")
+    print(name, variable, file)
     print(file)
     assert os.path.isfile(file)
     files += [file]
@@ -516,8 +528,9 @@ for i, m in enumerate(mem):
 dclim = xr.open_mfdataset(files, decode_times=False)
 
 # set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
-#       Q'_LW = ALW(Tsbar,Cbar,f1bar)* Tsprime + BLW(Tsbar,Cbar) * f1prime
-#       Q'_LH = ALH(Tsbar,Ubar) * Tsprime
+# Q'_LW = (ALW(temp_surface_bar,Cbar,f1bar)* Tsprime 
+#          + BLW(temp_surface_bar,Cbar) * f1prime)
+# Q'_LH = ALH(temp_surface_bar,Ubar) * Tsprime
 Tsb = 1.0 * dclim.ts
 tmp = 1.0 * dclim.sfcWind.stack(z=("lon", "lat")).load()
 tmp[tmp < wnspmin] = wnspmin
@@ -572,7 +585,8 @@ def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
     plt.title(r"$T^{\,\prime}_s$  for $\bar U,\bar C$")
     plt.ylabel(lat)
     plt.xlabel(lon)
-    cbar = plt.colorbar(dp)
+    # cbar = plt.colorbar(dp)
+    _ = plt.colorbar(dp)
     plt.subplot(322)
     dp = dclim.dTse1.plot.contourf(
         levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
@@ -622,23 +636,23 @@ def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
 
 
 def output_dq():
-    # Now, save the dQdf and dQdT terms for using in TCOM:
-    dQdT = ALH + ALW
-    dQdf = BLW
+    # Now, save the dq_df and dq_dt terms for using in TCOM:
+    dq_dt = ALH + ALW
+    dq_df = BLW
 
     # Define the new Dataset
     dq = xr.Dataset(
         {
             "lon": ("lon", dclim.lon),
             "lat": ("lat", dclim.lat),
-            "dQdT": (["lat", "lon"], dQdT),
-            "dQdf": (["lat", "lon"], dQdf),
+            "dq_dt": (["lat", "lon"], dq_dt),
+            "dq_df": (["lat", "lon"], dq_df),
         }
     )
     dq.lon.attrs = dclim.lon.attrs
     dq.lat.attrs = dclim.lat.attrs
-    dq.dQdT.attrs = [("units", "W/m^2/K")]
-    dq.dQdf.attrs = [("units", "W/m^2")]
+    dq.dq_dt.attrs = [("units", "W/m^2/K")]
+    dq.dq_df.attrs = [("units", "W/m^2")]
     dq["ALH"] = ALH
     dq["ALW"] = ALW
     dq["BLW"] = BLW

@@ -84,9 +84,9 @@ could reach in a given climate, which is dependent on the sea surface temperatur
 the temperature of the troposphere.
 There are also various cyclone genesis indices.
 The biases in the global climate models are non stationary.
-Correcting the bias in global climate models would require 
+Correcting the bias in global climate models would require
 some understanding of what the true sentivities of the climate
-to the forcing. Perhaps a combination of physical models 
+to the forcing. Perhaps a combination of physical models
 and ML emulators can improve this understanding.
 
 These biases probably arise from errors in the coupled parameterisations,
