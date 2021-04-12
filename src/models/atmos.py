@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import xarray as xr
 from scipy.interpolate import interp2d
 from scipy.fftpack import fft, ifft
-from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH
+from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH, PROJECT_PATH
 
 # begin TCAM
 eps_days = 0.75
@@ -238,165 +238,163 @@ ds["tsClim"] = (["Yu", "X"], fts(X, Yu))
 ds["prClim"] = (["Yu", "X"], fpr(X, Yu))
 ds["spClim"] = (["Yu", "X"], fsp(X, Yu))
 
-# TRENDS
-dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
-ftsTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.ts, kind="linear")
-dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-trend.nc"))
-fprTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.pr, kind="linear")
 
-tsTrend = ftsTrend(X, Yu)
-ds["tsTrend"] = (["Yu", "X"], tsTrend)
+def output_trends():
+    # TRENDS
+    dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
+    ftsTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.ts, kind="linear")
+    dsTrend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-trend.nc"))
+    fprTrend = interp2d(dsTrend.X, dsTrend.Y, dsTrend.pr, kind="linear")
 
-prTrend = fprTrend(X, Yu)
-prTrend[abs(Yu) > 25] = 0
-prTrend[prTrend > 5e-5] = 5e-5
-ds["prTrend"] = (["Yu", "X"], prTrend)
-ds["prTrend"] = smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
+    tsTrend = ftsTrend(X, Yu)
+    ds["tsTrend"] = (["Yu", "X"], tsTrend)
 
+    prTrend = fprTrend(X, Yu)
+    prTrend[abs(Yu) > 25] = 0
+    prTrend[prTrend > 5e-5] = 5e-5
+    ds["prTrend"] = (["Yu", "X"], prTrend)
+    ds["prTrend"] = smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
-dsmask = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "mask-360x180.nc"))
-fmask = interp2d(dsmask.X, dsmask.Y, dsmask.mask, kind="linear")
-ds["mask"] = (["Yu", "X"], fmask(X, Yu))
+    dsmask = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "mask-360x180.nc"))
+    fmask = interp2d(dsmask.X, dsmask.Y, dsmask.mask, kind="linear")
+    ds["mask"] = (["Yu", "X"], fmask(X, Yu))
 
-tsClim = ds.tsClim.values
-spClim = ds.spClim.values
-wnspClim = ds.wnspClim.values
-wnspClim[wnspClim < wnspmin] = wnspmin
-mask = ds.mask.values
-wend = wnspClim
-wbeg = wnspClim
+    tsClim = ds.tsClim.values
+    spClim = ds.spClim.values
+    wnspClim = ds.wnspClim.values
+    wnspClim[wnspClim < wnspmin] = wnspmin
+    mask = ds.mask.values
+    wend = wnspClim
+    wbeg = wnspClim
 
-tsend = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
-tsbeg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
-prend = (ds.prClim + ds.prTrend / 2).values
-prbeg = (ds.prClim - ds.prTrend / 2).values
-Qthend = K1 * (tsend - 30) / B
-Qthbeg = K1 * (tsbeg - 30) / B
+    tsend = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
+    tsbeg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
+    prend = (ds.prClim + ds.prTrend / 2).values
+    prbeg = (ds.prClim - ds.prTrend / 2).values
+    Qthend = K1 * (tsend - 30) / B
+    Qthbeg = K1 * (tsbeg - 30) / B
 
-qaend = f_qa(tsend, spClim)
-# qaend = f_qa2(tsend)
-Eend = f_E(mask, qaend, wnspClim)
-PRend = Eend
-PRend[PRend < 0] = 0
-# PRend[PRend>prmax] = prmax
+    qaend = f_qa(tsend, spClim)
+    # qaend = f_qa2(tsend)
+    Eend = f_E(mask, qaend, wnspClim)
+    PRend = Eend
+    PRend[PRend < 0] = 0
+    # PRend[PRend>prmax] = prmax
 
-qabeg = f_qa(tsbeg, spClim)
-# qabeg = f_qa2(tsbeg)
-Ebeg = f_E(mask, qabeg, wnspClim)
-PRbeg = Ebeg
-PRbeg[PRbeg < 0] = 0
-# PRbeg[PRbeg>prmax] = prmax
+    qabeg = f_qa(tsbeg, spClim)
+    # qabeg = f_qa2(tsbeg)
+    Ebeg = f_E(mask, qabeg, wnspClim)
+    PRbeg = Ebeg
+    PRbeg[PRbeg < 0] = 0
+    # PRbeg[PRbeg>prmax] = prmax
 
-Qth = Qthend
-PR = PRend
-E1 = Eend
-qa1 = qaend
+    Qth = Qthend
+    PR = PRend
+    E1 = Eend
+    qa1 = qaend
 
-# Find total PR, u and v at end
-for repeat in range(0, NumberIterations):
-    # Start main calculation
-    Qc = np.pi * L * PR / (2 * cpair * rho00 * ZT)  # heating from precip
-    Q1 = B * (Qc + Qth)
-    (u1, v1, phi1) = S91_solver(Q1)
-    daMC = xr.DataArray(f_MC(qa1, u1, v1), dims=["Yu", "X"])
-    MC1 = smooth121(daMC, ["Yu", "X"], perdims=["X"]).values
-    if PrcpLand:
-        PR = (1 - mask) * (MC1 + E1) + mask * prend
-    else:
-        PR = (1 - mask) * (MC1 + E1)
-    PR[PR < 0] = 0
-    # PR[PR > prmax] = prmax
+    # Find total PR, u and v at end
+    for repeat in range(0, NumberIterations):
+        # Start main calculation
+        Qc = np.pi * L * PR / (2 * cpair * rho00 * ZT)  # heating from precip
+        Q1 = B * (Qc + Qth)
+        (u1, v1, phi1) = S91_solver(Q1)
+        daMC = xr.DataArray(f_MC(qa1, u1, v1), dims=["Yu", "X"])
+        MC1 = smooth121(daMC, ["Yu", "X"], perdims=["X"]).values
+        if PrcpLand:
+            PR = (1 - mask) * (MC1 + E1) + mask * prend
+        else:
+            PR = (1 - mask) * (MC1 + E1)
+        PR[PR < 0] = 0
+        # PR[PR > prmax] = prmax
 
-MCend = MC1
-uend = u1
-vend = v1
-phiend = phi1
-PRend = PR
+    MCend = MC1
+    uend = u1
+    vend = v1
+    phiend = phi1
+    PRend = PR
 
+    Qth = Qthbeg
+    PR = PRbeg
+    E1 = Ebeg
+    qa1 = qabeg
 
-Qth = Qthbeg
-PR = PRbeg
-E1 = Ebeg
-qa1 = qabeg
+    # Find total PR, u and v at beginning
+    for repeat in range(0, NumberIterations):
+        # Start main calculation
+        Qc = np.pi * L * PR / (2 * cpair * rho00 * ZT)  # heating from precip
+        Q1 = B * (Qc + Qth)
+        (u1, v1, phi1) = S91_solver(Q1)
+        daMC = xr.DataArray(f_MC(qa1, u1, v1), dims=["Yu", "X"])
+        MC1 = smooth121(daMC, ["Yu", "X"], perdims=["X"]).values
+        if PrcpLand:
+            PR = (1 - mask) * (MC1 + E1) + mask * prbeg
+        else:
+            PR = (1 - mask) * (MC1 + E1)
+        PR[PR < 0] = 0
+        # PR[PR > prmax] = prmax
 
-# Find total PR, u and v at beginning
-for repeat in range(0, NumberIterations):
-    # Start main calculation
-    Qc = np.pi * L * PR / (2 * cpair * rho00 * ZT)  # heating from precip
-    Q1 = B * (Qc + Qth)
-    (u1, v1, phi1) = S91_solver(Q1)
-    daMC = xr.DataArray(f_MC(qa1, u1, v1), dims=["Yu", "X"])
-    MC1 = smooth121(daMC, ["Yu", "X"], perdims=["X"]).values
-    if PrcpLand:
-        PR = (1 - mask) * (MC1 + E1) + mask * prbeg
-    else:
-        PR = (1 - mask) * (MC1 + E1)
-    PR[PR < 0] = 0
-    # PR[PR > prmax] = prmax
+    MCbeg = MC1
+    ubeg = u1
+    vbeg = v1
+    phibeg = phi1
+    PRbeg = PR
 
-MCbeg = MC1
-ubeg = u1
-vbeg = v1
-phibeg = phi1
-PRbeg = PR
+    # save and plot the trends
+    ds["utrend"] = (["Yu", "X"], uend - ubeg)
+    ds["vtrend"] = (["Yv", "X"], vend - vbeg)
+    ds["phitrend"] = (["Yu", "X"], phiend - phibeg)
+    ds["tstrend"] = (["Yu", "X"], tsend - tsbeg)
+    ds["PRtrend"] = (["Yu", "X"], PRend - PRbeg)
+    ds["Qthtrend"] = (["Yu", "X"], Qthend - Qthbeg)
 
+    ds["uend"] = (["Yu", "X"], uend)
+    ds["vend"] = (["Yv", "X"], vend)
+    ds["wend"] = (["Yu", "X"], wend)
+    ds["phiend"] = (["Yu", "X"], phiend)
+    ds["tsend"] = (["Yu", "X"], tsend)
+    ds["PRend"] = (["Yu", "X"], PRend)
+    ds["Qthend"] = (["Yu", "X"], Qthend)
+    ds["Eend"] = (["Yu", "X"], Eend)
+    ds["MCend"] = (["Yu", "X"], MCend)
+    ds["qaend"] = (["Yu", "X"], qaend)
 
-# save and plot the trends
-ds["utrend"] = (["Yu", "X"], uend - ubeg)
-ds["vtrend"] = (["Yv", "X"], vend - vbeg)
-ds["phitrend"] = (["Yu", "X"], phiend - phibeg)
-ds["tstrend"] = (["Yu", "X"], tsend - tsbeg)
-ds["PRtrend"] = (["Yu", "X"], PRend - PRbeg)
-ds["Qthtrend"] = (["Yu", "X"], Qthend - Qthbeg)
+    ds["ubeg"] = (["Yu", "X"], ubeg)
+    ds["vbeg"] = (["Yv", "X"], vbeg)
+    ds["wbeg"] = (["Yu", "X"], wbeg)
+    ds["phibeg"] = (["Yu", "X"], phibeg)
+    ds["tsbeg"] = (["Yu", "X"], tsbeg)
+    ds["PRbeg"] = (["Yu", "X"], PRbeg)
+    ds["Qthbeg"] = (["Yu", "X"], Qthbeg)
+    ds["Ebeg"] = (["Yu", "X"], Ebeg)
+    ds["MCbeg"] = (["Yu", "X"], MCbeg)
+    ds["qabeg"] = (["Yu", "X"], qabeg)
 
-ds["uend"] = (["Yu", "X"], uend)
-ds["vend"] = (["Yv", "X"], vend)
-ds["wend"] = (["Yu", "X"], wend)
-ds["phiend"] = (["Yu", "X"], phiend)
-ds["tsend"] = (["Yu", "X"], tsend)
-ds["PRend"] = (["Yu", "X"], PRend)
-ds["Qthend"] = (["Yu", "X"], Qthend)
-ds["Eend"] = (["Yu", "X"], Eend)
-ds["MCend"] = (["Yu", "X"], MCend)
-ds["qaend"] = (["Yu", "X"], qaend)
+    # There is 2 gridpoint noise in the phi field - so add a smooth in X:
+    ds["phitrend"] = smooth121(ds.phitrend, ["X"], NSmooths=1, perdims=["X"])
 
-ds["ubeg"] = (["Yu", "X"], ubeg)
-ds["vbeg"] = (["Yv", "X"], vbeg)
-ds["wbeg"] = (["Yu", "X"], wbeg)
-ds["phibeg"] = (["Yu", "X"], phibeg)
-ds["tsbeg"] = (["Yu", "X"], tsbeg)
-ds["PRbeg"] = (["Yu", "X"], PRbeg)
-ds["Qthbeg"] = (["Yu", "X"], Qthbeg)
-ds["Ebeg"] = (["Yu", "X"], Ebeg)
-ds["MCbeg"] = (["Yu", "X"], MCbeg)
-ds["qabeg"] = (["Yu", "X"], qabeg)
+    ds.utrend.attrs = [("units", "m/s")]
+    ds.vtrend.attrs = [("units", "m/s")]
+    ds.phitrend.attrs = [("units", "m2/s2")]
+    ds.PRtrend.attrs = [("units", "m/s")]
+    ds.Qthtrend.attrs = [("units", "K/s")]
 
-# There is 2 gridpoint noise in the phi field - so add a smooth in X:
-ds["phitrend"] = smooth121(ds.phitrend, ["X"], NSmooths=1, perdims=["X"])
+    basedir = os.path.join(ATMOS_TMP_PATH, "S91")
 
+    if not os.path.isdir(ATMOS_TMP_PATH):
+        os.makedirs(ATMOS_TMP_PATH)
 
-ds.utrend.attrs = [("units", "m/s")]
-ds.vtrend.attrs = [("units", "m/s")]
-ds.phitrend.attrs = [("units", "m2/s2")]
-ds.PRtrend.attrs = [("units", "m/s")]
-ds.Qthtrend.attrs = [("units", "K/s")]
+    outfile = basedir + "-Hq" + str(Hq) + "-PrcpLand" + str(PrcpLand) + ".nc"
+    print(outfile)
 
+    en_dict = {
+        "K": {"dtype": "f4"},
+        "epsu": {"dtype": "f4"},
+        "epsv": {"dtype": "f4"},
+        "Hq": {"dtype": "f4"},
+    }
+    ds.to_netcdf(outfile, encoding=en_dict)
 
-basedir = os.path.join(ATMOS_TMP_PATH, "S91")
-
-if not os.path.isdir(ATMOS_TMP_PATH):
-    os.makedirs(ATMOS_TMP_PATH)
-
-outfile = basedir + "-Hq" + str(Hq) + "-PrcpLand" + str(PrcpLand) + ".nc"
-print(outfile)
-
-en_dict = {
-    "K": {"dtype": "f4"},
-    "epsu": {"dtype": "f4"},
-    "epsv": {"dtype": "f4"},
-    "Hq": {"dtype": "f4"},
-}
-ds.to_netcdf(outfile, encoding=en_dict)
 
 ### Begin dQ ------------------------------------------------------
 rhoa = 1.225
@@ -441,17 +439,22 @@ wnspmin = 4.0
 # Find linearization of Q_LH (latent heating)
 const1 = rhoa * cE * L
 
+
 def f_es(T):
     return es0 * np.exp(17.67 * (T - T0) / (T - T0 + 243.5))
+
 
 def f_qs(T):
     return 0.622 * f_es(T) / ps
 
+
 def f_dqsdT(T):
     return f_qs(T) * (17.67 * 243.5) / (T - T0 + 243.5) ** 2
 
+
 def f_QLH(T, U, rh):
     return const1 * U * f_qs(T) * (1 - rh)
+
 
 def f_dQLHdT(T, U, rh):
     return const1 * U * f_dqsdT(T) * (1 - rh)
@@ -494,10 +497,10 @@ def f_dQLWdT(T, C, f, rh):
     return const2 * (
         (1 - a * C ** 2)
         * T ** 3
-        * (4 * f - f2 * np.sqrt(ebar) 
-        * (4 + T * dqsdT / 2 / qs))
+        * (4 * f - f2 * np.sqrt(ebar) * (4 + T * dqsdT / 2 / qs))
         + 12 * T ** 2 * delta
     )
+
 
 files = []
 
@@ -554,7 +557,7 @@ dclim["QLW"] = ALW + BLW * f1p / dTse
 # dclim.to_netcdf('Q.nc')
 
 
-def make_figure(cmap="viridis"):
+def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
     """Make figure.
 
     Args:
@@ -567,8 +570,8 @@ def make_figure(cmap="viridis"):
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U,\bar C$")
-    plt.ylabel("latitude")
-    plt.xlabel("longitude")
+    plt.ylabel(lat)
+    plt.xlabel(lon)
     cbar = plt.colorbar(dp)
     plt.subplot(322)
     dp = dclim.dTse1.plot.contourf(
@@ -576,8 +579,8 @@ def make_figure(cmap="viridis"):
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C$")
-    plt.ylabel("latitude")
-    plt.xlabel("longitude")
+    plt.ylabel(lat)
+    plt.xlabel(lon)
     cbar = plt.colorbar(dp)
     plt.subplot(323)
     dp = dclim.dTse2.plot.contourf(
@@ -585,15 +588,17 @@ def make_figure(cmap="viridis"):
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U, \bar C(x,y)$")
-    plt.ylabel("latitude")
-    plt.xlabel("longitude")
+    plt.ylabel(lat)
+    plt.xlabel(lon)
     cbar = plt.colorbar(dp)
     plt.subplot(324)
-    dp = dclim.dTse.plot.contourf(levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0)
+    dp = dclim.dTse.plot.contourf(
+        levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
+    )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C(x,y)$")
-    plt.ylabel("latitude")
-    plt.xlabel("longitude")
+    plt.ylabel(lat)
+    plt.xlabel(lon)
     cbar = plt.colorbar(dp)
     plt.subplot(325)
     dp = (dclim.clt / 100).plot.contourf(
@@ -601,19 +606,19 @@ def make_figure(cmap="viridis"):
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$\bar C(x,y)$")
-    plt.ylabel("latitude")
-    plt.xlabel("longitude")
+    plt.ylabel(lat)
+    plt.xlabel(lon)
     cbar = plt.colorbar(dp)
     plt.subplot(326)
     dp = Ub.plot.contourf(levels=11, cmap=cmap, vmin=4.0, vmax=8.0, add_colorbar=0)
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$\bar U(x,y)$")
-    plt.ylabel("latitude")
-    plt.xlabel("longitude")
+    plt.ylabel(lat)
+    plt.xlabel(lon)
     cbar = plt.colorbar(dp)
     plt.tight_layout()
-    plt.savefig("Tsp4.eps", format="eps", dpi=1000)
-    plt.show()
+    plt.savefig(os.path.join(ATMOS_PATH, "Tsp4.eps"), format="eps", dpi=1000)
+    # plt.show()
 
 
 def output_dq():
@@ -622,7 +627,7 @@ def output_dq():
     dQdf = BLW
 
     # Define the new Dataset
-    dQ = xr.Dataset(
+    dq = xr.Dataset(
         {
             "lon": ("lon", dclim.lon),
             "lat": ("lat", dclim.lat),
@@ -630,16 +635,16 @@ def output_dq():
             "dQdf": (["lat", "lon"], dQdf),
         }
     )
-    dQ.lon.attrs = dclim.lon.attrs
-    dQ.lat.attrs = dclim.lat.attrs
-    dQ.dQdT.attrs = [("units", "W/m^2/K")]
-    dQ.dQdf.attrs = [("units", "W/m^2")]
-    dQ["ALH"] = ALH
-    dQ["ALW"] = ALW
-    dQ["BLW"] = BLW
-    dQ["dTse"] = dTse
-    dQ["rh"] = rh
-    dQ["Ub"] = Ub
-    dQ["Cb"] = Cb
-    dQ["Tsb"] = Tsb
-    dQ.to_netcdf("dQ.nc")
+    dq.lon.attrs = dclim.lon.attrs
+    dq.lat.attrs = dclim.lat.attrs
+    dq.dQdT.attrs = [("units", "W/m^2/K")]
+    dq.dQdf.attrs = [("units", "W/m^2")]
+    dq["ALH"] = ALH
+    dq["ALW"] = ALW
+    dq["BLW"] = BLW
+    dq["dTse"] = dTse
+    dq["rh"] = rh
+    dq["Ub"] = Ub
+    dq["Cb"] = Cb
+    dq["Tsb"] = Tsb
+    dq.to_netcdf(os.path.join(PROJECT_PATH, "dQ.nc"))
