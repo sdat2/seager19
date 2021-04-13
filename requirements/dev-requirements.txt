@@ -33,6 +33,8 @@ recommonmark
 nbsphinx
 sphinx-fortran
 sphinx-c-autodoc
+fortran-language-server
+pandoc
 
 
 # linear algebra and general data analysis

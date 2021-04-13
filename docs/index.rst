@@ -39,6 +39,7 @@ probably a better read.
    MRes.md
    src
    omod
+   primes_test
    getting_started
    DOCS.md
    about
