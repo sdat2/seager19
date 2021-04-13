@@ -196,7 +196,6 @@ def main(cfg: DictConfig):
     """
     print(OmegaConf.to_yaml(cfg))
     print(cfg)
-    """
     start_wandb(cfg)
     compile_all()
     if cfg.run:
@@ -204,7 +203,6 @@ def main(cfg: DictConfig):
     copy_all()
     if cfg.animate:
         animate_all()
-    """
 
 
 if __name__ == "__main__":

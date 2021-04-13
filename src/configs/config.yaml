@@ -12,9 +12,9 @@ animate: true
 atm:
   eps_days: 0.75
   K_days: 10
-  efrac: 2.0  # multiply epsu by efrac to get epsv
+  efrac: 2.0    # multiply epsu by efrac to get epsv
   Hq: 1800
-  PrcpLand: 1  # use data precip trends over land
+  PrcpLand: 1   # use data precip trends over land
   wnspmin: 4
   rho00: 0.3
   prmax: float(20.0 / 3600 / 24)

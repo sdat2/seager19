@@ -1,3 +1,7 @@
+! primes.f95
+! An example program to compile from by f2py.
+
+
 subroutine sieve(is_prime, n_max)
 ! =====================================================
 ! Uses the sieve of Eratosthenes to compute a logical
@@ -14,6 +18,7 @@ subroutine sieve(is_prime, n_max)
     end do
     return
 end subroutine
+
 
 subroutine logical_to_integer(prime_numbers, is_prime, num_primes, n)
 ! =====================================================
