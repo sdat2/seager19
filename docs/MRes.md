@@ -7,7 +7,6 @@ Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble member
 Scientific questions to be addressed include:
 
 - Can we replicate the results displayed in Seager et al. 2019?
-
 - How robust is the model to the parameters chosen?
 - Can the sensitivity of the model to the parameters be understood from the physical processes underlying it?
 - How skillful are different emulation functions at fitting input/output of the model?
@@ -35,14 +34,15 @@ _Hybrid tropical cyclones hazard modelling_
 
 Tropical cyclones (TCs) have historically been the world’s largest physical hazard [2] in terms of economic damage and specifically TC storm surges for lives lost [1, 2, 3]. This hazard is increasing as more people live on vulnerable coastlines in substandard buildings [1]. Anthropogenic climate change is expected to exacerbate this, as it begins to increase the maximum TC intensity and range [4, 5, 6, 7].
 
-It is an open question whether there are ways of summarising the 
+It is an open question whether there are ways of summarising the
 characteristics of a tropical cyclone and the coastline so that good statistical models can be built to assess their impact, as a more efficient alternative to high resolution 3D modelling. Particular features, such as the distance to the 30m contour have been used as informative statistical features for hazard models (see e.g. [10]).
 My MSci Project <https://bit.ly/msci-report>, <https://bit.ly/msci-summary>
 showed that you can predict the responsiveness of a coastline to a windstess fairly well with a simple physical model.
 
-![Responsiveness metric: for further details see <https://bit.ly/msci-summary>](gifs/responsiveness.png)
+![Responsiveness metric: for further details see msci summary.](gifs/responsiveness.png)
 
-This metric captured the broad trends seen in the model output. As a possible improvement, we propose to develop better feature engineering to incorporate elements such as the convexity of the coast, in a model similar to Chavas et al. [10]. Talea Mayo (Emory University) has offered to provide an initial storm surge dataset that was produced in collaboration with Ning Lin [11, 12, 13], and this could provide an initial dataset to address the scientific question:
+This metric captured the broad trends seen in the model output when compared to a linear analysis of how the coastal sea surface responds to the wind stress in
+an ORCA12 hourly model (see more details in <https://bit.ly/msci-summary>). As a possible improvement, we propose to develop better feature engineering to incorporate elements such as the convexity of the coast, in a model similar to Chavas et al. 2013 [10]. We could also use the bathymetry as an input to a convolutional neural network, as a variety of scales may be important in prediciting the risk of a point on the coast. Talea Mayo (Emory University) has offered to provide an initial storm surge dataset that was produced in collaboration with Ning Lin [11, 12, 13], and this could provide an initial dataset to address the scientific question:
 
 - Are there metrics that can summarise the bathymetry’s impact on the size of the storm surge from a given tropical cyclone?
 - More generally, is it possible to build a statistical or machine learning type model to connect a variety of features (e.g. bathymetry, local winds) to storm surge risk?
