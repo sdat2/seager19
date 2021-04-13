@@ -54,10 +54,10 @@ c_autodoc_roots = ["ocean/SRC/"]
 
 
 fortran_src = [
-    "ocean/SRC/",
+    "ocean/SRC/", "."
 ]
 
-fortran_ext = ["F"]
+fortran_ext = ["F", "f95"]
 
 # fortran_ext = ["*.f", "*.f90", "*.f95", "*.F"]
 
