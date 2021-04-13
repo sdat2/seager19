@@ -1,7 +1,8 @@
+
 # MRes Proposal
-
+ 
 ![SST output over time period](gifs/SST_SST2_in_om_run2f.gif)
-
+ 
 ## Part 1
 
 Seager et al. 2019 [1] shows that CMIP models do not follow the observed trend in ENSO, but that this trend can
@@ -9,7 +10,7 @@ be reproduced with a simple coupled physical model.
 There was no sensitivity analysis of the model in this paper. Given that the model
 takes around 30 minutes to run at the moment,
 it would be quite achievable to do the number of
-model runs neccessary to achieve this.
+model runs necessary to achieve this.
 Of particular interest might be the model's sensitivity to the
 drag coefficient, as they note that they chose a much
 higher value than normal so as to replicate the amplitude of ENSO.
@@ -37,8 +38,8 @@ Scientific questions to be addressed would include:
 
 - Do any particular model families perform better, and is there a physical reason for this.
 - What are the likely effects of these biases on risk
-   from e.g. Tropical cyclones (using a metric like the
-   potential intensity).
+  from e.g. Tropical cyclones (using a metric like the
+  potential intensity).
 
 ## Skills learnt
 
@@ -47,7 +48,7 @@ easier to demonstrate simple ML tools upon it.
 
 ### Citations
 
-[1] Seager,  R. et  al.  Strengthening  tropical  Pacific  zonal  sea  surface  temperature  gradient  consistent  withrising  greenhouse  gases July 2019. <https://doi.org/10.1038/s41558-019-0505-x>.
+[1] Seager,  R. et  al.  Strengthening  tropical  Pacific  zonal  sea  surface  temperature  gradient  consistent  with rising  greenhouse  gases July 2019. <https://doi.org/10.1038/s41558-019-0505-x>.
 
 [2] Tian, B. & Dong, X. The Double-ITCZ Bias in CMIP3, CMIP5, and CMIP6 Models Based on Annual Mean Precipitation.Geophysical  Research  Letters 47, e2020GL087232. issn: 0094-8276. doi:10.1029/2020GL087232. <https://onlinelibrary.wiley.com/doi/abs/10.1029/2020GL087232> (Apr. 2020).
 
@@ -65,14 +66,14 @@ _Investigating the bias in the predicted risk from Tropical Cyclones_
 
 This could focus on:
 
-(1)  The bias in GCMs, and how this would be expected to effect broad proxies
-   for tropical cyclone activity, such as potential intensity.
+(1)  The bias in GCMs, and how this would be expected to affect broad proxies
+  for tropical cyclone activity, such as potential intensity.
 
 _and / or_
-  
+
  (2) A more focussed look at how the risk from tropical cyclones
-   can be parameterised from its characteristics and the characteristics of the coast, 
-   involving more extensive extreme value theory.
+  can be parameterised from its characteristics and the characteristics of the coast,
+  involving more extensive extreme value theory.
 
 To achieve this I am in contact with Talea Mayo (storm surge expert),
 and Dan Chavas (tropical cyclone expert).
@@ -85,13 +86,8 @@ the temperature of the troposphere.
 There are also various cyclone genesis indices.
 The biases in the global climate models are non stationary.
 Correcting the bias in global climate models would require
-some understanding of what the true sentivities of the climate
-to the forcing. Perhaps a combination of physical models
-and ML emulators can improve this understanding.
-
-These biases probably arise from errors in the coupled parameterisations,
-and errors in the parameterisation of convection. There are probably many
-interesting numerical experiments that could be done to investigate this.
+some understanding of what the true sensitivities of the climate
+to the forcing.
 
 ### Focus 2
 
@@ -102,10 +98,3 @@ from tropical cyclones hitting the coast.
 My MSci Project <https://bit.ly/msci-report>
 showed that you can predict the responsiveness of
 a coastline to a windstess fairly well with a very simple physical model.
-To properly cacluate the return period for a given coastline,
-quite a lot of data is required.
-In fact, if we consider a single point at the coast, it
-may take roughly 1 million years to properly converge to an extreme value
-distribution. Theforefore, ways to pool data from different points along the
-coast would probably be neccessary to be able to achieve anything reliable
-within reasonable computational expense.
