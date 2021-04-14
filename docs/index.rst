@@ -20,9 +20,9 @@ more interactive features such as gifs of the results.
 Therefore, I suggest that the web version is 
 probably a better read.
 
-.. image:: gifs/SST_SST2_in_om_run2f.gif
+.. image:: gifs/om_diag_SST_SST.gif
   :width: 500
-  :alt: viewer demo
+  :alt: SST in setup period
 
 
 .. toctree::
