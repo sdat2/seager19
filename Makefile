@@ -85,6 +85,8 @@ jupyter_light:
 ## create a new notebook with default cells:
 notebook:
 	cp .setup_scripts/default.ipynb notebooks/exploratory/new.ipynb
+	mv notebooks/exploratory/new.ipynb notebooks/exploratory/$(name).ipynb
+	git add notebooks/exploratory/$(name).ipynb
 
 #################################################################################
 # PROJECT RULES                                                                 #

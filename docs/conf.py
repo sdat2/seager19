@@ -14,7 +14,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(".."))
-
 sys.path.insert(0, os.path.abspath("../ocean/SRC"))
 
 # -- Project information -----------------------------------------------------
@@ -53,9 +52,7 @@ extensions = [
 c_autodoc_roots = ["ocean/SRC/"]
 
 
-fortran_src = [
-    "ocean/SRC/", "."
-]
+fortran_src = ["ocean/SRC/", "."]
 
 fortran_ext = ["F", "f95"]
 
@@ -92,12 +89,13 @@ source_suffix = {
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
+
 html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
+
 html_static_path = ["_static"]
 
 # html_logo = "images/geograph_logo.png"
@@ -111,6 +109,7 @@ html_theme_options = {
 # html_favicon = 'images/geograph_logo_small.png'
 
 # This adds the 'edit on github' banner on top right corner
+
 html_context = {
     "display_github": True,
     "github_user": "sdat2",
@@ -120,6 +119,7 @@ html_context = {
 
 # Latex options
 # latex_logo = "./images/geograph_logo.png"
+
 latex_elements = {
     "extraclassoptions": "openany,oneside",
     "papersize": "a4paper",

@@ -15,7 +15,9 @@ def test_f2py():
         + "\n"
         + "f2py -c primes.f95 -m primes"
     )
-    # os.system("cd "+ os.path.join(SRC_PATH, "test") +"\n"+ "python -m numpy.f2py -c primes.f95 -m primes")
+    # os.system("cd "+ os.path.join(SRC_PATH, "test") +"\n" +
+    #           "python -m numpy.f2py -c primes.f95 -m primes")
+    # pylint: disable=import-outside-toplevel
     import src.test.primes as primes
 
     print(primes.__doc__)

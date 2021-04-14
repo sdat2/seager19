@@ -12,7 +12,9 @@ from scipy.interpolate import interp2d
 from scipy.fftpack import fft, ifft
 from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH, PROJECT_PATH
 
-# begin TCAM
+
+# ------------- constants -----------------------
+# begining TCAM
 eps_days = 0.75
 k_days = 10
 efrac = 2.0  # multiply epsu by efrac to get epsv
@@ -33,7 +35,7 @@ theta_00 = 300
 NBSQ = 3.0e-4
 radius_earth = 6.37e6  # m
 omega2 = 2 * (2 * np.pi / 86400)
-L = 2.5e6
+L = 2.5e6  # latent heat
 cp_air = 1000
 B = gravity * np.pi / (NBSQ * theta_00 * height_tropopause)
 eps = 1.0 / (eps_days * 86400)
@@ -68,8 +70,7 @@ else:
     )
 
 rho_air = 1.225
-cE = 0.00125
-L = 2.5e6  # latent heat
+c_e = 0.00125
 eps = 0.97
 stefan_boltzman_const = 5.67e-8
 ps = 1000  # pressure at the surface?
@@ -89,10 +90,11 @@ c_bar = 0.6
 wnspmin = 4.0
 
 # Find linearization of Q_LH (latent heating)
-const1 = rho_air * cE * L
+const1 = rho_air * c_e * L
 
 mem = "EEEf"
 
+# the different model names in a dict?
 names = {
     "E": "ECMWF",
     "F": "ECMWF-orig",
@@ -107,7 +109,25 @@ names = {
     "M": "MERRA",
     "I": "ISCCP",
 }
+
 var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+
+
+# --------------- flux functions ----------------------
+def fcor(y: np.ndarray) -> np.ndarray:
+    """Corriolis force coeff.
+
+    Args:
+        y (np.ndarray): latitude
+
+    Returns:
+        np.ndarray: Corriolis force coeff.
+    """
+    return omega2 * y * np.pi / 180
+
+
+fcu = fcor(y_axis_u)
+
 
 
 def f_es(temperature: xr.DataArray) -> xr.DataArray:
@@ -125,14 +145,14 @@ def f_dqsdT(temperature: xr.DataArray) -> xr.DataArray:
 
 
 def f_QLH(temperature: xr.DataArray, U: xr.DataArray, rh: xr.DataArray) -> xr.DataArray:
-    print("U", type(U))
+    # print("U", type(U))
     return const1 * U * f_qs(temperature) * (1 - rh)
 
 
 def f_dQLHdT(
     temperature: xr.DataArray, U: xr.DataArray, rh: xr.DataArray
 ) -> xr.DataArray:
-    print("U", type(U))
+    # print("U", type(U))
     return const1 * U * f_dqsdT(temperature) * (1 - rh)
 
 
@@ -152,7 +172,7 @@ def f_ebar(temperature: xr.DataArray, rh: xr.DataArray) -> xr.DataArray:
 def f_QLW1(
     temperature: xr.DataArray, C: xr.DataArray, f: float, rh: xr.DataArray
 ) -> xr.DataArray:
-    print("rh", type(rh))
+    # print("rh", type(rh))
     Ta = f_Ta(temperature)
     return (
         const2
@@ -185,6 +205,17 @@ def f_dQLWdf(temperature: xr.DataArray, C: xr.DataArray) -> xr.DataArray:
 def f_dQLWdT(
     temperature: xr.DataArray, C: xr.DataArray, f: float, rh: xr.DataArray
 ) -> xr.DataArray:
+    """[summary]
+
+    Args:
+        temperature (xr.DataArray): [description]
+        C (xr.DataArray): [description]
+        f (float): [description]
+        rh (xr.DataArray): [description]
+
+    Returns:
+        xr.DataArray: [description]
+    """
     ebar = f_ebar(temperature, rh)
     qs = f_qs(temperature)
     dqsdT = f_dqsdT(temperature)
@@ -196,51 +227,41 @@ def f_dQLWdT(
     )
 
 
-def fcor(y: np.ndarray) -> np.ndarray:
-    """Corriolis force coeff.
+def f_qa(ts: np.ndarray, sp: np.ndarray) -> np.ndarray:
+    """f_qa.
 
     Args:
-        y (np.ndarray): latitude
+        ts (np.ndarray): sst in Kelvin
+        sp (np.ndarray): surface pressure in mb
 
     Returns:
-        np.ndarray: Corriolis force coeff.
+        np.ndarray: qs, surface specific humidity
     """
-    return omega2 * y * np.pi / 180
-
-
-fcu = fcor(y_axis_u)
-
-
-def f_qa(ts: np.ndarray, sp: np.ndarray):
-    # ts: sst in Kelvin
-    # sp: surface pressure in mb
-    # return qs: surface specific humidity
     efac = 0.622
     es = es0 * np.exp(17.67 * (ts - 273.15) / ((ts - 273.15) + 243.5))
     return efac * r * es / sp
 
 
-def f_qa2(ts):
+def f_qa2(temp_surface: np.ndarray) -> np.ndarray:
     # ts: sst in Kelvin
     # return qs: surface specific humidity
-    return 0.001 * (ts - 273.15 - 11.0)
+    return 0.001 * (temp_surface - 273.15 - 11.0)
 
 
-def f_E(mask, qa, wnsp):
+def f_E(mask: np.ndarray, qa: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
     # qa: surface air humidity
     # wnsp: surface windspeed in m/s
     # return Evap in kg/m^2/s
-    # rho_air = 1.225
     CsE = 0.0015 * (1 + mask / 2)
     # CsE = 0.0012
     return CsE * rho_air * (1 - r) * qa * wnsp / r
 
 
-def f_MC(qa, u, v):
+def f_MC(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
     # qa: surface air humidity
-    # u,v: low level winds in m/s (N.B., v is on y_axis_v points, u,q are on y_axis_u points)
+    # u,v: low level winds in m/s
+    # (N.B., v is on y_axis_v points, u,q are on y_axis_u points)
     # return Moisture Convergence in kg/m^2/s
-    # rho_air = 1.225
     qu = qa * u
     qux = ifft(1.0j * Kk * fft(qu) / radius_earth).real
     Aq = (qa[1 : ny - 1, :] + qa[0 : ny - 2, :]) / 2.0
@@ -252,7 +273,25 @@ def f_MC(qa, u, v):
     return -hq * (qux + qvy) * rho_air
 
 
-def tdma_solver(nx: int, ny: int, a, b, c, d):
+# ---------------- equation solvers ---------------------
+
+def tdma_solver(
+    nx: int, ny: int, a: np.ndarray, b: np.ndarray, c: np.ndarray, d: np.ndarray
+) -> np.ndarray:
+    """tdma solver
+
+    Args:
+        nx (int): number of equations
+        ny (int): number of equations
+        a (np.ndarray): [description]
+        b (np.ndarray): [description]
+        c (np.ndarray): [description]
+        d (np.ndarray): [description]
+
+    Returns:
+        np.ndarray: xc
+    """
+
     nf = ny  # number of equations
     ac, bc, cc, dc = map(np.array, (a, b, c, d))  # copy arrays
 
@@ -271,6 +310,16 @@ def tdma_solver(nx: int, ny: int, a, b, c, d):
 
 
 def S91_solver(Q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """S91 folder from TCAM.py.
+
+    Usef fft, ifft.
+
+    Args:
+        Q1 (np.ndarray): [description]
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: (u, v, phi)
+    """
     # print("Q1", type(Q1))
     Q1t = fft(Q1)
     fQ = fcu[:, np.newaxis] * Q1t
@@ -306,8 +355,12 @@ def S91_solver(Q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     return (u, v, phi)
 
 
+# pylint: disable=dangerous-default-value
 def smooth121(
-    da: xr.DataArray, sdims: list, number_smooths: int = 1, perdims: list = list()
+    da: xr.DataArray,
+    sdims: list,
+    number_smooths: int = 1,
+    perdims: list = list(),
 ) -> xr.DataArray:
     """Applies [0.25, 0.5, 0.25] stencil in sdims, one at a time.
 
@@ -603,11 +656,14 @@ def get_dclim() -> any:
 dclim, u_b, ALH, ALW, BLW, dTse, rh, c_b, t_sb = get_dclim()
 
 
-def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
+def make_figure(
+    cmap: str = "viridis", lat: str = "latitude", lon: str = "longitude"
+) -> None:
     """Make figure.
 
     Args:
         cmap (str, optional): matplotlib colormap. Defaults to "viridis".
+
     """
     plt.figure(figsize=(8, 6))
     plt.subplot(321)
@@ -628,7 +684,7 @@ def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
     plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C$")
     plt.ylabel(lat)
     plt.xlabel(lon)
-    cbar = plt.colorbar(dp)
+    _ = plt.colorbar(dp)
     plt.subplot(323)
     dp = dclim.dTse2.plot.contourf(
         levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
@@ -637,7 +693,7 @@ def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
     plt.title(r"$T^{\,\prime}_s$  for $\bar U, \bar C(x,y)$")
     plt.ylabel(lat)
     plt.xlabel(lon)
-    cbar = plt.colorbar(dp)
+    _ = plt.colorbar(dp)
     plt.subplot(324)
     dp = dclim.dTse.plot.contourf(
         levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
@@ -646,7 +702,7 @@ def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
     plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C(x,y)$")
     plt.ylabel(lat)
     plt.xlabel(lon)
-    cbar = plt.colorbar(dp)
+    _ = plt.colorbar(dp)
     plt.subplot(325)
     dp = (dclim.clt / 100).plot.contourf(
         levels=11, cmap=cmap, vmin=0.0, vmax=1.0, add_colorbar=0
@@ -655,20 +711,21 @@ def make_figure(cmap="viridis", lat="latitude", lon="longitude"):
     plt.title(r"$\bar C(x,y)$")
     plt.ylabel(lat)
     plt.xlabel(lon)
-    cbar = plt.colorbar(dp)
+    _ = plt.colorbar(dp)
     plt.subplot(326)
     dp = u_b.plot.contourf(levels=11, cmap=cmap, vmin=4.0, vmax=8.0, add_colorbar=0)
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$\bar U(x,y)$")
     plt.ylabel(lat)
     plt.xlabel(lon)
-    cbar = plt.colorbar(dp)
+    _ = plt.colorbar(dp)
     plt.tight_layout()
     plt.savefig(os.path.join(ATMOS_PATH, "Tsp4.eps"), format="eps", dpi=1000)
     # plt.show()
 
 
-def output_dq():
+def output_dq() -> None:
+    """outputs "dQ.nc"."""
     # Now, save the dq_df and dq_dt terms for using in TCOM:
     dq_dt = ALH + ALW
     dq_df = BLW
