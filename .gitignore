@@ -5,6 +5,9 @@ __pycache__/
 *.o
 *.exe
 
+# local passwords/tokens
+.secret*
+
 # DATA
 .coveralls.yml
 .idea/
@@ -165,10 +168,6 @@ dmypy.json
 *.eps
 .idea/
 .vscode/
-.animations/
 etc/
-DATA-bk/
-DATA/
-output-bk/
 report/
 .gitmodules

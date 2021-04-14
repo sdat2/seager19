@@ -19,6 +19,7 @@ from src.constants import PROJECT_PATH
 
 def test_plot() -> None:
     """Function to make example plot."""
+
     for use_tex in [False, True]:
         ps_defaults(use_tex=use_tex)
 
@@ -42,9 +43,17 @@ def test_plot() -> None:
 
 
 def test_map_plot() -> None:
-    """Tests `src.plot_settings.map_setup`."""
+    """Tests `src.plot_settings.map_setup`.
+
+    Test takes a long time.
+
+    452.55s call     src/test/test_plot.py::test_map_plot
+
+    """
+
     ps_defaults(use_tex=False)
     ax = map_setup()
+
     da = xr.tutorial.open_dataset("rasm").load().Tair.isel(time=0)
     da.plot.imshow(
         ax=ax,
@@ -52,31 +61,32 @@ def test_map_plot() -> None:
         cbar_kwargs={"shrink": 0.5},
     )
     time_title(ax, da.time.values)
+
     plt.tight_layout()
-    plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "map_example.png")), dpi=800)
+    plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "map_example.png")))
     plt.clf()
 
     _, axes = plt.subplots(
-        2, 2, subplot_kw={"projection": ccrs.Robinson(central_longitude=180)}
+        2, 1, subplot_kw={"projection": ccrs.Mollweide(central_longitude=180)}
     )
+
     for ax in axes.ravel():
         ax = map_setup(ax=ax)
-        da.plot.imshow(ax=ax, transform=ccrs.PlateCarree(), cbar_kwargs={"shrink": 0.5})
+        da.plot.imshow(ax=ax, transform=ccrs.Mollweide(), cbar_kwargs={"shrink": 0.5})
         time_title(ax, da.time.values)
+
     plt.tight_layout()
-    plt.savefig(
-        str(os.path.join(PROJECT_PATH, "gifs", "multi_map_example.png")), dpi=800
-    )
+    plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "multi_map_example.png")))
     plt.clf()
 
     p = (
         xr.tutorial.open_dataset("rasm")
         .load()
-        .Tair.isel(time=[0, 4])
+        .Tair.isel(time=[0, 2])
         .plot(
             transform=ccrs.PlateCarree(),
             col="time",
-            subplot_kws={"projection": ccrs.Robinson(central_longitude=180)},
+            subplot_kws={"projection": ccrs.Mollweide(central_longitude=180)},
         )
     )
 
@@ -87,6 +97,5 @@ def test_map_plot() -> None:
     plt.savefig(
         str(os.path.join(PROJECT_PATH, "gifs", "facet_map_example.png")),
         bbox_inches="tight",
-        dpi=800,
     )
     plt.clf()

@@ -65,13 +65,12 @@ dym2 = dym * dym
 num = nx
 if num % 2 == 0:
     kk_wavenumber = np.asarray(
-        list(range(0, num // 2)) + [0]
-        + list(range(-num // 2 + 1, 0)), np.float64
+        list(range(0, num // 2)) + [0] + list(range(-num // 2 + 1, 0)), np.float64
     )
 else:
     kk_wavenumber = np.asarray(
-        list(range(0, (num - 1) // 2)) + [0]
-        + list(range(-(num - 1) // 2, 0)), np.float64
+        list(range(0, (num - 1) // 2)) + [0] + list(range(-(num - 1) // 2, 0)),
+        np.float64,
     )
 
 rho_air = 1.225
@@ -134,7 +133,6 @@ def f_cor(y: np.ndarray) -> np.ndarray:
 fcu = f_cor(y_axis_u)
 
 
-
 def f_es(temperature: xr.DataArray) -> xr.DataArray:
     return es0 * np.exp(
         17.67 * (temperature - temp_0c) / (temperature - temp_0c + 243.5)
@@ -149,8 +147,9 @@ def f_dqs_dtemp(temperature: xr.DataArray) -> xr.DataArray:
     return f_qs(temperature) * (17.67 * 243.5) / (temperature - temp_0c + 243.5) ** 2
 
 
-def f_qlh(temperature: xr.DataArray, u_sp: xr.DataArray,
-          rh_loc: xr.DataArray) -> xr.DataArray:
+def f_qlh(
+    temperature: xr.DataArray, u_sp: xr.DataArray, rh_loc: xr.DataArray
+) -> xr.DataArray:
     # print("u_sp", type(u_sp))
     return const1 * u_sp * f_qs(temperature) * (1 - rh_loc)
 
@@ -229,8 +228,7 @@ def f_dqlw_dtemp(
     return const2 * (
         (1 - a * const ** 2)
         * temperature ** 3
-        * (4 * f - f2 * np.sqrt(ebar)
-        * (4 + temperature * dqs_dtemp / 2 / qs))
+        * (4 * f - f2 * np.sqrt(ebar) * (4 + temperature * dqs_dtemp / 2 / qs))
         + 12 * temperature ** 2 * delta
     )
 
@@ -291,9 +289,9 @@ def f_mc(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
 
 # ---------------- equation solvers ---------------------
 
+
 def tdma_solver(
-    ny_loc: int, a_loc: np.ndarray,
-    b: np.ndarray, c: np.ndarray, d: np.ndarray
+    ny_loc: int, a_loc: np.ndarray, b: np.ndarray, c: np.ndarray, d: np.ndarray
 ) -> np.ndarray:
     """tdma solver
 
@@ -370,7 +368,8 @@ def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     phi = ifft(phit).real
     return (u, v, phi)
 
-#-------------- smoother --------------------------
+
+# -------------- smoother --------------------------
 
 # pylint: disable=dangerous-default-value
 def smooth121(
@@ -410,6 +409,7 @@ def smooth121(
 
 
 # ------------------ output functions -------------------------
+
 
 def output_trends() -> None:
     """output trends ds"""
@@ -670,8 +670,17 @@ def get_dclim() -> any:
     dclim_loc["BLW"] = blw_loc
     dclim_loc["QLW"] = alw_loc + blw_loc * f1p / dtemp_se_loc
     dclim_loc.to_netcdf(os.path.join(PROJECT_PATH, "Q.nc"))
-    return (dclim_loc, u_b_loc, alh_loc, alw_loc, blw_loc,
-            dtemp_se_loc, rh_loc, c_b_loc, t_sb_loc)
+    return (
+        dclim_loc,
+        u_b_loc,
+        alh_loc,
+        alw_loc,
+        blw_loc,
+        dtemp_se_loc,
+        rh_loc,
+        c_b_loc,
+        t_sb_loc,
+    )
 
 
 dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = get_dclim()
