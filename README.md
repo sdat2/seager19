@@ -14,7 +14,7 @@
 
 Model run results: <https://wandb.ai/sdat2/seager19>
 
-![SST output over spin up period](docs/gifs/om_diag_SST_SST.gif)
+![SST output over spin up period](gifs/om_diag_SST_SST.gif)
 
 ## Purpose
 
