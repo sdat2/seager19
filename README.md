@@ -20,7 +20,7 @@ Model run results: <https://wandb.ai/sdat2/seager19>
 
 A repository to contain and analyse the code from:
 
-_Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal Sea Surface Temperature Gradient Consistent with Rising Greenhouse Gases_
+### Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal Sea Surface Temperature Gradient Consistent with Rising Greenhouse Gases
 
 <https://doi.org/10.1038/s41558-019-0505-x>
 

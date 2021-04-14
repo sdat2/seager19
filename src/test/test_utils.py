@@ -1,4 +1,7 @@
-"""Test `src.utils.py`."""
+"""Test `src.utils.py`.
+
+pytest src/test/test_utils.py
+"""
 import xarray as xr
 import numpy as np
 from src.utils import timeit, get_byte_size, human_readable_size, fix_calendar
@@ -64,6 +67,15 @@ def test_get_byte_size() -> None:
     print(get_byte_size({"great": 1, "test": 0, "ok": -1}))
     #  print(get_byte_size(xr.tutorial.load_dataset("air_temperature").air))
     assert isinstance(get_byte_size(np.zeros(int(10e4))), str)
+
+    class ExampleClass:
+        def __init__(self) -> None:
+            self.prop_dict = {"great": 1, "test": 0, "ok": -1}
+            self.list = list(range(int(10e4)))
+
+    example = ExampleClass()
+
+    print(get_byte_size(example))
 
 
 def test_human_readable_size() -> None:

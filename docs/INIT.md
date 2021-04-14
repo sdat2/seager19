@@ -9,9 +9,16 @@
    immediately apparent.
 
 ## Summary
+
 ### Code Makeup
 
 The Python code for the atmosphere model is in a Juypter Notebook. The ocean model code is built on legacy Fortran 90 and C code.
+
+If cloc doesn't exist
+
+```bash
+  sudo apt-get install cloc
+```
 
 From running the command
 

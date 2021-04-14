@@ -6,17 +6,16 @@ Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble member
 
 Scientific questions to be addressed include:
 
-- Can we replicate the results displayed in Seager et al. 2019?
+- Can we replicate the results displayed in S19?
 - How robust is the model to the parameters chosen?
 - Can the sensitivity of the model to the parameters be understood from the physical processes underlying it?
 - How skillful are different emulation functions at fitting input/output of the model?
 
 ## Skills learnt
 
-This project will be a good opportunity to learn about numerical solutions to differential equations [3, 4]. From the rubric at <https://ai4er-cdt.esc.cam.ac.uk> this project would include the primary application areas of _Weather, Climate and Air Quality_, as well as touching on _Natural Hazards_ as this bias in CMIP will effect the frequency and intensity of tropical cyclones (and therefore their effects such as storm surges, as in my MSci thesis <https://bit.ly/msci-report>).  The methodology of this project will primarily be within _2. Environmental modelling_.  The model used is quite low down in the hierarchy of models, and so it will be much
-easier to demonstrate simple ML tools upon it.
+This project will be a good opportunity to learn about numerical solutions to differential equations [3, 4]. From the rubric at <https://ai4er-cdt.esc.cam.ac.uk> this project would include the primary application areas of _Weather, Climate and Air Quality_, as well as touching on _Natural Hazards_ as this bias in CMIP will effect the frequency and intensity of tropical cyclones (and therefore their effects such as storm surges, as in my MSci thesis <https://bit.ly/msci-report>).  The methodology of this project will primarily be within _2. Environmental modelling_.  The model used is quite low down in the hierarchy of models, and so it will be much easier to demonstrate simple ML tools upon it.
 
-### Citations
+### MRes Citations
 
 [1] Seager,  R. et  al.  Strengthening  tropical  Pacific  zonal  sea  surface  temperature  gradient  consistent  with rising  greenhouse  gases, July 2019. <https://doi.org/10.1038/s41558-019-0505-x>.
 
@@ -30,7 +29,7 @@ easier to demonstrate simple ML tools upon it.
 
 ## Potential PhD project
 
-_Hybrid tropical cyclones hazard modelling, focussing on storm surges on the US East coast_
+### Hybrid tropical cyclones hazard modelling, focussing on storm surges on the US East coast
 
 Tropical cyclones (TCs) have historically been the world’s largest physical hazard [2] in terms of economic damage and specifically TC storm surges for lives lost [1, 2, 3]. This hazard is increasing as more people live on vulnerable coastlines in substandard buildings [1]. Anthropogenic climate change is expected to exacerbate this, as it begins to increase the maximum TC intensity and range [4, 5, 6, 7].
 
@@ -48,6 +47,7 @@ This metric captured the broad trends seen in the model output. As a possible im
 - Even more generally, can we extend this framework to other forms of risk (e.g. wind damage)?
 
 ## Additional analysis of CMIP bias
+
 A specific objective in the early part of the project would be to use a cloud computing platform (e.g. JASMIN’s implementation of PANGEO) to examine CMIP6 for the ENSO bias discussed in Seager et al. (2019). Initial results indicate that this bias does persist in CMIP6 (e.g. [11]).
 
 Scientific questions include:
@@ -55,7 +55,7 @@ Scientific questions include:
 - Do any particular model families perform better, and is there a physical reason for this?
 - What are the likely effects of these biases on risk from e.g. Tropical cyclones (using a metric like the potential intensity)?
 
-### Citations
+### PhD Citations
 
 [1] Emanuel, K. et al. Divine Wind: The History  and Science of Hurricanes (Oxford university press, 2005).
 
@@ -72,14 +72,10 @@ cult? Bulletin of the American Meteorological Society 98, 495–501 (2017).
 
 [7] NORDHAUS, W. D. The economics of hurricanes and implications of global warming. Climate Change Economics 01, 1–20 (2010).
 
-[8] Fedorov, A. V., Brierley, C. M. & Emanuel,
-K. A. Tropical cyclones and permanent El Ni ̃no
-in the early Pliocene epoch. Nature 463, 1066–
-1070 (2010).
+[8] Fedorov, A. V., Brierley, C. M. & Emanuel, K. A. Tropical cyclones and permanent El Ni ̃no
+in the early Pliocene epoch. Nature 463, 1066–1070 (2010).
 
-[9] IPCC. Special Report on the Ocean and
-Cryosphere in a Changing Climate (SROCC)
-(September 25, 2019).
+[9] IPCC. Special Report on the Ocean and Cryosphere in a Changing Climate (SROCC) (September 25, 2019).
 
 [10] Chavas, Daniel, et al. "US hurricanes and economic damage: Extreme value perspective." Natural Hazards Review 14.4 (2013): 237-246.
 
@@ -87,4 +83,4 @@ Cryosphere in a Changing Climate (SROCC)
 
 [12] Marsooli, R. and Lin, N., 2018. Numerical modeling of historical storm tides and waves and their interactions along the US East and Gulf Coasts. Journal of Geophysical Research: Oceans, 123(5), pp.3844-3874.
 
-[13] Grey Swan tropical cyclones (2016), Lin N, Emmanuel K
+[13] Lin N, Emmanuel K, 2016. Grey Swan tropical cyclones
