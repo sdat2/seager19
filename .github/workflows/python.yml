@@ -8,37 +8,22 @@ on:
   pull_request:
     branches: [ main ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # OS to run the tests on
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2    
-        
-      - name: pylinter
-        # You may pin to the exact commit or the version.
-        # uses: alexanderdamiani/pylinter@f9e3029cf605992791a0ee1b44c152483bc9f3b9
-        uses: alexanderdamiani/pylinter@v1.1.0
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
-          # directory to run linting on
-          python-root: src # optional, default is .
-          # flake8 flags
-          flake8-flags: #src # optional, default is 
-          # mypy flags
-          mypy-flags: #src # optional, default is 
-          # optional exit on isort errors
-          fail-on-isort: #src # optional
-          # skip flake8 checks
-          skip-flake8: #src # optional
-          # skip mypy checks
-          skip-mypy: #src # optional
-          # skip isort checks
-          skip-isort: #src # optional
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint pytest
+          if [ -f requirements/test-requirements.txt ]; then pip install -r requirements/test-requirements.txt; fi
+      - name: Lint with pylint
+        run: |
+          # lint with the rules defined in pylintrc
+          pylint --ignore-patterns=lint_test src

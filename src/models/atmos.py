@@ -24,10 +24,6 @@ wnspmin = 4
 rho00 = 0.3
 prmax = 20.0 / 3600 / 24
 r = 0.80
-nx = 180
-ny = 60
-y_north_lim = 60
-y_south_lim = -y_north_lim
 number_iterations = 50
 gravity = 9.8
 height_tropopause = 15000
@@ -44,6 +40,13 @@ epsv = efrac * eps
 K1 = B / (k_days * 86400)
 epsp = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * 86400)
 beta = omega2 / radius_earth
+
+# grid characteristics
+
+nx = 180
+ny = 60
+y_north_lim = 60
+y_south_lim = -y_north_lim
 
 # make grids
 dx = 360 / nx
@@ -146,16 +149,17 @@ def f_dqs_dtemp(temperature: xr.DataArray) -> xr.DataArray:
     return f_qs(temperature) * (17.67 * 243.5) / (temperature - temp_0c + 243.5) ** 2
 
 
-def f_qlh(temperature: xr.DataArray, U: xr.DataArray, rh: xr.DataArray) -> xr.DataArray:
-    # print("U", type(U))
-    return const1 * U * f_qs(temperature) * (1 - rh)
+def f_qlh(temperature: xr.DataArray, u_sp: xr.DataArray,
+          rh_loc: xr.DataArray) -> xr.DataArray:
+    # print("u_sp", type(u_sp))
+    return const1 * u_sp * f_qs(temperature) * (1 - rh_loc)
 
 
 def f_dqlh_dtemp(
-    temperature: xr.DataArray, U: xr.DataArray, rh: xr.DataArray
+    temperature: xr.DataArray, u_sp: xr.DataArray, rh_loc: xr.DataArray
 ) -> xr.DataArray:
-    # print("U", type(U))
-    return const1 * U * f_dqs_dtemp(temperature) * (1 - rh)
+    # print("u_sp", type(u_sp))
+    return const1 * u_sp * f_dqs_dtemp(temperature) * (1 - rh_loc)
 
 
 # Find linearization of Q_LW (longwave)
@@ -166,27 +170,27 @@ def f_temp_a(temperature: xr.DataArray) -> xr.DataArray:
     return temperature - delta
 
 
-def f_ebar(temperature: xr.DataArray, rh: xr.DataArray) -> xr.DataArray:
-    qa = rh * f_qs(temperature)
+def f_ebar(temperature: xr.DataArray, rh_loc: xr.DataArray) -> xr.DataArray:
+    qa = rh_loc * f_qs(temperature)
     return qa * ps / 0.622
 
 
 def f_qlw1(
-    temperature: xr.DataArray, C: xr.DataArray, f: float, rh: xr.DataArray
+    temperature: xr.DataArray, const: xr.DataArray, f: float, rh_loc: xr.DataArray
 ) -> xr.DataArray:
-    # print("rh", type(rh))
+    # print("rh_loc", type(rh_loc))
     temp_a = f_temp_a(temperature)
     return (
         const2
-        * (1 - a * C ** 2)
+        * (1 - a * const ** 2)
         * temp_a ** 4
-        * (f - f2 * np.sqrt(f_ebar(temperature, rh)))
+        * (f - f2 * np.sqrt(f_ebar(temperature, rh_loc)))
     )
 
 
 def f_qlw2(temperature: xr.DataArray) -> xr.DataArray:
     # print("temperature", type(temperature))
-    # print("C", type(C))
+    # print("const", type(const))
     return (
         4
         * eps
@@ -196,36 +200,36 @@ def f_qlw2(temperature: xr.DataArray) -> xr.DataArray:
     )
 
 
-# def f_QLW(T, f, rh):
-#     return f_qlw1(T, f, rh) + f_qlw2(T)
+# def f_QLW(T, f, rh_loc):
+#     return f_qlw1(T, f, rh_loc) + f_qlw2(T)
 # This function seemed to call a function in an incorrect way.
 
 
-def f_dqlw_df(temperature: xr.DataArray, C: xr.DataArray) -> xr.DataArray:
-    return const2 * (1 - a * C ** 2) * temperature ** 4
+def f_dqlw_df(temperature: xr.DataArray, const: xr.DataArray) -> xr.DataArray:
+    return const2 * (1 - a * const ** 2) * temperature ** 4
 
 
 def f_dqlw_dtemp(
-    temperature: xr.DataArray, C: xr.DataArray, f: float, rh: xr.DataArray
+    temperature: xr.DataArray, const: xr.DataArray, f: float, rh_loc: xr.DataArray
 ) -> xr.DataArray:
     """[summary]
 
     Args:
         temperature (xr.DataArray): [description]
-        C (xr.DataArray): [description]
+        const (xr.DataArray): [description]
         f (float): [description]
-        rh (xr.DataArray): [description]
+        rh_loc (xr.DataArray): [description]
 
     Returns:
         xr.DataArray: [description]
     """
-    ebar = f_ebar(temperature, rh)
+    ebar = f_ebar(temperature, rh_loc)
     qs = f_qs(temperature)
     dqs_dtemp = f_dqs_dtemp(temperature)
     return const2 * (
-        (1 - a * C ** 2)
+        (1 - a * const ** 2)
         * temperature ** 3
-        * (4 * f - f2 * np.sqrt(ebar) 
+        * (4 * f - f2 * np.sqrt(ebar)
         * (4 + temperature * dqs_dtemp / 2 / qs))
         + 12 * temperature ** 2 * delta
     )
@@ -256,20 +260,28 @@ def f_evap(mask: np.ndarray, qa: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
     # qa: surface air humidity
     # wnsp: surface windspeed in m/s
     # return Evap in kg/m^2/s
-    CsE = 0.0015 * (1 + mask / 2)
-    # CsE = 0.0012
-    return CsE * rho_air * (1 - r) * qa * wnsp / r
+    c_s_e = 0.0015 * (1 + mask / 2)
+    # c_s_e = 0.0012
+    return c_s_e * rho_air * (1 - r) * qa * wnsp / r
 
 
-def f_MC(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
-    # qa: surface air humidity
-    # u,v: low level winds in m/s
+def f_mc(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
+    """moisture convergence flux.
+
+    Args:
+        qa (np.ndarray): surface air humidity
+        u (np.ndarray): low level winds in m/s
+        v (np.ndarray): low level winds in m/s
+
     # (N.B., v is on y_axis_v points, u,q are on y_axis_u points)
-    # return Moisture Convergence in kg/m^2/s
+
+    Returns:
+        np.ndarray: Moisture Convergence in kg/m^2/s
+    """
     qu = qa * u
     qux = ifft(1.0j * kk_wavenumber * fft(qu) / radius_earth).real
-    Aq = (qa[1 : ny - 1, :] + qa[0 : ny - 2, :]) / 2.0
-    qv = Aq * v[1 : ny - 1, :]
+    aq = (qa[1 : ny - 1, :] + qa[0 : ny - 2, :]) / 2.0
+    qv = aq * v[1 : ny - 1, :]
     z = np.zeros((1, nx))
     qv = np.concatenate((z, qv, z), axis=0)
     # qvy = qv.diff('Yu')/dym
@@ -280,14 +292,14 @@ def f_MC(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
 # ---------------- equation solvers ---------------------
 
 def tdma_solver(
-    nx: int, ny: int, a: np.ndarray, b: np.ndarray, c: np.ndarray, d: np.ndarray
+    ny_loc: int, a_loc: np.ndarray,
+    b: np.ndarray, c: np.ndarray, d: np.ndarray
 ) -> np.ndarray:
     """tdma solver
 
     Args:
-        nx (int): number of equations
-        ny (int): number of equations
-        a (np.ndarray): [description]
+        ny_loc (int):
+        a_loc (np.ndarray): [description]
         b (np.ndarray): [description]
         c (np.ndarray): [description]
         d (np.ndarray): [description]
@@ -296,8 +308,8 @@ def tdma_solver(
         np.ndarray: xc
     """
 
-    nf = ny  # number of equations
-    ac, bc, cc, dc = map(np.array, (a, b, c, d))  # copy arrays
+    nf = ny_loc  # number of equations
+    ac, bc, cc, dc = map(np.array, (a_loc, b, c, d))  # copy arrays
 
     for it in range(1, nf):
         mc = ac[it, :] / bc[it - 1, :]
@@ -313,23 +325,23 @@ def tdma_solver(
     return xc
 
 
-def S91_solver(Q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """S91 folder from TCAM.py.
 
     Usef fft, ifft.
 
     Args:
-        Q1 (np.ndarray): [description]
+        q1 (np.ndarray): [description]
 
     Returns:
         Tuple[np.ndarray, np.ndarray, np.ndarray]: (u, v, phi)
     """
-    # print("Q1", type(Q1))
-    Q1t = fft(Q1)
-    fQ = fcu[:, np.newaxis] * Q1t
-    AfQ = (fQ[1 : ny - 1, :] + fQ[0 : ny - 2, :]) / 2.0
+    # print("q1", type(q1))
+    q1_time = fft(q1)
+    f_q = fcu[:, np.newaxis] * q1_time
+    a_f_q = (f_q[1 : ny - 1, :] + f_q[0 : ny - 2, :]) / 2.0
     km = kk_wavenumber / radius_earth
-    DQ = (Q1t[1 : ny - 1, :] - Q1t[0 : ny - 2, :]) / dym
+    d_q = (q1_time[1 : ny - 1, :] - q1_time[0 : ny - 2, :]) / dym
     rk = 1.0j * km * beta - epsu * epsv * epsp - epsv * km ** 2
     fcp = fcu[1 : ny - 1] ** 2 / 4.0
     fcm = fcu[0 : ny - 2] ** 2 / 4.0
@@ -341,9 +353,9 @@ def S91_solver(Q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         - epsp * (fcm[:, np.newaxis] + fcp[:, np.newaxis])
         + rk[np.newaxis, :]
     )
-    dk = -epsu * DQ + 1.0j * km[np.newaxis, :] * AfQ
+    dk = -epsu * d_q + 1.0j * km[np.newaxis, :] * a_f_q
 
-    vtk = tdma_solver(nx, ny - 2, ak, bk, ck, dk)
+    vtk = tdma_solver(ny - 2, ak, bk, ck, dk)
 
     z = np.zeros((1, nx))
     vt = np.concatenate((z, vtk, z), axis=0)
@@ -351,8 +363,8 @@ def S91_solver(Q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     fav = fcu[:, np.newaxis] * av
     dv = (vt[1:ny, :] - vt[0 : ny - 1, :]) / dym
     coeff = epsu * epsp + km * km
-    ut = (epsp * fav + 1.0j * (Q1t + dv) * km[np.newaxis, :]) / coeff[np.newaxis, :]
-    phit = -(Q1t + 1.0j * ut * km[np.newaxis, :] + dv) / epsp
+    ut = (epsp * fav + 1.0j * (q1_time + dv) * km[np.newaxis, :]) / coeff[np.newaxis, :]
+    phit = -(q1_time + 1.0j * ut * km[np.newaxis, :] + dv) / epsp
     v = ifft(vt).real
     u = ifft(ut).real
     phi = ifft(phit).real
@@ -455,12 +467,12 @@ def output_trends() -> None:
     ds["mask"] = (["Yu", "X"], fmask(x_axis, y_axis_u))
 
     # tsClim = ds.tsClim.values
-    spClim = ds.spClim.values
-    wnspClim = ds.wnspClim.values
-    wnspClim[wnspClim < wnspmin] = wnspmin
+    sp_clim = ds.spClim.values
+    wnsp_clim = ds.wnspClim.values
+    wnsp_clim[wnsp_clim < wnspmin] = wnspmin
     mask = ds.mask.values
-    wend = wnspClim
-    wbeg = wnspClim
+    wend = wnsp_clim
+    wbeg = wnsp_clim
 
     tsend = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
     tsbeg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
@@ -469,75 +481,75 @@ def output_trends() -> None:
     q_th_end = K1 * (tsend - 30) / B
     q_th_beg = K1 * (tsbeg - 30) / B
 
-    qaend = f_qa(tsend, spClim)
+    qaend = f_qa(tsend, sp_clim)
     # qaend = f_qa2(tsend)
-    e_end = f_evap(mask, qaend, wnspClim)
+    e_end = f_evap(mask, qaend, wnsp_clim)
     pr_end = e_end
     pr_end[pr_end < 0] = 0
     # pr_end[pr_end>prmax] = prmax
 
-    qabeg = f_qa(tsbeg, spClim)
+    qabeg = f_qa(tsbeg, sp_clim)
     # qabeg = f_qa2(tsbeg)
-    Ebeg = f_evap(mask, qabeg, wnspClim)
-    pr_beg = Ebeg
+    e_beg = f_evap(mask, qabeg, wnsp_clim)
+    pr_beg = e_beg
     pr_beg[pr_beg < 0] = 0
     # pr_beg[pr_beg>prmax] = prmax
 
-    Qth = q_th_end
-    PR = pr_end
-    E1 = e_end
+    q_th = q_th_end
+    pr = pr_end
+    e1 = e_end
     qa1 = qaend
 
-    # Find total PR, u and v at end
+    # Find total pr, u and v at end
     for _ in range(0, number_iterations):
         # Start main calculation
-        Qc = (
-            np.pi * L * PR / (2 * cp_air * rho00 * height_tropopause)
+        q_c = (
+            np.pi * L * pr / (2 * cp_air * rho00 * height_tropopause)
         )  # heating from precip
-        Q1 = B * (Qc + Qth)
-        (u1, v1, phi1) = S91_solver(Q1)
-        daMC = xr.DataArray(f_MC(qa1, u1, v1), dims=["Yu", "X"])
-        MC1 = smooth121(daMC, ["Yu", "X"], perdims=["X"]).values
+        q1 = B * (q_c + q_th)
+        (u1, v1, phi1) = s91_solver(q1)
+        d_amc = xr.DataArray(f_mc(qa1, u1, v1), dims=["Yu", "X"])
+        mc1 = smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
         if prcp_land:
-            PR = (1 - mask) * (MC1 + E1) + mask * prend
+            pr = (1 - mask) * (mc1 + e1) + mask * prend
         else:
-            PR = (1 - mask) * (MC1 + E1)
-        PR[PR < 0] = 0
-        # PR[PR > prmax] = prmax
+            pr = (1 - mask) * (mc1 + e1)
+        pr[pr < 0] = 0
+        # pr[pr > prmax] = prmax
 
-    MCend = MC1
+    mc_end = mc1
     uend = u1
     vend = v1
     phiend = phi1
-    pr_end = PR
+    pr_end = pr
 
-    Qth = q_th_beg
-    PR = pr_beg
-    E1 = Ebeg
+    q_th = q_th_beg
+    pr = pr_beg
+    e1 = e_beg
     qa1 = qabeg
 
-    # Find total PR, u and v at beginning
+    # Find total pr, u and v at beginning
     for _ in range(0, number_iterations):
         # Start main calculation
-        Qc = (
-            np.pi * L * PR / (2 * cp_air * rho00 * height_tropopause)
+        q_c = (
+            np.pi * L * pr / (2 * cp_air * rho00 * height_tropopause)
         )  # heating from precip
-        Q1 = B * (Qc + Qth)
-        (u1, v1, phi1) = S91_solver(Q1)
-        daMC = xr.DataArray(f_MC(qa1, u1, v1), dims=["Yu", "X"])
-        MC1 = smooth121(daMC, ["Yu", "X"], perdims=["X"]).values
+        q1 = B * (q_c + q_th)
+        (u1, v1, phi1) = s91_solver(q1)
+        d_amc = xr.DataArray(f_mc(qa1, u1, v1), dims=["Yu", "X"])
+        mc1 = smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
         if prcp_land:
-            PR = (1 - mask) * (MC1 + E1) + mask * prbeg
+            pr = (1 - mask) * (mc1 + e1) + mask * prbeg
         else:
-            PR = (1 - mask) * (MC1 + E1)
-        PR[PR < 0] = 0
-        # PR[PR > prmax] = prmax
+            pr = (1 - mask) * (mc1 + e1)
+        pr[pr < 0] = 0
+        # pr[pr > prmax] = prmax
 
-    mc_beg = MC1
+    mc_beg = mc1
     ubeg = u1
     vbeg = v1
     phibeg = phi1
-    pr_beg = PR
+    pr_beg = pr
 
     # save and plot the trends
     ds["utrend"] = (["Yu", "X"], uend - ubeg)
@@ -554,7 +566,7 @@ def output_trends() -> None:
     ds["PRend"] = (["Yu", "X"], pr_end)
     ds["Qthend"] = (["Yu", "X"], q_th_end)
     ds["Eend"] = (["Yu", "X"], e_end)
-    ds["MCend"] = (["Yu", "X"], MCend)
+    ds["MCend"] = (["Yu", "X"], mc_end)
     ds["qaend"] = (["Yu", "X"], qaend)
     ds["ubeg"] = (["Yu", "X"], ubeg)
     ds["vbeg"] = (["Yv", "X"], vbeg)
@@ -563,7 +575,7 @@ def output_trends() -> None:
     ds["tsbeg"] = (["Yu", "X"], tsbeg)
     ds["PRbeg"] = (["Yu", "X"], pr_beg)
     ds["Qthbeg"] = (["Yu", "X"], q_th_beg)
-    ds["Ebeg"] = (["Yu", "X"], Ebeg)
+    ds["Ebeg"] = (["Yu", "X"], e_beg)
     ds["MCbeg"] = (["Yu", "X"], mc_beg)
     ds["qabeg"] = (["Yu", "X"], qabeg)
 
@@ -590,6 +602,7 @@ def output_trends() -> None:
         "epsv": {"dtype": "f4"},
         "hq": {"dtype": "f4"},
     }
+
     ds.to_netcdf(outfile, encoding=en_dict)
 
 
@@ -613,51 +626,52 @@ def get_dclim() -> any:
         assert os.path.isfile(file)
         files += [file]
 
-    dclim = xr.open_mfdataset(files, decode_times=False)
+    dclim_loc = xr.open_mfdataset(files, decode_times=False)
 
     # set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
     # Q'_LW = (alw(temp_surface_bar,c_bar,f1bar)* Tsprime
     #          + blw(temp_surface_bar,c_bar) * f1prime)
     # Q'_LH = alh(temp_surface_bar,u_bar) * Tsprime
 
-    t_sb = 1.0 * dclim.ts
-    tmp = 1.0 * dclim.sfcWind.stack(z=("lon", "lat")).load()
+    t_sb_loc = 1.0 * dclim_loc.ts
+    tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
     tmp[tmp < wnspmin] = wnspmin
-    u_b = tmp.unstack("z").T
-    c_b = dclim.clt / 100.0
-    rh = dclim.rh / 100.0
+    u_b_loc = tmp.unstack("z").T
+    c_b_loc = dclim_loc.clt / 100.0
+    rh_loc = dclim_loc.rh / 100.0
     f1p = -0.003
 
-    alh0 = f_dqlh_dtemp(t_sb, u_bar, rh)
-    alw0 = f_dqlw_dtemp(t_sb, c_bar, f1bar, rh)
-    blw0 = f_dqlw_df(t_sb, c_bar)
+    alh0 = f_dqlh_dtemp(t_sb_loc, u_bar, rh_loc)
+    alw0 = f_dqlw_dtemp(t_sb_loc, c_bar, f1bar, rh_loc)
+    blw0 = f_dqlw_df(t_sb_loc, c_bar)
     dtemp_se0 = -blw0 * f1p / (alh0 + alw0)
-    dclim["dTse0"] = dtemp_se0
+    dclim_loc["dTse0"] = dtemp_se0
 
-    alh1 = f_dqlh_dtemp(t_sb, u_b, rh)
-    alw1 = f_dqlw_dtemp(t_sb, c_bar, f1bar, rh)
-    blw1 = f_dqlw_df(t_sb, c_bar)
+    alh1 = f_dqlh_dtemp(t_sb_loc, u_b_loc, rh_loc)
+    alw1 = f_dqlw_dtemp(t_sb_loc, c_bar, f1bar, rh_loc)
+    blw1 = f_dqlw_df(t_sb_loc, c_bar)
     dtemp_se1 = -blw1 * f1p / (alh1 + alw1)
-    dclim["dTse1"] = dtemp_se1
+    dclim_loc["dTse1"] = dtemp_se1
 
-    alh2 = f_dqlh_dtemp(t_sb, u_bar, rh)
-    alw2 = f_dqlw_dtemp(t_sb, c_b, f1bar, rh)
-    blw2 = f_dqlw_df(t_sb, c_b)
+    alh2 = f_dqlh_dtemp(t_sb_loc, u_bar, rh_loc)
+    alw2 = f_dqlw_dtemp(t_sb_loc, c_b_loc, f1bar, rh_loc)
+    blw2 = f_dqlw_df(t_sb_loc, c_b_loc)
     dtemp_se2 = -blw2 * f1p / (alh2 + alw2)
-    dclim["dTse2"] = dtemp_se2
+    dclim_loc["dTse2"] = dtemp_se2
 
-    alh = f_dqlh_dtemp(t_sb, u_b, rh)
-    alw = f_dqlw_dtemp(t_sb, c_b, f1bar, rh)
-    blw = f_dqlw_df(t_sb, c_b)
-    dtemp_se = -blw * f1p / (alh + alw)
+    alh_loc = f_dqlh_dtemp(t_sb_loc, u_b_loc, rh_loc)
+    alw_loc = f_dqlw_dtemp(t_sb_loc, c_b_loc, f1bar, rh_loc)
+    blw_loc = f_dqlw_df(t_sb_loc, c_b_loc)
+    dtemp_se_loc = -blw_loc * f1p / (alh_loc + alw_loc)
 
-    dclim["dTse"] = dtemp_se
-    dclim["ALH"] = alh
-    dclim["ALW"] = alw
-    dclim["BLW"] = blw
-    dclim["QLW"] = alw + blw * f1p / dtemp_se
-    dclim.to_netcdf(os.path.join(PROJECT_PATH, "Q.nc"))
-    return dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb
+    dclim_loc["dTse"] = dtemp_se_loc
+    dclim_loc["ALH"] = alh_loc
+    dclim_loc["ALW"] = alw_loc
+    dclim_loc["BLW"] = blw_loc
+    dclim_loc["QLW"] = alw_loc + blw_loc * f1p / dtemp_se_loc
+    dclim_loc.to_netcdf(os.path.join(PROJECT_PATH, "Q.nc"))
+    return (dclim_loc, u_b_loc, alh_loc, alw_loc, blw_loc,
+            dtemp_se_loc, rh_loc, c_b_loc, t_sb_loc)
 
 
 dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = get_dclim()
