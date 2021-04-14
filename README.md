@@ -95,6 +95,10 @@ The code and data was taken from:
 
     sudo apt-get install gcc
 
+    sudo apt-get install cloc
+
+    cloc --report-file=docs/lang.txt $(git ls-files)
+
     make test        # Also downloads the data.
 
     make jupyter_pro
