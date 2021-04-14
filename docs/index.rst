@@ -32,6 +32,7 @@ probably a better read.
    self
    README.md
    INIT.md
+   current
    dQ.ipynb
    TCAM.ipynb
    sdat2-OCEAN-data-exploration.ipynb
