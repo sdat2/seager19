@@ -1,6 +1,17 @@
 src.models package
 ==================
 
+Submodules
+----------
+
+src.models.atmos module
+-----------------------
+
+.. automodule:: src.models.atmos
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

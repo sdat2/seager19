@@ -201,7 +201,6 @@ def main(cfg: DictConfig):
         item = cfg.atm[i]
         if isinstance(item, str):
             if "/" in item:
-                # pylint disable=eval-used
                 print(item.split("/"))
                 fl_list = item.split("/")
                 total = float(fl_list[0])
@@ -210,9 +209,9 @@ def main(cfg: DictConfig):
                     total = total / float(fl_list[j])
                 cfg.atm[i] = total
 
-    print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
+    # print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
     print(cfg.__repr__())
-    print(type(cfg.__repr__()))
+    # print(type(cfg.__repr__()))
 
     if False:
         start_wandb(cfg)

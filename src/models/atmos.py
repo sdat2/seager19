@@ -2,6 +2,11 @@
 
 pytest src/test/test_atmos.py
 python3 src/models/atmos.py
+
+Model solution method:
+
+The atmosphere equations are solved by Fourier transforming in longitude, forming an equation for v for each zonal wavenumber that is finite differenced, and the resulting tri-diagonal system is solved by matrix inversion, transforming back into longitude. Finally, u and Φ are derived by back-substitution. The ocean equations are solved using the ‘INC’ scheme31, integrating the model forward, after spin-up with climatological conditions, forced by the time-varying ECMWF wind stress and, for the case with CO2 forcing, changing 𝑓′1 in the net surface longwave radiation calculation. Change over 1958–2017 is computed by a linear trend. The atmosphere model is solved forced by a Ts comprised of the climatological mean for 1958–2017 plus and minus half of the SST trend and the difference of the two simulations taken to derive the change. For the coupled model, the ocean model is first forced with the change in CO2 and climatological wind stress over 1958–2017. The resulting SST trend, plus the imposed heating change over land, are used to force the atmosphere model. The ocean model is forced again with both the changed wind stress and the CO2 increase to derive a new SST change over 1958–2017 that is then used to force the atmosphere model. This iterative coupling is repeated until equilibrium is reached, which takes just a few times. There is a unique solution for any given value of CO2. The model wind stress change is computed as 𝜌a𝑐D𝑊𝐮, where cD is a drag coefficient and 𝐮 is the vector surface wind change computed by the atmosphere model, which is added to the ECMWF climatological stresses. Since the atmosphere model dynamics are only applicable in the tropics, the computed wind stress anomaly is only applied to the ocean model between 20 S and 20 N, and is linearly tapered to zero at 25 S and 2 N.
+
 """
 from typing import Tuple
 import os
@@ -15,31 +20,51 @@ from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH, PROJECT_P
 
 # ------------- constants -----------------------
 # begining TCAM
-eps_days = 0.75
 k_days = 10
 efrac = 2.0  # multiply epsu by efrac to get epsv
-hq = 1800
+hq = 1800 # Hq is a scale depth for moisture
 prcp_land = 1  # use data precip trends over land
-wnspmin = 4
-rho00 = 0.3
+wnsp_min = 4
+rho00 = 0.3 # this is actual rho_bar in the paper
+# 0.3 kg m-3
 prmax = 20.0 / 3600 / 24
 r = 0.80 # relative humidity uniformly 0.8
 number_iterations = 50
-gravity = 9.8
-height_tropopause = 15000
+gravity = 9.8  #  m s-2
+height_tropopause = 15000  # metres 
 theta_00 = 300
 nbsq = 3.0e-4
 radius_earth = 6.37e6  # m
 omega2 = 2 * (2 * np.pi / 86400)
 latent_heat_vap = 2.5e6  # latent heat
-cp_air = 1000
+cp_air = 1000  #  cp_air is the specific heat capacity of air.
 b_coeff = gravity * np.pi / (nbsq * theta_00 * height_tropopause)
-eps = 1.0 / (eps_days * 86400)
-epsu = eps
-epsv = efrac * eps
+eps_days = 0.75
+eps = 1.0 / (eps_days * 86400)  # 1/.75 d
+epsu = eps   # 1/.75 d
+epsv = efrac * eps  # efrac=1/2 in paper
 K1 = b_coeff / (k_days * 86400)
 epsp = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * 86400)
 beta = omega2 / radius_earth
+
+rho_air = 1.225 # kg m-3 - also called rho_00
+c_e = 0.00125
+eps = 0.97   # problem here with second definintion.
+stefan_boltzman_const = 5.67e-8
+ps = 1000  # pressure at the surface?
+es0 = 6.11
+delta = 1.0
+f2 = 0.05
+# 'a' should decrease when deep convection happens above 28 degC
+# a = Ts-temp_0c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
+a = 0.6
+
+# basic parameters
+temp_0c = 273.15
+f1_bar = 0.39
+u_bar = 5.0
+temp_surface_bar = temp_0c + 25
+c_bar = 0.6
 
 # grid characteristics
 
@@ -73,26 +98,6 @@ else:
         np.float64,
     )
 
-rho_air = 1.225
-c_e = 0.00125
-eps = 0.97
-stefan_boltzman_const = 5.67e-8
-ps = 1000  # pressure at the surface?
-es0 = 6.11
-delta = 1.0
-f2 = 0.05
-# 'a' should decrease when deep convection happens above 28 degC
-# a = Ts-temp_0c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
-a = 0.6
-
-# basic parameters
-temp_0c = 273.15
-f1bar = 0.39
-u_bar = 5.0
-temp_surface_bar = temp_0c + 25
-c_bar = 0.6
-wnspmin = 4.0
-
 # Find linearization of Q_LH (latent heating)
 const1 = rho_air * c_e * latent_heat_vap
 
@@ -118,6 +123,7 @@ var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 
 
 # --------------- flux functions ----------------------
+
 def f_cor(y: np.ndarray) -> np.ndarray:
     """Corriolis force coeff.
 
@@ -249,15 +255,28 @@ def f_qa(ts: np.ndarray, sp: np.ndarray) -> np.ndarray:
 
 
 def f_qa2(temp_surface: np.ndarray) -> np.ndarray:
-    # ts: sst in Kelvin
-    # return qs: surface specific humidity
+    """[summary]
+
+    Args:
+        temp_surface (np.ndarray): sst in Kelvin.
+
+    Returns:
+        np.ndarray: qs, surface specific humidity.
+    """
     return 0.001 * (temp_surface - 273.15 - 11.0)
 
 
 def f_evap(mask: np.ndarray, qa: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
-    # qa: surface air humidity
-    # wnsp: surface windspeed in m/s
-    # return Evap in kg/m^2/s
+    """evaporation flux.
+
+    Args:
+        mask (np.ndarray): [description]
+        qa (np.ndarray): surface air humidity
+        wnsp (np.ndarray): surface windspeed in m/s
+
+    Returns:
+        np.ndarray: Evap in kg/m^2/s
+    """
     c_s_e = 0.0015 * (1 + mask / 2)
     # c_s_e = 0.0012
     return c_s_e * rho_air * (1 - r) * qa * wnsp / r
@@ -448,7 +467,7 @@ def output_trends() -> None:
     fsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ps, kind="linear")
 
     wnsp = fwnsp(x_axis, y_axis_u)
-    wnsp[wnsp < wnspmin] = wnspmin
+    wnsp[wnsp < wnsp_min] = wnsp_min
     ds["wnspClim"] = (["Yu", "X"], wnsp)
     ds["tsClim"] = (["Yu", "X"], fts(x_axis, y_axis_u))
     ds["prClim"] = (["Yu", "X"], fpr(x_axis, y_axis_u))
@@ -476,7 +495,7 @@ def output_trends() -> None:
     # tsClim = ds.tsClim.values
     sp_clim = ds.spClim.values
     wnsp_clim = ds.wnspClim.values
-    wnsp_clim[wnsp_clim < wnspmin] = wnspmin
+    wnsp_clim[wnsp_clim < wnsp_min] = wnsp_min
     mask = ds.mask.values
     wend = wnsp_clim
     wbeg = wnsp_clim
@@ -636,7 +655,7 @@ def get_dclim() -> any:
     dclim_loc = xr.open_mfdataset(files, decode_times=False)
 
     # set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
-    # Q'_LW = (alw(temp_surface_bar,c_bar,f1bar)* Tsprime
+    # Q'_LW = (alw(temp_surface_bar,c_bar,f1_bar)* Tsprime
     #          + blw(temp_surface_bar,c_bar) * f1prime)
     # Q'_LH = alh(temp_surface_bar,u_bar) * Tsprime
     # Q'_LH is from formula 13 in paper
@@ -644,32 +663,32 @@ def get_dclim() -> any:
 
     t_sb_loc = 1.0 * dclim_loc.ts
     tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
-    tmp[tmp < wnspmin] = wnspmin
+    tmp[tmp < wnsp_min] = wnsp_min
     u_b_loc = tmp.unstack("z").T
     c_b_loc = dclim_loc.clt / 100.0
     rh_loc = dclim_loc.rh / 100.0
     f1p = -0.003
 
     alh0 = f_dqlh_dtemp(t_sb_loc, u_bar, rh_loc)
-    alw0 = f_dqlw_dtemp(t_sb_loc, c_bar, f1bar, rh_loc)
+    alw0 = f_dqlw_dtemp(t_sb_loc, c_bar, f1_bar, rh_loc)
     blw0 = f_dqlw_df(t_sb_loc, c_bar)
     dtemp_se0 = -blw0 * f1p / (alh0 + alw0)
     dclim_loc["dTse0"] = dtemp_se0
 
     alh1 = f_dqlh_dtemp(t_sb_loc, u_b_loc, rh_loc)
-    alw1 = f_dqlw_dtemp(t_sb_loc, c_bar, f1bar, rh_loc)
+    alw1 = f_dqlw_dtemp(t_sb_loc, c_bar, f1_bar, rh_loc)
     blw1 = f_dqlw_df(t_sb_loc, c_bar)
     dtemp_se1 = -blw1 * f1p / (alh1 + alw1)
     dclim_loc["dTse1"] = dtemp_se1
 
     alh2 = f_dqlh_dtemp(t_sb_loc, u_bar, rh_loc)
-    alw2 = f_dqlw_dtemp(t_sb_loc, c_b_loc, f1bar, rh_loc)
+    alw2 = f_dqlw_dtemp(t_sb_loc, c_b_loc, f1_bar, rh_loc)
     blw2 = f_dqlw_df(t_sb_loc, c_b_loc)
     dtemp_se2 = -blw2 * f1p / (alh2 + alw2)
     dclim_loc["dTse2"] = dtemp_se2
 
     alh_loc = f_dqlh_dtemp(t_sb_loc, u_b_loc, rh_loc)
-    alw_loc = f_dqlw_dtemp(t_sb_loc, c_b_loc, f1bar, rh_loc)
+    alw_loc = f_dqlw_dtemp(t_sb_loc, c_b_loc, f1_bar, rh_loc)
     blw_loc = f_dqlw_df(t_sb_loc, c_b_loc)
     dtemp_se_loc = -blw_loc * f1p / (alh_loc + alw_loc)
 

@@ -10,6 +10,7 @@ Subpackages
    src.configs
    src.data_loading
    src.models
+   src.test
    src.visualisation
 
 Submodules
