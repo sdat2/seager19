@@ -5,7 +5,32 @@ python3 src/models/atmos.py
 
 Model solution method:
 
-The atmosphere equations are solved by Fourier transforming in longitude, forming an equation for v for each zonal wavenumber that is finite differenced, and the resulting tri-diagonal system is solved by matrix inversion, transforming back into longitude. Finally, u and Φ are derived by back-substitution. The ocean equations are solved using the ‘INC’ scheme31, integrating the model forward, after spin-up with climatological conditions, forced by the time-varying ECMWF wind stress and, for the case with CO2 forcing, changing 𝑓′1 in the net surface longwave radiation calculation. Change over 1958–2017 is computed by a linear trend. The atmosphere model is solved forced by a Ts comprised of the climatological mean for 1958–2017 plus and minus half of the SST trend and the difference of the two simulations taken to derive the change. For the coupled model, the ocean model is first forced with the change in CO2 and climatological wind stress over 1958–2017. The resulting SST trend, plus the imposed heating change over land, are used to force the atmosphere model. The ocean model is forced again with both the changed wind stress and the CO2 increase to derive a new SST change over 1958–2017 that is then used to force the atmosphere model. This iterative coupling is repeated until equilibrium is reached, which takes just a few times. There is a unique solution for any given value of CO2. The model wind stress change is computed as 𝜌a𝑐D𝑊𝐮, where cD is a drag coefficient and 𝐮 is the vector surface wind change computed by the atmosphere model, which is added to the ECMWF climatological stresses. Since the atmosphere model dynamics are only applicable in the tropics, the computed wind stress anomaly is only applied to the ocean model between 20 S and 20 N, and is linearly tapered to zero at 25 S and 2 N.
+The atmosphere equations are solved by Fourier transforming in longitude,
+forming an equation for v for each zonal wavenumber that is finite
+differenced, and the resulting tri-diagonal system is solved by matrix
+inversion, transforming back into longitude. Finally, u and Φ are derived
+by back-substitution. The ocean equations are solved using the ‘INC’
+scheme31, integrating the model forward, after spin-up with
+climatological conditions, forced by the time-varying ECMWF wind stress
+and, for the case with CO2 forcing, changing 𝑓′1 in the net surface
+longwave radiation calculation. Change over 1958–2017 is computed by a
+linear trend. The atmosphere model is solved forced by a Ts comprised of
+the climatological mean for 1958–2017 plus and minus half of the SST trend
+and the difference of the two simulations taken to derive the change.
+For the coupled model, the ocean model is first forced with the change in
+CO2 and climatological wind stress over 1958–2017. The resulting SST
+trend, plus the imposed heating change over land, are used to force the
+atmosphere model. The ocean model is forced again with both the changed
+wind stress and the CO2 increase to derive a new SST change over 1958–2017
+that is then used to force the atmosphere model. This iterative coupling
+is repeated until equilibrium is reached, which takes just a few times.
+There is a unique solution for any given value of CO2. The model wind
+stress change is computed as 𝜌a𝑐D𝑊𝐮, where cD is a drag coefficient
+and 𝐮 is the vector surface wind change computed by the atmosphere model,
+which is added to the ECMWF climatological stresses. Since the atmosphere
+model dynamics are only applicable in the tropics, the computed wind
+stress anomaly is only applied to the ocean model between 20 S and 20 N,
+and is linearly tapered to zero at 25 S and 2 N.
 
 """
 from typing import Tuple
@@ -31,10 +56,10 @@ prmax = 20.0 / 3600 / 24
 r = 0.80 # relative humidity uniformly 0.8
 number_iterations = 50
 gravity = 9.8  #  m s-2
-height_tropopause = 15000  # metres 
+height_tropopause = 15000  # metres
 theta_00 = 300
 nbsq = 3.0e-4
-radius_earth = 6.37e6  # m
+radius_earth = 6.37e6  # metres
 omega2 = 2 * (2 * np.pi / 86400)
 latent_heat_vap = 2.5e6  # latent heat
 cp_air = 1000  #  cp_air is the specific heat capacity of air.
@@ -56,8 +81,8 @@ es0 = 6.11
 delta = 1.0
 f2 = 0.05
 # 'a' should decrease when deep convection happens above 28 degC
-# a = Ts-temp_0c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
-a = 0.6
+#  a = Ts-temp_0c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
+a = 0.6  # this isn't the option used in the paper.
 
 # basic parameters
 temp_0c = 273.15
@@ -350,7 +375,7 @@ def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     Usef fft, ifft.
 
-               g pi N ^ 2 
+               g pi N ^ 2
         q1 = --------------(k theta_s Q_c)
               theta_00 z_t
 
