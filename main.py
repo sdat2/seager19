@@ -194,15 +194,34 @@ def main(cfg: DictConfig):
         cfg (DictConfig): The hyrda dict config from the wrapper.
 
     """
-    print(OmegaConf.to_yaml(cfg))
-    print(cfg)
-    start_wandb(cfg)
-    compile_all()
-    if cfg.run:
-        run_all(cfg)
-    copy_all()
-    if cfg.animate:
-        animate_all()
+
+    for i in cfg.atm:
+        print(i)
+        print(type(i))
+        item = cfg.atm[i]
+        if isinstance(item, str):
+            if "/" in item:
+                # pylint disable=eval-used
+                print(item.split("/"))
+                fl_list = item.split("/")
+                total = float(fl_list[0])
+                fl_list.pop(0)
+                for j in range(len(fl_list)):
+                    total = total / float(fl_list[j])
+                cfg.atm[i] = total
+
+    print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
+    print(cfg.__repr__())
+    print(type(cfg.__repr__()))
+
+    if False:
+        start_wandb(cfg)
+        compile_all()
+        if cfg.run:
+            run_all(cfg)
+        copy_all()
+        if cfg.animate:
+            animate_all()
 
 
 if __name__ == "__main__":

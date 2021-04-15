@@ -21,6 +21,7 @@ def test_plot() -> None:
     """Function to make example plot."""
 
     for use_tex in [False, True]:
+
         ps_defaults(use_tex=use_tex)
 
         fig, axs = plt.subplots(2, 2)

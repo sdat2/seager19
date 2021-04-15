@@ -23,7 +23,7 @@ prcp_land = 1  # use data precip trends over land
 wnspmin = 4
 rho00 = 0.3
 prmax = 20.0 / 3600 / 24
-r = 0.80
+r = 0.80 # relative humidity uniformly 0.8
 number_iterations = 50
 gravity = 9.8
 height_tropopause = 15000
@@ -31,13 +31,13 @@ theta_00 = 300
 nbsq = 3.0e-4
 radius_earth = 6.37e6  # m
 omega2 = 2 * (2 * np.pi / 86400)
-L = 2.5e6  # latent heat
+latent_heat_vap = 2.5e6  # latent heat
 cp_air = 1000
-B = gravity * np.pi / (nbsq * theta_00 * height_tropopause)
+b_coeff = gravity * np.pi / (nbsq * theta_00 * height_tropopause)
 eps = 1.0 / (eps_days * 86400)
 epsu = eps
 epsv = efrac * eps
-K1 = B / (k_days * 86400)
+K1 = b_coeff / (k_days * 86400)
 epsp = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * 86400)
 beta = omega2 / radius_earth
 
@@ -94,7 +94,7 @@ c_bar = 0.6
 wnspmin = 4.0
 
 # Find linearization of Q_LH (latent heating)
-const1 = rho_air * c_e * L
+const1 = rho_air * c_e * latent_heat_vap
 
 mem = "EEEf"
 
@@ -266,12 +266,15 @@ def f_evap(mask: np.ndarray, qa: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
 def f_mc(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
     """moisture convergence flux.
 
+    To calculate surface heat fluxes and atmospheric moisture
+    convergence, relative humidity is assumed to be spatially
+    uniform in our standard model.
+    (N.B., v is on y_axis_v points, u,q are on y_axis_u points)
+
     Args:
         qa (np.ndarray): surface air humidity
         u (np.ndarray): low level winds in m/s
         v (np.ndarray): low level winds in m/s
-
-    # (N.B., v is on y_axis_v points, u,q are on y_axis_u points)
 
     Returns:
         np.ndarray: Moisture Convergence in kg/m^2/s
@@ -328,8 +331,12 @@ def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     Usef fft, ifft.
 
+               g pi N ^ 2 
+        q1 = --------------(k theta_s Q_c)
+              theta_00 z_t
+
     Args:
-        q1 (np.ndarray): [description]
+        q1 (np.ndarray): modified heating that drives winds.
 
     Returns:
         Tuple[np.ndarray, np.ndarray, np.ndarray]: (u, v, phi)
@@ -478,8 +485,8 @@ def output_trends() -> None:
     tsbeg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
     prend = (ds.prClim + ds.prTrend / 2).values
     prbeg = (ds.prClim - ds.prTrend / 2).values
-    q_th_end = K1 * (tsend - 30) / B
-    q_th_beg = K1 * (tsbeg - 30) / B
+    q_th_end = K1 * (tsend - 30) / b_coeff
+    q_th_beg = K1 * (tsbeg - 30) / b_coeff
 
     qaend = f_qa(tsend, sp_clim)
     # qaend = f_qa2(tsend)
@@ -504,9 +511,9 @@ def output_trends() -> None:
     for _ in range(0, number_iterations):
         # Start main calculation
         q_c = (
-            np.pi * L * pr / (2 * cp_air * rho00 * height_tropopause)
+            np.pi * latent_heat_vap * pr / (2 * cp_air * rho00 * height_tropopause)
         )  # heating from precip
-        q1 = B * (q_c + q_th)
+        q1 = b_coeff * (q_c + q_th)
         (u1, v1, phi1) = s91_solver(q1)
         d_amc = xr.DataArray(f_mc(qa1, u1, v1), dims=["Yu", "X"])
         mc1 = smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
@@ -532,9 +539,9 @@ def output_trends() -> None:
     for _ in range(0, number_iterations):
         # Start main calculation
         q_c = (
-            np.pi * L * pr / (2 * cp_air * rho00 * height_tropopause)
+            np.pi * latent_heat_vap * pr / (2 * cp_air * rho00 * height_tropopause)
         )  # heating from precip
-        q1 = B * (q_c + q_th)
+        q1 = b_coeff * (q_c + q_th)
         (u1, v1, phi1) = s91_solver(q1)
         d_amc = xr.DataArray(f_mc(qa1, u1, v1), dims=["Yu", "X"])
         mc1 = smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
@@ -632,6 +639,8 @@ def get_dclim() -> any:
     # Q'_LW = (alw(temp_surface_bar,c_bar,f1bar)* Tsprime
     #          + blw(temp_surface_bar,c_bar) * f1prime)
     # Q'_LH = alh(temp_surface_bar,u_bar) * Tsprime
+    # Q'_LH is from formula 13 in paper
+    # Q'_LW is from formula 14 in paper
 
     t_sb_loc = 1.0 * dclim_loc.ts
     tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
