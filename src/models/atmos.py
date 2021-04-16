@@ -373,6 +373,12 @@ def tdma_solver(
 def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """S91 folder from TCAM.py.
 
+
+    The atmosphere equations are solved by Fourier transforming in longitude,
+    forming an equation for v for each zonal wavenumber that is finite
+    differenced, and the resulting tri-diagonal system is solved by matrix
+    inversion, transforming back into longitude.
+
     Usef fft, ifft.
 
                g pi N ^ 2
@@ -421,6 +427,7 @@ def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 # -------------- smoother --------------------------
+
 
 # pylint: disable=dangerous-default-value
 def smooth121(
@@ -526,11 +533,11 @@ def output_trends() -> None:
     wbeg = wnsp_clim
 
     tsend = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
-    tsbeg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
+    ts_beg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
     prend = (ds.prClim + ds.prTrend / 2).values
     prbeg = (ds.prClim - ds.prTrend / 2).values
     q_th_end = K1 * (tsend - 30) / b_coeff
-    q_th_beg = K1 * (tsbeg - 30) / b_coeff
+    q_th_beg = K1 * (ts_beg - 30) / b_coeff
 
     qaend = f_qa(tsend, sp_clim)
     # qaend = f_qa2(tsend)
@@ -539,9 +546,9 @@ def output_trends() -> None:
     pr_end[pr_end < 0] = 0
     # pr_end[pr_end>prmax] = prmax
 
-    qabeg = f_qa(tsbeg, sp_clim)
-    # qabeg = f_qa2(tsbeg)
-    e_beg = f_evap(mask, qabeg, wnsp_clim)
+    qa_beg = f_qa(ts_beg, sp_clim)
+    # qa_beg = f_qa2(ts_beg)
+    e_beg = f_evap(mask, qa_beg, wnsp_clim)
     pr_beg = e_beg
     pr_beg[pr_beg < 0] = 0
     # pr_beg[pr_beg>prmax] = prmax
@@ -577,7 +584,7 @@ def output_trends() -> None:
     q_th = q_th_beg
     pr = pr_beg
     e1 = e_beg
-    qa1 = qabeg
+    qa1 = qa_beg
 
     # Find total pr, u and v at beginning
     for _ in range(0, number_iterations):
@@ -606,7 +613,7 @@ def output_trends() -> None:
     ds["utrend"] = (["Yu", "X"], uend - ubeg)
     ds["vtrend"] = (["Yv", "X"], vend - vbeg)
     ds["phitrend"] = (["Yu", "X"], phiend - phibeg)
-    ds["tstrend"] = (["Yu", "X"], tsend - tsbeg)
+    ds["tstrend"] = (["Yu", "X"], tsend - ts_beg)
     ds["PRtrend"] = (["Yu", "X"], pr_end - pr_beg)
     ds["Qthtrend"] = (["Yu", "X"], q_th_end - q_th_beg)
     ds["uend"] = (["Yu", "X"], uend)
@@ -623,12 +630,12 @@ def output_trends() -> None:
     ds["vbeg"] = (["Yv", "X"], vbeg)
     ds["wbeg"] = (["Yu", "X"], wbeg)
     ds["phibeg"] = (["Yu", "X"], phibeg)
-    ds["tsbeg"] = (["Yu", "X"], tsbeg)
+    ds["tsbeg"] = (["Yu", "X"], ts_beg)
     ds["PRbeg"] = (["Yu", "X"], pr_beg)
     ds["Qthbeg"] = (["Yu", "X"], q_th_beg)
     ds["Ebeg"] = (["Yu", "X"], e_beg)
     ds["MCbeg"] = (["Yu", "X"], mc_beg)
-    ds["qabeg"] = (["Yu", "X"], qabeg)
+    ds["qabeg"] = (["Yu", "X"], qa_beg)
 
     # There is 2 gridpoint noise in the phi field - so add a smooth in X:
     ds["phitrend"] = smooth121(ds.phitrend, ["X"], number_smooths=1, perdims=["X"])
@@ -722,7 +729,9 @@ def get_dclim() -> any:
     dclim_loc["ALW"] = alw_loc
     dclim_loc["BLW"] = blw_loc
     dclim_loc["QLW"] = alw_loc + blw_loc * f1p / dtemp_se_loc
+
     dclim_loc.to_netcdf(os.path.join(PROJECT_PATH, "Q.nc"))
+
     return (
         dclim_loc,
         u_b_loc,
@@ -748,10 +757,13 @@ def make_figure(
         cmap (str, optional): matplotlib colormap. Defaults to "viridis".
 
     """
+    v_min_ad = 0.0
+    v_max_ad = 0.6
+
     plt.figure(figsize=(8, 6))
     plt.subplot(321)
     dp = dclim.dTse0.plot.contourf(
-        levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
+        levels=11, cmap=cmap, vmin=v_min_ad, vmax=v_max_ad, add_colorbar=0
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U,\bar C$")
@@ -761,7 +773,7 @@ def make_figure(
     _ = plt.colorbar(dp)
     plt.subplot(322)
     dp = dclim.dTse1.plot.contourf(
-        levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
+        levels=11, cmap=cmap, vmin=v_min_ad, vmax=v_max_ad, add_colorbar=0
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C$")
@@ -770,7 +782,7 @@ def make_figure(
     _ = plt.colorbar(dp)
     plt.subplot(323)
     dp = dclim.dTse2.plot.contourf(
-        levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
+        levels=11, cmap=cmap, vmin=v_min_ad, vmax=v_max_ad, add_colorbar=0
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U, \bar C(x,y)$")
@@ -779,7 +791,7 @@ def make_figure(
     _ = plt.colorbar(dp)
     plt.subplot(324)
     dp = dclim.dTse.plot.contourf(
-        levels=11, cmap=cmap, vmin=0.0, vmax=0.6, add_colorbar=0
+        levels=11, cmap=cmap, vmin=v_min_ad, vmax=v_max_ad, add_colorbar=0
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C(x,y)$")
@@ -822,10 +834,12 @@ def output_dq() -> None:
             "dq_df": (["lat", "lon"], dq_df),
         }
     )
+
     dq.lon.attrs = dclim.lon.attrs
     dq.lat.attrs = dclim.lat.attrs
     dq.dq_dt.attrs = [("units", "W/m^2/K")]
     dq.dq_df.attrs = [("units", "W/m^2")]
+
     dq["ALH"] = alh
     dq["ALW"] = alw
     dq["BLW"] = blw
