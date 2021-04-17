@@ -47,13 +47,13 @@ from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH, PROJECT_P
 # begining TCAM
 k_days = 10
 efrac = 2.0  # multiply epsu by efrac to get epsv
-hq = 1800 # Hq is a scale depth for moisture
+hq = 1800  # Hq is a scale depth for moisture
 prcp_land = 1  # use data precip trends over land
 wnsp_min = 4
-rho00 = 0.3 # this is actual rho_bar in the paper
+rho00 = 0.3  # this is actual rho_bar in the paper
 # 0.3 kg m-3
 prmax = 20.0 / 3600 / 24
-r = 0.80 # relative humidity uniformly 0.8
+r = 0.80  # relative humidity uniformly 0.8
 number_iterations = 50
 gravity = 9.8  #  m s-2
 height_tropopause = 15000  # metres
@@ -66,15 +66,15 @@ cp_air = 1000  #  cp_air is the specific heat capacity of air.
 b_coeff = gravity * np.pi / (nbsq * theta_00 * height_tropopause)
 eps_days = 0.75
 eps = 1.0 / (eps_days * 86400)  # 1/.75 d
-epsu = eps   # 1/.75 d
+epsu = eps  # 1/.75 d
 epsv = efrac * eps  # efrac=1/2 in paper
 K1 = b_coeff / (k_days * 86400)
 epsp = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * 86400)
 beta = omega2 / radius_earth
 
-rho_air = 1.225 # kg m-3 - also called rho_00
+rho_air = 1.225  # kg m-3 - also called rho_00
 c_e = 0.00125
-eps = 0.97   # problem here with second definintion.
+eps = 0.97  # problem here with second definintion.
 stefan_boltzman_const = 5.67e-8
 ps = 1000  # pressure at the surface?
 es0 = 6.11
@@ -148,6 +148,7 @@ var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 
 
 # --------------- flux functions ----------------------
+
 
 def f_cor(y: np.ndarray) -> np.ndarray:
     """Corriolis force coeff.

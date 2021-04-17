@@ -77,11 +77,29 @@ def get_data() -> None:
                     "https://www.dropbox.com/s/q2qxeucdsb9958j/output.zip?raw=1",
                     "output.zip",
                 ],
-                ["https://www.dropbox.com/s/udui5x9c3q7y2ca/ts_nc.zip?raw=1",
-                "ts_nc.zip"],
             ],
         ],
     ]
+    _get_data(lol)
+
+
+def get_member_data() -> None:
+    """Downloads ensemble members."""
+    lol = [
+        [
+            str(OCEAN_PATH),
+            [
+                [
+                    "https://www.dropbox.com/s/udui5x9c3q7y2ca/ts_nc.zip?raw=1",
+                    "ts_nc.zip",
+                ],
+            ],
+        ],
+    ]
+    _get_data(lol)
+
+
+def _get_data(lol: list) -> None:
 
     for item in lol:
         direc = item[0]
@@ -97,6 +115,7 @@ def get_data() -> None:
                 print(full_direc + " created.")
             else:
                 print(full_direc + " already exists, not going to redownload.")
+
 
 # str(OCEAN_PATH)
 # "https://www.dropbox.com/s/udui5x9c3q7y2ca/ts_nc.zip?raw=1"
