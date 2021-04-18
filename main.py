@@ -4,7 +4,7 @@ Basically a wrapper for bash commands.
 
 Example:
    Usage of script::
-       python3 main.py run_name=test22
+       python3 main.py run_name=test25
 
 """
 import os
@@ -18,7 +18,8 @@ from src.constants import (
 )
 from src.utils import timeit
 from src.models.ocean import compile_all, copy_all, run_all, animate_all
-from src.config.configs import format_config
+from src.models.atmos import output_trends, output_dq, make_figure
+from src.configs.config import format_config
 
 
 log = logging.getLogger(__name__)
@@ -36,7 +37,8 @@ def start_wandb(cfg: DictConfig) -> None:
         save_code=True,
         name=cfg.run_name,
         notes=cfg.notes,
-        config=cfg,
+        # pylint: disable=protected-access
+        config=cfg._content,
     )
 
 
@@ -51,16 +53,22 @@ def main(cfg: DictConfig):
     """
 
     cfg = format_config(cfg)
+
     print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
 
-    if not cfg.test:
-        start_wandb(cfg)
-        compile_all()
-        if cfg.run:
-            run_all(cfg)
-        copy_all()
-        if cfg.animate:
-            animate_all()
+    start_wandb(cfg)
+
+    # ocean model
+    compile_all()
+    if cfg.run:
+        run_all(cfg)
+    copy_all()
+    if cfg.animate:
+        animate_all()
+    # atmos model.
+    output_trends(wandb.run.dir)
+    output_dq(wandb.run.dir)
+    make_figure(wandb.run.dir)
 
 
 if __name__ == "__main__":

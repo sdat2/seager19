@@ -33,73 +33,82 @@ stress anomaly is only applied to the ocean model between 20 S and 20 N,
 and is linearly tapered to zero at 25 S and 2 N.
 
 """
-from typing import Tuple
+from typing import Tuple, Union
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-import xarray as xr
 from scipy.interpolate import interp2d
 from scipy.fftpack import fft, ifft
-from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH, PROJECT_PATH
-
+import matplotlib.pyplot as plt
+import xarray as xr
+from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH
+from src.utils import timeit
 
 # ------------- constants -----------------------
 # begining TCAM
-k_days = 10
-efrac = 2.0  # multiply epsu by efrac to get epsv
-hq = 1800  # Hq is a scale depth for moisture
+k_days = 10   # K = 1/10
+e_frac = 2.0  # multiply eps_u by e_frac to get eps_v
+h_q = 1800  # Hq is a scale depth for moisture
 prcp_land = 1  # use data precip trends over land
 wnsp_min = 4
-rho00 = 0.3  # this is actual rho_bar in the paper
+rho_00: float = 0.3
+# this means the density at the surface.
+# this is actual rho_bar in the paper
 # 0.3 kg m-3
-prmax = 20.0 / 3600 / 24
-relative_humidity = 0.80  # relative humidity uniformly 0.8
-number_iterations = 50
+pr_max: float = 20.0 / 3600 / 24
+relative_humidity: float = 0.80  # relative humidity uniformly 0.8
+number_iterations: int = 50 # int
 gravity = 9.8  #  m s-2
-height_tropopause = 15000  # metres
-theta_00 = 300
-nbsq = 3.0e-4
+height_tropopause = 15e3  # metres
+theta_00 = 300 # potential temperature at the surface.
+nbsq = 3.0e-4 # N^2 s-2. N^2 is a specified buoyancy frequency.
 radius_earth = 6.37e6  # metres
-omega2 = 2 * (2 * np.pi / 86400)
-latent_heat_vap = 2.5e6  # latent heat
+sec_in_day = 86400     # seconds in day.
+omega2 = 2 * (2 * np.pi / sec_in_day) # 2 * rad per second
+latent_heat_vap = 2.5e6  # latent heat # J kg-1
 cp_air = 1000  #  cp_air is the specific heat capacity of air.
+# J kg-1 K-1
 b_coeff = gravity * np.pi / (nbsq * theta_00 * height_tropopause)
 eps_days = 0.75
-eps = 1.0 / (eps_days * 86400)  # 1/.75 d
-epsu = eps  # 1/.75 d
-epsv = efrac * eps  # efrac=1/2 in paper
+# Over 1958–2017, the CO2 changed from ~300 to ~400 ppm, which would be about 0.75 W m−2
+# eps days might be the efficiency of entrainment.
+eps = 1.0 / (eps_days * sec_in_day)  # 1/.75 d
+eps_u = eps  # 1/.75 d
+eps_v = e_frac * eps  # e_frac=1/2 in paper
 # Newtonian cooling, K
-K1 = b_coeff / (k_days * 86400)
-epsp = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * 86400)
+K1 = b_coeff / (k_days * sec_in_day)
+epsp = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * sec_in_day)
 beta = omega2 / radius_earth
 rho_air = 1.225  # kg m-3 - also called rho_00
-c_e = 0.00125
-eps = 0.97  # problem here with second definintion.
+c_e = 0.00125    # 1.25e-3 # cE is an exchange coefficient
+emmisivity = 0.97  # problem here with second definintion.
 stefan_boltzman_const = 5.67e-8
-ps = 1000  # pressure at the surface?
-es0 = 6.11
-delta = 1.0
-f2 = 0.05
+p_s = 1000  # pressure at the surface? u
+es_0 = 6.11
+delta_temp = 1.0  #  ΔT = 1 K
+f2 = 0.05         #  f2 = 0.05
 # 'a' should decrease when deep convection happens above 28 degC
 #  a = Ts-temp_0c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
 a = 0.6  # this isn't the option used in the paper.
 
 # basic parameters
-temp_0c = 273.15
-f1_bar = 0.39
+temp_0c = 273.15  # zero degrees
+f1_bar = 0.39     #  f1 = 0.39
+# f'1  is the anomaly in f1—a parameter that can be adjusted
+# to control the variation in surface longwave radiation due
+# to a change in CO2
 u_bar = 5.0
-temp_surface_bar = temp_0c + 25
+temp_surface_bar = temp_0c + 25 # 25C in Kelvin
 c_bar = 0.6
 
 # grid characteristics
 
-nx = 180
-ny = 60  # this seems like half the grid space
+nx: int = 180
+ny: int = 60  # this seems like half the grid space
 y_north_lim = 60
 y_south_lim = -y_north_lim
 
 # make grids
-dx = 360 / nx
+dx: float = 360 / nx
 dy = (y_north_lim - y_south_lim) / ny
 x_axis = np.linspace(0, 360 - dx, nx)
 y_axis_v = np.linspace(y_south_lim + dy / 2, y_north_lim - dy / 2, ny)
@@ -109,7 +118,7 @@ x_spacing = x_axis[1] - x_axis[0]  # degrees
 y_spacing = y_axis_v[1] - y_axis_v[0]  # degrees
 dxm = x_spacing * radius_earth * np.pi / 180
 dym = y_spacing * radius_earth * np.pi / 180
-dym2 = dym * dym
+dym_2 = dym * dym
 
 # need to have the correct ordering of the wave numbers for fft
 num = nx
@@ -124,12 +133,12 @@ else:
     )
 
 # Find linearization of Q_LH (latent heating)
-const1 = rho_air * c_e * latent_heat_vap
+const1: float = rho_air * c_e * latent_heat_vap
 
-mem = "EEEf"
+mem: str = "EEEf"
 
 # the different model names in a dict?
-names = {
+names: dict = {
     "E": "ECMWF",
     "F": "ECMWF-orig",
     "B": "CMIP5-39m",
@@ -144,7 +153,7 @@ names = {
     "I": "ISCCP",
 }
 
-var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 
 
 # --------------- flux functions ----------------------
@@ -152,6 +161,10 @@ var = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 
 def f_cor(y: np.ndarray) -> np.ndarray:
     """Corriolis force coeff.
+
+    omega2 = 2 * (2 * np.pi / sec_in_day) # 2 * rad per second
+
+    # TODO is this an extra factor of 2?
 
     Args:
         y (np.ndarray): latitude
@@ -174,21 +187,24 @@ def f_es(temperature: xr.DataArray) -> xr.DataArray:
     Returns:
         xr.DataArray: Flux es.
     """
-    return es0 * np.exp(
+    return es_0 * np.exp(
         17.67 * (temperature - temp_0c) / (temperature - temp_0c + 243.5)
     )
 
 
 def f_qs(temperature: xr.DataArray) -> xr.DataArray:
-    """flux qs.
+    """flux q_s.
+
+    q_s(Ts) is the saturation-specific humidity at the SST
+    rqs(Ts) = q_s(Ts)
 
     Args:
         temperature (xr.DataArray): temp.
 
     Returns:
-        xr.DataArray: Flux qs.
+        xr.DataArray: Flux q_s.
     """
-    return 0.622 * f_es(temperature) / ps
+    return 0.622 * f_es(temperature) / p_s
 
 
 def f_dqs_dtemp(temperature: xr.DataArray) -> xr.DataArray:
@@ -198,7 +214,7 @@ def f_dqs_dtemp(temperature: xr.DataArray) -> xr.DataArray:
         temperature (xr.DataArray): temp.
 
     Returns:
-        xr.DataArray: flux qs.
+        xr.DataArray: flux q_s.
     """
     return f_qs(temperature) * (17.67 * 243.5) / (temperature - temp_0c + 243.5) ** 2
 
@@ -216,10 +232,11 @@ def f_qlh(
     Args:
         temperature (xr.DataArray): [description]
         u_sp (xr.DataArray): [description]
-        rh_loc (xr.DataArray): [description]
+        rh_loc (xr.DataArray): relative humidity
 
     Returns:
         xr.DataArray: flux qlh.
+
     """
     # print("u_sp", type(u_sp))
     return const1 * u_sp * f_qs(temperature) * (1 - rh_loc)
@@ -243,11 +260,13 @@ def f_dqlh_dtemp(
 
 
 # Find linearization of Q_LW (longwave)
-const2 = eps * stefan_boltzman_const
+const2 = emmisivity * stefan_boltzman_const
 
 
 def f_temp_a(temperature: xr.DataArray) -> xr.DataArray:
     """temperature anomaly.
+
+    Delta temp = 1 in paper.
 
     Args:
         temperature (xr.DataArray): temp.
@@ -255,7 +274,7 @@ def f_temp_a(temperature: xr.DataArray) -> xr.DataArray:
     Returns:
         xr.DataArray: temperature anomaly.
     """
-    return temperature - delta
+    return temperature - delta_temp
 
 
 def f_ebar(temperature: xr.DataArray, rh_loc: xr.DataArray) -> xr.DataArray:
@@ -268,8 +287,10 @@ def f_ebar(temperature: xr.DataArray, rh_loc: xr.DataArray) -> xr.DataArray:
     Returns:
         xr.DataArray: [description]
     """
-    qa = rh_loc * f_qs(temperature)
-    return qa * ps / 0.622
+    q_a = rh_loc * f_qs(temperature)
+
+    # q_a is the surface-specific humidity
+    return q_a * p_s / 0.622
 
 
 def f_qlw1(
@@ -277,7 +298,7 @@ def f_qlw1(
 ) -> xr.DataArray:
     """The first term of the long wave flux equation.
 
-    Qlw1 = epsilon sigma T^4 f' (1-aC^2)
+    Qlw1 = epsilon sigma T^4 f' (1 - a C^2)
 
     Args:
         temperature (xr.DataArray): [description]
@@ -286,31 +307,36 @@ def f_qlw1(
         rh_loc (xr.DataArray): [description]
 
     Returns:
-        xr.DataArray: [description]
+        xr.DataArray: The first term of the long wave flux equation.
     """
     # print("rh_loc", type(rh_loc))
     temp_a = f_temp_a(temperature)
     return (
         const2
         * (1 - a * cloud_cover ** 2)
+        # bar(Ts)^4
         * temp_a ** 4
         * (f - f2 * np.sqrt(f_ebar(temperature, rh_loc)))
+        # f1'
     )
 
 
 def f_qlw2(temperature: xr.DataArray) -> xr.DataArray:
-    """[summary]
+    """Second term in QLW equation.
+
+    𝑄′LW = 𝜀𝜎𝑇¯4s𝑓′1(1−𝑎𝐶2) + d𝑄LWd𝑇s∣∣∣𝑇¯s𝑇′s (14)
 
     Args:
         temperature (xr.DataArray): [description]
 
     Returns:
         xr.DataArray: [description]
+
     """
     # print("temperature", type(temperature))
     return (
         4
-        * eps
+        * emmisivity
         * stefan_boltzman_const
         * temperature ** 3
         * (temperature - f_temp_a(temperature))
@@ -336,27 +362,30 @@ def f_dqlw_df(temperature: xr.DataArray, cloud_cover: xr.DataArray) -> xr.DataAr
 
 
 def f_dqlw_dtemp(
-    temperature: xr.DataArray, const: xr.DataArray, f: float, rh_loc: xr.DataArray
+    temperature: xr.DataArray, cloud_cover: xr.DataArray, f: float, rh_loc: xr.DataArray
 ) -> xr.DataArray:
     """flux dqlw_dtemp.
 
     Args:
         temperature (xr.DataArray): [description]
-        const (xr.DataArray): [description]
+        cloud_cover (xr.DataArray): [description]
         f (float): [description]
         rh_loc (xr.DataArray): [description]
 
     Returns:
         xr.DataArray: [description]
+
     """
-    ebar = f_ebar(temperature, rh_loc)
-    qs = f_qs(temperature)
+    e_bar = f_ebar(temperature, rh_loc)
+    q_s = f_qs(temperature)
+    # q_a is the surface-specific humidity
+    # q_s(Ts) is the saturation-specific humidity at the SST
     dqs_dtemp = f_dqs_dtemp(temperature)
     return const2 * (
-        (1 - a * const ** 2)
+        (1 - a * cloud_cover ** 2)
         * temperature ** 3
-        * (4 * f - f2 * np.sqrt(ebar) * (4 + temperature * dqs_dtemp / 2 / qs))
-        + 12 * temperature ** 2 * delta
+        * (4 * f - f2 * np.sqrt(e_bar) * (4 + temperature * dqs_dtemp / 2 / q_s))
+        + 12 * temperature ** 2 * delta_temp
     )
 
 
@@ -368,10 +397,10 @@ def f_qa(ts: np.ndarray, sp: np.ndarray) -> np.ndarray:
         sp (np.ndarray): surface pressure in mb
 
     Returns:
-        np.ndarray: qs, surface specific humidity
+        np.ndarray: q_s, surface specific humidity
     """
     efac = 0.622
-    es = es0 * np.exp(17.67 * (ts - 273.15) / ((ts - 273.15) + 243.5))
+    es = es_0 * np.exp(17.67 * (ts - 273.15) / ((ts - 273.15) + 243.5))
     return efac * relative_humidity * es / sp
 
 
@@ -382,28 +411,30 @@ def f_qa2(temp_surface: np.ndarray) -> np.ndarray:
         temp_surface (np.ndarray): sst in Kelvin.
 
     Returns:
-        np.ndarray: qs, surface specific humidity.
+        np.ndarray: q_s, surface specific humidity.
+
     """
     return 0.001 * (temp_surface - 273.15 - 11.0)
 
 
-def f_evap(mask: np.ndarray, qa: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
+def f_evap(mask: np.ndarray, q_a: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
     """evaporation flux.
 
     Args:
         mask (np.ndarray): [description]
-        qa (np.ndarray): surface air humidity
+        q_a (np.ndarray): surface air humidity
         wnsp (np.ndarray): surface windspeed in m/s
 
     Returns:
-        np.ndarray: Evap in kg/m^2/s
+        np.ndarray: Evap in kg/m^2/s.
+
     """
     c_s_e = 0.0015 * (1 + mask / 2)
     # c_s_e = 0.0012
-    return c_s_e * rho_air * (1 - relative_humidity) * qa * wnsp / relative_humidity
+    return c_s_e * rho_air * (1 - relative_humidity) * q_a * wnsp / relative_humidity
 
 
-def f_mc(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
+def f_mc(q_a: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
     """moisture convergence flux.
 
     To calculate surface heat fluxes and atmospheric moisture
@@ -412,27 +443,29 @@ def f_mc(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
     (N.B., v is on y_axis_v points, u,q are on y_axis_u points)
 
     Args:
-        qa (np.ndarray): surface air humidity
+        q_a (np.ndarray): surface air humidity
         u (np.ndarray): low level winds in m/s
         v (np.ndarray): low level winds in m/s
 
     Returns:
-        np.ndarray: Moisture Convergence in kg/m^2/s
+        np.ndarray: Moisture convergence in kg/m^2/s.
+
     """
-    qu = qa * u
+    qu = q_a * u
     qux = ifft(1.0j * kk_wavenumber * fft(qu) / radius_earth).real
-    aq = (qa[1 : ny - 1, :] + qa[0 : ny - 2, :]) / 2.0
+    aq = (q_a[1 : ny - 1, :] + q_a[0 : ny - 2, :]) / 2.0
     qv = aq * v[1 : ny - 1, :]
     z = np.zeros((1, nx))
     qv = np.concatenate((z, qv, z), axis=0)
     # qvy = qv.diff('Yu')/dym
     qvy = (qv[1:ny, :] - qv[0 : ny - 1, :]) / dym
-    return -hq * (qux + qvy) * rho_air
+    return -h_q * (qux + qvy) * rho_air
 
 
 # ---------------- equation solvers ---------------------
 
 
+@timeit
 def tdma_solver(
     ny_loc: int, a_loc: np.ndarray, b: np.ndarray, c: np.ndarray, d: np.ndarray
 ) -> np.ndarray:
@@ -466,9 +499,9 @@ def tdma_solver(
     return xc
 
 
+@timeit
 def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """S91 folder from TCAM.py.
-
 
     The atmosphere equations are solved by Fourier transforming in longitude,
     forming an equation for v for each zonal wavenumber that is finite
@@ -477,15 +510,16 @@ def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     Usef fft, ifft.
 
-               g pi N ^ 2
-        q1 = --------------(k theta_s Q_c)
-              theta_00 z_t
+              g . pi . N ^ 2
+        q1 = ---------------- . (k theta_s Q_c)
+              theta_00 . z_t
 
     Args:
         q1 (np.ndarray): modified heating that drives winds.
 
     Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray]: (u, v, phi)
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: u, v, phi
+
     """
     # print("q1", type(q1))
     q1_time = fft(q1)
@@ -493,18 +527,18 @@ def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     a_f_q = (f_q[1 : ny - 1, :] + f_q[0 : ny - 2, :]) / 2.0
     km = kk_wavenumber / radius_earth
     d_q = (q1_time[1 : ny - 1, :] - q1_time[0 : ny - 2, :]) / dym
-    rk = 1.0j * km * beta - epsu * epsv * epsp - epsv * km ** 2
+    rk = 1.0j * km * beta - eps_u * eps_v * epsp - eps_v * km ** 2
     fcp = fcu[1 : ny - 1] ** 2 / 4.0
     fcm = fcu[0 : ny - 2] ** 2 / 4.0
 
-    ak = epsu / dym2 - epsp * fcm[:, np.newaxis]
-    ck = epsu / dym2 - epsp * fcp[:, np.newaxis]
+    ak = eps_u / dym_2 - epsp * fcm[:, np.newaxis]
+    ck = eps_u / dym_2 - epsp * fcp[:, np.newaxis]
     bk = (
-        -2 * epsu / dym2
+        -2 * eps_u / dym_2
         - epsp * (fcm[:, np.newaxis] + fcp[:, np.newaxis])
         + rk[np.newaxis, :]
     )
-    dk = -epsu * d_q + 1.0j * km[np.newaxis, :] * a_f_q
+    dk = -eps_u * d_q + 1.0j * km[np.newaxis, :] * a_f_q
 
     vtk = tdma_solver(ny - 2, ak, bk, ck, dk)
 
@@ -513,7 +547,7 @@ def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     av = (vt[1:ny, :] + vt[0 : ny - 1, :]) / 2.0
     fav = fcu[:, np.newaxis] * av
     dv = (vt[1:ny, :] - vt[0 : ny - 1, :]) / dym
-    coeff = epsu * epsp + km * km
+    coeff = eps_u * epsp + km * km
     ut = (epsp * fav + 1.0j * (q1_time + dv) * km[np.newaxis, :]) / coeff[np.newaxis, :]
     phit = -(q1_time + 1.0j * ut * km[np.newaxis, :] + dv) / epsp
     v = ifft(vt).real
@@ -565,10 +599,22 @@ def smooth121(
 # ------------------ output functions -------------------------
 
 
-def output_trends() -> None:
-    """output trends ds"""
+@timeit
+def output_trends(direc: str = "") -> None:
+    """output trends ds.
+
+    𝜀𝑢𝑢 − 𝑓𝑣 + 𝜙𝑥 = 0   (1)
+    𝜀𝑣𝑣 + 𝑓𝑢 + 𝜙𝑦 = 0   (2)
+    𝜀𝜙𝜙 + 𝑢𝑥 + 𝑣𝑦 = −𝑄1 (3)
+
+    Args:
+        direc (str): directory to save to.
+
+    """
     ds = xr.Dataset(
-        {"X": ("X", x_axis), "Yu": ("Yu", y_axis_u), "Yv": ("Yv", y_axis_v)}
+        {"X": ("X", x_axis),
+         "Yu": ("Yu", y_axis_u),
+         "Yv": ("Yv", y_axis_v)}
     )
     ds.X.attrs = [("units", "degree_east")]
     ds.Yu.attrs = [("units", "degree_north")]
@@ -578,9 +624,9 @@ def output_trends() -> None:
     ds.K.attrs = [("units", "day")]
     ds["epsu"] = eps_days
     ds.epsu.attrs = [("units", "day")]
-    ds["epsv"] = eps_days / efrac
+    ds["epsv"] = eps_days / e_frac
     ds.epsv.attrs = [("units", "day")]
-    ds["hq"] = hq
+    ds["hq"] = h_q
     ds.hq.attrs = [("units", "m")]
 
     # CLIMATOLOGIES
@@ -640,14 +686,14 @@ def output_trends() -> None:
     e_end = f_evap(mask, qaend, wnsp_clim)
     pr_end = e_end
     pr_end[pr_end < 0] = 0
-    # pr_end[pr_end>prmax] = prmax
+    # pr_end[pr_end>pr_max] = pr_max
 
     qa_beg = f_qa(ts_beg, sp_clim)
     # qa_beg = f_qa2(ts_beg)
     e_beg = f_evap(mask, qa_beg, wnsp_clim)
     pr_beg = e_beg
     pr_beg[pr_beg < 0] = 0
-    # pr_beg[pr_beg>prmax] = prmax
+    # pr_beg[pr_beg>pr_max] = pr_max
 
     q_th = q_th_end
     pr = pr_end
@@ -658,9 +704,13 @@ def output_trends() -> None:
     for _ in range(0, number_iterations):
         # Start main calculation
         q_c = (
-            np.pi * latent_heat_vap * pr / (2 * cp_air * rho00 * height_tropopause)
+            np.pi * latent_heat_vap * pr 
+            / (2 * cp_air * rho_00 * height_tropopause)
         )  # heating from precip
+        # convective heating part, Qc
         q1 = b_coeff * (q_c + q_th)
+        # Q1 is a modified heating since the part
+        # involving θ is on the left-hand side
         (u1, v1, phi1) = s91_solver(q1)
         d_amc = xr.DataArray(f_mc(qa1, u1, v1), dims=["Yu", "X"])
         mc1 = smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
@@ -669,7 +719,7 @@ def output_trends() -> None:
         else:
             pr = (1 - mask) * (mc1 + e1)
         pr[pr < 0] = 0
-        # pr[pr > prmax] = prmax
+        # pr[pr > pr_max] = pr_max
 
     mc_end = mc1
     uend = u1
@@ -686,7 +736,7 @@ def output_trends() -> None:
     for _ in range(0, number_iterations):
         # Start main calculation
         q_c = (
-            np.pi * latent_heat_vap * pr / (2 * cp_air * rho00 * height_tropopause)
+            np.pi * latent_heat_vap * pr / (2 * cp_air * rho_00 * height_tropopause)
         )  # heating from precip
         q1 = b_coeff * (q_c + q_th)
         (u1, v1, phi1) = s91_solver(q1)
@@ -697,7 +747,7 @@ def output_trends() -> None:
         else:
             pr = (1 - mask) * (mc1 + e1)
         pr[pr < 0] = 0
-        # pr[pr > prmax] = prmax
+        # pr[pr > pr_max] = pr_max
 
     mc_beg = mc1
     ubeg = u1
@@ -742,14 +792,6 @@ def output_trends() -> None:
     ds.PRtrend.attrs = [("units", "m/s")]
     ds.Qthtrend.attrs = [("units", "K/s")]
 
-    basedir = os.path.join(ATMOS_TMP_PATH, "S91")
-
-    if not os.path.isdir(ATMOS_TMP_PATH):
-        os.makedirs(ATMOS_TMP_PATH)
-
-    outfile = basedir + "-hq" + str(hq) + "-prcp_land" + str(prcp_land) + ".nc"
-    print(outfile)
-
     en_dict = {
         "K": {"dtype": "f4"},
         "epsu": {"dtype": "f4"},
@@ -757,14 +799,27 @@ def output_trends() -> None:
         "hq": {"dtype": "f4"},
     }
 
-    ds.to_netcdf(outfile, encoding=en_dict)
+    for diff_direc in [ATMOS_TMP_PATH, direc]:
+
+        basedir = os.path.join(diff_direc, "S91")
+
+        if diff_direc != "":
+            if not os.path.isdir(diff_direc):
+                os.makedirs(diff_direc)
+
+        outfile = basedir + "-hq" + str(h_q) + "-prcp_land" + str(prcp_land) + ".nc"
+
+        print(outfile)
+
+        ds.to_netcdf(outfile, encoding=en_dict)
 
 
 ###--------------------------- Begin dQ ----------------------------
 
 
-def get_dclim() -> any:
-    """opens the files, and applies functions
+@timeit
+def get_dclim(direc: str = "") -> any:
+    """opens the files, and applies functions.
 
     Returns:
         any: great.
@@ -826,7 +881,7 @@ def get_dclim() -> any:
     dclim_loc["BLW"] = blw_loc
     dclim_loc["QLW"] = alw_loc + blw_loc * f1p / dtemp_se_loc
 
-    dclim_loc.to_netcdf(os.path.join(PROJECT_PATH, "Q.nc"))
+    dclim_loc.to_netcdf(os.path.join(direc, "Q.nc"))
 
     return (
         dclim_loc,
@@ -841,25 +896,29 @@ def get_dclim() -> any:
     )
 
 
-dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = get_dclim()
-
-
-def make_figure(
-    cmap: str = "viridis", lat: str = "latitude", lon: str = "longitude"
+def make_figure(direc: str  = "",
+    cmap: Union[str] = "viridis", lat: str = "latitude", lon: str = "longitude"
 ) -> None:
     """Make figure.
 
     Args:
+    Args:
+        direc (str): direc.
         cmap (str, optional): matplotlib colormap. Defaults to "viridis".
-
+        lat (str, optional): [description]. Defaults to "latitude".
+        lon (str, optional): [description]. Defaults to "longitude".
     """
+
+    dclim, u_b, _, _, _, _, _, _, _ = get_dclim(direc=direc)
+
     v_min_ad = 0.0
     v_max_ad = 0.6
 
     plt.figure(figsize=(8, 6))
     plt.subplot(321)
     dp = dclim.dTse0.plot.contourf(
-        levels=11, cmap=cmap, vmin=v_min_ad, vmax=v_max_ad, add_colorbar=0
+        levels=11, cmap=cmap, vmin=v_min_ad, 
+        vmax=v_max_ad, add_colorbar=0
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U,\bar C$")
@@ -869,7 +928,8 @@ def make_figure(
     _ = plt.colorbar(dp)
     plt.subplot(322)
     dp = dclim.dTse1.plot.contourf(
-        levels=11, cmap=cmap, vmin=v_min_ad, vmax=v_max_ad, add_colorbar=0
+        levels=11, cmap=cmap, vmin=v_min_ad, 
+        vmax=v_max_ad, add_colorbar=0
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C$")
@@ -878,7 +938,8 @@ def make_figure(
     _ = plt.colorbar(dp)
     plt.subplot(323)
     dp = dclim.dTse2.plot.contourf(
-        levels=11, cmap=cmap, vmin=v_min_ad, vmax=v_max_ad, add_colorbar=0
+        levels=11, cmap=cmap, vmin=v_min_ad, 
+        vmax=v_max_ad, add_colorbar=0
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U, \bar C(x,y)$")
@@ -887,7 +948,8 @@ def make_figure(
     _ = plt.colorbar(dp)
     plt.subplot(324)
     dp = dclim.dTse.plot.contourf(
-        levels=11, cmap=cmap, vmin=v_min_ad, vmax=v_max_ad, add_colorbar=0
+        levels=11, cmap=cmap, vmin=v_min_ad, 
+        vmax=v_max_ad, add_colorbar=0
     )
     # ,vmin=-2,vmax=2,add_colorbar=0)
     plt.title(r"$T^{\,\prime}_s$  for $\bar U(x,y), \bar C(x,y)$")
@@ -915,8 +977,15 @@ def make_figure(
     # plt.show()
 
 
-def output_dq() -> None:
-    """outputs "dQ.nc"."""
+def output_dq(direc: "") -> None:
+    """Outputs "dQ.nc".
+
+    Args:
+        direc ([type]): [description]
+    """
+
+    dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = get_dclim(direc=direc)
+
     # Now, save the dq_df and dq_dt terms for using in TCOM:
     dq_dt = alh + alw
     dq_df = blw
@@ -944,11 +1013,12 @@ def output_dq() -> None:
     dq["Ub"] = u_b
     dq["Cb"] = c_b
     dq["Tsb"] = t_sb
-    dq.to_netcdf(os.path.join(PROJECT_PATH, "dQ.nc"))
+    dq.to_netcdf(os.path.join(direc, "dQ.nc"))
 
 
 if __name__ == "__main__":
     # get_dclim()
-    output_trends()
-    output_dq()
-    make_figure()
+    # python3 src/models/atmos.py
+    output_trends(direc="")
+    output_dq(direc="")
+    make_figure(direc="")

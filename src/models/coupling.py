@@ -35,4 +35,3 @@ def f_stress(
     """
     stress_coeff = rho_air * c_d * wind_speed_mean
     return stress_coeff * u_wind, stress_coeff * v_wind
-
