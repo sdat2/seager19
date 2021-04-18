@@ -51,6 +51,10 @@ def get_and_unzip(direc: str, url: str, name: str) -> None:
     clean_up()
 
 
+PREFIX = "https://www.dropbox.com/s/"
+SUFFIX = "?raw=1"
+
+
 @timeit
 def get_data() -> None:
     """Download the relevant dataset from a Dropbox link and extract it."""
@@ -59,9 +63,9 @@ def get_data() -> None:
         [
             str(ATMOS_PATH),
             [
-                ["https://www.dropbox.com/s/j7x3bjfnb8fdw3b/tmp.zip?raw=1", "tmp.zip"],
+                [PREFIX + "j7x3bjfnb8fdw3b/tmp.zip" + SUFFIX, "tmp.zip"],
                 [
-                    "https://www.dropbox.com/s/r82fv6g8sdwykzj/DATA.zip?raw=1",
+                    PREFIX + "r82fv6g8sdwykzj/DATA.zip" + SUFFIX,
                     "DATA.zip",
                 ],
             ],
@@ -70,11 +74,11 @@ def get_data() -> None:
             str(OCEAN_PATH),
             [
                 [
-                    "https://www.dropbox.com/s/luoo402lzbsyi5r/DATA.zip?raw=1",
+                    PREFIX + "luoo402lzbsyi5r/DATA.zip" + SUFFIX,
                     "DATA.zip",
                 ],
                 [
-                    "https://www.dropbox.com/s/q2qxeucdsb9958j/output.zip?raw=1",
+                    PREFIX + "q2qxeucdsb9958j/output.zip" + SUFFIX,
                     "output.zip",
                 ],
             ],
@@ -90,17 +94,18 @@ def get_member_data() -> None:
             str(OCEAN_PATH),
             [
                 [
-                    "https://www.dropbox.com/s/udui5x9c3q7y2ca/ts_nc.zip?raw=1",
+                    PREFIX + "udui5x9c3q7y2ca/ts_nc.zip" + SUFFIX,
                     "ts_nc.zip",
                 ],
             ],
         ],
     ]
+
     _get_data(lol)
 
 
 def _get_data(lol: list) -> None:
-
+    """gets the data using lol"""
     for item in lol:
         direc = item[0]
         if not os.path.exists(direc):
