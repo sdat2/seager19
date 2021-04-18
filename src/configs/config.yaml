@@ -2,6 +2,7 @@
 project: seager19
 user: sdat2
 run_name: test_13
+test: True
 notes: test hydra, animating files
 run: true
 ingrid: true

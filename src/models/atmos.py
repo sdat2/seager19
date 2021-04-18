@@ -53,7 +53,7 @@ wnsp_min = 4
 rho00 = 0.3  # this is actual rho_bar in the paper
 # 0.3 kg m-3
 prmax = 20.0 / 3600 / 24
-r = 0.80  # relative humidity uniformly 0.8
+relative_humidity = 0.80  # relative humidity uniformly 0.8
 number_iterations = 50
 gravity = 9.8  #  m s-2
 height_tropopause = 15000  # metres
@@ -68,6 +68,7 @@ eps_days = 0.75
 eps = 1.0 / (eps_days * 86400)  # 1/.75 d
 epsu = eps  # 1/.75 d
 epsv = efrac * eps  # efrac=1/2 in paper
+# Newtonian cooling, K
 K1 = b_coeff / (k_days * 86400)
 epsp = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * 86400)
 beta = omega2 / radius_earth
@@ -93,7 +94,7 @@ c_bar = 0.6
 # grid characteristics
 
 nx = 180
-ny = 60
+ny = 60  # this seems like half the grid space
 y_north_lim = 60
 y_south_lim = -y_north_lim
 
@@ -205,7 +206,12 @@ def f_dqs_dtemp(temperature: xr.DataArray) -> xr.DataArray:
 def f_qlh(
     temperature: xr.DataArray, u_sp: xr.DataArray, rh_loc: xr.DataArray
 ) -> xr.DataArray:
-    """flux qlh.
+    """heat flux from latent heat.
+
+    It is assumed that the surface heat flux anomaly is
+    dominated by longwave and latent heat fluxes and
+    that the solar radiation does not change and the
+    sensible heat flux anomaly is small.
 
     Args:
         temperature (xr.DataArray): [description]
@@ -267,13 +273,15 @@ def f_ebar(temperature: xr.DataArray, rh_loc: xr.DataArray) -> xr.DataArray:
 
 
 def f_qlw1(
-    temperature: xr.DataArray, const: xr.DataArray, f: float, rh_loc: xr.DataArray
+    temperature: xr.DataArray, cloud_cover: xr.DataArray, f: float, rh_loc: xr.DataArray
 ) -> xr.DataArray:
-    """[summary]
+    """The first term of the long wave flux equation.
+
+    Qlw1 = epsilon sigma T^4 f' (1-aC^2)
 
     Args:
         temperature (xr.DataArray): [description]
-        const (xr.DataArray): [description]
+        cloud_cover (xr.DataArray): [description]
         f (float): [description]
         rh_loc (xr.DataArray): [description]
 
@@ -284,7 +292,7 @@ def f_qlw1(
     temp_a = f_temp_a(temperature)
     return (
         const2
-        * (1 - a * const ** 2)
+        * (1 - a * cloud_cover ** 2)
         * temp_a ** 4
         * (f - f2 * np.sqrt(f_ebar(temperature, rh_loc)))
     )
@@ -300,7 +308,6 @@ def f_qlw2(temperature: xr.DataArray) -> xr.DataArray:
         xr.DataArray: [description]
     """
     # print("temperature", type(temperature))
-    # print("const", type(const))
     return (
         4
         * eps
@@ -315,17 +322,17 @@ def f_qlw2(temperature: xr.DataArray) -> xr.DataArray:
 # This function seemed to call a function in an incorrect way.
 
 
-def f_dqlw_df(temperature: xr.DataArray, const: xr.DataArray) -> xr.DataArray:
+def f_dqlw_df(temperature: xr.DataArray, cloud_cover: xr.DataArray) -> xr.DataArray:
     """flux dqlw_df.
 
     Args:
         temperature (xr.DataArray): temp.
-        const (xr.DataArray): constant.
+        cloud_cover (xr.DataArray): constant.
 
     Returns:
         xr.DataArray: flux dqlw_df.
     """
-    return const2 * (1 - a * const ** 2) * temperature ** 4
+    return const2 * (1 - a * cloud_cover ** 2) * temperature ** 4
 
 
 def f_dqlw_dtemp(
@@ -365,7 +372,7 @@ def f_qa(ts: np.ndarray, sp: np.ndarray) -> np.ndarray:
     """
     efac = 0.622
     es = es0 * np.exp(17.67 * (ts - 273.15) / ((ts - 273.15) + 243.5))
-    return efac * r * es / sp
+    return efac * relative_humidity * es / sp
 
 
 def f_qa2(temp_surface: np.ndarray) -> np.ndarray:
@@ -393,7 +400,7 @@ def f_evap(mask: np.ndarray, qa: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
     """
     c_s_e = 0.0015 * (1 + mask / 2)
     # c_s_e = 0.0012
-    return c_s_e * rho_air * (1 - r) * qa * wnsp / r
+    return c_s_e * rho_air * (1 - relative_humidity) * qa * wnsp / relative_humidity
 
 
 def f_mc(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:

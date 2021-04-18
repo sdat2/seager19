@@ -33,6 +33,7 @@ probably a better read.
    README.md
    INIT.md
    current
+   gallery.md
    dQ.ipynb
    TCAM.ipynb
    sdat2-OCEAN-data-exploration.ipynb
