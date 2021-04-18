@@ -4,7 +4,7 @@ Basically a wrapper for bash commands.
 
 Example:
    Usage of script::
-       python3 main.py run_name=test25
+       python3 main.py run_name=test26
 
 """
 import os
@@ -44,7 +44,7 @@ def start_wandb(cfg: DictConfig) -> None:
 
 @timeit
 @hydra.main(config_path=os.path.join(SRC_PATH, "configs"), config_name="config")
-def main(cfg: DictConfig):
+def main(cfg: DictConfig) -> None:
     """The main function to run the model and animations.
 
     Args:

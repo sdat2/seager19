@@ -6,7 +6,7 @@ from src.config.configs import format_config
 from omegaconf import DictConfig, OmegaConf
 
 
-def format_config(cfg: DictConfig):
+def format_config(cfg: DictConfig) -> DictConfig:
     """cfg reformatting.
 
     Args:

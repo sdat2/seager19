@@ -1,13 +1,13 @@
 """Coupling between ocean and atmos models.
 
-from src.models import coupling
+from src.models.coupling import f_stress
 
 """
 from typing import Tuple
 import xarray as xr
 
-rho_a = 1.225
-cd = 2.25e-3
+rho_a: float = 1.225
+cd: float = 2.25e-3
 
 
 def f_stress(

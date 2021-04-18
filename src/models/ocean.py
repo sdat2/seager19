@@ -1,4 +1,4 @@
-"""ocean model."""
+"""Ocean model."""
 import os
 import time
 import xarray as xr
@@ -41,7 +41,12 @@ def run(command: str) -> None:
 
 @timeit
 def run_all(cfg: DictConfig) -> None:
-    """run all the executables."""
+    """run all the executables.
+
+    Args:
+        cfg (DictConfig): the model configs to pass.
+
+    """
     log.info("Run.")
     run("../SRC/tcom.exe -i om_spin -t spin.tios")
     run("../SRC/tios2cdf.exe -f output/om_spin")
