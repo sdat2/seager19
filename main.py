@@ -18,6 +18,7 @@ from src.constants import (
 )
 from src.utils import timeit
 from src.models.ocean import compile_all, copy_all, run_all, animate_all
+from src.config.configs import format_config
 
 
 log = logging.getLogger(__name__)
@@ -49,23 +50,8 @@ def main(cfg: DictConfig):
 
     """
 
-    for i in cfg.atm:
-        # print(i)
-        # print(type(i))
-        item = cfg.atm[i]
-        if isinstance(item, str):
-            if "/" in item:
-                # print(item.split("/"))
-                fl_list = item.split("/")
-                total = float(fl_list[0])
-                fl_list.pop(0)
-                for j in range(len(fl_list)):
-                    total = total / float(fl_list[j])
-                cfg.atm[i] = total
-
+    cfg = format_config(cfg)
     print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
-    print(cfg.__repr__())
-    # print(type(cfg.__repr__()))
 
     if not cfg.test:
         start_wandb(cfg)

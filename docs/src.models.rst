@@ -12,6 +12,22 @@ src.models.atmos module
    :undoc-members:
    :show-inheritance:
 
+src.models.coupling module
+--------------------------
+
+.. automodule:: src.models.coupling
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.models.ocean module
+-----------------------
+
+.. automodule:: src.models.ocean
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
