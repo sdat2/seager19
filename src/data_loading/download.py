@@ -1,6 +1,8 @@
-"""Download the data from dropbox links
+"""Download the data from dropbox links.
 
-from src.data_loading import get_data
+Example:
+    Import statement::
+        from src.data_loading import get_data
 
 """
 import os
@@ -9,10 +11,7 @@ import requests
 import zipfile
 from tqdm import tqdm
 from src.utils import timeit
-from src.constants import (
-    OCEAN_PATH,
-    ATMOS_PATH,
-)
+from src.constants import OCEAN_PATH, ATMOS_PATH, PROJECT_PATH
 
 
 @timeit
@@ -87,6 +86,27 @@ def get_data() -> None:
     _get_data(lol)
 
 
+def get_figure_data() -> None:
+    """Downloads figure nc."""
+
+    code = "r1vp6ny8wovyq2a/"
+    name = "Seager_etal_NCC-2019_datasetdatafiles.nc.zip"
+
+    lol = [
+        [
+            str(PROJECT_PATH),
+            [
+                [
+                    PREFIX + code + name + SUFFIX,
+                    name,
+                ],
+            ],
+        ],
+    ]
+
+    _get_data(lol)
+
+
 def get_member_data() -> None:
     """Downloads ensemble members."""
     lol = [
@@ -105,7 +125,7 @@ def get_member_data() -> None:
 
 
 def _get_data(lol: list) -> None:
-    """gets the data using lol"""
+    """Gets the data using lol."""
     for item in lol:
         direc = item[0]
         if not os.path.exists(direc):
@@ -114,7 +134,8 @@ def _get_data(lol: list) -> None:
             url = pair[0]
             name = pair[1]
             full_direc = str(os.path.join(direc, os.path.splitext(pair[1])[0]))
-            if not os.path.exists(full_direc):  #  or "ocean/DATA" in full_direc:
+            if not os.path.exists(full_direc):
+                #  or "ocean/DATA" in full_direc:
                 print("Dowloading " + full_direc)
                 get_and_unzip(direc, url, name)
                 print(full_direc + " created.")
@@ -129,3 +150,5 @@ def _get_data(lol: list) -> None:
 if __name__ == "__main__":
     # python3 src/data_loading/download.py
     get_data()
+    get_figure_data()
+    get_member_data()
