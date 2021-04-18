@@ -71,7 +71,6 @@ epsv = efrac * eps  # efrac=1/2 in paper
 K1 = b_coeff / (k_days * 86400)
 epsp = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * 86400)
 beta = omega2 / radius_earth
-
 rho_air = 1.225  # kg m-3 - also called rho_00
 c_e = 0.00125
 eps = 0.97  # problem here with second definintion.
@@ -166,22 +165,56 @@ fcu = f_cor(y_axis_u)
 
 
 def f_es(temperature: xr.DataArray) -> xr.DataArray:
+    """Flux es.
+
+    Args:
+        temperature (xr.DataArray): temp.
+
+    Returns:
+        xr.DataArray: Flux es.
+    """
     return es0 * np.exp(
         17.67 * (temperature - temp_0c) / (temperature - temp_0c + 243.5)
     )
 
 
 def f_qs(temperature: xr.DataArray) -> xr.DataArray:
+    """flux qs.
+
+    Args:
+        temperature (xr.DataArray): temp.
+
+    Returns:
+        xr.DataArray: Flux qs.
+    """
     return 0.622 * f_es(temperature) / ps
 
 
 def f_dqs_dtemp(temperature: xr.DataArray) -> xr.DataArray:
+    """flux dqs.
+
+    Args:
+        temperature (xr.DataArray): temp.
+
+    Returns:
+        xr.DataArray: flux qs.
+    """
     return f_qs(temperature) * (17.67 * 243.5) / (temperature - temp_0c + 243.5) ** 2
 
 
 def f_qlh(
     temperature: xr.DataArray, u_sp: xr.DataArray, rh_loc: xr.DataArray
 ) -> xr.DataArray:
+    """flux qlh.
+
+    Args:
+        temperature (xr.DataArray): [description]
+        u_sp (xr.DataArray): [description]
+        rh_loc (xr.DataArray): [description]
+
+    Returns:
+        xr.DataArray: flux qlh.
+    """
     # print("u_sp", type(u_sp))
     return const1 * u_sp * f_qs(temperature) * (1 - rh_loc)
 
@@ -189,6 +222,16 @@ def f_qlh(
 def f_dqlh_dtemp(
     temperature: xr.DataArray, u_sp: xr.DataArray, rh_loc: xr.DataArray
 ) -> xr.DataArray:
+    """flux dqlh_dtemp.
+
+    Args:
+        temperature (xr.DataArray): [description]
+        u_sp (xr.DataArray): [description]
+        rh_loc (xr.DataArray): [description]
+
+    Returns:
+        xr.DataArray: flux dqlh_dtemp.
+    """
     # print("u_sp", type(u_sp))
     return const1 * u_sp * f_dqs_dtemp(temperature) * (1 - rh_loc)
 
@@ -198,10 +241,27 @@ const2 = eps * stefan_boltzman_const
 
 
 def f_temp_a(temperature: xr.DataArray) -> xr.DataArray:
+    """temperature anomaly.
+
+    Args:
+        temperature (xr.DataArray): temp.
+
+    Returns:
+        xr.DataArray: temperature anomaly.
+    """
     return temperature - delta
 
 
 def f_ebar(temperature: xr.DataArray, rh_loc: xr.DataArray) -> xr.DataArray:
+    """flux e_bar.
+
+    Args:
+        temperature (xr.DataArray): [description]
+        rh_loc (xr.DataArray): [description]
+
+    Returns:
+        xr.DataArray: [description]
+    """
     qa = rh_loc * f_qs(temperature)
     return qa * ps / 0.622
 
@@ -209,6 +269,17 @@ def f_ebar(temperature: xr.DataArray, rh_loc: xr.DataArray) -> xr.DataArray:
 def f_qlw1(
     temperature: xr.DataArray, const: xr.DataArray, f: float, rh_loc: xr.DataArray
 ) -> xr.DataArray:
+    """[summary]
+
+    Args:
+        temperature (xr.DataArray): [description]
+        const (xr.DataArray): [description]
+        f (float): [description]
+        rh_loc (xr.DataArray): [description]
+
+    Returns:
+        xr.DataArray: [description]
+    """
     # print("rh_loc", type(rh_loc))
     temp_a = f_temp_a(temperature)
     return (
@@ -220,6 +291,14 @@ def f_qlw1(
 
 
 def f_qlw2(temperature: xr.DataArray) -> xr.DataArray:
+    """[summary]
+
+    Args:
+        temperature (xr.DataArray): [description]
+
+    Returns:
+        xr.DataArray: [description]
+    """
     # print("temperature", type(temperature))
     # print("const", type(const))
     return (
@@ -237,13 +316,22 @@ def f_qlw2(temperature: xr.DataArray) -> xr.DataArray:
 
 
 def f_dqlw_df(temperature: xr.DataArray, const: xr.DataArray) -> xr.DataArray:
+    """flux dqlw_df.
+
+    Args:
+        temperature (xr.DataArray): temp.
+        const (xr.DataArray): constant.
+
+    Returns:
+        xr.DataArray: flux dqlw_df.
+    """
     return const2 * (1 - a * const ** 2) * temperature ** 4
 
 
 def f_dqlw_dtemp(
     temperature: xr.DataArray, const: xr.DataArray, f: float, rh_loc: xr.DataArray
 ) -> xr.DataArray:
-    """[summary]
+    """flux dqlw_dtemp.
 
     Args:
         temperature (xr.DataArray): [description]
@@ -281,7 +369,7 @@ def f_qa(ts: np.ndarray, sp: np.ndarray) -> np.ndarray:
 
 
 def f_qa2(temp_surface: np.ndarray) -> np.ndarray:
-    """[summary]
+    """flux qa2.
 
     Args:
         temp_surface (np.ndarray): sst in Kelvin.
@@ -341,7 +429,7 @@ def f_mc(qa: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
 def tdma_solver(
     ny_loc: int, a_loc: np.ndarray, b: np.ndarray, c: np.ndarray, d: np.ndarray
 ) -> np.ndarray:
-    """tdma solver
+    """tdma solver.
 
     Args:
         ny_loc (int):
