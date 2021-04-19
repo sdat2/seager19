@@ -13,8 +13,8 @@ c
 c        (hp-hm)/2dt + d(un)/dx + d(vn)/dy = Q - r*hn + nu*(hn_xx + hn_yy)
 c
 c      on a C-grid
-c
-c
+
+
 c     input:
 c        nxr      : number of grid points in zonal direction
 c        nyr      : number of grid points in meridional direction

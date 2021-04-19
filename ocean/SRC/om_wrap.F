@@ -1,12 +1,12 @@
 #define ITYPE_RST 0
 #define MACHINE_WORD 4
 
-!     idig.f / "uphi" - model/
-!--------------------------------------
+c     idig.f / "uphi" - model/
+c--------------------------------------
       function idig(xxxxx, n)
       integer xxxxx, n, res
       integer idig
-!
+c
       res = xxxxx
       if (n .gt. 1) res = xxxxx / 10**(n-1)
       idig = mod (res, 10)
@@ -15,12 +15,12 @@
       end
 
 
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       subroutine logfile
       use wrap
       implicit none
       include 'om_wrap.h'
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       common /run/ nstart,nlaststart,nskip,nsteps,nergy,nskipo,nlast
       integer nstart,nlaststart,nskip,nsteps,nergy,nskipo,nlast,lnblnk
       common /run2/ iyear, iday, isec
@@ -36,9 +36,9 @@
      + '   year= ', i15 ,    '         day= ', i15 /
      + '    sec= ', i15 /
      + '   delt= ', e15.7)
-!
-!     print out grid parameters.
-!
+c
+c     print out grid parameters.
+c
       write(iout,6) X_MIN, X_MAX, Y_MIN, Y_MAX
     6 format(/
      + '   alat= ', e15.7 ,  '        blat= ', e15.7 /
@@ -47,7 +47,7 @@
       end
 
       subroutine segm_from_iox (npt, nseg, iox, iseg, mseg)
-!------------------------------------------------------
+c------------------------------------------------------
       dimension iox(npt), iseg(2,mseg)
 
       ista   = iox(1)
@@ -77,7 +77,7 @@
       return
       end
 
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       subroutine model_input (tenso,inp_modes,phasev,
      *             time_mul,run_time,save_time,gamma,rs,f1prime)
       use wrap
@@ -85,7 +85,7 @@
       implicit none
       include 'om_wrap.h'
       include 'om_data.h'
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       real tenso, phasev(1), time_mul,run_time,save_time,gamma,rs,f1prime
 
       real shapi_coef, shapb_coef, shaph_coef, shapi_coefx, shapi_coefy
@@ -160,7 +160,7 @@
 
       irest = inp_int('Restart'//CHAR(0), 0)        ! 0 - start; 1 - restart
       ischeme = inp_int('Scheme'//CHAR(0), 1) 
-!                       1 - INC ; 2 - Leapfrog
+c                       1 - INC ; 2 - Leapfrog
       idiag = inp_int('Qflux_diag'//CHAR(0), 0) 
 
       mtau  =  inp_int('Wind_forc'//CHAR(0),1)
@@ -248,10 +248,10 @@
 
       NXY  = NX * NY
 
-!      do j = ny, 1, -1
-!         write(9,199)(mask((j-1)*nx+i),i=1,nx)
-!      enddo
-!  199 format(360i1)
+c      do j = ny, 1, -1
+c         write(9,199)(mask((j-1)*nx+i),i=1,nx)
+c      enddo
+c  199 format(360i1)
 
       NZ = inp_int('NZ'//CHAR(0),1)
       allocate (zin(nz))
@@ -277,10 +277,10 @@
 
       if (inp_modes.eq.0) then
          use_profile = .true.
-!                   TYPE: 0, ascii file for a single profile
-!                   TYPE: 1, netcdf file (LEVITUS) with varying profiles
-!                   TYPE: 2, netcdf file (LEVITUS) with constant profiles-
-!                           specify PROFILE_LAT,PROFILE_LON to pick (lat,lon)
+c                   TYPE: 0, ascii file for a single profile
+c                   TYPE: 1, netcdf file (LEVITUS) with varying profiles
+c                   TYPE: 2, netcdf file (LEVITUS) with constant profiles-
+c                           specify PROFILE_LAT,PROFILE_LON to pick (lat,lon)
           nvert_prof = inp_int('VERTICAL_PROFILE_TYPE'//CHAR(0),0)
           hmix_param = inp_flt('VERTICAL_HMIX_PARAM'//CHAR(0),0.5)
           ylat_prof = inp_flt('PROFILE_LAT'//CHAR(0),0.)
@@ -363,7 +363,7 @@
 
       call cprof(nx,ny,mask,i_prof,j_prof,ipt_prof)
 
-!  new values, with ahmix0 included
+c  new values, with ahmix0 included
       xk(1) = -65.218
       xk(2) = 1.8782
       xk(3) = -.00334
@@ -397,12 +397,12 @@
       return
       end
 
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       subroutine make_iox(npt)
       use wrap
       implicit none
       include 'om_wrap.h'
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       integer i, j, npt, nin
 
       nxyc = 0
@@ -421,14 +421,14 @@
       return
       end
 
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       subroutine inout (ioin)
       use wrap
       implicit none
       include 'om_wrap.h'
-!----------------------------------------------------------------------
-!     unix routine for opening the input parameter file and the output
-!     logfil from the command line arguments.
+*----------------------------------------------------------------------
+c     unix routine for opening the input parameter file and the output
+c     logfil from the command line arguments.
 
 
       integer ioin, lnblnk, num
@@ -485,7 +485,7 @@
       end
 
       subroutine enso2res (renso, id, im, iy)
-!----------------------------------------------------
+c----------------------------------------------------
 #define LEAP_YEAR(y) (mod(y,4) .eq. 0)
       integer*2 norm(12)
       data norm /31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31/
@@ -503,10 +503,10 @@
       end
 
 
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       function date2enso (id, im, iy)
       implicit none
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
 #define LEAP_YEAR(y) (mod(y,4) .eq. 0)
       real date2enso
       integer id, im, iy
@@ -521,10 +521,10 @@
 
       end
 
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       subroutine enso2date (enso, id, im, iy)
       implicit none
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
 #define LEAP_YEAR(y) (mod(y,4) .eq. 0)
       integer id,im,iy
       real enso, res
@@ -552,7 +552,7 @@
       end
 
       subroutine init_rstrt (npt,iseg)
-!---------------------------------------------------------
+c---------------------------------------------------------
       use wrap
       use wdata
       include 'om_wrap.h'
@@ -626,7 +626,7 @@
       end
 
       subroutine read_rstrt (nxp, nyp, npt)
-!--------------------------------------------------------------------
+c--------------------------------------------------------------------
       use wrap
       include 'om_wrap.h'
       common /run/   nstart,nlaststart,nskip,nsteps,nergy,nskipo,nlast
@@ -722,7 +722,7 @@
       end
 
       subroutine keep_rstrt (nstep, nskip, tenso)
-!--------------------------------------------------------------------
+c--------------------------------------------------------------------
       use wrap
       include 'om_wrap.h'
       common /new_save/ iword, nruns, nscpu, nswll, inf(100), rnf(100)
@@ -771,13 +771,13 @@
       end
 
       subroutine close_rstrt 
-!---------------------------------
+c---------------------------------
       call clda(1)
       return
       end
 
       subroutine dump_rstrt
-!------------------------------------------------------------------
+c------------------------------------------------------------------
       use wrap
       include 'om_wrap.h'
       character*100 str
@@ -866,9 +866,9 @@
       return
       end
 
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       subroutine read_mask (tag, nx, ny, mask)
-!----------------------------------------------------------------------
+*----------------------------------------------------------------------
       character*(*) tag
       character*1  ch, buff(119)
       character*64 number
@@ -935,3 +935,4 @@
   200 write (6, *) '!!!read_mask: wrong mask data, i,j:', i,j
       stop
       end
+

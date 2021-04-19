@@ -1,17 +1,17 @@
-!---------------------------------------------------------------------------
-! ODB is a FORTRAN-based simplified wrapping for NetCDF and HDF libraries, 
-!
-! It assumes that for HDF compatibility you should obtain a copy of "libcdfdf"
-! library and compile with -DCDF_DF "cpp" option in order to create HDF.
-! 
-! Documentation available on:
-!  http://rainbow.ldgo.columbia.edu/documentation/libraries/odb/readme.html
-! Please report all bugs and problems to: senya@rainbow.ldeo.columbia.edu 
-!
-! Senya Basin, 1993-94. 
+c---------------------------------------------------------------------------
+c ODB is a FORTRAN-based simplified wrapping for NetCDF and HDF libraries, 
+c
+c It assumes that for HDF compatibility you should obtain a copy of "libcdfdf"
+c library and compile with -DCDF_DF "cpp" option in order to create HDF.
+c 
+c Documentation available on:
+c  http://rainbow.ldgo.columbia.edu/documentation/libraries/odb/readme.html
+c Please report all bugs and problems to: senya@rainbow.ldeo.columbia.edu 
+c
+c Senya Basin, 1993-94. 
 
       subroutine odb_open (idf, file, key) 
-!----------------------------------------
+c3----------------------------------------
 #ifdef INC_PATH
       include 'INC_PATH'
 #else
@@ -48,7 +48,7 @@
       end
 
       subroutine odb_close (idf) 
-!------------------------------
+c4------------------------------
       integer idf
       call ncclos(idf, iok)
 
@@ -56,7 +56,7 @@
       end
 
       subroutine odb_dfend (idf)
-!-----------------------------------
+c5-----------------------------------
       common /odb_loc2/ idf0,idfmode(100)
 
       if (idfmode(idf/idf0+1) .eq. 0) then
@@ -68,7 +68,7 @@
       end
 
       subroutine odb_dfsta (idf)
-!-----------------------------------
+c6-----------------------------------
       common /odb_loc2/ idf0,idfmode(100)
 
 
@@ -82,7 +82,7 @@
       end
 
       subroutine odb_dfdm (idf, dname, nn)
-!-------------------------------------------
+c7-------------------------------------------
 #ifdef INC_PATH
       include 'INC_PATH'
 #else

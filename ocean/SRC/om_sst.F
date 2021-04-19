@@ -1,51 +1,51 @@
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       subroutine sst_update(nx,ny,delt,dxm,dym,hsfc,gamma,u1,v1,w1,t1,sstt,
      *            qnet,qflxt,dQdTt,dQdft,tdeep,udtdx,vdtdy,yv,idiag,qdiag,
      *            terms,ifper,mask)
       use wsst
       implicit none 
       include 'om_sst.h'
-!-------------------------------------------------------------------------- 
-!     SST advection equation on a A-GRID
-!
-!     delt     time step (s)
-!     HSF!     depth of surface layer (m)
-!     u1,v1    surface layer horizontal velocity components 
-!     w1       surface layer vertical velocity component 
-!     t1       model sst value
-!     sstt     data sst value
-!     qnet     net surface heat flux in watts/m**2
-!     qflxt    data flux correction term
-!     qdQdT    data dQ/dTs term
-!     qdQdf    data dQ/df term
-!     qdiag     diagnosed flux correction term
-!     tdeep    temperature of deep water  
-!     gamma    mixing fraction of sst and tdeep water
-!     dxm      zonal grid spacing (m)
-!     dym      merid grid spacing (m)
-!
-!    1. compute gradient of t1, with no flux boundary conditions
-!
-!    2. calculate w_up
-!
-!           w_up = max(0,w1)
-!    where 
-!             w1 = HSFC * div(u1,v1)
-!
-!    3. compute upwelling temperature
-!
-!        t_up = (1.-gamma)*t1 + gamma*tdeep
-!
-!    4. update sst
-!
-!  t1 = t1 + delt*(- u grad(t1) - w_up*(t1-t_up)/HSFC - qprime/HSFC 
-!
-!    where 
-!         u grad(t1) = u1*d(t1)/dx + v1*d(t1)/dy 
-!         qprime       = qnet/(Rho*Cp)
-!         Cp  = 4184 watt-sec/(kg-degreeC)
-!         rho = 1023 kg/m**3  (P=0,T=25,S=35)
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
+c     SST advection equation on a A-GRID
+
+c     delt     time step (s)
+c     HSFC     depth of surface layer (m)
+c     u1,v1    surface layer horizontal velocity components 
+c     w1       surface layer vertical velocity component 
+c     t1       model sst value
+c     sstt     data sst value
+c     qnet     net surface heat flux in watts/m**2
+c     qflxt    data flux correction term
+c     qdQdT    data dQ/dTs term
+c     qdQdf    data dQ/df term
+c     qdiag     diagnosed flux correction term
+c     tdeep    temperature of deep water  
+c     gamma    mixing fraction of sst and tdeep water
+c     dxm      zonal grid spacing (m)
+c     dym      merid grid spacing (m)
+c
+c    1. compute gradient of t1, with no flux boundary conditions
+c
+c    2. calculate w_up
+c
+c           w_up = max(0,w1)
+c    where 
+c             w1 = HSFC * div(u1,v1)
+c
+c    3. compute upwelling temperature
+c
+c        t_up = (1.-gamma)*t1 + gamma*tdeep
+c
+c    4. update sst
+c
+c  t1 = t1 + delt*(- u grad(t1) - w_up*(t1-t_up)/HSFC - qprime/HSFC 
+c
+c    where 
+c         u grad(t1) = u1*d(t1)/dx + v1*d(t1)/dy 
+c         qprime       = qnet/(Rho*Cp)
+c         Cp  = 4184 watt-sec/(kg-degreeC)
+c         rho = 1023 kg/m**3  (P=0,T=25,S=35)
+c-------------------------------------------------------------------------- 
       integer nx, ny
       real  delt, hsfc, gamma, u1(nx,ny), v1(nx,ny), w1(nx,ny),
      *      tdeep(nx,ny), udtdx(nx,ny), vdtdy(nx,ny), dxm, dym,
@@ -85,9 +85,9 @@
          jp = min(ny,j + 1)
          jm = max(1 ,j - 1)
 
-!    NOT STABLE, must do some upwinding
-!         dtdx = (t1(ip,j) - t1(im,j))/2./dxm
-!         dtdy = (t1(i,jp) - t1(i,jm))/2./dym
+c    NOT STABLE, must do some upwinding
+c         dtdx = (t1(ip,j) - t1(im,j))/2./dxm
+c         dtdy = (t1(i,jp) - t1(i,jm))/2./dym
 
          if (u1(i,j) .gt. 0) then
             dtdx = (t1(i,j) - t1(im,j))/dxm
@@ -130,7 +130,7 @@
             t1(i,j) = sst - delt*(ugradt + flux_up + qprime) 
      *                    + delt*qflxt(i,j)/HSFC 
 
-!  next two lines only for diagnosing the qflx
+c  next two lines only for diagnosing the qflx
             if (idiag) then
                qdiag(i,j) = HSFC*(sstt(i,j) - t1(i,j))/delt
                t1(i,j) = sstt(i,j)
@@ -144,15 +144,15 @@
       return
       end
 
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       subroutine tdeep_calc(nx,ny,nmodes,ahmix0,ahmixp,hm,tdeep,hmod,htherm)
       use wsst
       implicit none 
       include 'om_sst.h'
-!-------------------------------------------------------------------------- 
-!      Subroutine for calculating tdeep (temperature of upwelled
-!      water) given thermocline depths
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
+c      Subroutine for calculating tdeep (temperature of upwelled
+c      water) given thermocline depths
+c-------------------------------------------------------------------------- 
       integer nx,ny,nmodes
       real ahmixp(nmodes,nx,ny), hm(ny,nx,nmodes), tdeep(nx,ny)
       real hmod(nx,ny), htherm(nx,ny), ahmix0(nx,ny)
@@ -176,39 +176,39 @@
             hmodel= hmodel + ahmixp(im,i,j)*hm(j,i,im)
          enddo
       
-! looks like Benno did fit on (hmodel-ahmix0) - I have changed this
+c looks like Benno did fit on (hmodel-ahmix0) - I have changed this
          h20=b0 + b1*hmodel + b2*hmodel**2
       
-!  shouldn't be needed, but for global domain the peruvian coast
-!     upwelling is causing trouble:
+c  shouldn't be needed, but for global domain the peruvian coast
+c     upwelling is causing trouble:
          h20 = max(h20,20.0)
 
          hmod(i,j) = hmodel
          htherm(i,j) = h20
          tdeep(i,j) = tdeeph(hmodel)
 
-!         TDEEP = MIN(TDEEP,SST-.5)
-! old way was to fit hmodel to h20 and then h20 to tdeep
-! orig    tdeep(i,j) = tdeeph_ERA(h20)  
-!
-!  could use a linear fit instead:
-!         h20_0  = 60
-!         tdeep0 = 24
-!         h20_1  = 180
-!         tdeep1 = 28.4
-!         tdeep(i,j) = tdeep0 + hmodel* (tdeep1- tdeep0)/ (h20_1- h20_0)
-!
-! we're not using this for now:
-!
+c         TDEEP = MIN(TDEEP,SST-.5)
+c old way was to fit hmodel to h20 and then h20 to tdeep
+c orig    tdeep(i,j) = tdeeph_ERA(h20)  
+
+c  could use a linear fit instead:
+c         h20_0  = 60
+c         tdeep0 = 24
+c         h20_1  = 180
+c         tdeep1 = 28.4
+c         tdeep(i,j) = tdeep0 + hmodel* (tdeep1- tdeep0)/ (h20_1- h20_0)
+
+c we're not using this for now:
+c
       enddo
 
       return
       end
 
 
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       real function tdeeph(H20)
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
 
       integer NKNOTSMAX
       PARAMETER(NKNOTSMAX=20)
@@ -234,12 +234,12 @@
       return
       end
 
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       subroutine sst_mem (nxy) 
       use wsst
       implicit none  
       include 'om_sst.h' 
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       integer nxy
 
       allocate (ii(nxy))
@@ -248,12 +248,12 @@
       return
       end
 
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       subroutine sst_init(nx,ny,sst,sstt,xv,yv,tp,irest)
       use wsst
       implicit none 
       include 'om_sst.h'
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       integer nx, ny
       real sst(nx,ny), sstt(nx,ny),tp(nx,ny)
       real xv(nx),yv(ny),cy,cx
@@ -271,13 +271,13 @@
       return
       end
       
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       subroutine sst_index(nx,ny)
       use wsst
       implicit none 
       include 'om_core.h'  ! for npt,ival,jval
       include 'om_sst.h'
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       integer nx, ny
 
       integer  k, nxy
@@ -295,23 +295,23 @@
       return
       end
       
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
       subroutine upwelling(nx,ny,dxm,dym,hsfc,u1,v1,w1,ifper)
       use wsst
       implicit none 
       include 'om_sst.h'
-!-------------------------------------------------------------------------- 
-!     HSF!     depth of surface layer (m)
-!     u1,v1    surface layer horizontal velocity components 
-!     w1       surface layer vertical velocity component (on scalar points)
-!     dxm      zonal grid spacing (m)
-!     dym      merid grid spacing (m)
-!
-!    compute upwelling velocity
-!
-!             w1 = HSFC * div(u1,v1)
-!
-!-------------------------------------------------------------------------- 
+c-------------------------------------------------------------------------- 
+c     HSFC     depth of surface layer (m)
+c     u1,v1    surface layer horizontal velocity components 
+c     w1       surface layer vertical velocity component (on scalar points)
+c     dxm      zonal grid spacing (m)
+c     dym      merid grid spacing (m)
+c
+c    compute upwelling velocity
+c
+c             w1 = HSFC * div(u1,v1)
+c
+c-------------------------------------------------------------------------- 
       integer nx, ny
       real  hsfc, u1(nx,ny), v1(nx,ny), w1(nx,ny),dxm, dym
       logical ifper
@@ -358,101 +358,101 @@
 
 
       subroutine splev(t,n,c,k,x,y,m,e,ier)
-!  subroutine splev evaluates in a number of points x(i),i=1,2,...,m
-!  a spline s(x) of degree k, given in its b-spline representation.
-!
-!  calling sequence:
-!     call splev(t,n,c,k,x,y,m,e,ier)
-!
-!  input parameters:
-!    t    : array,length n, which contains the position of the knots.
-!    n    : integer, giving the total number of knots of s(x).
-!    !    : array,length n, which contains the b-spline coefficients.
-!    k    : integer, giving the degree of s(x).
-!    x    : array,length m, which contains the points where s(x) must
-!           be evaluated.
-!    m    : integer, giving the number of points where s(x) must be
-!           evaluated.
-!    e    : integer, if 0 the spline is extrapolated from the end
-!           spans for points not in the support, if 1 the spline
-!           evaluates to zero for those points, if 2 ier is set to
-!           1 and the subroutine returns, and if 3 the spline evaluates
-!           to the value of the nearest boundary point.
-!
-!  output parameter:
-!    y    : array,length m, giving the value of s(x) at the different
-!           points.
-!    ier  : error flag
-!      ier = 0 : normal return
-!      ier = 1 : argument out of bounds and e == 2
-!      ier =10 : invalid input data (see restrictions)
-!
-!  restrictions:
-!    m >= 1
-!--    t(k+1) <= x(i) <= x(i+1) <= t(n-k) , i=1,2,...,m-1.
-!
-!  other subroutines required: fpbspl.
-!
-!  references :
-!    de boor c  : on calculating with b-splines, j. approximation theory
-!                 6 (1972) 50-62.
-!    cox m.g.   : the numerical evaluation of b-splines, j. inst. maths
-!                 applics 10 (1972) 134-149.
-!    dierckx p. : curve and surface fitting with splines, monographs on
-!                 numerical analysis, oxford university press, 1993.
-!
-!  author :
-!    p.dierckx
-!    dept. computer science, k.u.leuven
-!    celestijnenlaan 200a, b-3001 heverlee, belgium.
-!    e-mail : Paul.Dierckx@cs.kuleuven.ac.be
-!
-!  latest update : march 1987
-!
-!++ pearu: 11 aug 2003
-!++   - disabled cliping x values to interval [min(t),max(t)]
-!++   - removed the restriction of the orderness of x values
-!++   - fixed initialization of sp to double precision value
-!
-!  ..scalar arguments..
+c  subroutine splev evaluates in a number of points x(i),i=1,2,...,m
+c  a spline s(x) of degree k, given in its b-spline representation.
+c
+c  calling sequence:
+c     call splev(t,n,c,k,x,y,m,e,ier)
+c
+c  input parameters:
+c    t    : array,length n, which contains the position of the knots.
+c    n    : integer, giving the total number of knots of s(x).
+c    c    : array,length n, which contains the b-spline coefficients.
+c    k    : integer, giving the degree of s(x).
+c    x    : array,length m, which contains the points where s(x) must
+c           be evaluated.
+c    m    : integer, giving the number of points where s(x) must be
+c           evaluated.
+c    e    : integer, if 0 the spline is extrapolated from the end
+c           spans for points not in the support, if 1 the spline
+c           evaluates to zero for those points, if 2 ier is set to
+c           1 and the subroutine returns, and if 3 the spline evaluates
+c           to the value of the nearest boundary point.
+c
+c  output parameter:
+c    y    : array,length m, giving the value of s(x) at the different
+c           points.
+c    ier  : error flag
+c      ier = 0 : normal return
+c      ier = 1 : argument out of bounds and e == 2
+c      ier =10 : invalid input data (see restrictions)
+c
+c  restrictions:
+c    m >= 1
+c--    t(k+1) <= x(i) <= x(i+1) <= t(n-k) , i=1,2,...,m-1.
+c
+c  other subroutines required: fpbspl.
+c
+c  references :
+c    de boor c  : on calculating with b-splines, j. approximation theory
+c                 6 (1972) 50-62.
+c    cox m.g.   : the numerical evaluation of b-splines, j. inst. maths
+c                 applics 10 (1972) 134-149.
+c    dierckx p. : curve and surface fitting with splines, monographs on
+c                 numerical analysis, oxford university press, 1993.
+c
+c  author :
+c    p.dierckx
+c    dept. computer science, k.u.leuven
+c    celestijnenlaan 200a, b-3001 heverlee, belgium.
+c    e-mail : Paul.Dierckx@cs.kuleuven.ac.be
+c
+c  latest update : march 1987
+c
+c++ pearu: 11 aug 2003
+c++   - disabled cliping x values to interval [min(t),max(t)]
+c++   - removed the restriction of the orderness of x values
+c++   - fixed initialization of sp to double precision value
+c
+c  ..scalar arguments..
       integer n, k, m, e, ier
-!  ..array arguments..
+c  ..array arguments..
       real*8 t(n), c(n), x(m), y(m)
-!  ..local scalars..
+c  ..local scalars..
       integer i, j, k1, l, ll, l1, nk1
-!++..
+c++..
       integer k2
-!..++
+c..++
       real*8 arg, sp, tb, te
-!  ..local array..
+c  ..local array..
       real*8 h(20)
-!  ..
-!  before starting computations a data check is made. if the input data
-!  are invalid control is immediately repassed to the calling program.
+c  ..
+c  before starting computations a data check is made. if the input data
+c  are invalid control is immediately repassed to the calling program.
       ier = 10
-!--      if(m-1) 100,30,10
-!++..
+c--      if(m-1) 100,30,10
+c++..
       if (m .lt. 1) go to 100
-!..++
-!--  10  do 20 i=2,m
-!--        if(x(i).lt.x(i-1)) go to 100
-!--  20  continue
+c..++
+c--  10  do 20 i=2,m
+c--        if(x(i).lt.x(i-1)) go to 100
+c--  20  continue
       ier = 0
-!  fetch tb and te, the boundaries of the approximation interval.
+c  fetch tb and te, the boundaries of the approximation interval.
       k1 = k + 1
-!++..
+c++..
       k2 = k1 + 1
-!..++
+c..++
       nk1 = n - k1
       tb = t(k1)
       te = t(nk1 + 1)
       l = k1
       l1 = l + 1
-!  main loop for the different points.
+c  main loop for the different points.
       do 80 i = 1, m
-!  fetch a new x-value arg.
+c  fetch a new x-value arg.
         arg = x(i)
-!  check if arg is in the support
+c  check if arg is in the support
         if (arg .lt. tb .or. arg .gt. te) then
             if (e .eq. 0) then
                 goto 35
@@ -470,20 +470,20 @@
                 endif
             endif
         endif
-!  search for knot interval t(l) <= arg < t(l+1)
-!++..
+c  search for knot interval t(l) <= arg < t(l+1)
+c++..
  35     if (arg .ge. t(l) .or. l1 .eq. k2) go to 40
         l1 = l
         l = l - 1
         go to 35
-!..++
+c..++
   40    if(arg .lt. t(l1) .or. l .eq. nk1) go to 50
         l = l1
         l1 = l + 1
         go to 40
-!  evaluate the non-zero b-splines at arg.
+c  evaluate the non-zero b-splines at arg.
   50    call fpbspl(t, n, k, arg, l, h)
-!  find the value of s(x) at x=arg.
+c  find the value of s(x) at x=arg.
         sp = 0.0d0
         ll = l - k1
         do 60 j = 1, k1
@@ -496,28 +496,28 @@
       end
 
       subroutine fpbspl(t,n,k,x,l,h)
-!  subroutine fpbspl evaluates the (k+1) non-zero b-splines of
-!  degree k at t(l) <= x < t(l+1) using the stable recurrence
-!  relation of de boor and cox.
-!  Travis Oliphant  2007
-!    changed so that weighting of 0 is used when knots with
-!      multiplicity are present.
-!    Also, notice that l+k <= n and 1 <= l+1-k
-!      or else the routine will be accessing memory outside t
-!      Thus it is imperative that that k <= l <= n-k but this
-!      is not checked.
-!  ..
-!  ..scalar arguments..
+c  subroutine fpbspl evaluates the (k+1) non-zero b-splines of
+c  degree k at t(l) <= x < t(l+1) using the stable recurrence
+c  relation of de boor and cox.
+c  Travis Oliphant  2007
+c    changed so that weighting of 0 is used when knots with
+c      multiplicity are present.
+c    Also, notice that l+k <= n and 1 <= l+1-k
+c      or else the routine will be accessing memory outside t
+c      Thus it is imperative that that k <= l <= n-k but this
+c      is not checked.
+c  ..
+c  ..scalar arguments..
       real*8 x
       integer n,k,l
-!  ..array arguments..
+c  ..array arguments..
       real*8 t(n),h(20)
-!  ..local scalars..
+c  ..local scalars..
       real*8 f,one
       integer i,j,li,lj
-!  ..local arrays..
+c  ..local arrays..
       real*8 hh(19)
-!  ..
+c  ..
       one = 0.1d+01
       h(1) = one
       do 20 j=1,k
@@ -537,4 +537,5 @@
   20  continue
       return
       end
+
 

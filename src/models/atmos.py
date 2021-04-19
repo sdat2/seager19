@@ -829,10 +829,11 @@ def output_trends(direc: str = "") -> None:
 
 @timeit
 def get_dclim(direc: str = "") -> any:
-    """opens the files, and applies functions.
+    """Opens the files, and applies functions.
 
     Returns:
-        any: great.
+        any: A list of outputs. 
+            dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
     """
     files = []
 

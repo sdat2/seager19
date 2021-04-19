@@ -1,6 +1,6 @@
-!----------------------------------------------------------------
+c----------------------------------------------------------------
       subroutine init_data_out (tfile, dfile)
-!----------------------------------------------------------------
+c----------------------------------------------------------------
       use wrap
       implicit none
       include 'om_wrap.h'
@@ -52,8 +52,8 @@
       idcph = idvar_tios ('CPH'//CHAR(0), id_g8, 0)
       idlight  = idvar_tios ('LIGHT'//CHAR(0), id_g8, 0)
 
-!      idn2 = idvar_tios ('N2\0', id_g3, 0)
-!      idtp = idvar_tios ('TEMP_PROF\0', id_g3, 0)
+c      idn2 = idvar_tios ('N2\0', id_g3, 0)
+c      idtp = idvar_tios ('TEMP_PROF\0', id_g3, 0)
 
       call tios_var (hmod,'HMODEL'//CHAR(0), id_g2, 0)
       call tios_var (htherm,'HTHERM'//CHAR(0), id_g2, 0)
@@ -122,11 +122,11 @@
       return
       end
 
-!-----------------------------------
+c-----------------------------------
       subroutine data_out (time)
       use wrap
       include 'om_wrap.h'
-!-----------------------------------
+c-----------------------------------
       real time
 
       common /tios_id/ idh, idcph, idlight, idn2, idtp
@@ -135,7 +135,7 @@
 
       if (n_debug.ne.0) print*,'beginning of data_out'
 
-!      CALL TIOS_CNTRL (1, 1)   ! to dump every time step
+c      CALL TIOS_CNTRL (1, 1)   ! to dump every time step
 
       if (n_debug.ne.0) print*,time
 
@@ -154,12 +154,12 @@
       iret =  tios_putvar (v_ekman, time, 0)
 
       iret = tios_putidvar(idcph, tp, time, flip_cph)
-!      iret = tios_putidvar(idlight, tp, time, flip_light)
-!      iret = tios_putvar(tp, time, flip_cph)
-!      iret = tios_putvar(tp, time, flip_light)
+c      iret = tios_putidvar(idlight, tp, time, flip_light)
+c      iret = tios_putvar(tp, time, flip_cph)
+c      iret = tios_putvar(tp, time, flip_light)
 
-!      iret = tios_putidvar(idn2, tp, time, flip_n2)
-!      iret = tios_putidvar(idtp, tp, time, flip_temp)
+c      iret = tios_putidvar(idn2, tp, time, flip_n2)
+c      iret = tios_putidvar(idtp, tp, time, flip_temp)
 
       iret =  tios_putvar (hmixx, time, 0)
 
@@ -192,24 +192,24 @@
       end
 
 
-!-----------------------------------
+c-----------------------------------
       subroutine make_huv
-!-----------------------------------
+c-----------------------------------
       use wrap
       include 'om_wrap.h'
       logical non_stable
 
       call sum_modes(nx,ny,nxyc,nz,nmodes,hscl,uscl,dscl,hvm,vvm,hcm,
      *               hm,um,vm,p,u,v,nmixx,u1,v1,t,zin,use_ekm)
-!      iflag = non_stable(iout, nx, ny, nxyc,nz, u, v)
+c      iflag = non_stable(iout, nx, ny, nxyc,nz, u, v)
 
       return
       end
 
-!-----------------------------------
+c-----------------------------------
       subroutine sum_modes(nx,ny,nxyc,nz,nmodes,hscl,uscl,dscl,hvm,vvm,hcm,
      *                     hm,um,vm,p,u,v,nmixx,u1,v1,t,zin,use_ekm)
-!-----------------------------------
+c-----------------------------------
       include 'om_core.h'
       dimension hm(ny,nx,nmodes),um(ny,nx,nmodes),vm(ny,nx,nmodes)
      *         ,p(nx,ny,nz),u(nx,ny,nz),v(nx,ny,nz)
@@ -275,16 +275,16 @@
       return
       end
 
-!---------------------------------------------------------------
+c     --------------------------------------------------------
       logical function non_stable (iout, nx, ny, nxyc ,nz, u, v)
-!---------------------------------------------------------------
+c     --------------------------------------------------------
       include 'om_core.h'
-!     check to see that velocities are not bizarre
+c     check to see that velocities are not bizarre
       integer iout, nx, ny, nz, iox(1),nxyc
       real u(nx,ny,nz),v(nx,ny,nz)
 
       integer i, icheck
-!
+c
       non_stable = .false.
       icheck = 0
       do n = 1, nxyc
@@ -310,9 +310,9 @@
       end
 
 
-!-----------------------------------
+c-----------------------------------
       subroutine flip_cph
-!-----------------------------------
+c-----------------------------------
       use wrap
       include 'om_wrap.h'
 
@@ -321,9 +321,9 @@
       return
       end
 
-!-----------------------------------
+c-----------------------------------
       subroutine flip_light
-!-----------------------------------
+c-----------------------------------
       use wrap
       include 'om_wrap.h'
 
@@ -332,9 +332,9 @@
       return
       end
 
-!-----------------------------------
+c-----------------------------------
       subroutine flip_n2
-!-----------------------------------
+c-----------------------------------
       use wrap
       include 'om_wrap.h'
 
@@ -343,9 +343,9 @@
       return
       end
 
-!-----------------------------------
+c-----------------------------------
       subroutine flip_temp
-!-----------------------------------
+c-----------------------------------
       use wrap
       include 'om_wrap.h'
 
@@ -354,9 +354,9 @@
       return
       end
 
-!-----------------------------------
+c-----------------------------------
       subroutine transpose(nx,ny,nmodes,nz,cph,tp)
-!-----------------------------------
+c-----------------------------------
       real cph(nmodes,nx,ny),tp(nx,ny,nz)
 
 
