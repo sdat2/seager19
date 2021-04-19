@@ -343,10 +343,10 @@ def f_qlw2(temperature: xr.DataArray) -> xr.DataArray:
     """Second term in QLW equation (14).
 
     Args:
-        temperature (xr.DataArray): [description]
+        temperature (xr.DataArray): temperature in Kelvin.
 
     Returns:
-        xr.DataArray: [description]
+        xr.DataArray: heat from long wave heat flux term 2.
 
     """
     return (
@@ -365,10 +365,10 @@ def f_qlw(
     """Full long wave heat flux.
 
     Args:
-        temp (xr.DataArray): [description]
+        temp (xr.DataArray): temperature in kelvin.
         cloud_cover (xr.DataArray): cloud cover, float.
-        f (float): [description]
-        rh_loc (xr.DataArray): [description]
+        f (float): f.
+        rh_loc (xr.DataArray): relative humidity.
 
     Returns:
         xr.DataArray: Full long wave heat flux.
@@ -513,6 +513,10 @@ def tdma_solver(
     """tdma solver.
 
     'tdma_solver'  0.00243 s
+
+    # Tri Diagonal Matrix Algorithm (a.k.a Thomas algorithm) solver
+
+    https://gist.github.com/cbellei/8ab3ab8551b8dfc8b081c518ccd9ada9
 
     Args:
         ny_loc (int):
@@ -856,8 +860,7 @@ def output_trends(direc: str = "") -> None:
     ds_subset.vtrend.plot(cmap="RdBu_r")
     plt.subplot(313)
     ds_subset.PRtrend.plot(cmap="RdBu_r")
-    plt.savefig(os.path.join(direc, "S90-H2000-Stab.eps"),
-                format="eps", dpi=1000)
+    plt.savefig(os.path.join(direc, "S90-H2000-Stab.eps"), format="eps", dpi=1000)
     plt.clf()
 
     # adding units.
@@ -930,7 +933,7 @@ def output_trends(direc: str = "") -> None:
             plt.title(r"$Qc (mm/day)$")
             # m.fillcontinents(color="grey")
             # m.pcolormesh(X, Yu, 24 * 3600 * AQ, cmap="RdBu_r", vmin=-5, vmax=5)
-            #CS = plt.contour(
+            # CS = plt.contour(
             #    x_axis, y_axis_u, 24 * 3600 * AQ, 15, colors="k",
             #  # linewidths=0.2, vmin=-20, vmax=20
             # )
@@ -938,8 +941,10 @@ def output_trends(direc: str = "") -> None:
             plt.tight_layout()
             plt.subplots_adjust(top=0.90)
             plt.savefig(
-                os.path.join(direc, "windsFromSST-K"
-                + str(k_days) + "-eps" + str(eps_days) + ".eps"),
+                os.path.join(
+                    direc,
+                    "windsFromSST-K" + str(k_days) + "-eps" + str(eps_days) + ".eps",
+                ),
                 format="eps",
                 dpi=1000,
             )
@@ -1045,8 +1050,8 @@ def make_figure(
     Args:
         direc (str): directory to save outputs to.
         cmap (str, optional): matplotlib colormap. Defaults to "viridis".
-        lat (str, optional): [description]. Defaults to "latitude".
-        lon (str, optional): [description]. Defaults to "longitude".
+        lat (str, optional): latitude label name. Defaults to "latitude".
+        lon (str, optional): longitude label name. Defaults to "longitude".
     """
 
     dclim, u_b, _, _, _, _, _, _, _ = get_dclim(direc=direc)
