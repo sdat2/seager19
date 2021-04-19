@@ -59,7 +59,7 @@ rho_00: float = 0.3
 pr_max: float = 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day.
 relative_humidity: float = 0.80  # relative humidity uniformly 0.8
 number_iterations: int = 50  #  int
-gravity = 9.8  #  m s-2
+gravity: float = 9.8  #  m s-2
 height_tropopause = 15e3  # metres
 theta_00 = 300  # potential temperature at the surface.
 nbsq = 3.0e-4  # N^2 s-2. N^2 is a specified buoyancy frequency.
@@ -88,19 +88,21 @@ p_s = 1000  # pressure at the surface?
 es_0 = 6.11
 delta_temp = 1.0  #  ΔT = 1 K
 f2 = 0.05  #  f2 = 0.05
-# 'a' should decrease when deep convection happens above 28 degC
-#  a = Ts-temp_0_c;a[a>28] = 40;a[a<=28] = 80;a = 0.01*a
-a = 0.6  # this isn't the option used in the paper.
+# 'a_cloud_const' should decrease when deep convection happens above 28 degC
+#  a_cloud_const = Ts-temp_0_c;a_cloud_const[a_cloud_const>28] = 40;
+# a_cloud_const[a_cloud_const<=28] = 80;
+# a_cloud_const = 0.01*a_cloud_const
+a_cloud_const = 0.6  # this isn't the option used in the paper.
 
 # basic parameters
 temp_0_c = 273.15  # zero degrees
 f1_bar = 0.39  #  f1 = 0.39
 # f'1  is the anomaly in f1—a parameter that can be adjusted
 # to control the variation in surface longwave radiation due
-# to a change in CO2
+# to a_cloud_const change in CO2
 u_bar = 5.0
 temp_surface_bar: float = temp_0_c + 25  # 25C in Kelvin
-c_bar = 0.6
+c_bar = 0.6  # C is the cloud cover. perhaps C_bar is the average.
 
 # grid characteristics
 
@@ -316,7 +318,7 @@ def f_qlw1(
 ) -> xr.DataArray:
     """The first term of the long wave flux equation (14).
 
-    Qlw1 = epsilon sigma T^4 f' (1 - a C^2)
+    Qlw1 = epsilon sigma T^4 f' (1 - a_cloud_const C^2)
 
     Args:
         temperature (xr.DataArray): temperature of the surface?
@@ -330,7 +332,7 @@ def f_qlw1(
     temp_a = f_temp_a(temperature)
     return (
         const2
-        * (1 - a * cloud_cover ** 2)
+        * (1 - a_cloud_const * cloud_cover ** 2)
         # bar(Ts)^4
         * temp_a ** 4
         * (f - f2 * np.sqrt(f_ebar(temperature, rh_loc)))
@@ -389,7 +391,7 @@ def f_dqlw_df(
     Returns:
         xr.DataArray: flux dqlw_df.
     """
-    return const2 * (1 - a * cloud_cover ** 2) * temperature ** 4
+    return const2 * (1 - a_cloud_const * cloud_cover ** 2) * temperature ** 4
 
 
 @typechecked
@@ -417,7 +419,7 @@ def f_dqlw_dtemp(
     # q_s(Ts) is the saturation-specific humidity at the SST
     dqs_dtemp = f_dqs_dtemp(temperature)
     return const2 * (
-        (1 - a * cloud_cover ** 2)
+        (1 - a_cloud_const * cloud_cover ** 2)
         * temperature ** 3
         * (4 * f - f2 * np.sqrt(e_bar) * (4 + temperature * dqs_dtemp / 2 / q_s))
         + 12 * temperature ** 2 * delta_temp
@@ -516,10 +518,11 @@ def tdma_solver(
 
     # Tri Diagonal Matrix Algorithm (a.k.a Thomas algorithm) solver
 
+    E.g.
     https://gist.github.com/cbellei/8ab3ab8551b8dfc8b081c518ccd9ada9
 
     Args:
-        ny_loc (int):
+        ny_loc (int): local version of ny_loc.
         a_loc (np.ndarray): [description]
         b (np.ndarray): [description]
         c (np.ndarray): [description]
@@ -561,9 +564,9 @@ def s91_solver(q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
      Usef fft, ifft.
 
-               g . pi . N ^ 2
-         q1 = ---------------- . (k theta_s Q_c)
-               theta_00 . z_t
+           g . pi . N ^ 2
+     q1 = ---------------- . (k theta_s Q_c)
+           theta_00 . z_t
 
      Args:
          q1 (np.ndarray): modified heating that drives winds.
