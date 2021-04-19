@@ -39,14 +39,10 @@ import numpy as np
 from scipy.interpolate import interp2d
 from scipy.fftpack import fft, ifft
 import matplotlib.pyplot as plt
-import logging
 import xarray as xr
 from typeguard import typechecked
 from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH
 from src.utils import timeit
-
-
-# log = logging.getLogger(__name__)
 
 
 # ------------- constants -----------------------
@@ -205,7 +201,7 @@ def f_es(temperature: xr.DataArray) -> xr.DataArray:
 
 @typechecked
 def f_qs(temperature: xr.DataArray) -> xr.DataArray:
-    """flux q_s.
+    """Flux q_s.
 
     q_s(Ts) is the saturation-specific humidity at the SST
     rqs(Ts) = q_s(Ts)
@@ -259,7 +255,7 @@ def f_qlh(
 def f_dqlh_dtemp(
     temperature: xr.DataArray, u_sp: Union[xr.DataArray, float], rh_loc: xr.DataArray
 ) -> xr.DataArray:
-    """flux dqlh_dtemp.
+    """Flux dqlh_dtemp.
 
     Args:
         temperature (xr.DataArray): temperature (in kelvin?).
@@ -388,7 +384,7 @@ def f_dqlw_df(
 
     Args:
         temperature (xr.DataArray): temp.
-        cloud_cover (Union[xr.DataArray, float]: constant.
+        cloud_cover (Union[xr.DataArray, float]): constant.
 
     Returns:
         xr.DataArray: flux dqlw_df.
@@ -403,7 +399,7 @@ def f_dqlw_dtemp(
     f: float,
     rh_loc: xr.DataArray,
 ) -> xr.DataArray:
-    """flux dqlw_dtemp.
+    """Flux dqlw_dtemp.
 
     Args:
         temperature (xr.DataArray): [description]
@@ -429,20 +425,20 @@ def f_dqlw_dtemp(
 
 
 @typechecked
-def f_qa(ts: np.ndarray, sp: np.ndarray) -> np.ndarray:
-    """f_qa.
+def f_qa(t_s: np.ndarray, s_p: np.ndarray) -> np.ndarray:
+    """Flux qa.
 
     Args:
-        ts (np.ndarray): sst in Kelvin
-        sp (np.ndarray): surface pressure in mb
+        t_s (np.ndarray): sst in Kelvin.
+        s_p (np.ndarray): surface pressure in mb.
 
     Returns:
-        np.ndarray: q_a, surface specific humidity
+        np.ndarray: q_a, surface specific humidity.
 
     """
-    efac = 0.622
-    es = es_0 * np.exp(17.67 * (ts - 273.15) / ((ts - 273.15) + 243.5))
-    return efac * relative_humidity * es / sp
+    e_fac = 0.622
+    e_s = es_0 * np.exp(17.67 * (t_s - 273.15) / ((t_s - 273.15) + 243.5))
+    return e_fac * relative_humidity * e_s / s_p
 
 
 @typechecked
@@ -633,6 +629,9 @@ def smooth121(
         perdims (list, optional): list of dimension to be treated as period
             boundaries - e.g., ['lon']. Defaults to [].
 
+    Returns:
+        xr.DataArray: smoothed output.
+
     """
     mask = da.notnull()
     weight = xr.DataArray([0.25, 0.5, 0.25], dims=["window"])
@@ -662,14 +661,15 @@ def output_trends(direc: str = "") -> None:
     """output trends ds.
 
     𝜀𝑢 . 𝑢 − 𝑓 . 𝑣 + 𝜙 . 𝑥 =  0   (1)
+
     𝜀𝑣 . 𝑣 + 𝑓 . 𝑢 + 𝜙 . 𝑦 =  0   (2)
+
     𝜀𝜙 . 𝜙 + 𝑢 . 𝑥 + 𝑣 . 𝑦 = −𝑄1  (3)
 
     Args:
         direc (str): directory to save to.
 
     """
-    #  log("Output trends.")
 
     ds = xr.Dataset(
         {"X": ("X", x_axis), "Yu": ("Yu", y_axis_u), "Yv": ("Yv", y_axis_v)}
@@ -720,6 +720,10 @@ def output_trends(direc: str = "") -> None:
     ds["prTrend"] = (["Yu", "X"], pr_trend)
     ds["prTrend"] = smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
+    ds.prTrend.plot()
+    plt.savefig(os.path.join(direc, "prTrend.png"))
+    plt.clf()
+
     dsmask = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "mask-360x180.nc"))
     fmask = interp2d(dsmask.X, dsmask.Y, dsmask.mask, kind="linear")
     ds["mask"] = (["Yu", "X"], fmask(x_axis, y_axis_u))
@@ -729,19 +733,19 @@ def output_trends(direc: str = "") -> None:
     wnsp_clim = ds.wnspClim.values
     wnsp_clim[wnsp_clim < wnsp_min] = wnsp_min
     mask = ds.mask.values
-    wend = wnsp_clim
-    wbeg = wnsp_clim
+    w_end = wnsp_clim
+    w_beg = wnsp_clim
 
-    tsend = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
+    ts_end = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
     ts_beg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
-    prend = (ds.prClim + ds.prTrend / 2).values
-    prbeg = (ds.prClim - ds.prTrend / 2).values
-    q_th_end = K1 * (tsend - 30) / b_coeff
+    pr_end = (ds.prClim + ds.prTrend / 2).values
+    pr_beg = (ds.prClim - ds.prTrend / 2).values
+    q_th_end = K1 * (ts_end - 30) / b_coeff
     q_th_beg = K1 * (ts_beg - 30) / b_coeff
 
-    qaend = f_qa(tsend, sp_clim)
-    # qaend = f_qa2(tsend)
-    e_end = f_evap(mask, qaend, wnsp_clim)
+    qa_end = f_qa(ts_end, sp_clim)
+    # qa_end = f_qa2(ts_end)
+    e_end = f_evap(mask, qa_end, wnsp_clim)
     pr_end = e_end
     pr_end[pr_end < 0] = 0
     # pr_end[pr_end>pr_max] = pr_max
@@ -756,7 +760,7 @@ def output_trends(direc: str = "") -> None:
     q_th = q_th_end
     pr = pr_end
     e1 = e_end
-    qa1 = qaend
+    qa1 = qa_end
 
     # Find total pr, u and v at end
     for _ in range(0, number_iterations):
@@ -772,16 +776,16 @@ def output_trends(direc: str = "") -> None:
         d_amc = xr.DataArray(f_mc(qa1, u1, v1), dims=["Yu", "X"])
         mc1 = smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
         if prcp_land:
-            pr = (1 - mask) * (mc1 + e1) + mask * prend
+            pr = (1 - mask) * (mc1 + e1) + mask * pr_end
         else:
             pr = (1 - mask) * (mc1 + e1)
         pr[pr < 0] = 0
         # pr[pr > pr_max] = pr_max
 
     mc_end = mc1
-    uend = u1
-    vend = v1
-    phiend = phi1
+    u_end = u1
+    v_end = v1
+    phi_end = phi1
     pr_end = pr
 
     q_th = q_th_beg
@@ -800,39 +804,39 @@ def output_trends(direc: str = "") -> None:
         d_amc = xr.DataArray(f_mc(qa1, u1, v1), dims=["Yu", "X"])
         mc1 = smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
         if prcp_land:
-            pr = (1 - mask) * (mc1 + e1) + mask * prbeg
+            pr = (1 - mask) * (mc1 + e1) + mask * pr_beg
         else:
             pr = (1 - mask) * (mc1 + e1)
         pr[pr < 0] = 0
         # pr[pr > pr_max] = pr_max
 
     mc_beg = mc1
-    ubeg = u1
-    vbeg = v1
-    phibeg = phi1
+    u_beg = u1
+    v_beg = v1
+    phi_beg = phi1
     pr_beg = pr
 
     # save and plot the trends
-    ds["utrend"] = (["Yu", "X"], uend - ubeg)
-    ds["vtrend"] = (["Yv", "X"], vend - vbeg)
-    ds["phitrend"] = (["Yu", "X"], phiend - phibeg)
-    ds["tstrend"] = (["Yu", "X"], tsend - ts_beg)
+    ds["utrend"] = (["Yu", "X"], u_end - u_beg)
+    ds["vtrend"] = (["Yv", "X"], v_end - v_beg)
+    ds["phitrend"] = (["Yu", "X"], phi_end - phi_beg)
+    ds["tstrend"] = (["Yu", "X"], ts_end - ts_beg)
     ds["PRtrend"] = (["Yu", "X"], pr_end - pr_beg)
     ds["Qthtrend"] = (["Yu", "X"], q_th_end - q_th_beg)
-    ds["uend"] = (["Yu", "X"], uend)
-    ds["vend"] = (["Yv", "X"], vend)
-    ds["wend"] = (["Yu", "X"], wend)
-    ds["phiend"] = (["Yu", "X"], phiend)
-    ds["tsend"] = (["Yu", "X"], tsend)
+    ds["uend"] = (["Yu", "X"], u_end)
+    ds["vend"] = (["Yv", "X"], v_end)
+    ds["wend"] = (["Yu", "X"], w_end)
+    ds["phiend"] = (["Yu", "X"], phi_end)
+    ds["tsend"] = (["Yu", "X"], ts_end)
     ds["PRend"] = (["Yu", "X"], pr_end)
     ds["Qthend"] = (["Yu", "X"], q_th_end)
     ds["Eend"] = (["Yu", "X"], e_end)
     ds["MCend"] = (["Yu", "X"], mc_end)
-    ds["qaend"] = (["Yu", "X"], qaend)
-    ds["ubeg"] = (["Yu", "X"], ubeg)
-    ds["vbeg"] = (["Yv", "X"], vbeg)
-    ds["wbeg"] = (["Yu", "X"], wbeg)
-    ds["phibeg"] = (["Yu", "X"], phibeg)
+    ds["qaend"] = (["Yu", "X"], qa_end)
+    ds["ubeg"] = (["Yu", "X"], u_beg)
+    ds["vbeg"] = (["Yv", "X"], v_beg)
+    ds["wbeg"] = (["Yu", "X"], w_beg)
+    ds["phibeg"] = (["Yu", "X"], phi_beg)
     ds["tsbeg"] = (["Yu", "X"], ts_beg)
     ds["PRbeg"] = (["Yu", "X"], pr_beg)
     ds["Qthbeg"] = (["Yu", "X"], q_th_beg)
@@ -842,6 +846,21 @@ def output_trends(direc: str = "") -> None:
 
     # There is 2 gridpoint noise in the phi field - so add a smooth in X:
     ds["phitrend"] = smooth121(ds.phitrend, ["X"], number_smooths=1, perdims=["X"])
+
+    # next ds
+    ds_subset = ds.sel(X=slice(120, 290), Yu=slice(-40, 40))
+    plt.figure(figsize=(8, 5))
+    plt.subplot(311)
+    ds_subset.utrend.plot(cmap="RdBu_r")
+    plt.subplot(312)
+    ds_subset.vtrend.plot(cmap="RdBu_r")
+    plt.subplot(313)
+    ds_subset.PRtrend.plot(cmap="RdBu_r")
+    plt.savefig(os.path.join(direc, "S90-H2000-Stab.eps"),
+                format="eps", dpi=1000)
+    plt.clf()
+
+    # adding units.
 
     ds.utrend.attrs = [("units", "m/s")]
     ds.vtrend.attrs = [("units", "m/s")]
@@ -878,6 +897,9 @@ def output_trends(direc: str = "") -> None:
 @typechecked
 def get_dclim(direc: str = "") -> any:
     """Opens the files, and applies functions.
+
+    Args:
+        direc (str): directory to save outputs to.
 
     Returns:
         any: A list of outputs.
@@ -966,13 +988,11 @@ def make_figure(
     """Make figure.
 
     Args:
-    Args:
-        direc (str): direc.
+        direc (str): directory to save outputs to.
         cmap (str, optional): matplotlib colormap. Defaults to "viridis".
         lat (str, optional): [description]. Defaults to "latitude".
         lon (str, optional): [description]. Defaults to "longitude".
     """
-    # log("Make figure.")
 
     dclim, u_b, _, _, _, _, _, _, _ = get_dclim(direc=direc)
 
@@ -1035,7 +1055,7 @@ def output_dq(direc: str = "") -> None:
     """Outputs "dQ.nc".
 
     Args:
-        direc (str): [description]
+        direc (str): directory to save outputs to.
     """
 
     dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = get_dclim(direc=direc)
