@@ -31,8 +31,8 @@ install:
   - conda activate ./env
   - python3 src/data_loading/download.py
   - cloc --report-file=docs/lang.txt --sum-one  $(git ls-files)
-# - pip install -r requirements/requirements.txt
-# - pip install -e .
+  # - pip install -r requirements/requirements.txt
+  # - pip install -e .
 
 # command to run tests
 script:
