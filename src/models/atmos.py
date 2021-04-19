@@ -889,6 +889,61 @@ def output_trends(direc: str = "") -> None:
 
         ds.to_netcdf(outfile, encoding=en_dict)
 
+        ftitle = (
+            r"Winds: (u,v) from sst: "
+            + r"  $K_1=1/"
+            + str(k_days)
+            + r"$, $\epsilon=1/"
+            + str(eps_days)
+            + r"$"
+        )
+        # warnings.filterwarnings("ignore")
+        do_plot = False
+        # vtrend = ds.vtrend.values
+        # utrend = ds.utrend.values
+        pr_trend = ds.prTrend.values
+        if do_plot:
+            # nsy = 2  # plot every nsy grid point
+            # nsx = nsy
+            plt.figure(figsize=(8, 8))
+            plt.suptitle(ftitle, size=14)
+            plt.subplot(211)
+            plt.title(r"$(u,v)$ vectors, magnitude ($m/s$) in contours")
+            # m.fillcontinents(color="grey")
+            # Av = np.squeeze(vtrend[1:ny, :] + vtrend[0 : ny - 1, :]) / 2.0
+            # Au = np.squeeze(utrend[:, :])
+            # AQ = np.squeeze(pr_trend[:, :])
+            # mag = np.sqrt(Au * Au + Av * Av)
+            # CS = plt.contour(X, Yu, mag, 15, colors="k",
+            #  linewidths=0.2, vmin=0, vmax=10)
+            # plt.clabel(CS, inline=1, fontsize=10, fmt="%.2f")
+            # CS=plt.contour(X2,Yu,mag,5,linewidths=1)
+            # plt.clabel(CS, inline=1, fontsize=10,fmt='%.1f')
+            # print(np.shape(Au[::nsy,::nsx]),np.shape(Av[::nsy,::nsx]))
+            print(ds)
+            print(ds.utrend)
+            print(ds.vtrend)
+            ds.plot.quiver(x="X", y="Yu", u="utrend", v="vtrend")
+            # m.quiver(X[::nsx], Yu[::nsy], Au[::nsy, ::nsx]
+            # Av[::nsy, ::nsx], scale=75)
+            plt.subplot(212)
+            plt.title(r"$Qc (mm/day)$")
+            # m.fillcontinents(color="grey")
+            # m.pcolormesh(X, Yu, 24 * 3600 * AQ, cmap="RdBu_r", vmin=-5, vmax=5)
+            #CS = plt.contour(
+            #    x_axis, y_axis_u, 24 * 3600 * AQ, 15, colors="k",
+            #  # linewidths=0.2, vmin=-20, vmax=20
+            # )
+            # plt.clabel(CS, inline=1, fontsize=10, fmt="%.2f")
+            plt.tight_layout()
+            plt.subplots_adjust(top=0.90)
+            plt.savefig(
+                os.path.join(direc, "windsFromSST-K"
+                + str(k_days) + "-eps" + str(eps_days) + ".eps"),
+                format="eps",
+                dpi=1000,
+            )
+
 
 ###--------------------------- Begin dQ ----------------------------
 
