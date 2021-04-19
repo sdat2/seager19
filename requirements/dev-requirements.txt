@@ -23,6 +23,7 @@ pre-commit          # perform checks on code
 pytest
 coveralls
 recursive_diff     # test netcdfs
+typeguard
 
 # documentation
 sphinx
@@ -35,7 +36,6 @@ sphinx-fortran
 sphinx-c-autodoc
 fortran-language-server
 pandoc
-
 
 # linear algebra and general data analysis
 numpy               # arrays, linear algebra

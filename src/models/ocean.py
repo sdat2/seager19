@@ -64,12 +64,20 @@ def run_all(cfg: DictConfig) -> None:
 
 
 def copy_run_rdir(file_name: str) -> None:
-    """Copy a file from the ocean/RUN directory."""
+    """Copy a file from the ocean/RUN directory.
+
+    Args:
+        file_name (str): file name to copy.
+    """
     run("cp " + file_name + " " + str(wandb.run.dir))
 
 
 def copy_output_rdir(file_name: str) -> None:
-    """Copy a file from the ocean/output directory."""
+    """Copy a file from the ocean/output directory.
+
+    Args:
+        file_name (str): file name to copy.
+    """
     os.system(
         "cd "
         + str(OCEAN_OUTPUT_PATH)
@@ -81,7 +89,11 @@ def copy_output_rdir(file_name: str) -> None:
 
 
 def copy_data_rdir(file_name: str) -> None:
-    """Copy a file from the ocean/DATA directory."""
+    """Copy a file from the ocean/DATA directory.
+
+    Args:
+        file_name (str): file name to copy.
+    """
     os.system(
         "cd " + str(OCEAN_DATA_PATH) + " \n cp " + file_name + " " + str(wandb.run.dir)
     )

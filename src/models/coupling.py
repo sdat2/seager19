@@ -7,7 +7,7 @@ from typing import Tuple
 import xarray as xr
 
 rho_a: float = 1.225  # kg m-3
-cd: float = 2.25e-3   # Pa m-1 s
+cd: float = 2.25e-3  # Pa m-1 s
 
 
 def f_stress(
