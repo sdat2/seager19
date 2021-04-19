@@ -614,9 +614,9 @@ def smooth121(
 def output_trends(direc: str = "") -> None:
     """output trends ds.
 
-    𝜀𝑢𝑢 − 𝑓𝑣 + 𝜙𝑥 = 0   (1)
-    𝜀𝑣𝑣 + 𝑓𝑢 + 𝜙𝑦 = 0   (2)
-    𝜀𝜙𝜙 + 𝑢𝑥 + 𝑣𝑦 = −𝑄1 (3)
+    𝜀𝑢 . 𝑢 − 𝑓 . 𝑣 + 𝜙 . 𝑥 =  0   (1)
+    𝜀𝑣 . 𝑣 + 𝑓 . 𝑢 + 𝜙 . 𝑦 =  0   (2)
+    𝜀𝜙 . 𝜙 + 𝑢 . 𝑥 + 𝑣 . 𝑦 = −𝑄1  (3)
 
     Args:
         direc (str): directory to save to.
@@ -832,7 +832,7 @@ def get_dclim(direc: str = "") -> any:
     """Opens the files, and applies functions.
 
     Returns:
-        any: A list of outputs. 
+        any: A list of outputs.
             dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
     """
     files = []

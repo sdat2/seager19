@@ -30,6 +30,7 @@ def _rdict(index: int) -> dict:
 
     Returns:
         dict: renaming dict.
+
     """
     return {
         "T_0" + str(index): "time",
@@ -47,6 +48,7 @@ def animate_ds(ds: xr.Dataset, file_name: str, output_dir: str) -> None:
         ds (xr.Dataset): xarray.Dataset to animate the variables of.
         file_name (str): Name of dataset to be associated with the animations.
         output_dir (str): Full path to output directory to put the animations in.
+
     """
     cmap_d = {
         "DYN_PRES": "delta",

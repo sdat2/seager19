@@ -6,8 +6,8 @@ from src.models.coupling import f_stress
 from typing import Tuple
 import xarray as xr
 
-rho_a: float = 1.225
-cd: float = 2.25e-3
+rho_a: float = 1.225  # kg m-3
+cd: float = 2.25e-3   # Pa m-1 s
 
 
 def f_stress(
@@ -32,6 +32,11 @@ def f_stress(
 
     Returns:
         Tuple[xr.DataArray, xr.DataArray]: [zonal wind stress, meridional wind stress]
+
     """
     stress_coeff = rho_air * c_d * wind_speed_mean
     return stress_coeff * u_wind, stress_coeff * v_wind
+
+
+if __name__ == "__main__":
+    print("ok")

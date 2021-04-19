@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 
 def compile_all() -> None:
-    """Compile the Fortran/C"""
+    """Compile the Fortran/C."""
     os.system("cd " + str(OCEAN_SRC_PATH) + " \npwd\nmake all")
 
 
@@ -41,7 +41,7 @@ def run(command: str) -> None:
 
 @timeit
 def run_all(cfg: DictConfig) -> None:
-    """run all the executables.
+    """Run all the executables.
 
     Args:
         cfg (DictConfig): the model configs to pass.

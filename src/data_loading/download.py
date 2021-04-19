@@ -22,6 +22,7 @@ def get_and_unzip(direc: str, url: str, name: str) -> None:
         direc (str): directory to put the data in.
         url (str): url of the zip file.
         name (str): name of file.
+
     """
 
     write_path = os.path.join(direc, name)
