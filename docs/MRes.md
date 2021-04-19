@@ -1,11 +1,16 @@
 # MRes Proposal
 
+Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble members have a positive NINO3.4 trend where as the observations show a negative NINO3.4 trend.
 
 ![SST output over spin up period](gifs/trend_graph.png)
+(observations = orange diamonds / blue crosses;
+ models = blue / black.)
 
 ![SST output over spin up period](gifs/trend_graphic.png)
+(This suggests an over all tendency to La Nina in observations rather than El Nino)
 
-Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble members do not follow the observed trend in ENSO, this observed trend can be reproduced with a simple coupled physical model. Here, we carry out a parameter sensitivity analysis of the S19 model. Of particular interest might be the S19 model's sensitivity to the drag coefficient, as S19 note that they chose a much higher value than normal so as to replicate the amplitude of ENSO. This sensitivity analysis could first be achieved using a Gaussian Process (GP) with a radial basis function (RBF) kernel of a given smoothness, as the number of data points will initially be quite small (<10^{4}). S19 is computationally lightweight, allowing for a large number of parallel sensitivity experiments to be run at the same time in order to generate the training dataset for the GP model. The GP model will allow us to rapidly explore the parameter space in between our chosen parameter configurations, in terms of both the mean value and uncertainties. From this initial baseline, we could expand to more sophisticated sensitivity analyses, and/or more complicated model settings.
+They showed that the observed trend can be reproduced with a simple coupled physical model.
+Here, we carry out a parameter sensitivity analysis of the S19 model. Of particular interest might be the S19 model's sensitivity to the drag coefficient, as S19 note that they chose a much higher value than normal so as to replicate the amplitude of ENSO. This sensitivity analysis could first be achieved using a Gaussian Process (GP) with a radial basis function (RBF) kernel of a given smoothness, as the number of data points will initially be quite small (<10^{4}). S19 is computationally lightweight, allowing for a large number of parallel sensitivity experiments to be run at the same time in order to generate the training dataset for the GP model. The GP model will allow us to rapidly explore the parameter space in between our chosen parameter configurations, in terms of both the mean value and uncertainties. From this initial baseline, we could expand to more sophisticated sensitivity analyses, and/or more complicated model settings.
 
 
 ![SST output over spin up period](gifs/om_diag_SST_SST.gif)
@@ -79,14 +84,14 @@ cult? Bulletin of the American Meteorological Society 98, 495–501 (2017).
 
 [7] NORDHAUS, W. D. The economics of hurricanes and implications of global warming. Climate Change Economics 01, 1–20 (2010).
 
-[8] Fedorov, A. V., Brierley, C. M. & Emanuel, K. A. Tropical cyclones and permanent El Ni ̃no
+[8] Fedorov, A. V., Brierley, C. M. & Emanuel, K. A. Tropical cyclones and permanent El Nino
 in the early Pliocene epoch. Nature 463, 1066–1070 (2010).
 
 [9] IPCC. Special Report on the Ocean and Cryosphere in a Changing Climate (SROCC) (September 25, 2019).
 
 [10] Chavas, Daniel, et al. "US hurricanes and economic damage: Extreme value perspective." Natural Hazards Review 14.4 (2013): 237-246.
 
-[11] Marsooli, R., Lin, N., Emanuel, K. and Feng, K., 2019. Climate change exacerbates hurricane flood hazards along US Atlantic and Gulf Coasts in spatially varying patterns. Nature communications, 10(1), pp.1-9.
+[11] Marsooli, R., Lin, N., Emanuel, K. and Feng, K., 2019. Climate change exacerbates hurricane flood hazards along US Atlantic and Gulf Coasts in spatially varying patterns. Nature communications, 10(1), pp. 1-9.
 
 [12] Marsooli, R. and Lin, N., 2018. Numerical modeling of historical storm tides and waves and their interactions along the US East and Gulf Coasts. Journal of Geophysical Research: Oceans, 123(5), pp.3844-3874.
 
