@@ -11,7 +11,13 @@ import requests
 import zipfile
 from tqdm import tqdm
 from src.utils import timeit
-from src.constants import OCEAN_PATH, ATMOS_PATH, PROJECT_PATH
+from src.constants import (
+    OCEAN_PATH,
+    ATMOS_PATH,
+    PROJECT_PATH,
+    DATA_PATH,
+    FIGURE_DATA_NAME,
+)
 
 
 @timeit
@@ -91,11 +97,11 @@ def get_figure_data() -> None:
     """Downloads figure nc."""
 
     code = "r1vp6ny8wovyq2a/"
-    name = "Seager_etal_NCC-2019_datasetdatafiles.nc.zip"
+    name = FIGURE_DATA_NAME + ".zip"
 
     lol = [
         [
-            str(PROJECT_PATH),
+            str(DATA_PATH),
             [
                 [
                     PREFIX + code + name + SUFFIX,

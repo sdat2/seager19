@@ -31,6 +31,11 @@ ATMOS_PATH = PROJECT_PATH / "atmos"
 ATMOS_DATA_PATH = ATMOS_PATH / "DATA"
 ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
 GIF_PATH = PROJECT_PATH / "gifs"
+DATA_PATH = PROJECT_PATH / "data"
+
+# Figure data.
+FIGURE_DATA_NAME = "Seager_etal_NCC-2019_datasetdatafiles.nc"
+FIGURE_DATA_PATH = DATA_PATH / "Seager_etal_NCC-2019_datasetdatafiles.nc"
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")

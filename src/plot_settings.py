@@ -77,7 +77,7 @@ def label_subplots(
     Returns:
         void; alters the `matplotlib.axes.Axes` objects
 
-    Examples:
+    Example:
         Here is an example of using this function::
 
             >>> label_subplots(axs, start_from=0, fontsize=10)
@@ -124,7 +124,7 @@ def get_dim(
         fig_dim (tuple):
             Dimensions of figure in inches
 
-    Examples:
+    Example:
         Here is an example of using this function::
 
             >>> dim_tuple = get_dim(fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
@@ -168,7 +168,7 @@ def set_dim(
     Returns:
         void; alters current figure to have the desired dimensions
 
-    Examples:
+    Example:
         Here is an example of using this function::
 
             >>> set_dim(fig, fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
@@ -192,7 +192,7 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
             Defaults to 600 dpi (high quality). 150 dpi probably
             fine for notebooks. Largest dpi needed for presentations.
 
-    Example:
+    Examples:
         Basic setting the plotting defaults::
 
             >>> ps_defaults()
@@ -313,7 +313,7 @@ def time_title(
         date_time_formatter (str, optional): Default is
             `src.constants.DATE_TITLE_FORMAT`.
 
-    Examples:
+    Example:
         Usage with an xarray.Datarray object::
 
             >>> time_title(ax, xr_da.time.values[index])
@@ -325,7 +325,6 @@ def time_title(
     elif isinstance(time, cftime.Datetime360Day):
         ax.set_title(time.strftime()[0:10])
     elif isinstance(time, (float, np.floating)):
-        # TODO: this is only good for the data format in this file.
         # It would be better to have this as an option
         ax.set_title("%2.1f months after 1960" % time)
     else:
@@ -345,6 +344,10 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     Returns:
         matplotlib.colors.LinearSegmentedColormap: sensible colormap
 
+    Example:
+        Usage example for sea surface temperature::
+            cmap_t = cmap("sst")
+
     """
 
     # collate the variables into a smaller number
@@ -353,22 +356,23 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
         "v": "v",
         "sst": "sst",
         "salt": "sss",
-        "haline": "sss",
+        "sss": "haline",
+        "haline": "haline",
         "delta": "delta",
     }
 
     # map to cmocean colormaps
     cmap_map_d = {
         "sst": cmocean.cm.thermal,
-        "sss": cmocean.cm.haline,
+        "haline": cmocean.cm.haline,
         "v": cmocean.cm.speed,
         "delta": cmocean.cm.balance,
     }
 
-    # get cmapt
-    cmapt = cmap_map_d[map_d[variable_name]]
+    # get cmap_t
+    cmap_t = cmap_map_d[map_d[variable_name]]
 
     # make the map green-ish for nan values
-    cmapt.set_bad(color="#15b01a")
+    cmap_t.set_bad(color="#15b01a")
 
-    return cmapt
+    return cmap_t
