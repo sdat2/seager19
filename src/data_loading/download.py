@@ -14,7 +14,6 @@ from src.utils import timeit
 from src.constants import (
     OCEAN_PATH,
     ATMOS_PATH,
-    PROJECT_PATH,
     DATA_PATH,
     FIGURE_DATA_NAME,
 )
