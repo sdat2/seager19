@@ -86,8 +86,8 @@ emmisivity = 0.97  # problem here with second definintion.
 stefan_boltzman_const = 5.67e-8
 p_s = 1000  # pressure at the surface?
 es_0 = 6.11
-delta_temp = 1.0  #  ΔT = 1 K
-f2 = 0.05  #  f2 = 0.05
+delta_temp = 1.0  # ΔT = 1 K
+f2 = 0.05  # f2 = 0.05
 # 'a_cloud_const' should decrease when deep convection happens above 28 degC
 #  a_cloud_const = Ts-temp_0_c;a_cloud_const[a_cloud_const>28] = 40;
 # a_cloud_const[a_cloud_const<=28] = 80;
@@ -96,7 +96,7 @@ a_cloud_const = 0.6  # this isn't the option used in the paper.
 
 # basic parameters
 temp_0_c = 273.15  # zero degrees
-f1_bar = 0.39  #  f1 = 0.39
+f1_bar = 0.39  # f1 = 0.39
 # f'1  is the anomaly in f1—a parameter that can be adjusted
 # to control the variation in surface longwave radiation due
 # to a_cloud_const change in CO2

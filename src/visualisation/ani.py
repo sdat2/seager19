@@ -16,8 +16,6 @@ import imageio
 from src.plot_settings import label_subplots, ps_defaults, time_title, cmap
 from src.utils import timeit, fix_calendar
 
-ps_defaults(use_tex=False, dpi=200)
-
 
 def _rdict(index: int) -> dict:
     """Returns renaming dict for xarray.DataArray.
@@ -50,6 +48,7 @@ def animate_ds(ds: xr.Dataset, file_name: str, output_dir: str) -> None:
         output_dir (str): Full path to output directory to put the animations in.
 
     """
+    ps_defaults(use_tex=False, dpi=200)
     cmap_d = {
         "DYN_PRES": "delta",
         "SST_QFLX": "delta",
@@ -115,6 +114,7 @@ def animate_xr_da(
         vcmap (any, optional): cmap for variable. Defaults to cmap("sst").
 
     """
+    ps_defaults(use_tex=False, dpi=200)
     balanced_colormap = False
 
     if isinstance(vcmap, str):

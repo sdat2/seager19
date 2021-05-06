@@ -7,7 +7,7 @@ from src.constants import SRC_PATH
 
 
 def test_f2py():
-    """test2py"""
+    """test2py."""
     os.system(
         "conda activate ./env\n"
         + "cd "

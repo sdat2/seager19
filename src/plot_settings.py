@@ -271,6 +271,16 @@ OX_BLUE = "#002147"
 BRICK_RED = "#CB4154"
 
 
+def default_projection() -> ccrs.CRS:
+    """
+    Returns default projection.
+
+    Returns:
+        ccrs.CRS: Map projection.
+    """
+    return ccrs.Mollweide(central_longitude=180)
+
+
 @timeit
 def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
     """Apply default map (Robinson centred on the Pacific).
@@ -284,7 +294,7 @@ def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
     Example:
         When using multiple subplots::
             fig, axes = plt.subplots(
-               2, 2, subplot_kw={"projection": ccrs.Robinson(central_longitude=180)}
+               2, 2, subplot_kw={"projection": default_projection()}
             )
             for ax in axes.ravel():
                 ax = map_setup(ax=ax)
@@ -292,8 +302,7 @@ def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
     """
 
     if ax is None:
-        # ax = plt.axes(projection=ccrs.Robinson(central_longitude=180))
-        ax = plt.axes(projection=ccrs.Mollweide(central_longitude=180))
+        ax = plt.axes(projection=default_projection())
 
     ax.set_global()
     ax.coastlines()

@@ -13,6 +13,7 @@ from src.plot_settings import (
     OX_BLUE,
     map_setup,
     time_title,
+    default_projection,
 )
 from src.constants import PROJECT_PATH
 
@@ -67,13 +68,13 @@ def test_map_plot() -> None:
     plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "map_example.png")))
     plt.clf()
 
-    _, axes = plt.subplots(
-        2, 1, subplot_kw={"projection": ccrs.Mollweide(central_longitude=180)}
-    )
+    _, axes = plt.subplots(2, 1, subplot_kw={"projection": default_projection()})
 
     for ax in axes.ravel():
         ax = map_setup(ax=ax)
-        da.plot.imshow(ax=ax, transform=ccrs.Mollweide(), cbar_kwargs={"shrink": 0.5})
+        da.plot.imshow(
+            ax=ax, transform=default_projection(), cbar_kwargs={"shrink": 0.5}
+        )
         time_title(ax, da.time.values)
 
     plt.tight_layout()
@@ -87,7 +88,7 @@ def test_map_plot() -> None:
         .plot(
             transform=ccrs.PlateCarree(),
             col="time",
-            subplot_kws={"projection": ccrs.Mollweide(central_longitude=180)},
+            subplot_kws={"projection": default_projection()},
         )
     )
 
