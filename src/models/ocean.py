@@ -68,6 +68,7 @@ def copy_run_rdir(file_name: str) -> None:
 
     Args:
         file_name (str): file name to copy.
+
     """
     run("cp " + file_name + " " + str(wandb.run.dir))
 

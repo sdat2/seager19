@@ -141,17 +141,12 @@ def _get_data(lol: list) -> None:
             name = pair[1]
             full_direc = str(os.path.join(direc, os.path.splitext(pair[1])[0]))
             if not os.path.exists(full_direc):
-                #  or "ocean/DATA" in full_direc:
                 print("Dowloading " + full_direc)
                 get_and_unzip(direc, url, name)
                 print(full_direc + " created.")
             else:
                 print(full_direc + " already exists, not going to redownload.")
 
-
-# str(OCEAN_PATH)
-# "https://www.dropbox.com/s/udui5x9c3q7y2ca/ts_nc.zip?raw=1"
-# "tc_nc"
 
 if __name__ == "__main__":
     # python3 src/data_loading/download.py

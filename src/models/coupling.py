@@ -4,6 +4,8 @@ from src.models.coupling import f_stress
 
 """
 from typing import Tuple
+import numpy as np
+import pandas as pd
 import xarray as xr
 
 rho_a: float = 1.225  # kg m-3
@@ -38,5 +40,44 @@ def f_stress(
     return stress_coeff * u_wind, stress_coeff * v_wind
 
 
+def stress_test():
+    """Stress test."""
+    time = pd.date_range("2014-09-06", periods=3)
+    reference_time = pd.Timestamp("2014-09-05")
+    u_vel = 15 + 8 * np.random.randn(2, 2, 3)
+    v_vel = 10 * np.random.rand(2, 2, 3)
+    lon = [[-99.83, -99.32], [-99.79, -99.23]]
+    lat = [[42.25, 42.21], [42.63, 42.59]]
+    coords = (
+        dict(
+            lon=(["x", "y"], lon),
+            lat=(["x", "y"], lat),
+            time=time,
+            reference_time=reference_time,
+        ),
+    )
+
+    u_da = xr.DataArray(
+        data=u_vel,
+        dims=["x", "y", "time"],
+        coords=coords,
+        attrs=dict(),
+    )
+
+    v_da = xr.DataArray(
+        data=v_vel,
+        dims=["x", "y", "time"],
+        coords=coords,
+        attrs=dict(),
+    )
+
+    tau_u, tau_v = f_stress(rho_a, cd, 0.5, u_da, v_da)
+
+    assert isinstance(tau_u, xr.DataArray)
+    assert isinstance(tau_v, xr.DataArray)
+
+
 if __name__ == "__main__":
+    # python3 src/models/coupling.py
     print("ok")
+    stress_test()

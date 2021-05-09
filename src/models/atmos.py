@@ -112,12 +112,13 @@ y_north_lim = 60  # upper lat limit
 y_south_lim = -y_north_lim
 
 # make grids
-dx: float = 360 / nx
-dy = (y_north_lim - y_south_lim) / ny
-x_axis = np.linspace(0, 360 - dx, nx)
-y_axis_v = np.linspace(y_south_lim + dy / 2, y_north_lim - dy / 2, ny)
-y_axis_u = np.linspace(y_south_lim + dy, y_north_lim - dy, ny - 1)
+dx: float = 360 / nx  # delta degrees
+dy = (y_north_lim - y_south_lim) / ny  # delta degrees
+x_axis = np.linspace(0, 360 - dx, nx)  # degrees
+y_axis_v = np.linspace(y_south_lim + dy / 2, y_north_lim - dy / 2, ny) # degrees
+y_axis_u = np.linspace(y_south_lim + dy, y_north_lim - dy, ny - 1) # degrees
 y_axis_i = np.linspace(y_south_lim + 3 * dy / 2, y_north_lim - 3 * dy / 2, ny - 2)
+# degrees
 x_spacing = x_axis[1] - x_axis[0]  # degrees
 y_spacing = y_axis_v[1] - y_axis_v[0]  # degrees
 dxm = x_spacing * radius_earth * np.pi / 180
@@ -139,7 +140,7 @@ else:
 # Find linearization of Q_LH (latent heating)
 const1: float = rho_air * c_e * latent_heat_vap
 
-mem: str = "EEEf"
+mem: str = "EEEf"  # string is iterated through
 
 # the different model names in a dict?
 names: dict = {
@@ -157,10 +158,11 @@ names: dict = {
     "I": "ISCCP",
 }
 
+# dict of variables
 var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 
 
-# --------------- flux functions ----------------------
+# --------------- f cor ----------------------
 
 
 @typechecked
@@ -180,10 +182,10 @@ def f_cor(y: np.ndarray) -> np.ndarray:
     return omega2 * y * np.pi / 180
 
 
-fcu = f_cor(y_axis_u)
+fcu = f_cor(y_axis_u)  # vector of coriolis force coefficient.
 
 
-# --------------- flux es:
+# --------------- fluxes -----------------------------
 
 
 @typechecked
@@ -462,7 +464,7 @@ def f_evap(mask: np.ndarray, q_a: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
     """evaporation flux.
 
     Args:
-        mask (np.ndarray): [description]
+        mask (np.ndarray): land mask?
         q_a (np.ndarray): surface air humidity
         wnsp (np.ndarray): surface windspeed in m/s
 
@@ -516,7 +518,7 @@ def tdma_solver(
 
     'tdma_solver'  0.00243 s
 
-    # Tri Diagonal Matrix Algorithm (a.k.a Thomas algorithm) solver
+    Tri Diagonal Matrix Algorithm (a.k.a. Thomas algorithm) solver
 
     E.g.
     https://gist.github.com/cbellei/8ab3ab8551b8dfc8b081c518ccd9ada9
@@ -921,9 +923,9 @@ def output_trends(direc: str = "") -> None:
             # AQ = np.squeeze(pr_trend[:, :])
             # mag = np.sqrt(Au * Au + Av * Av)
             # CS = plt.contour(X, Yu, mag, 15, colors="k",
-            #  linewidths=0.2, vmin=0, vmax=10)
+            #                  linewidths=0.2, vmin=0, vmax=10)
             # plt.clabel(CS, inline=1, fontsize=10, fmt="%.2f")
-            # CS=plt.contour(X2,Yu,mag,5,linewidths=1)
+            # CS = plt.contour(X2,Yu,mag,5,linewidths=1)
             # plt.clabel(CS, inline=1, fontsize=10,fmt='%.1f')
             # print(np.shape(Au[::nsy,::nsx]),np.shape(Av[::nsy,::nsx]))
             print(ds)
@@ -951,9 +953,10 @@ def output_trends(direc: str = "") -> None:
                 format="eps",
                 dpi=1000,
             )
+            plt.clf()
 
 
-###--------------------------- Begin dQ ----------------------------
+# ##--------------------------- Begin dQ ----------------------------
 
 
 @timeit
@@ -1055,6 +1058,7 @@ def make_figure(
         cmap (str, optional): matplotlib colormap. Defaults to "viridis".
         lat (str, optional): latitude label name. Defaults to "latitude".
         lon (str, optional): longitude label name. Defaults to "longitude".
+
     """
 
     dclim, u_b, _, _, _, _, _, _, _ = get_dclim(direc=direc)
@@ -1119,6 +1123,7 @@ def output_dq(direc: str = "") -> None:
 
     Args:
         direc (str): directory to save outputs to.
+
     """
 
     dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = get_dclim(direc=direc)
@@ -1155,8 +1160,7 @@ def output_dq(direc: str = "") -> None:
 
 
 if __name__ == "__main__":
-    # get_dclim()
     # python3 src/models/atmos.py
-    output_trends(direc="")
-    output_dq(direc="")
-    make_figure(direc="")
+    output_trends(direc=str(ATMOS_PATH))
+    output_dq(direc=str(ATMOS_PATH))
+    make_figure(direc=str(ATMOS_PATH))
