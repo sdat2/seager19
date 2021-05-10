@@ -1,17 +1,22 @@
-"""Coupling between ocean and atmos models.
+"""Coupling between ocean and atmos models is through the sea surface stress.
 
-from src.models.coupling import f_stress
+Example:
+    Import statement usage::
+        from src.models.coupling import f_stress
 
 """
 from typing import Tuple
 import numpy as np
 import pandas as pd
 import xarray as xr
+from typeguard import typechecked
+
 
 rho_a: float = 1.225  # kg m-3
 cd: float = 2.25e-3  # Pa m-1 s
 
 
+@typechecked
 def f_stress(
     rho_air: float,
     c_d: float,
@@ -40,7 +45,7 @@ def f_stress(
     return stress_coeff * u_wind, stress_coeff * v_wind
 
 
-def stress_test():
+def stress_test() -> None:
     """Stress test."""
     time = pd.date_range("2014-09-06", periods=3)
     reference_time = pd.Timestamp("2014-09-05")
@@ -48,26 +53,28 @@ def stress_test():
     v_vel = 10 * np.random.rand(2, 2, 3)
     lon = [[-99.83, -99.32], [-99.79, -99.23]]
     lat = [[42.25, 42.21], [42.63, 42.59]]
-    coords = (
-        dict(
+
+    u_da = xr.DataArray(
+        data=u_vel,
+        dims=["x", "y", "time"],
+        coords=dict(
             lon=(["x", "y"], lon),
             lat=(["x", "y"], lat),
             time=time,
             reference_time=reference_time,
         ),
-    )
-
-    u_da = xr.DataArray(
-        data=u_vel,
-        dims=["x", "y", "time"],
-        coords=coords,
         attrs=dict(),
     )
 
     v_da = xr.DataArray(
         data=v_vel,
         dims=["x", "y", "time"],
-        coords=coords,
+        coords=dict(
+            lon=(["x", "y"], lon),
+            lat=(["x", "y"], lat),
+            time=time,
+            reference_time=reference_time,
+        ),
         attrs=dict(),
     )
 
@@ -79,5 +86,4 @@ def stress_test():
 
 if __name__ == "__main__":
     # python3 src/models/coupling.py
-    print("ok")
     stress_test()

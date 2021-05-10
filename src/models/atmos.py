@@ -138,7 +138,7 @@ else:
     )
 
 # Find linearization of Q_LH (latent heating)
-const1: float = rho_air * c_e * latent_heat_vap
+qlh_coeff: float = rho_air * c_e * latent_heat_vap
 
 mem: str = "EEEf"  # string is iterated through
 
@@ -244,15 +244,15 @@ def f_qlh(
     sensible heat flux anomaly is small.
 
     Args:
-        temperature (xr.DataArray): [description]
-        u_sp (Union[xr.DataArray, float]): [description]
+        temperature (xr.DataArray): the temperature dataarray.
+        u_sp (Union[xr.DataArray, float]): the wind speed.
         rh_loc (xr.DataArray): relative humidity
 
     Returns:
         xr.DataArray: flux qlh.
 
     """
-    return const1 * u_sp * f_qs(temperature) * (1 - rh_loc)
+    return qlh_coeff * u_sp * f_qs(temperature) * (1 - rh_loc)
 
 
 @typechecked
@@ -269,7 +269,7 @@ def f_dqlh_dtemp(
     Returns:
         xr.DataArray: flux dqlh_dtemp.
     """
-    return const1 * u_sp * f_dqs_dtemp(temperature) * (1 - rh_loc)
+    return qlh_coeff * u_sp * f_dqs_dtemp(temperature) * (1 - rh_loc)
 
 
 # Find linearization of Q_LW (longwave)
