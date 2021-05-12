@@ -62,9 +62,9 @@ def main(cfg: DictConfig) -> None:
     compile_all()
     if cfg.run:
         run_all(cfg)
-    copy_all()
+    copy_all(cfg)
     if cfg.animate:
-        animate_all()
+        animate_all(cfg)
     # atmos model.
     output_trends(wandb.run.dir)
     output_dq(wandb.run.dir)

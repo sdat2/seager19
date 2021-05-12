@@ -65,7 +65,7 @@ theta_00 = 300  # potential temperature at the surface.
 nbsq = 3.0e-4  # N^2 s-2. N^2 is a specified buoyancy frequency.
 radius_earth = 6.37e6  # metres
 sec_in_day = 86400  # seconds in day.
-omega2 = 2 * (2 * np.pi / sec_in_day)  # 2 * rad per second
+omega_2 = 2 * (2 * np.pi / sec_in_day)  # 2 * rad per second
 latent_heat_vap = 2.5e6  # latent heat # J kg-1
 cp_air = 1000  #  cp_air is the specific heat capacity of air.
 # J kg-1 K-1
@@ -77,9 +77,9 @@ eps = 1.0 / (eps_days * sec_in_day)  # 1/.75 d
 eps_u = eps  # 1/.75 d
 eps_v = e_frac * eps  # e_frac=1/2 in paper
 # Newtonian cooling, K
-K1 = b_coeff / (k_days * sec_in_day)
+newtonian_cooling_coeff_k1 = b_coeff / (k_days * sec_in_day)
 eps_p = (np.pi / height_tropopause) ** 2 / (nbsq * k_days * sec_in_day)
-beta = omega2 / radius_earth
+beta = omega_2 / radius_earth
 rho_air = 1.225  # kg m-3 - also called rho_00
 c_e = 0.00125  # 1.25e-3 # cE is an exchange coefficient
 emmisivity = 0.97  # problem here with second definintion.
@@ -95,12 +95,12 @@ f2 = 0.05  # f2 = 0.05
 a_cloud_const = 0.6  # this isn't the option used in the paper.
 
 # basic parameters
-temp_0_c = 273.15  # zero degrees
+temp_0_c = 273.15  # zero degrees in kelvin
 f1_bar = 0.39  # f1 = 0.39
 # f'1  is the anomaly in f1—a parameter that can be adjusted
 # to control the variation in surface longwave radiation due
 # to a_cloud_const change in CO2
-u_bar = 5.0
+u_bar = 5.0  # average velocity?
 temp_surface_bar: float = temp_0_c + 25  # 25C in Kelvin
 c_bar = 0.6  # C is the cloud cover. perhaps C_bar is the average.
 
@@ -109,14 +109,14 @@ c_bar = 0.6  # C is the cloud cover. perhaps C_bar is the average.
 nx: int = 180  # number of x grid boxes
 ny: int = 60  # this seems like half the grid space
 y_north_lim = 60  # upper lat limit
-y_south_lim = -y_north_lim
+y_south_lim = -y_north_lim  # make symmetric around the equator
 
 # make grids
 dx: float = 360 / nx  # delta degrees
 dy = (y_north_lim - y_south_lim) / ny  # delta degrees
 x_axis = np.linspace(0, 360 - dx, nx)  # degrees
-y_axis_v = np.linspace(y_south_lim + dy / 2, y_north_lim - dy / 2, ny) # degrees
-y_axis_u = np.linspace(y_south_lim + dy, y_north_lim - dy, ny - 1) # degrees
+y_axis_v = np.linspace(y_south_lim + dy / 2, y_north_lim - dy / 2, ny)  # degrees
+y_axis_u = np.linspace(y_south_lim + dy, y_north_lim - dy, ny - 1)  # degrees
 y_axis_i = np.linspace(y_south_lim + 3 * dy / 2, y_north_lim - 3 * dy / 2, ny - 2)
 # degrees
 x_spacing = x_axis[1] - x_axis[0]  # degrees
@@ -127,6 +127,7 @@ dym_2 = dym * dym
 
 # need to have the correct ordering of the wave numbers for fft
 num = nx
+
 if num % 2 == 0:
     kk_wavenumber = np.asarray(
         list(range(0, num // 2)) + [0] + list(range(-num // 2 + 1, 0)), np.float64
@@ -169,7 +170,7 @@ var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 def f_cor(y: np.ndarray) -> np.ndarray:
     """Corriolis force coeff.
 
-    omega2 = 2 * (2 * np.pi / sec_in_day) # 2 * rad per second
+    omega_2 = 2 * (2 * np.pi / sec_in_day) # 2 * rad per second
 
     # TODO is this an extra factor of 2?
 
@@ -179,7 +180,7 @@ def f_cor(y: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Corriolis force coeff.
     """
-    return omega2 * y * np.pi / 180
+    return omega_2 * y * np.pi / 180
 
 
 fcu = f_cor(y_axis_u)  # vector of coriolis force coefficient.
@@ -749,8 +750,8 @@ def output_trends(direc: str = "") -> None:
     ts_beg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
     pr_end = (ds.prClim + ds.prTrend / 2).values
     pr_beg = (ds.prClim - ds.prTrend / 2).values
-    q_th_end = K1 * (ts_end - 30) / b_coeff
-    q_th_beg = K1 * (ts_beg - 30) / b_coeff
+    q_th_end = newtonian_cooling_coeff_k1 * (ts_end - 30) / b_coeff
+    q_th_beg = newtonian_cooling_coeff_k1 * (ts_beg - 30) / b_coeff
 
     qa_end = f_qa(ts_end, sp_clim)
     # qa_end = f_qa2(ts_end)

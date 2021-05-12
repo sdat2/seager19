@@ -1,15 +1,22 @@
 ###################################################################################################
+# Config file for Hydra:
+# hopefully passes all the important parameters.
 project: seager19
 user: sdat2
-run_name: test_13
+run_name: test_diag
 test: True
-notes: test hydra, animating files
+notes: test diag fix
 run: true
-ingrid: true
+ocean:
+  tcom_name: tcom
+  tios2cdf_name: tios2cdf
+  spin: true
+  diag: true
+  ingrid: false
+  run_through: false
+coup:
+  cd: 0.1225
 animate: true
-# bugs:
-#   bug1: "errorA"
-#   bug2: "errorB"
 atm:
   eps_days: 0.75
   k_days: 10
@@ -25,4 +32,3 @@ atm:
   YN: 60
   YS: -${atm.YN}
   nbsq: 3.0e-4
-  

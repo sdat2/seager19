@@ -7,7 +7,7 @@ LCDF   = -lnetcdf -lnetcdff
 FFLAGS = -ffixed-line-length-132 -Ofast
 CFLAGS = -Wno-implicit-function-declaration -Ofast
 
-MODEL  = tcom.exe
+MODEL  = tcom
 
 default: $(MODEL)
 
@@ -33,10 +33,10 @@ LIBS    = $(LCDF)
 $(MODEL):	$(OBJM) $(OBJF) $(OBJ0) $(OBJC)
 	$(FC) $(FFLAGS) $(LDOPT) -o $(MODEL) om_main.o $(OBJM) $(OBJF) $(OBJC) $(LIBS)
 
-tios2cdf.exe: fodb.o $(OBJC)
-	$(CC) $(CFLAGS) -o tios2cdf.exe tios2cdf.c fodb.o $(OBJC) $(LIBS) -lgfortran
+tios2cdf: fodb.o $(OBJC)
+	$(CC) $(CFLAGS) -o tios2cdf tios2cdf.c fodb.o $(OBJC) $(LIBS) -lgfortran
 
-all: $(MODEL) tios2cdf.exe
+all: $(MODEL) tios2cdf
 
 om_forc.o: wdata.mod wsst.mod wrap.mod
 om_core.o om_forc.o om_sst.o om_tios.o : om_core.h 

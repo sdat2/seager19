@@ -5,6 +5,7 @@ import xarray as xr
 import wandb
 import logging
 from omegaconf import DictConfig
+from typeguard import typechecked
 from src.constants import (
     OCEAN_DATA_PATH,
     OCEAN_OUTPUT_PATH,
@@ -24,6 +25,7 @@ def compile_all() -> None:
     os.system("cd " + str(OCEAN_SRC_PATH) + " \npwd\nmake all")
 
 
+@typechecked
 def run(command: str) -> None:
     """Runs a line of bash in the ocean/RUN directory
     and times how long it takes.
@@ -40,6 +42,7 @@ def run(command: str) -> None:
 
 
 @timeit
+@typechecked
 def run_all(cfg: DictConfig) -> None:
     """Run all the executables.
 
@@ -48,19 +51,22 @@ def run_all(cfg: DictConfig) -> None:
 
     """
     log.info("Run.")
-    run("../SRC/tcom.exe -i om_spin -t spin.tios")
-    run("../SRC/tios2cdf.exe -f output/om_spin")
-    run("rm -rf output/om_spin.data output/om_spin.indx")
-    run("cp -f output/om_spin.save output/om_spin.20y.restart")
-    run("../SRC/tcom.exe -i om_diag -t diag.tios")
-    run("../SRC/tios2cdf.exe -f output/om_diag")
-    run("rm -rf output/om_diag.data output/om_diag.indx")
-    run("cp -f output/om_diag.save output/om_diag.2y.restart")
-    if cfg.ingrid:
+    if cfg.ocean.spin:
+        run("../SRC/" + cfg.ocean.tcom_name + " -i om_spin -t spin.tios")
+        run("../SRC/" + cfg.ocean.tios2cdf_name + " -f output/om_spin")
+        run("rm -rf output/om_spin.data output/om_spin.indx")
+        run("cp -f output/om_spin.save output/om_spin.20y.restart")
+    if cfg.ocean.diag:
+        run("../SRC/" + cfg.ocean.tcom_name+ " -i om_diag -t diag.tios")
+        run("../SRC/" + cfg.ocean.tios2cdf_name + " -f output/om_diag")
+        run("rm -rf output/om_diag.data output/om_diag.indx")
+        run("cp -f output/om_diag.save output/om_diag.2y.restart")
+    if cfg.ocean.ingrid:
         linear_qflx_replacement()
-    run("../SRC/tcom.exe -i om_run2f -t month.tios")
-    run("../SRC/tios2cdf.exe -f output/om_run2f")
-    run("rm -rf output/om_run2f.data output/om_run2f.indx")
+    if cfg.ocean.run_through:
+        run("../SRC/" + cfg.ocean.tcom_name+ " -i om_run2f -t month.tios")
+        run("../SRC/" + cfg.ocean.tios2cdf_name + " -f output/om_run2f")
+        run("rm -rf output/om_run2f.data output/om_run2f.indx")
 
 
 def copy_run_rdir(file_name: str) -> None:
@@ -100,8 +106,14 @@ def copy_data_rdir(file_name: str) -> None:
     )
 
 
-def copy_all() -> None:
-    """Copy all relevant files to wandb folder."""
+@typechecked
+def copy_all(cfg: DictConfig) -> None:
+    """Copy all relevant files to wandb folder.
+
+    Args:
+        cfg (DictConfig): the model configs to pass.
+
+    """
     for x in [
         "om_diag",
         "om_diag.tr",
@@ -118,11 +130,14 @@ def copy_all() -> None:
     ]:
         copy_run_rdir(x)
 
-    for x in [
-        "om_spin.nc",
-        "om_diag.nc",
-        "om_run2f.nc",
-    ]:
+    l_x = list()
+    if cfg.ocean.spin:
+        l_x.append("om_spin.nc")
+    if cfg.ocean.diag:
+        l_x.append("om_diag.nc")
+    if cfg.ocean.run_through:
+        l_x.append("om_run2f.nc")
+    for x in l_x:
         copy_output_rdir(x)
 
     for x in [
@@ -133,14 +148,21 @@ def copy_all() -> None:
 
 
 @timeit
-def animate_all() -> None:
-    """Animate the sst into gifs."""
-    for x in [
-        "om_diag",
-        "om_run2f",
-        # "qflx",
-        # "qflx-0",
-    ]:
+@typechecked
+def animate_all(cfg: DictConfig) -> None:
+    """Animate the sst into gifs.
+
+    Args:
+        cfg (DictConfig): the model configs to pass.
+
+    """
+    l_x = list()
+    if cfg.ocean.diag:
+        l_x.append("om_diag")
+    if cfg.ocean.run_through:
+        l_x.append("om_run2f")
+
+    for x in l_x:
         if "qflx" not in x:
             animate_ds(
                 xr.open_dataset(
