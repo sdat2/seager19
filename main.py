@@ -12,10 +12,7 @@ import wandb
 import logging
 import hydra
 from omegaconf import DictConfig, OmegaConf
-from src.constants import (
-    SRC_PATH,
-    PROJECT_PATH,
-)
+from src.constants import PROJECT_PATH, CONFIG_PATH, CONFIG_NAME
 from src.utils import timeit
 from src.models.ocean import compile_all, copy_all, run_all, animate_all
 from src.models.atmos import output_trends, output_dq, make_figure
@@ -43,7 +40,7 @@ def start_wandb(cfg: DictConfig) -> None:
 
 
 @timeit
-@hydra.main(config_path=os.path.join(SRC_PATH, "configs"), config_name="config")
+@hydra.main(config_path=CONFIG_PATH, config_name=CONFIG_NAME)
 def main(cfg: DictConfig) -> None:
     """The main function to run the model and animations.
 
@@ -65,6 +62,7 @@ def main(cfg: DictConfig) -> None:
     copy_all(cfg)
     if cfg.animate:
         animate_all(cfg)
+
     # atmos model.
     output_trends(wandb.run.dir)
     output_dq(wandb.run.dir)

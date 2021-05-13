@@ -3,10 +3,10 @@
 # hopefully passes all the important parameters.
 project: seager19
 user: sdat2
-run_name: test_diag
-test: True
+run_name: test_diag1
+test: true # unimportant param for filtering later.
 notes: test diag fix
-run: true
+run: true  # whether to run any of the ocean model.
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -15,7 +15,8 @@ ocean:
   ingrid: false
   run_through: false
 coup:
-  cd: 0.1225
+  cd: 2.25e-3  # Pa m-1 s
+  rho_a: 1.225  # kg m-3
 animate: true
 atm:
   eps_days: 0.75

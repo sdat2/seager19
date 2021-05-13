@@ -57,18 +57,19 @@ def run_all(cfg: DictConfig) -> None:
         run("rm -rf output/om_spin.data output/om_spin.indx")
         run("cp -f output/om_spin.save output/om_spin.20y.restart")
     if cfg.ocean.diag:
-        run("../SRC/" + cfg.ocean.tcom_name+ " -i om_diag -t diag.tios")
+        run("../SRC/" + cfg.ocean.tcom_name + " -i om_diag -t diag.tios")
         run("../SRC/" + cfg.ocean.tios2cdf_name + " -f output/om_diag")
         run("rm -rf output/om_diag.data output/om_diag.indx")
         run("cp -f output/om_diag.save output/om_diag.2y.restart")
     if cfg.ocean.ingrid:
         linear_qflx_replacement()
     if cfg.ocean.run_through:
-        run("../SRC/" + cfg.ocean.tcom_name+ " -i om_run2f -t month.tios")
+        run("../SRC/" + cfg.ocean.tcom_name + " -i om_run2f -t month.tios")
         run("../SRC/" + cfg.ocean.tios2cdf_name + " -f output/om_run2f")
         run("rm -rf output/om_run2f.data output/om_run2f.indx")
 
 
+@typechecked
 def copy_run_rdir(file_name: str) -> None:
     """Copy a file from the ocean/RUN directory.
 
@@ -79,6 +80,7 @@ def copy_run_rdir(file_name: str) -> None:
     run("cp " + file_name + " " + str(wandb.run.dir))
 
 
+@typechecked
 def copy_output_rdir(file_name: str) -> None:
     """Copy a file from the ocean/output directory.
 

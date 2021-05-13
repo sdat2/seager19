@@ -19,6 +19,8 @@ SRC_PATH = pathlib.Path(os.path.dirname(constants_path))
 PROJECT_PATH = pathlib.Path(os.path.dirname(SRC_PATH))
 REPORT_PATH = pathlib.Path(os.path.join(PROJECT_PATH, "report"))
 FIGURE_PATH = pathlib.Path(os.path.join(REPORT_PATH, "figures"))
+CONFIG_PATH = os.path.join(SRC_PATH, "configs")
+CONFIG_NAME = "config"
 
 # PATHS to the models
 OCEAN_PATH = PROJECT_PATH / "ocean"
