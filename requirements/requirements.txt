@@ -20,7 +20,6 @@ isort               # automatic import sorter
 python-dotenv       # environment variable manager
 pylint              # use pylint instead of flake8
 pre-commit          # perform checks on code
-autoreload
 
 
 # testing
