@@ -3,7 +3,6 @@ import os
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
 from src.plot_settings import (
     ps_defaults,
     label_subplots,
