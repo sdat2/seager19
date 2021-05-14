@@ -21,6 +21,12 @@ python-dotenv       # environment variable manager
 pylint              # use pylint instead of flake8
 pre-commit          # perform checks on code
 
+# hq, diffusion coeffieincets
+# epsilon u, epsilon v, 
+# no precip trend over land.
+# different answer depending of reanalysis
+# ECMWF mean vs. CMIP6 mean.
+#
 
 # testing
 pytest
