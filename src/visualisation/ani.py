@@ -39,16 +39,19 @@ def _rdict(index: int) -> dict:
 
 
 @timeit
-def animate_ds(ds: xr.Dataset, file_name: str, output_dir: str) -> None:
+def animate_ds(
+    ds: xr.Dataset, file_name: str, output_dir: str, dpi: float = 200
+) -> None:
     """Animate the `xarray.Dataset`.
 
     Args:
         ds (xr.Dataset): xarray.Dataset to animate the variables of.
         file_name (str): Name of dataset to be associated with the animations.
         output_dir (str): Full path to output directory to put the animations in.
+        dpi (float): the dots per inch for the figure. Defaults to 200.
 
     """
-    ps_defaults(use_tex=False, dpi=200)
+    ps_defaults(use_tex=False, dpi=dpi)
     cmap_d = {
         "DYN_PRES": "delta",
         "SST_QFLX": "delta",
