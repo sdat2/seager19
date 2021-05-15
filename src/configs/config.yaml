@@ -3,7 +3,7 @@
 # hopefully passes all the important parameters.
 project: seager19
 user: sdat2
-run_name: test_diag1
+name: test_diag1
 test: true # unimportant param for filtering later.
 notes: test diag fix
 run: true  # whether to run any of the ocean model.

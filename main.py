@@ -4,7 +4,7 @@ Basically a wrapper for bash commands.
 
 Example:
    Usage of script::
-       python3 main.py run_name=test26
+       python3 main.py name=test26
 
 """
 import os
@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 def start_wandb(cfg: DictConfig) -> None:
     """Intialises wandb for run."""
-    run_dir = os.path.join(PROJECT_PATH, "logs", cfg.run_name)
+    run_dir = os.path.join(PROJECT_PATH, "logs", cfg.name)
     if not os.path.exists(run_dir):
         os.makedirs(run_dir)
     wandb.init(
@@ -32,7 +32,7 @@ def start_wandb(cfg: DictConfig) -> None:
         entity=cfg.user,
         dir=run_dir,
         save_code=True,
-        name=cfg.run_name,
+        name=cfg.name,
         notes=cfg.notes,
         # pylint: disable=protected-access
         config=cfg._content,

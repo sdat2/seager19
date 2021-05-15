@@ -56,7 +56,9 @@ def test_map_plot() -> None:
             plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "map_example.png")))
             plt.clf()
 
-            _, axes = plt.subplots(2, 1, subplot_kw={"projection": default_projection()})
+            _, axes = plt.subplots(2, 1,
+                subplot_kw={"projection": default_projection()}
+            )
 
             for ax in axes.ravel():
                 ax = map_setup(ax=ax)
@@ -66,7 +68,9 @@ def test_map_plot() -> None:
                 time_title(ax, da.time.values)
 
             plt.tight_layout()
-            plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "multi_map_example.png")))
+            plt.savefig(
+                str(os.path.join(PROJECT_PATH, "gifs", "multi_map_example.png"))
+            )
             plt.clf()
 
             p = (
