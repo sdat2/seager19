@@ -32,11 +32,11 @@ pwd
 
 echo "A: $(date)" >> timing.txt
 
-../SRC/tcom.exe -i om_spin -t spin.tios  # 6 minutes
+../SRC/tcom -i om_spin -t om_spin.tios  # 6 minutes
 
 echo "B: $(date)" >> timing.txt
 
-../SRC/tios2cdf.exe -f output/om_spin # 3 seconds
+../SRC/tios2cdf -f output/om_spin # 3 seconds
 
 cp output/om_spin.nc ${RUN_NAME}/om_spin.nc 
 
@@ -49,11 +49,11 @@ echo "D: $(date)" >> timing.txt
 
 # STEP 2 --  diagnose the qflux needed to reproduce sst climatology
 
-../SRC/tcom.exe -i om_diag -t diag.tios # 55 seconds
+../SRC/tcom -i om_diag -t om_diag.tios # 55 seconds
 
 echo "E: $(date)" >> timing.txt  
 
-../SRC/tios2cdf.exe -f output/om_diag # < 1 seconds
+../SRC/tios2cdf -f output/om_diag # < 1 seconds
 
 cp output/om_diag.nc ${RUN_NAME}/om_diag.nc 
 
@@ -77,11 +77,11 @@ cp -f output/om_diag.save output/om_diag.2y.restart # < 1 seconds
 
 echo "G: $(date)" >> timing.txt
 
-../SRC/tcom.exe -i om_run2f -t month.tios    # 25 minutes 
+../SRC/tcom -i om_run2f -t om_run2f.tios    # 25 minutes 
 
 echo "H: $(date)" >> timing.txt
 
-../SRC/tios2cdf.exe -f output/om_run2f     # 9 seconds
+../SRC/tios2cdf -f output/om_run2f     # 9 seconds
 
 cp output/om_run2f.nc ${RUN_NAME}/om_run2f.nc 
 
@@ -102,7 +102,6 @@ cp om_spin.log ${RUN_NAME}/
 cp om_run2f ${RUN_NAME}/
 cp om_run2f.tr ${RUN_NAME}/
 cp om_run2f.log ${RUN_NAME}/
-cp month.tios ${RUN_NAME}/
-cp spin.tios ${RUN_NAME}/
-cp month.tios ${RUN_NAME}/
-cp diag.tios ${RUN_NAME}/
+cp om_run2f.tios ${RUN_NAME}/
+cp om_spin.tios ${RUN_NAME}/
+cp om_diag.tios ${RUN_NAME}/
