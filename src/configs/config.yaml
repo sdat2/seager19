@@ -10,10 +10,10 @@ run: true  # whether to run any of the ocean model.
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
-  spin: true
-  diag: true
+  spin: false
+  diag: false
   ingrid: false
-  run_through: false
+  run_through: true
 coup:
   cd: 2.25e-3  # Pa m-1 s
   rho_a: 1.225  # kg m-3

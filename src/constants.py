@@ -36,14 +36,14 @@ GIF_PATH = PROJECT_PATH / "gifs"
 DATA_PATH = PROJECT_PATH / "data"
 
 # Figure data.
-FIGURE_DATA_NAME = "Seager_etal_NCC-2019_datasetdatafiles.nc"
+FIGURE_DATA_NAME: str = "Seager_etal_NCC-2019_datasetdatafiles.nc"
 FIGURE_DATA_PATH = DATA_PATH / "Seager_etal_NCC-2019_datasetdatafiles.nc"
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
 
 # Report WIDTH
-REPORT_WIDTH = 398.3386  # in pixels
+REPORT_WIDTH: float = 398.3386  # in pixels
 
 # DATE FORMAT for plotting titles
-DATE_TITLE_FORMAT = "%Y.%m.%d"
+DATE_TITLE_FORMAT: str = "%Y.%m.%d"
