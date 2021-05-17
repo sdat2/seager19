@@ -3,10 +3,11 @@
 # hopefully passes all the important parameters.
 project: seager19
 user: sdat2
-name: test_diag1
+name: ???
 test: true # unimportant param for filtering later.
-notes: test diag fix
+notes: gave up on diag fix
 run: true  # whether to run any of the ocean model.
+animate: true
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -15,13 +16,12 @@ ocean:
   ingrid: false
   run_through: true
 coup:
-  cd: 2.25e-3  # Pa m-1 s
-  rho_a: 1.225  # kg m-3
-animate: true
+  cd: 2.25e-3    # Pa m-1 s
+  rho_a: 1.225   # kg m-3
 atm:
   eps_days: 0.75
   k_days: 10
-  efrac: 2.0    # multiply epsu by efrac to get epsv
+  efrac: 2.0     # multiply epsu by efrac to get epsv
   hq: 1800
   prcp_land: 1   # use data precip trends over land
   wnspmin: 4

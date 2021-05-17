@@ -274,7 +274,7 @@ def f_dqlh_dtemp(
 
 
 # Find linearization of Q_LW (longwave)
-const2 = emmisivity * stefan_boltzman_const
+qlw_coeff = emmisivity * stefan_boltzman_const
 
 
 @typechecked
@@ -334,7 +334,7 @@ def f_qlw1(
     """
     temp_a = f_temp_a(temperature)
     return (
-        const2
+        qlw_coeff
         * (1 - a_cloud_const * cloud_cover ** 2)
         # bar(Ts)^4
         * temp_a ** 4
@@ -394,7 +394,7 @@ def f_dqlw_df(
     Returns:
         xr.DataArray: flux dqlw_df.
     """
-    return const2 * (1 - a_cloud_const * cloud_cover ** 2) * temperature ** 4
+    return qlw_coeff * (1 - a_cloud_const * cloud_cover ** 2) * temperature ** 4
 
 
 @typechecked
@@ -421,7 +421,7 @@ def f_dqlw_dtemp(
     # q_a is the surface-specific humidity
     # q_s(Ts) is the saturation-specific humidity at the SST
     dqs_dtemp = f_dqs_dtemp(temperature)
-    return const2 * (
+    return qlw_coeff * (
         (1 - a_cloud_const * cloud_cover ** 2)
         * temperature ** 3
         * (4 * f - f2 * np.sqrt(e_bar) * (4 + temperature * dqs_dtemp / 2 / q_s))
