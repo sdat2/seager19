@@ -8,7 +8,7 @@ from sys import getsizeof
 
 
 def timeit(method: Callable) -> Callable:
-    """`timeit` is a wrapper for performance analysis.
+    """`src.timeit` is a wrapper for performance analysis.
 
     It should return the time taken for a function to run. Alters `log_time` `dict`
     if fed in. Add @timeit to the function you want to time. Function needs
@@ -20,6 +20,7 @@ def timeit(method: Callable) -> Callable:
     Examples:
         Here is an example with the tracking functionality and without::
 
+            >>> from src.utils import timeit
             >>> @timeit
             ... def loop(**kwargs):
             ...     total = 0

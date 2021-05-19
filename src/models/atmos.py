@@ -41,7 +41,7 @@ from scipy.fftpack import fft, ifft
 import matplotlib.pyplot as plt
 import xarray as xr
 from typeguard import typechecked
-from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH
+from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH, DATA_PATH
 from src.utils import timeit
 
 
@@ -667,7 +667,7 @@ def smooth121(
 
 @timeit
 @typechecked
-def output_trends(direc: str = "") -> None:
+def output_trends(direc: str = DATA_PATH) -> None:
     """output trends ds.
 
     𝜀𝑢 . 𝑢 − 𝑓 . 𝑣 + 𝜙 . 𝑥 =  0   (1)
@@ -962,7 +962,7 @@ def output_trends(direc: str = "") -> None:
 
 @timeit
 @typechecked
-def get_dclim(direc: str = "") -> any:
+def get_dclim(direc: str = DATA_PATH) -> any:
     """Opens the files, and applies functions.
 
     Args:
@@ -1047,7 +1047,7 @@ def get_dclim(direc: str = "") -> any:
 
 @typechecked
 def make_figure(
-    direc: str = "",
+    direc: str = DATA_PATH,
     cmap: Union[str] = "viridis",
     lat: str = "latitude",
     lon: str = "longitude",
