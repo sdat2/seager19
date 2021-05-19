@@ -12,6 +12,7 @@ import wandb
 import logging
 import hydra
 from omegaconf import DictConfig, OmegaConf
+from subprocess import PIPE, run
 from src.constants import PROJECT_PATH, CONFIG_PATH, CONFIG_NAME
 from src.utils import timeit
 from src.models.ocean import compile_all, copy_all, run_all, animate_all
@@ -22,11 +23,22 @@ from src.configs.config import format_config
 log = logging.getLogger(__name__)
 
 
-def start_wandb(cfg: DictConfig) -> None:
-    """Intialises wandb for run."""
-    run_dir = os.path.join(PROJECT_PATH, "logs", cfg.name)
-    if not os.path.exists(run_dir):
-        os.makedirs(run_dir)
+def start_wandb(cfg: DictConfig, unit_test=False) -> None:
+    """
+    Intialises wandb for run.
+
+    Args:
+        cfg (DictConfig): [description]
+        unit_test (bool, optional): Whether or not this is a unit-test.
+            Defaults to False.
+
+    """
+    if not unit_test:
+        run_dir = os.path.join(PROJECT_PATH, "logs", cfg.name)
+        if not os.path.exists(run_dir):
+            os.makedirs(run_dir)
+    else:
+        run_dir = ""
     wandb.init(
         project=cfg.project,
         entity=cfg.user,
@@ -37,6 +49,15 @@ def start_wandb(cfg: DictConfig) -> None:
         # pylint: disable=protected-access
         config=cfg._content,
     )
+
+    def get_v(inp: str) -> None:
+        """Get version of compilers"""
+        # pylint: disable=subprocess-run-check
+        return run(
+            inp, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True
+        ).stderr.split("\n")[-2]
+
+    wandb.config.update({"gfortran": get_v("gfortran -v"), "gcc": os.system("gcc -v")})
 
 
 @timeit

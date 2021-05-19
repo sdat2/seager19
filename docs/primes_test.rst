@@ -1,7 +1,10 @@
-test fotran
+test fortran
 -----------
 
-program
+program primes
 
 .. f:program:: primes
 
+program primes.f95
+
+.. f:program:: primes.f95
