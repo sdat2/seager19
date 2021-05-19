@@ -113,6 +113,33 @@ def get_figure_data() -> None:
     _get_data(lol)
 
 
+def get_original_models() -> None:
+    """Downloads original models.
+
+    # https://www.dropbox.com/s/u5ufak4kv8peajd/atmos-model.zip?dl=0
+    # https://www.dropbox.com/s/s6u80p1s1e5qom4/ocean-model.zip?dl=0
+    """
+
+    for code, name in [
+        ["u5ufak4kv8peajd/", "atmos-model.zip"],
+        ["s6u80p1s1e5qom4/", "ocean-model.zip"],
+    ]:
+
+        lol = [
+            [
+                str(DATA_PATH),
+                [
+                    [
+                        PREFIX + code + name + SUFFIX,
+                        name,
+                    ],
+                ],
+            ],
+        ]
+
+        _get_data(lol)
+
+
 def get_member_data() -> None:
     """Downloads ensemble members."""
     lol = [
@@ -150,6 +177,7 @@ def _get_data(lol: list) -> None:
 
 if __name__ == "__main__":
     # python3 src/data_loading/download.py
-    get_data()
-    get_figure_data()
-    get_member_data()
+    # get_data()
+    # get_figure_data()
+    # get_member_data()
+    get_original_models()
