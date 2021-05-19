@@ -16,7 +16,7 @@ from subprocess import PIPE, run
 from src.constants import PROJECT_PATH, CONFIG_PATH, CONFIG_NAME
 from src.utils import timeit
 from src.models.ocean import compile_all, copy_all, run_all, animate_all
-from src.models.atmos import output_trends, output_dq, make_figure
+from src.models.atmos import Atmos
 from src.configs.config import format_config
 
 
@@ -57,7 +57,7 @@ def start_wandb(cfg: DictConfig, unit_test=False) -> None:
             inp, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True
         ).stderr.split("\n")[-2]
 
-    wandb.config.update({"gfortran": get_v("gfortran -v"), "gcc": os.system("gcc -v")})
+    wandb.config.update({"gfortran": get_v("gfortran -v"), "gcc": get_v("gcc -v")})
 
 
 @timeit
@@ -85,9 +85,8 @@ def main(cfg: DictConfig) -> None:
         animate_all(cfg)
 
     # atmos model.
-    output_trends(wandb.run.dir)
-    output_dq(wandb.run.dir)
-    make_figure(wandb.run.dir)
+    atmos = Atmos(cfg)
+    atmos.run_all(direc=wandb.run.dir)
 
 
 if __name__ == "__main__":

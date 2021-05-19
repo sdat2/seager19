@@ -86,6 +86,7 @@ def copy_output_rdir(file_name: str) -> None:
 
     Args:
         file_name (str): file name to copy.
+
     """
     os.system(
         "cd "
@@ -102,6 +103,7 @@ def copy_data_rdir(file_name: str) -> None:
 
     Args:
         file_name (str): file name to copy.
+
     """
     os.system(
         "cd " + str(OCEAN_DATA_PATH) + " \n cp " + file_name + " " + str(wandb.run.dir)
@@ -126,9 +128,9 @@ def copy_all(cfg: DictConfig) -> None:
         "om_run2f",
         "om_run2f.tr",
         "om_run2f.log",
-        "month.tios",
-        "spin.tios",
-        "diag.tios",
+        "om_run2f.tios",
+        "om_spin.tios",
+        "om_diag.tios",
     ]:
         copy_run_rdir(x)
 

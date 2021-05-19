@@ -22,10 +22,16 @@ def format_config(cfg: DictConfig) -> DictConfig:
         if isinstance(item, str):
             if "/" in item:
                 fl_list = item.split("/")
-                total = float(fl_list[0])
+                if "$" in fl_list[0]:
+                    total = cfg.atm[fl_list[0].strip(r"${}")]
+                else:
+                    total = float(fl_list[0])
                 fl_list.pop(0)
                 for j in range(len(fl_list)):
-                    total = total / float(fl_list[j])
+                    if "$" in fl_list[0]:
+                        total = total / cfg.atm[fl_list[0].strip(r"${}")]
+                    else:
+                        total = total / float(fl_list[j])
                 cfg.atm[i] = total
 
     return cfg
