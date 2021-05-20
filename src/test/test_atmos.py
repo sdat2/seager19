@@ -5,7 +5,7 @@ Example:
         pytest src/test/test_atmos.py
 
 """
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import OmegaConf
 from src.models.atmos import Atmos
 from src.data_loading.download import get_data
 
