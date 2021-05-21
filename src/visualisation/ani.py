@@ -15,27 +15,7 @@ import matplotlib.pyplot as plt
 import imageio
 from src.plot_settings import label_subplots, ps_defaults, time_title, cmap
 from src.utils import timeit, fix_calendar
-
-
-def _rdict(index: int) -> dict:
-    """Returns renaming dict for xarray.DataArray.
-
-    Made to reformat the output datarrays of the Fortran
-    ocean model used.
-
-    Args:
-        index (int): index on coords
-
-    Returns:
-        dict: renaming dict.
-
-    """
-    return {
-        "T_0" + str(index): "time",
-        "Y_0" + str(index): "y",
-        "X_0" + str(index): "x",
-        "L_0" + str(index): "Z",
-    }
+from src.data_loading.transforms import rdict
 
 
 @timeit
@@ -80,7 +60,7 @@ def animate_ds(
                             ):
                                 for key in da.coords:
                                     num = str(key)[3]
-                                da = da.rename(_rdict(num))
+                                da = da.rename(rdict(num))
                             if y in unit_d:
                                 da.attrs["units"] = unit_d[y]
                             da.coords["x"].attrs["units"] = r"$^{\circ}$E"
