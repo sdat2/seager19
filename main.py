@@ -85,8 +85,9 @@ def main(cfg: DictConfig) -> None:
         animate_all(cfg)
 
     # atmos model.
-    atmos = Atmos(cfg)
-    atmos.run_all(direc=wandb.run.dir)
+    if cfg.atmos:
+        atmos = Atmos(cfg)
+        atmos.run_all(direc=wandb.run.dir)
 
 
 if __name__ == "__main__":

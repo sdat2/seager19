@@ -8,6 +8,7 @@ test: true # unimportant param for filtering later.
 notes: test new atmos section
 run: false  # whether to run any of the ocean model.
 animate: false
+atmos: false
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -25,7 +26,6 @@ atm:
   wnspmin: 4
   r: 0.80
   YN: 60
-  YS: -${atm.YN}
   h_q: 1800  # Hq is a scale depth for moisture
   wnsp_min: 4
   rho_00: 0.3
@@ -49,13 +49,13 @@ atm:
   eps_days: 0.75
   # Over 1958–2017, the CO2 changed from ~300 to ~400 ppm, which would be about 0.75 W m−2
   # eps days might be the efficiency of entrainment.
-  eps: 1.0 / ${eps_days} / ${sec_in_day}  # 1/.75 d
-  eps_u: ${eps}  # 1/.75 d
+  eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
+  eps_u: ${atm.eps}  # 1/.75 d
   # eps_v: e_frac * eps  # e_frac=1/2 in paper
   # Newtonian cooling, K
-  newtonian_cooling_coeff_k1: ${b_coeff} / ${k_days} / ${sec_in_day}
+  # newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
   # eps_p: (np.pi / height_tropopause) ** 2 / ${nbsq} / ${k_days} / ${sec_in_day}
-  # beta: omega_2 / radius_earth
+  beta: ${atm.omega_2} / ${atm.radius_earth}
   rho_air: 1.225  # kg m-3 - also called rho_00
   c_e: 0.00125  # 1.25e-3 # cE is an exchange coefficient
   emmisivity: 0.97  # problem here with second definintion.
@@ -82,7 +82,7 @@ atm:
   nx: 180  # number of x grid boxes
   ny: 60  # this seems like half the grid space
   y_north_lim: 60  # upper lat limit
-  # y_south_lim: -${y_north_lim}  # make symmetric around the equator
+  y_south_lim: -${atm.y_north_lim}  # make symmetric around the equator
   # make grids
-  # dx:  360 / ${nx}  # delta degrees
-  # dy: (${y_north_lim} - ${y_south_lim}) / ${ny}  # delta degrees
+  dx:  360 / ${atm.nx}  # delta degrees
+  # dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
