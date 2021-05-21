@@ -41,20 +41,22 @@ atm:
   nbsq: 3.0e-4  # N^2 s-2. N^2 is a specified buoyancy frequency.
   radius_earth: 6.37e6  # metres
   sec_in_day: 86400  # seconds in day.
-  # omega_2: 2 * 2 * np.pi / sec_in_day  # 2 * rad per second
+  pi: 3.141592653589793
+  omega_2: 2 * 2 * ${atm.pi} / ${atm.sec_in_day}  # 2 * rad per second
   latent_heat_vap: 2.5e6  # latent heat # J kg-1
   cp_air: 1000  #  cp_air is the specific heat capacity of air.
   # J kg-1 K-1
-  # b_coeff: gravity * np.pi / nbsq / theta_00 / height_tropopause
+  b_coeff: ${atm.gravity} * ${atm.pi} / ${atm.nbsq} / ${atm.theta_00} / ${atm.height_tropopause}
   eps_days: 0.75
   # Over 1958–2017, the CO2 changed from ~300 to ~400 ppm, which would be about 0.75 W m−2
   # eps days might be the efficiency of entrainment.
   eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
   eps_u: ${atm.eps}  # 1/.75 d
-  # eps_v: e_frac * eps  # e_frac=1/2 in paper
+  e_frac: 0.5
+  eps_v: ${atm.e_frac} * ${atm.eps}  # e_frac=1/2 in paper
   # Newtonian cooling, K
-  # newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
-  # eps_p: (np.pi / height_tropopause) ** 2 / ${nbsq} / ${k_days} / ${sec_in_day}
+  newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
+  eps_p: (${atm.pi} / ${atm.height_tropopause}) ** 2 / ${atm.nbsq} / ${atm.k_days} / ${atm.sec_in_day}
   beta: ${atm.omega_2} / ${atm.radius_earth}
   rho_air: 1.225  # kg m-3 - also called rho_00
   c_e: 0.00125  # 1.25e-3 # cE is an exchange coefficient
@@ -85,4 +87,4 @@ atm:
   y_south_lim: -${atm.y_north_lim}  # make symmetric around the equator
   # make grids
   dx:  360 / ${atm.nx}  # delta degrees
-  # dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
+  dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
