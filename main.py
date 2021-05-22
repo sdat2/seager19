@@ -11,7 +11,7 @@ import os
 import wandb
 import logging
 import hydra
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 from subprocess import PIPE, run
 from src.constants import PROJECT_PATH, CONFIG_PATH, CONFIG_NAME
 from src.utils import timeit
@@ -38,7 +38,8 @@ def start_wandb(cfg: DictConfig, unit_test=False) -> None:
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
     else:
-        run_dir = ""
+        run_dir = str()
+
     wandb.init(
         project=cfg.project,
         entity=cfg.user,
@@ -72,7 +73,7 @@ def main(cfg: DictConfig) -> None:
 
     cfg = format_config(cfg)
 
-    print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
+    # print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
 
     start_wandb(cfg)
 
@@ -86,13 +87,32 @@ def main(cfg: DictConfig) -> None:
 
     # atmos model.
     if cfg.atmos:
+        # atmos takes in cfg
         atmos = Atmos(cfg)
         atmos.run_all(direc=wandb.run.dir)
+
+
+def make_folders() -> None:
+    """Make the folders and move the code."""
+    ocean_path = os.path.join(wandb.run.dir, "ocean")
+    os.mkdir(ocean_path)
+    os.mkdir(os.path.join(ocean_path, "RUN"))
+    os.mkdir(os.path.join(ocean_path, "SRC"))
+    os.mkdir(os.path.join(ocean_path, "DATA"))
+    os.mkdir(os.path.join(ocean_path, "output"))
+    os.symlink(
+        os.path.join(ocean_path, "DATA"), os.path.join(ocean_path, "SRC", "DATA")
+    )
+    os.symlink(
+        os.path.join(ocean_path, "output"), os.path.join(ocean_path, "SRC", "output")
+    )
+    os.system("cd cat \n cp *.F *.c *.h ")
 
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     main()
+    make_folders()
     # 2. Save model inputs and hyperparameters
     # wandb.config
     # config.learning_rate = 0.01

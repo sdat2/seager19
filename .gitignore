@@ -162,7 +162,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
 *.pdf
 *.png
 *.eps
@@ -171,3 +170,7 @@ dmypy.json
 etc/
 report/
 .gitmodules
+
+# ocean
+ocean/SRC/tcom
+ocean/SRC/tios2cdf

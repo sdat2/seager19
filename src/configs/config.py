@@ -14,11 +14,10 @@ def format_config(cfg: DictConfig) -> DictConfig:
 
     """
 
-    print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
-    print(cfg.__repr__())
+    # print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
+    # print(cfg.__repr__())
 
     for i in cfg.atm:
-        print("i", i)
         item = cfg.atm[i]
         if isinstance(item, str):
             if "/" in item or "*" in item:
