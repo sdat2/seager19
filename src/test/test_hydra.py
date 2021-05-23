@@ -13,7 +13,9 @@ def test_with_initialize() -> None:
         config_path="../../" + str(CONFIG_PATH).replace(str(PROJECT_PATH) + "/", "")
     ):
         # config is relative to a module
-        cfg = compose(config_name=CONFIG_NAME, overrides=["user=test_user"])
+        cfg = compose(
+            config_name=CONFIG_NAME, overrides=["user=test_user", "name=test_run"]
+        )
         print(cfg)
         cfg = format_config(cfg)
         print(cfg)

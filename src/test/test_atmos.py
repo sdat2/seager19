@@ -8,12 +8,14 @@ Example:
 from omegaconf import OmegaConf
 from src.models.atmos import Atmos
 from src.data_loading.download import get_data
+from src.constants import ATMOS_PATH
 
 
-def test_make_figure():
-    """test all functions in document"""
+def test_atmos():
+    """test all functions in document."""
     get_data()
     atmos = Atmos(OmegaConf.create({"atm": "v", "list": [1, {"a": "1", "b": "2"}]}))
-    atmos.make_figure()
-    atmos.output_trends()
-    atmos.output_dq()
+    atmos.run_all(direc=str(ATMOS_PATH))
+    # atmos.make_figure()
+    # atmos.output_trends()
+    # atmos.output_dq()

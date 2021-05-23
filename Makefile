@@ -74,11 +74,11 @@ vscode_pro:
 	mkdir .vscode
 	cp ./.setup_scripts/vscode_settings.jsonc .vscode/settings.json
 
-## jupyter_dark: 
-jupyter_dark: 
+## jupyter_dark:
+jupyter_dark:
 	jt -t monokai -f fira -fs 13 -nf ptsans -nfs 11 -N -kl -cursw 5 -cursc r -cellw 95% -T
 
-## jupyter_light: 
+## jupyter_light:
 jupyter_light:
 	jt -r
 
