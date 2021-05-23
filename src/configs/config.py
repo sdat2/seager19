@@ -3,7 +3,7 @@
 from src.config.configs import format_config
 
 """
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
 
 def format_config(cfg: DictConfig) -> DictConfig:

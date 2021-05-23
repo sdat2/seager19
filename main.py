@@ -106,7 +106,19 @@ def make_folders() -> None:
     os.symlink(
         os.path.join(ocean_path, "output"), os.path.join(ocean_path, "SRC", "output")
     )
-    os.system("cd cat \n cp *.F *.c *.h ")
+    from src.constants import (
+        OCEAN_RUN_PATH,
+        OCEAN_SRC_PATH,
+        OCEAN_OUTPUT_PATH,
+        OCEAN_DATA_PATH,
+    )
+
+    os.system(
+        "cd "
+        + str(OCEAN_SRC_PATH)
+        + " \n cp *.F *.c *.h "
+        + os.path.join(ocean_path, "SRC", "output")
+    )
 
 
 if __name__ == "__main__":
