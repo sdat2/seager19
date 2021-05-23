@@ -17,6 +17,7 @@ from src.constants import PROJECT_PATH, CONFIG_PATH, CONFIG_NAME
 from src.utils import timeit
 from src.models.ocean import compile_all, copy_all, run_all, animate_all
 from src.models.atmos import Atmos
+from src.models.model_setup import ModelSetup
 from src.configs.config import format_config
 
 
@@ -77,6 +78,8 @@ def main(cfg: DictConfig) -> None:
 
     start_wandb(cfg)
 
+    setup = ModelSetup(str(wandb.run.dir))
+
     # ocean model
     compile_all()
     if cfg.run:
@@ -92,52 +95,9 @@ def main(cfg: DictConfig) -> None:
         atmos.run_all(direc=str(wandb.run.dir))
 
 
-def make_folders() -> None:
-    """Make the folders and move the code."""
-    ocean_path = os.path.join(wandb.run.dir, "ocean")
-    os.mkdir(ocean_path)
-    os.mkdir(os.path.join(ocean_path, "RUN"))
-    os.mkdir(os.path.join(ocean_path, "SRC"))
-    os.mkdir(os.path.join(ocean_path, "DATA"))
-    os.mkdir(os.path.join(ocean_path, "output"))
-    os.symlink(
-        os.path.join(ocean_path, "DATA"), os.path.join(ocean_path, "SRC", "DATA")
-    )
-    os.symlink(
-        os.path.join(ocean_path, "output"), os.path.join(ocean_path, "SRC", "output")
-    )
-    from src.constants import (
-        OCEAN_RUN_PATH,
-        OCEAN_SRC_PATH,
-        OCEAN_OUTPUT_PATH,
-        OCEAN_DATA_PATH,
-    )
-
-    for file_ending in ["*.F", "*.c", "*.h"]:
-
-        os.system(
-            "cd "
-            + str(OCEAN_SRC_PATH)
-            + " \n cp "
-            + file_ending
-            + " "
-            + str(os.path.join(ocean_path, "SRC"))
-        )
-
-    os.system(
-        "cd "
-        + str(OCEAN_SRC_PATH)
-        + " \n cp "
-        + "Makefile"
-        + " "
-        + str(os.path.join(ocean_path, "SRC"))
-    )
-
-
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     main()
-    make_folders()
     # 2. Save model inputs and hyperparameters
     # wandb.config
     # config.learning_rate = 0.01
