@@ -44,7 +44,7 @@ class ModelSetup:
 
     def init_ocean(self):
         """initialise the ocean model."""
-        for file_ending in ["*.F", "*.c", "*.h"]:
+        for file_ending in ["*.F", "*.c", "*.h", "*.inc", "*.mod", ".tios"]:
 
             os.system(
                 "cd "
