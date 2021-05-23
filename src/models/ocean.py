@@ -6,12 +6,6 @@ import wandb
 import logging
 from omegaconf import DictConfig
 from typeguard import typechecked
-from src.constants import (
-    OCEAN_DATA_PATH,
-    OCEAN_OUTPUT_PATH,
-    OCEAN_RUN_PATH,
-    OCEAN_SRC_PATH,
-)
 from src.visualisation.ani import animate_ds
 from src.utils import timeit
 from src.data_loading.ingrid import linear_qflx_replacement
