@@ -3,6 +3,7 @@ from hydra.experimental import initialize, compose
 from src.constants import PROJECT_PATH, CONFIG_NAME, CONFIG_PATH
 from src.configs.config import format_config
 
+
 # 1. initialize will add config_path the config search path within the context
 # 2. The module with your configs should be importable.
 #    it needs to have a __init__.py (can be empty). pytest src/test/test_hydra.py

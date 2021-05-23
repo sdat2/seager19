@@ -113,11 +113,24 @@ def make_folders() -> None:
         OCEAN_DATA_PATH,
     )
 
+    for file_ending in ["*.F", "*.c", "*.h"]:
+
+        os.system(
+            "cd "
+            + str(OCEAN_SRC_PATH)
+            + " \n cp "
+            + file_ending
+            + " "
+            + str(os.path.join(ocean_path, "SRC"))
+        )
+
     os.system(
         "cd "
         + str(OCEAN_SRC_PATH)
-        + " \n cp *.F *.c *.h "
-        + os.path.join(ocean_path, "SRC", "output")
+        + " \n cp "
+        + "Makefile"
+        + " "
+        + str(os.path.join(ocean_path, "SRC"))
     )
 
 
