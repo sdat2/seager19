@@ -14,10 +14,17 @@ ocean:
   tios2cdf_name: tios2cdf
   spin: true
   diag: true
-  ingrid: false
-  run_through: false
+  ingrid: true
+  run_through: true
 oc:
-  nummode: 1
+  nummode: 2
+  boundaries: Periodic
+  wind_file: tau-ECMWF-clim
+  mask_file: om_mask.nc
+  time_test: 2 months
+  time_spin: 2 months
+  time_diag: 2 years
+  time_run2f: 58 years
 coup:
   cd: 2.25e-3    # Pa m-1 s
   rho_a: 1.225   # kg m-3
@@ -27,9 +34,8 @@ atm:
   prcp_land: 1   # use data precip trends over land
   wnspmin: 4
   r: 0.80
-  YN: 60
   h_q: 1800  # Hq is a scale depth for moisture
-  wnsp_min: 4
+  wnsp_min: 4 # m s-1 ?
   rho_00: 0.3
   # this means the density at the surface.
   # this is actual rho_bar in the paper

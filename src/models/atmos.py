@@ -41,17 +41,18 @@ from scipy.fftpack import fft, ifft
 import matplotlib.pyplot as plt
 import xarray as xr
 from typeguard import typechecked
-from omegaconf import DictConfig, OmegaConf
-from src.constants import ATMOS_TMP_PATH, ATMOS_DATA_PATH, ATMOS_PATH, DATA_PATH
+from omegaconf import DictConfig
+from src.models.model_setup import ModelSetup
 from src.utils import timeit
 
 
 class Atmos:
     """Atmos class."""
 
-    def __init__(self, cfg: DictConfig):
+    def __init__(self, cfg: DictConfig, setup: ModelSetup):
         """Initialise the atmos function"""
         self.atm = cfg.atm
+        self.setup = setup
         # ------------- constants -----------------------
         # begining TCAM
         self.k_days = 10  # K = 1/10
@@ -704,7 +705,7 @@ class Atmos:
 
     @timeit
     @typechecked
-    def output_trends(self, direc: str = DATA_PATH) -> None:
+    def output_trends(self, direc: str = "") -> None:
         """output trends ds.
 
         𝜀𝑢 . 𝑢 − 𝑓 . 𝑣 + 𝜙 . 𝑥 =  0   (1)
@@ -741,14 +742,20 @@ class Atmos:
         # CLIMATOLOGIES
 
         ds_clim = xr.open_dataset(
-            os.path.join(ATMOS_DATA_PATH, "sfcWind-ECMWF-clim.nc")
+            os.path.join(self.setup.atmos_data_path, "sfcWind-ECMWF-clim.nc")
         )
         fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
-        ds_clim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-clim.nc"))
+        ds_clim = xr.open_dataset(
+            os.path.join(self.setup.atmos_data_path, "ts-ECMWF-clim.nc")
+        )
         fts = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ts, kind="linear")
-        ds_clim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-clim.nc"))
+        ds_clim = xr.open_dataset(
+            os.path.join(self.setup.atmos_data_path, "pr-ECMWF-clim.nc")
+        )
         fpr = interp2d(ds_clim.X, ds_clim.Y, ds_clim.pr, kind="linear")
-        ds_clim = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ps-ECMWF-clim.nc"))
+        ds_clim = xr.open_dataset(
+            os.path.join(self.setup.atmos_data_path, "ps-ECMWF-clim.nc")
+        )
         fsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ps, kind="linear")
 
         wnsp = fwnsp(self.x_axis, self.y_axis_u)
@@ -759,9 +766,13 @@ class Atmos:
         ds["spClim"] = (["Yu", "X"], fsp(self.x_axis, self.y_axis_u))
 
         # TRENDS
-        ds_trend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "ts-ECMWF-trend.nc"))
+        ds_trend = xr.open_dataset(
+            os.path.join(self.setup.atmos_data_path, "ts-ECMWF-trend.nc")
+        )
         fts_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.ts, kind="linear")
-        ds_trend = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "pr-ECMWF-trend.nc"))
+        ds_trend = xr.open_dataset(
+            os.path.join(self.setup.atmos_data_path, "pr-ECMWF-trend.nc")
+        )
         fpr_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.pr, kind="linear")
 
         ts_trend = fts_trend(self.x_axis, self.y_axis_u)
@@ -777,7 +788,9 @@ class Atmos:
         plt.savefig(os.path.join(direc, "prTrend.png"))
         plt.clf()
 
-        dsmask = xr.open_dataset(os.path.join(ATMOS_DATA_PATH, "mask-360x180.nc"))
+        dsmask = xr.open_dataset(
+            os.path.join(self.setup.atmos_data_path, "mask-360x180.nc")
+        )
         fmask = interp2d(dsmask.X, dsmask.Y, dsmask.mask, kind="linear")
         ds["mask"] = (["Yu", "X"], fmask(self.x_axis, self.y_axis_u))
 
@@ -935,7 +948,7 @@ class Atmos:
             "hq": {"dtype": "f4"},
         }
 
-        for diff_direc in [ATMOS_TMP_PATH, direc]:
+        for diff_direc in [direc]:
 
             basedir = os.path.join(diff_direc, "S91")
 
@@ -1022,7 +1035,7 @@ class Atmos:
 
     @timeit
     @typechecked
-    def get_dclim(self, direc: str = DATA_PATH) -> any:
+    def get_dclim(self, direc: str = "") -> any:
         """Opens the files, and applies functions.
 
         Args:
@@ -1038,7 +1051,9 @@ class Atmos:
         for i, m in enumerate(self.mem):
             name = self.names[m]
             variable = self.var[i]
-            file = os.path.join(ATMOS_DATA_PATH, variable + "-" + name + "-clim60.nc")
+            file = os.path.join(
+                self.setup.atmos_data_path, variable + "-" + name + "-clim60.nc"
+            )
             print(name, variable, file)
             print(file)
             assert os.path.isfile(file)
@@ -1107,7 +1122,7 @@ class Atmos:
     @typechecked
     def make_figure(
         self,
-        direc: str = DATA_PATH,
+        direc: str = "",
         cmap: Union[str] = "viridis",
         lat: str = "latitude",
         lon: str = "longitude",
@@ -1175,7 +1190,9 @@ class Atmos:
         plt.xlabel(lon)
         _ = plt.colorbar(dp)
         plt.tight_layout()
-        plt.savefig(os.path.join(ATMOS_PATH, "Tsp4.eps"), format="eps", dpi=1000)
+        plt.savefig(
+            os.path.join(self.setup.atmos_path, "Tsp4.eps"), format="eps", dpi=1000
+        )
 
     @typechecked
     def output_dq(self, direc: str = "") -> None:
@@ -1218,13 +1235,13 @@ class Atmos:
 
         dq.to_netcdf(os.path.join(direc, "dQ.nc"))
 
-    def run_all(self, direc=str(ATMOS_PATH)):
-        self.output_trends(direc=direc)
-        self.output_dq(direc=direc)
-        self.make_figure(direc=direc)
+    def run_all(self):
+        self.output_trends(direc=self.setup.atmos_path)
+        self.output_dq(direc=self.setup.atmos_path)
+        self.make_figure(direc=self.setup.atmos_path)
 
 
-if __name__ == "__main__":
-    # python3 src/models/atmos.py
-    atmos = Atmos(OmegaConf.create({"atm": "v", "list": [1, {"a": "1", "b": "2"}]}))
-    atmos.run_all()
+# if __name__ == "__main__":
+#    # python3 src/models/atmos.py
+#    atmos = Atmos(OmegaConf.create({"atm": "v", "list": [1, {"a": "1", "b": "2"}]}))
+#    atmos.run_all()

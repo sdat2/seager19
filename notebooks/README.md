@@ -31,10 +31,9 @@ from src.plot_settings import ps_defaults
 ps_defaults(use_tex=False, dpi=150)
 ```
 
-
 ## If you commit and push something accidentally
 
-```
+```bash
 git reset --soft HEAD~1
 git push -f
 ```

@@ -7,7 +7,7 @@
 
 %%%% TIME Parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% step(s), hour(s), day(s), month(s), year(s) are valid time units.%%
- +Run_time             2 year
+ +Run_time             2 years
 
 %%%% FORCING and INITIALIZATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  +Wind_file     'DATA/tau-ECMWF-clim' 

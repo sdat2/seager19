@@ -21,14 +21,17 @@ Seeks to replicate::
     ```
 
 """
+import os
 import numpy as np
 import xarray as xr
-from src.constants import OCEAN_DATA_PATH, OCEAN_OUTPUT_PATH
 from src.utils import timeit
+from src.models.model_setup import ModelSetup
 
 
 @timeit
-def linear_qflx_replacement(output_file_name: str = "qflx.nc") -> None:
+def linear_qflx_replacement(
+    setup: ModelSetup, output_file_name: str = "qflx.nc"
+) -> None:
     """Uses `xarray` linear interpolation to replace netcdf with qflx in.
 
     Args:
@@ -37,7 +40,7 @@ def linear_qflx_replacement(output_file_name: str = "qflx.nc") -> None:
     """
 
     sst_qflx = xr.open_dataset(
-        OCEAN_OUTPUT_PATH / "om_diag.nc", decode_times=False
+        os.path.join(setup.ocean_output_path, "om_diag.nc"), decode_times=False
     ).SST_QFLX.rename({"L_01": "Z", "T_01": "T", "X_01": "X", "Y_01": "Y"})
 
     lent = len(sst_qflx.coords["T"])
@@ -92,4 +95,6 @@ def linear_qflx_replacement(output_file_name: str = "qflx.nc") -> None:
         "units": "degree_east",
     }
     output_ds = sst_qflx_subset.to_dataset()
-    output_ds.to_netcdf(OCEAN_DATA_PATH / output_file_name, format="NETCDF3_CLASSIC")
+    output_ds.to_netcdf(
+        os.path.join(setup.ocean_data_path, output_file_name), format="NETCDF3_CLASSIC"
+    )

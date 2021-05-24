@@ -70,6 +70,7 @@ def run_all(cfg: DictConfig, setup: ModelSetup) -> None:
 
     """
     edit_run(cfg, setup)
+    run("../SRC/" + cfg.ocean.tcom_name + " -i om_test", setup)
     log.info("Run.")
     if cfg.ocean.spin:
         run("../SRC/" + cfg.ocean.tcom_name + " -i om_spin -t om_spin.tios", setup)
@@ -82,7 +83,7 @@ def run_all(cfg: DictConfig, setup: ModelSetup) -> None:
         run("rm -rf output/om_diag.data output/om_diag.indx", setup)
         run("cp -f output/om_diag.save output/om_diag.2y.restart", setup)
     if cfg.ocean.ingrid:
-        linear_qflx_replacement()
+        linear_qflx_replacement(setup)
     if cfg.ocean.run_through:
         run("../SRC/" + cfg.ocean.tcom_name + " -i om_run2f -t om_run2f.tios", setup)
         run("../SRC/" + cfg.ocean.tios2cdf_name + " -f output/om_run2f", setup)

@@ -90,8 +90,8 @@ def main(cfg: DictConfig) -> None:
     # atmos model.
     if cfg.atmos:
         # atmos takes in cfg
-        atmos = Atmos(cfg)
-        atmos.run_all(direc=str(setup.atmos_path))
+        atmos = Atmos(cfg, setup)
+        atmos.run_all()
 
 
 if __name__ == "__main__":

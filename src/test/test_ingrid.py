@@ -2,9 +2,13 @@
 import os
 import xarray as xr
 import recursive_diff
+from hydra.experimental import initialize, compose
 from src.data_loading.ingrid import linear_qflx_replacement
 from src.constants import OCEAN_DATA_PATH
+from src.constants import PROJECT_PATH, CONFIG_NAME, CONFIG_PATH
 from src.data_loading.download import get_data
+from src.models.model_setup import ModelSetup
+from src.configs.config import format_config
 
 
 def test_ingrid() -> None:
@@ -13,8 +17,20 @@ def test_ingrid() -> None:
     # get_data if it does not exists
     get_data()
 
+    with initialize(
+        config_path="../../" + str(CONFIG_PATH).replace(str(PROJECT_PATH) + "/", "")
+    ):
+        # config is relative to a module
+        cfg = compose(
+            config_name=CONFIG_NAME, overrides=["user=test_user", "name=test_run"]
+        )
+        print(cfg)
+        cfg = format_config(cfg)
+        print(cfg)
+    setup = ModelSetup(cfg)
+
     # make a qflx-test file.
-    linear_qflx_replacement(output_file_name="qflx-test.nc")
+    linear_qflx_replacement(setup, output_file_name="qflx-test.nc")
 
     print("files in paths:\t\t\n", str(os.listdir(str(OCEAN_DATA_PATH))))
 
