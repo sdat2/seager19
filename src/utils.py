@@ -7,6 +7,26 @@ from functools import wraps
 from sys import getsizeof
 
 
+def _hr_time(time_in: float) -> str:
+    """
+    Print human readable time.
+
+    Args:
+        time (float): time in seconds
+
+    Returns:
+        str: string.
+    """
+    if time_in < 100:
+        return "%2.5f s" % time_in
+    elif 60 < time_in < 60 * 60:
+        return time.strftime("%M min %S s", time.gmtime(time_in))
+    elif 60 * 60 < time_in < 24 * 60 * 60:
+        return time.strftime("%H hr %M min %S s", time.gmtime(time_in))
+    else:
+        return "%2.5f s" % time_in
+
+
 def timeit(method: Callable) -> Callable:
     """`src.timeit` is a wrapper for performance analysis.
 
@@ -39,11 +59,13 @@ def timeit(method: Callable) -> Callable:
         ts = time.perf_counter()
         result = method(*args, **kw)
         te = time.perf_counter()
+        # time.gmtime()
         if "log_time" in kw:
             name = kw.get("log_name", method.__name__.lower())
             kw["log_time"][name] = te - ts
+            print("%r " % method.__name__, _hr_time(te - ts), "\n")
         else:
-            print("%r  %2.5f s\n" % (method.__name__, (te - ts)))
+            print("%r " % method.__name__, _hr_time(te - ts), "\n")
         return result
 
     return timed
