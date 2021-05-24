@@ -5,17 +5,19 @@ Example:
         pytest src/test/test_atmos.py
 
 """
-from omegaconf import OmegaConf
 from src.models.atmos import Atmos
 from src.data_loading.download import get_data
-from src.constants import ATMOS_PATH
+from src.test.test_hydra import test_with_initialize
+from src.models.model_setup import ModelSetup
 
 
 def test_atmos():
     """test all functions in document."""
     get_data()
-    atmos = Atmos(OmegaConf.create({"atm": "v", "list": [1, {"a": "1", "b": "2"}]}))
-    atmos.run_all(direc=str(ATMOS_PATH))
+    cfg = test_with_initialize()
+    setup = ModelSetup(cfg)
+    atmos = Atmos(cfg, setup)
+    atmos.run_all()
     # atmos.make_figure()
     # atmos.output_trends()
     # atmos.output_dq()
