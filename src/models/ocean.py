@@ -36,6 +36,30 @@ def run(command: str, setup: ModelSetup) -> None:
     print(full_command + " %2.5f s\n" % ((te - ts)))
 
 
+def edit_run(cfg: DictConfig, setup: ModelSetup):
+    """
+    Edit the run files to change ocean param.
+
+    Args:
+        cfg (DictConfig): [description]
+        setup (ModelSetup): [description]
+    """
+    for i in ["om_spin", "om_diag", "om_run2f"]:
+        file_name = os.path.join(setup.ocean_run_path, i)
+        print("editing ", file_name)
+        read_file = open(file_name)
+        string_list = read_file.readlines()
+        read_file.close()
+        print(string_list)
+        for j in range(len(string_list)):
+            string_list[j] = string_list[j].replace(
+                "+NUMMODE              2",
+                "+NUMMODE              " + str(cfg.oc.nummode),
+            )
+        write_file = open(file_name, "w")
+        write_file.writelines(string_list)
+
+
 @timeit
 @typechecked
 def run_all(cfg: DictConfig, setup: ModelSetup) -> None:
@@ -45,6 +69,7 @@ def run_all(cfg: DictConfig, setup: ModelSetup) -> None:
         cfg (DictConfig): the model configs to pass.
 
     """
+    edit_run(cfg, setup)
     log.info("Run.")
     if cfg.ocean.spin:
         run("../SRC/" + cfg.ocean.tcom_name + " -i om_spin -t om_spin.tios", setup)

@@ -91,7 +91,7 @@ def main(cfg: DictConfig) -> None:
     if cfg.atmos:
         # atmos takes in cfg
         atmos = Atmos(cfg)
-        atmos.run_all(direc=str(wandb.run.dir))
+        atmos.run_all(direc=str(setup.atmos_path))
 
 
 if __name__ == "__main__":

@@ -6,16 +6,18 @@ user: sdat2
 name: ???
 test: true # unimportant param for filtering later.
 notes: test new atmos section
-run: false  # whether to run any of the ocean model.
-animate: false
-atmos: false
+run: true  # whether to run any of the ocean model.
+animate: true
+atmos: true
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
-  spin: false
-  diag: false
+  spin: true
+  diag: true
   ingrid: false
-  run_through: true
+  run_through: false
+oc:
+  nummode: 1
 coup:
   cd: 2.25e-3    # Pa m-1 s
   rho_a: 1.225   # kg m-3
