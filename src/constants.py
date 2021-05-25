@@ -20,7 +20,7 @@ PROJECT_PATH = pathlib.Path(os.path.dirname(SRC_PATH))
 REPORT_PATH = pathlib.Path(os.path.join(PROJECT_PATH, "report"))
 FIGURE_PATH = pathlib.Path(os.path.join(REPORT_PATH, "figures"))
 CONFIG_PATH = os.path.join(SRC_PATH, "configs")
-CONFIG_NAME = "config"
+CONFIG_NAME: str = "config"
 
 # PATHS to the models
 OCEAN_PATH = PROJECT_PATH / "ocean"
@@ -37,7 +37,7 @@ DATA_PATH = PROJECT_PATH / "data"
 
 # Figure data.
 FIGURE_DATA_NAME: str = "Seager_etal_NCC-2019_datasetdatafiles.nc"
-FIGURE_DATA_PATH = DATA_PATH / "Seager_etal_NCC-2019_datasetdatafiles.nc"
+FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / "Seager_etal_NCC-2019_datasetdatafiles.nc"
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
