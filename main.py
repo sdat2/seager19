@@ -15,7 +15,7 @@ from omegaconf import DictConfig
 from subprocess import PIPE, run
 from src.constants import PROJECT_PATH, CONFIG_PATH, CONFIG_NAME
 from src.utils import timeit
-from src.models.ocean import compile_all, run_all, animate_all
+from src.models.ocean import Ocean
 from src.models.atmos import Atmos
 from src.models.model_setup import ModelSetup
 from src.configs.config import format_config
@@ -81,11 +81,12 @@ def main(cfg: DictConfig) -> None:
     setup = ModelSetup(str(wandb.run.dir))
 
     # ocean model
-    compile_all(setup)
+    ocean = Ocean(cfg, setup)
+    ocean.compile_all()
     if cfg.run:
-        run_all(cfg, setup)
+        ocean.run_all()
     if cfg.animate:
-        animate_all(cfg, setup)
+        ocean.animate_all()
 
     # atmos model.
     if cfg.atmos:

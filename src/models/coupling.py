@@ -2,7 +2,7 @@
 
 Example:
     Import statement usage::
-        from src.models.coupling import f_stress
+        from src.models.coupling import Coupling
 
 """
 from typing import Tuple
@@ -10,13 +10,13 @@ import xarray as xr
 from typeguard import typechecked
 
 
-class Couple:
+class Coupling:
     """
     Coupled model part.
     """
 
     def __init__(self):
-        self.rho_air: float = 1.225  # kg m-3, density of sst
+        self.rho_air: float = 1.225  # kg m-3, density of sea surface air
         self.c_d: float = 2.25e-3  # Pa m-1 s,  wind stress.
 
     @typechecked

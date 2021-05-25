@@ -21,6 +21,7 @@ class ModelSetup:
         """
 
         # setup ocean paths
+        self.direc = direc
         self.ocean_path = os.path.join(direc, "ocean")
         self.ocean_run_path = os.path.join(self.ocean_path, "RUN")
         self.ocean_src_path = os.path.join(self.ocean_path, "SRC")
