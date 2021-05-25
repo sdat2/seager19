@@ -117,16 +117,23 @@ class Atmos:
         self.temp_surface_bar: float = self.temp_0_c + 25  # 25C in Kelvin
         self.c_bar = 0.6  # C is the cloud cover. perhaps C_bar is the average.
 
-        # grid characteristics
+        # Heat flux coefficients.
+        # Find linearization of Q_LH (latent heating)
+        self.qlh_coeff: float = self.rho_air * self.c_e * self.latent_heat_vap
+        # Find linearization of Q_LW (longwave)
+        self.qlw_coeff = self.emmisivity * self.stefan_boltzman_const
 
+        # basic grid characteristics
         self.nx: int = 180  # number of x grid boxes
         self.ny: int = 60  # this seems like half the grid space
         self.y_north_lim = 60  # upper lat limit
         self.y_south_lim = -self.y_north_lim  # make symmetric around the equator
 
-        # make grids
+        # derived grid characteristics.
         self.dx: float = 360 / self.nx  # delta degrees
         self.dy = (self.y_north_lim - self.y_south_lim) / self.ny  # delta degrees
+
+        # make axes
         self.x_axis = np.linspace(0, 360 - self.dx, self.nx)  # degrees
         self.y_axis_v = np.linspace(
             self.y_south_lim + self.dy / 2, self.y_north_lim - self.dy / 2, self.ny
@@ -138,8 +145,12 @@ class Atmos:
             self.y_south_lim + 3 * self.dy / 2,
             self.y_north_lim - 3 * self.dy / 2,
             self.ny - 2,
-        )
-        # degrees
+        ) # degrees
+
+        # adding coriolis params at different y axis locations
+        self.fcu = self.f_cor(self.y_axis_u)  # vector of coriolis force coefficient.
+
+        # properties derived from grid axes
         self.x_spacing = self.x_axis[1] - self.x_axis[0]  # degrees
         self.y_spacing = self.y_axis_v[1] - self.y_axis_v[0]  # degrees
         self.dxm = self.x_spacing * self.radius_earth * np.pi / 180
@@ -147,26 +158,20 @@ class Atmos:
         self.dym_2 = self.dym * self.dym
 
         # need to have the correct ordering of the wave numbers for fft
-        num = self.nx
-
-        if num % 2 == 0:
+        if self.nx % 2 == 0:
             self.kk_wavenumber = np.asarray(
-                list(range(0, num // 2)) + [0] + list(range(-num // 2 + 1, 0)),
+                list(range(0, self.nx // 2)) + [0] + list(range(-self.nx // 2 + 1, 0)),
                 np.float64,
             )
         else:
             self.kk_wavenumber = np.asarray(
-                list(range(0, (num - 1) // 2)) + [0] + list(range(-(num - 1) // 2, 0)),
+                list(range(0, (self.nx - 1) // 2))
+                + [0]
+                + list(range(-(self.nx - 1) // 2, 0)),
                 np.float64,
             )
 
-        self.fcu = self.f_cor(self.y_axis_u)  # vector of coriolis force coefficient.
-
-        # Find linearization of Q_LH (latent heating)
-        self.qlh_coeff: float = self.rho_air * self.c_e * self.latent_heat_vap
-        # Find linearization of Q_LW (longwave)
-        self.qlw_coeff = self.emmisivity * self.stefan_boltzman_const
-
+        # Strange properties to plot different models etc.
         self.mem: str = "EEEf"  # string is iterated through
 
         # the different model names in a dict?
@@ -188,7 +193,7 @@ class Atmos:
         # dict of variables
         self.var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
 
-    # --------------- f cor ----------------------
+        # END INIT.
 
     @typechecked
     def f_cor(self, y: np.ndarray) -> np.ndarray:

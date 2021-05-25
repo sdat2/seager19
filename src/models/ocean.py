@@ -2,10 +2,10 @@
 import os
 import time
 import xarray as xr
-import wandb
 import logging
 from omegaconf import DictConfig
 from typeguard import typechecked
+import wandb
 from src.visualisation.ani import animate_ds
 from src.utils import timeit
 from src.data_loading.ingrid import linear_qflx_replacement
@@ -33,7 +33,7 @@ class Ocean:
         os.system("cd " + self.setup.ocean_src_path + " \npwd\nmake all")
 
     @typechecked
-    def run(self, command: str) -> None:
+    def run(self, command: str) -> float:
         """Runs a line of bash in the ocean/RUN directory
         and times how long it takes.
 
@@ -46,7 +46,9 @@ class Ocean:
         ts = time.perf_counter()
         os.system(full_command)
         te = time.perf_counter()
-        print(full_command + " %2.5f s\n" % ((te - ts)))
+        diff = te - ts
+        print(full_command + " %2.5f s\n" % diff)
+        return diff
 
     def edit_run(self):
         """
@@ -62,7 +64,7 @@ class Ocean:
             with open(file_name) as read_file:
                 string_list = read_file.readlines()
             # read_file.close()
-            print(string_list)
+            # print(string_list)
             for j in range(len(string_list)):
                 string_list[j] = string_list[j].replace(
                     "+NUMMODE              2",
@@ -102,9 +104,10 @@ class Ocean:
         if self.cfg.ocean.ingrid:
             linear_qflx_replacement(self.setup)
         if self.cfg.ocean.run_through:
-            self.run(
+            run_time = self.run(
                 "../SRC/" + self.cfg.ocean.tcom_name + " -i om_run2f -t om_run2f.tios"
             )
+            wandb.log({"ocean_run", run_time})
             self.run("../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_run2f")
             self.run("rm -rf output/om_run2f.data output/om_run2f.indx")
 
