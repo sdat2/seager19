@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-from src.models.coupling import f_stress, rho_a, cd
+from src.models.coupling import Couple
 
 
 def stress_test() -> None:
@@ -40,7 +40,9 @@ def stress_test() -> None:
         attrs=dict(),
     )
 
-    tau_u, tau_v = f_stress(rho_a, cd, 0.5, u_da, v_da)
+    couple = Couple()
+
+    tau_u, tau_v = couple.f_stress(0.5, u_da, v_da)
 
     assert isinstance(tau_u, xr.DataArray)
     assert isinstance(tau_v, xr.DataArray)

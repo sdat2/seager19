@@ -27,6 +27,7 @@ def run(command: str, setup: ModelSetup) -> None:
 
     Args:
         command (str): a valid bash command.
+        setup (ModelSetup): the model setup containing the file locations.
     """
     rc_prefix = "cd " + setup.ocean_run_path + " \n"
     full_command = rc_prefix + command

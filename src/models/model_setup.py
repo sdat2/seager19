@@ -13,27 +13,38 @@ class ModelSetup:
     """Initialise, store, and setup directories for models."""
 
     def __init__(self, direc: str):
-        """Model directories init."""
+        """
+        Model directories init.
+
+        Args:
+            direc (str): The main model directory.
+        """
+
+        # setup ocean paths
         self.ocean_path = os.path.join(direc, "ocean")
         self.ocean_run_path = os.path.join(self.ocean_path, "RUN")
         self.ocean_src_path = os.path.join(self.ocean_path, "SRC")
         self.ocean_data_path = os.path.join(self.ocean_path, "DATA")
         self.ocean_output_path = os.path.join(self.ocean_path, "output")
 
+        # setup atmospheric paths
         self.atmos_path = os.path.join(direc, "atmos")
         self.atmos_data_path = os.path.join(self.atmos_path, "DATA")
         self.atmos_tmp_path = os.path.join(self.atmos_path, "tmp")
 
+        # make ocean paths
         os.mkdir(self.ocean_path)
         os.mkdir(self.ocean_src_path)
         os.mkdir(self.ocean_run_path)
         os.mkdir(self.ocean_data_path)
         os.mkdir(self.ocean_output_path)
 
+        # make atmos paths
         os.mkdir(self.atmos_path)
         os.mkdir(self.atmos_data_path)
         os.mkdir(self.atmos_tmp_path)
 
+        # make symlinks in ocean model
         os.symlink(self.ocean_data_path, os.path.join(self.ocean_run_path, "DATA"))
         os.symlink(self.ocean_data_path, os.path.join(self.ocean_src_path, "DATA"))
         os.symlink(self.ocean_output_path, os.path.join(self.ocean_run_path, "output"))
