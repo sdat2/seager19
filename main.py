@@ -94,6 +94,8 @@ def main(cfg: DictConfig) -> None:
         atmos = Atmos(cfg, setup)
         atmos.run_all()
 
+    wandb.finish()
+
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter

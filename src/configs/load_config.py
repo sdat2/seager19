@@ -1,4 +1,4 @@
-"""Test hydra."""
+"""Load hydra config (util for tests)."""
 from hydra.experimental import initialize, compose
 from src.constants import PROJECT_PATH, CONFIG_NAME, CONFIG_PATH
 from src.configs.config import format_config
@@ -9,10 +9,10 @@ from omegaconf import DictConfig
 # 2. The module with your configs should be importable.
 #    it needs to have a __init__.py (can be empty). pytest src/test/test_hydra.py
 # 3. THe config path is relative to the file calling initialize (this file)
-def test_with_initialize() -> DictConfig:
+def load_config(prefix: str = "../../") -> DictConfig:
     """Tests loading hydra config file."""
     with initialize(
-        config_path="../../" + str(CONFIG_PATH).replace(str(PROJECT_PATH) + "/", "")
+        config_path=prefix + str(CONFIG_PATH).replace(str(PROJECT_PATH) + "/", "")
     ):
         # config is relative to a module
         cfg = compose(

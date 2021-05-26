@@ -3,7 +3,6 @@
 # hopefully passes all the important parameters.
 project: seager19
 user: sdat2
-name: ???
 test: true # unimportant param for filtering later.
 notes: test new atmos section
 run: true  # whether to run any of the ocean model.
@@ -96,3 +95,4 @@ atm:
   # make grids
   dx:  360 / ${atm.nx}  # delta degrees
   dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
+name: nummode_${oc.nummode}_uncoupled_test

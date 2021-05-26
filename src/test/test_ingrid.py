@@ -6,7 +6,7 @@ from src.data_loading.ingrid import linear_qflx_replacement
 from src.constants import OCEAN_DATA_PATH
 from src.data_loading.download import get_data
 from src.models.model_setup import ModelSetup
-from src.test.test_ingrid import test_with_initialize
+from src.configs.load_config import load_config
 
 
 def test_ingrid() -> None:
@@ -15,8 +15,9 @@ def test_ingrid() -> None:
     # get_data if it does not exists
     get_data()
 
-    cfg = test_with_initialize()
-    setup = ModelSetup(cfg)
+    cfg = load_config()
+    print(cfg)
+    setup = ModelSetup("test_direc")
     # make a qflx-test file.
     linear_qflx_replacement(setup, output_file_name="qflx-test.nc")
 
