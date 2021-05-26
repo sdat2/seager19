@@ -22,10 +22,10 @@ def test_ingrid() -> None:
 
     # get_data if it does not exists
     get_data()
-    delete_folder_contents(str(TEST_DIREC))
-
     cfg = load_config()
     print(cfg.name)
+
+    delete_folder_contents(str(TEST_DIREC))
     setup = ModelSetup(str(TEST_DIREC))
 
     shutil.copy(str(OCEAN_OUTPUT_PATH / "om_diag.nc"), str(setup.ocean_output_path))

@@ -19,6 +19,7 @@ outputs/
 OUTPUT/
 logs/
 ocean/SRC/backup
+multirun/
 *.save
 *.output
 *.data

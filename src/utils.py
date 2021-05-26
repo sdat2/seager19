@@ -227,7 +227,9 @@ def delete_folder_contents(folder: str = "/path/to/folder") -> None:
                 shutil.rmtree(file_path)
         # pylint: disable=broad-except
         except Exception as e:
+
             print("Failed to delete %s. Reason: %s" % (file_path, e))
+            assert False
 
 
 if __name__ == "__main__":

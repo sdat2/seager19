@@ -13,6 +13,33 @@ from typeguard import typechecked
 class Coupling:
     """
     Coupled model part.
+
+    Model solution method. The atmosphere equations are solved by Fourier
+    transforming in longitude, forming an equation for v for each zonal wavenumber
+    that is finite differenced, and the resulting tri-diagonal system
+    is solved by matrix
+    inversion, transforming back into longitude. Finally, u and Φ are derived by
+    backsubstitution. The ocean equations are solved using the ‘INC’ scheme31,
+    integrating the model forward, after spin-up with climatological conditions,
+    forced by the time-varying ECMWF wind stress and, for the case with CO2 forcing,
+    changing f′1
+    in the net surface longwave radiation calculation. Change over 1958–2017
+    is computed by a linear trend. The atmosphere model is solved forced by a Ts
+    comprised of the climatological mean for 1958–2017 plus and minus half of the
+    SST trend and the difference of the two simulations taken to derive the change.
+    For the coupled model, the ocean model is first forced with the change in CO2
+    and climatological wind stress over 1958–2017. The resulting SST trend, plus
+    the imposed heating change over land, are used to force the atmosphere model.
+    The ocean model is forced again with both the changed wind stress and the CO2
+    increase to derive a new SST change over 1958–2017 that is then used to force
+    the atmosphere model. This iterative coupling is repeated until equilibrium is
+    reached, which takes just a few times. There is a unique solution for any given
+    value of CO2. The model wind stress change is computed as ρ c Wu a D , where cD
+    is a drag coefficient and u is the vector surface wind change computed by the
+    atmosphere model, which is added to the ECMWF climatological stresses. Since
+    the atmosphere model dynamics are only applicable in the tropics, the computed
+    wind stress anomaly is only applied to the ocean model between 20° S and 20°N,
+    and is linearly tapered to zero at 25° S and 25°N.
     """
 
     def __init__(self):
