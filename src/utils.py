@@ -228,3 +228,10 @@ def delete_folder_contents(folder: str = "/path/to/folder") -> None:
         # pylint: disable=broad-except
         except Exception as e:
             print("Failed to delete %s. Reason: %s" % (file_path, e))
+
+
+if __name__ == "__main__":
+    from src.constants import TEST_DIREC
+
+    delete_folder_contents(str(TEST_DIREC))
+    # python3 src/utils.py

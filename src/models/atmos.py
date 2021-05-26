@@ -102,6 +102,7 @@ class Atmos:
         self.delta_temp = 1.0  # ΔT = 1 K
         self.f2 = 0.05  # f2 = 0.05
         # 'a_cloud_const' should decrease when deep convection happens above 28 degC
+        # python main.py --multirun oc.nummode=6,7,8
         #  a_cloud_const = Ts-temp_0_c;a_cloud_const[a_cloud_const>28] = 40;
         # a_cloud_const[a_cloud_const<=28] = 80;
         # a_cloud_const = 0.01*a_cloud_const

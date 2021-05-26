@@ -6,10 +6,11 @@ Example:
 
 """
 import os
+import shutil
 import xarray as xr
 import recursive_diff
 from src.data_loading.ingrid import linear_qflx_replacement
-from src.constants import OCEAN_DATA_PATH, TEST_DIREC
+from src.constants import OCEAN_DATA_PATH, TEST_DIREC, OCEAN_OUTPUT_PATH
 from src.data_loading.download import get_data
 from src.models.model_setup import ModelSetup
 from src.configs.load_config import load_config
@@ -24,8 +25,10 @@ def test_ingrid() -> None:
     delete_folder_contents(str(TEST_DIREC))
 
     cfg = load_config()
-    print(cfg)
+    print(cfg.name)
     setup = ModelSetup(str(TEST_DIREC))
+
+    shutil.copy(str(OCEAN_OUTPUT_PATH / "om_diag.nc"), str(setup.ocean_output_path))
 
     # make a qflx-test file.
     linear_qflx_replacement(setup, output_file_name="qflx-test.nc")
@@ -34,9 +37,11 @@ def test_ingrid() -> None:
 
     # load different qflx files.
     qflx_test = xr.open_dataarray(
-        str(OCEAN_DATA_PATH / "qflx-test.nc"), decode_times=False
+        str(os.path.join(setup.ocean_data_path, "qflx-test.nc")), decode_times=False
     )
-    qflx_old = xr.open_dataarray(str(OCEAN_DATA_PATH / "qflx-0.nc"), decode_times=False)
+    qflx_old = xr.open_dataarray(
+        str(os.path.join(setup.ocean_data_path, "qflx-0.nc")), decode_times=False
+    )
 
     # look at stuff
     print(qflx_test)
