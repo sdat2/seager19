@@ -1,4 +1,6 @@
 """General project utility functions."""
+import os
+import shutil
 from typing import Callable, Union
 import inspect
 import time
@@ -11,13 +13,15 @@ def _hr_time(time_in: float) -> str:
     """
     Print human readable time.
 
+    I got fed up with converting the number in my head.
+
     Args:
         time (float): time in seconds
 
     Returns:
         str: string.
     """
-    if time_in < 100:
+    if time_in < 60:
         return "%2.5f s" % time_in
     elif 60 < time_in < 60 * 60:
         return time.strftime("%M min %S s", time.gmtime(time_in))
@@ -201,3 +205,26 @@ def get_byte_size(obj: object) -> str:
     """
 
     return human_readable_size(calculate_byte_size_recursively(obj))
+
+
+def delete_folder_contents(folder: str = "/path/to/folder") -> None:
+    """
+    Delete the contents of a folder.
+
+    Taken from:
+    https://stackoverflow.com/questions/185936/how-to-delete-the-contents-of-a-folder
+
+    Args:
+        folder (str, optional): Path to a folder. Defaults to "/path/to/folder".
+    """
+
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        # pylint: disable=broad-except
+        except Exception as e:
+            print("Failed to delete %s. Reason: %s" % (file_path, e))

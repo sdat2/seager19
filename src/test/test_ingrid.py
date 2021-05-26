@@ -1,12 +1,19 @@
-"""Test the ingrid replacement python functions."""
+"""Test the ingrid replacement python functions.
+
+Example:
+    Test using::
+        pytest src/test/test_ingrid.py
+
+"""
 import os
 import xarray as xr
 import recursive_diff
 from src.data_loading.ingrid import linear_qflx_replacement
-from src.constants import OCEAN_DATA_PATH
+from src.constants import OCEAN_DATA_PATH, TEST_DIREC
 from src.data_loading.download import get_data
 from src.models.model_setup import ModelSetup
 from src.configs.load_config import load_config
+from src.utils import delete_folder_contents
 
 
 def test_ingrid() -> None:
@@ -14,10 +21,12 @@ def test_ingrid() -> None:
 
     # get_data if it does not exists
     get_data()
+    delete_folder_contents(str(TEST_DIREC))
 
     cfg = load_config()
     print(cfg)
-    setup = ModelSetup("test_direc")
+    setup = ModelSetup(str(TEST_DIREC))
+
     # make a qflx-test file.
     linear_qflx_replacement(setup, output_file_name="qflx-test.nc")
 
@@ -44,3 +53,5 @@ def test_ingrid() -> None:
             # otherwise it would catch errors about what
             # the missing value attribute is.
             assert False
+
+    delete_folder_contents(str(TEST_DIREC))

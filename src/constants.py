@@ -35,6 +35,9 @@ ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
 GIF_PATH = PROJECT_PATH / "gifs"
 DATA_PATH = PROJECT_PATH / "data"
 
+# Test DIREC
+TEST_DIREC = SRC_PATH / "test" / "test_direc"
+
 # Figure data.
 FIGURE_DATA_NAME: str = "Seager_etal_NCC-2019_datasetdatafiles.nc"
 FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / "Seager_etal_NCC-2019_datasetdatafiles.nc"
