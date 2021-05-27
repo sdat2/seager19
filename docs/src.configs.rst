@@ -12,6 +12,14 @@ src.configs.config module
    :undoc-members:
    :show-inheritance:
 
+src.configs.load\_config module
+-------------------------------
+
+.. automodule:: src.configs.load_config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

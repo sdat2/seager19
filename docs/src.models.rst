@@ -20,6 +20,14 @@ src.models.coupling module
    :undoc-members:
    :show-inheritance:
 
+src.models.model\_setup module
+------------------------------
+
+.. automodule:: src.models.model_setup
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.models.ocean module
 -----------------------
 
