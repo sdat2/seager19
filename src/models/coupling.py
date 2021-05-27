@@ -8,6 +8,8 @@ Example:
 from typing import Tuple
 import xarray as xr
 from typeguard import typechecked
+from omegaconf import DictConfig
+from src.models.model_setup import ModelSetup
 
 
 class Coupling:
@@ -42,9 +44,10 @@ class Coupling:
     and is linearly tapered to zero at 25° S and 25°N.
     """
 
-    def __init__(self):
-        self.rho_air: float = 1.225  # kg m-3, density of sea surface air
-        self.c_d: float = 2.25e-3  # Pa m-1 s,  wind stress.
+    def __init__(self, cfg: DictConfig, setup: ModelSetup):
+        """Initialise model in standard way."""
+        self.coup = cfg.coup
+        self.setup = setup
 
     @typechecked
     def f_stress(
@@ -69,5 +72,10 @@ class Coupling:
                 meridional wind stress]
 
         """
-        stress_coeff = self.rho_air * self.c_d * wind_speed_mean
+        stress_coeff = self.coup.rho_air * self.coup.c_d * wind_speed_mean
         return stress_coeff * u_wind, stress_coeff * v_wind
+
+    def get_wind_speed_mean(self, file_name: str = "") -> float:
+        """Get wind speed mean."""
+        print("get wind speed mean")
+        xr.open_dataset(file_name).mean("time")

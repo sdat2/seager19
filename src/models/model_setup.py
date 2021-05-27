@@ -1,4 +1,4 @@
-"""set_up.py"""
+"""Set up the model, copy the files, get the names."""
 import os
 from src.constants import (
     OCEAN_RUN_PATH,

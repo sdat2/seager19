@@ -25,8 +25,8 @@ oc:
   time_diag: 2 years
   time_run2f: 58 years
 coup:
-  cd: 2.25e-3    # Pa m-1 s
-  rho_a: 1.225   # kg m-3
+  c_d: 2.25e-3    # Pa m-1 s,  wind stress.
+  rho_air: 1.225   # kg m-3, density of sea surface air
 atm:
   # begining TCAM
   k_days: 10     # K: 1/10
@@ -101,3 +101,4 @@ atm:
   dx:  360 / ${atm.nx}  # delta degrees
   dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
 name: nummode_${oc.nummode}_uncoupled_test
+# python main.py --multirun oc.nummode=9,10
