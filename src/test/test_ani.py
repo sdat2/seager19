@@ -57,4 +57,5 @@ def test_animate_ds() -> None:
             x,
             GIF_PATH,
             dpi=200,
+            front_trim=1,
         )

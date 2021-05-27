@@ -8,7 +8,7 @@ def rdict(index: int) -> dict:
     ocean model used.
 
     Args:
-        index (int): index on coords
+        index (int): index on coords.
 
     Returns:
         dict: renaming dict.

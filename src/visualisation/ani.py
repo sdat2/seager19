@@ -20,7 +20,11 @@ from src.data_loading.transforms import rdict
 
 @timeit
 def animate_ds(
-    ds: xr.Dataset, file_name: str, output_dir: str, dpi: float = 200
+    ds: xr.Dataset,
+    file_name: str,
+    output_dir: str,
+    dpi: float = 200,
+    front_trim: int = 0,
 ) -> None:
     """Animate the `xarray.Dataset`.
 
@@ -29,6 +33,8 @@ def animate_ds(
         file_name (str): Name of dataset to be associated with the animations.
         output_dir (str): Full path to output directory to put the animations in.
         dpi (float): the dots per inch for the figure. Defaults to 200.
+        front_trim (int): the number of time indices to remove from the front of the
+            xr.DataArray pieces. Defaults to 0.
 
     """
     ps_defaults(use_tex=False, dpi=dpi)
@@ -75,7 +81,7 @@ def animate_ds(
                             da.attrs["long_name"] = y
                             da.attrs["name"] = y
                             animate_xr_da(
-                                da,
+                                da.isel(time=slice(front_trim, len(da.time.values))),
                                 video_path=os.path.join(
                                     output_dir, file_name + "_" + y + ".gif"
                                 ),

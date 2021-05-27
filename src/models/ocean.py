@@ -135,6 +135,7 @@ class Ocean:
                     ),
                     x,
                     self.setup.direc,
+                    front_trim=int("om_diag" == x),  # remove first month for om_diag
                 )
             else:
                 ds = xr.open_dataset(
