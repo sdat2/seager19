@@ -32,45 +32,13 @@ model dynamics are only applicable in the tropics, the computed wind
 stress anomaly is only applied to the ocean model between 20 S and 20 N,
 and is linearly tapered to zero at 25 S and 2 N.
 
-"""
-from typing import Tuple, Union
-import os
-import numpy as np
-from scipy.interpolate import interp2d
-from scipy.fftpack import fft, ifft
-import matplotlib.pyplot as plt
-import xarray as xr
-from typeguard import typechecked
-from omegaconf import DictConfig
-from src.models.model_setup import ModelSetup
-from src.utils import timeit
-
-
-class Atmos:
-    """Atmos class."""
-
-    def __init__(self, cfg: DictConfig, setup: ModelSetup):
-        """Initialise the atmos function"""
-        self.atm = cfg.atm
-        self.setup = setup
+Example:
+    Old code::
         # ------------- constants -----------------------
         # begining TCAM
-        self.k_days = 10  # K = 1/10
-        self.e_frac = 2.0  # multiply eps_u by e_frac to get eps_v
-        self.h_q = 1800  # Hq is a scale depth for moisture
-        self.prcp_land = 1  # use data precip trends over land
-        self.wnsp_min = 4
-        self.rho_00: float = 0.3
-        # this means the density at the surface.
-        # this is actual rho_bar in the paper
-        # 0.3 kg m-3
         self.pr_max: float = 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day.
         self.relative_humidity: float = 0.80  # relative humidity uniformly 0.8
         self.number_iterations: int = 50  #  int
-        self.gravity: float = 9.8  #  m s-2
-        self.height_tropopause = 15e3  # metres
-        self.theta_00 = 300  # potential temperature at the surface.
-        self.nbsq = 3.0e-4  # N^2 s-2. N^2 is a specified buoyancy frequency.
         self.radius_earth = 6.37e6  # metres
         self.sec_in_day = 86400  # seconds in day.
         self.omega_2 = 2 * (2 * np.pi / self.sec_in_day)  # 2 * rad per second
@@ -107,10 +75,9 @@ class Atmos:
         # a_cloud_const[a_cloud_const<=28] = 80;
         # a_cloud_const = 0.01*a_cloud_const
         self.a_cloud_const = 0.6  # this isn't the option used in the paper.
-
         # basic parameters
         self.temp_0_c = 273.15  # zero degrees in kelvin
-        self.f1_bar = 0.39  # f1 = 0.39
+        self.atm.f1_bar = 0.39  # f1 = 0.39
         # f'1  is the anomaly in f1—a parameter that can be adjusted
         # to control the variation in surface longwave radiation due
         # to a_cloud_const change in CO2
@@ -118,35 +85,45 @@ class Atmos:
         self.temp_surface_bar: float = self.temp_0_c + 25  # 25C in Kelvin
         self.c_bar = 0.6  # C is the cloud cover. perhaps C_bar is the average.
 
-        # Heat flux coefficients.
-        # Find linearization of Q_LH (latent heating)
-        self.qlh_coeff: float = self.rho_air * self.c_e * self.latent_heat_vap
-        # Find linearization of Q_LW (longwave)
-        self.qlw_coeff = self.emmisivity * self.stefan_boltzman_const
+"""
+from typing import Tuple, Union
+import os
+import numpy as np
+from scipy.interpolate import interp2d
+from scipy.fftpack import fft, ifft
+import matplotlib.pyplot as plt
+import xarray as xr
+from typeguard import typechecked
+from omegaconf import DictConfig
+from src.models.model_setup import ModelSetup
+from src.utils import timeit
 
-        # basic grid characteristics
-        self.nx: int = 180  # number of x grid boxes
-        self.ny: int = 60  # this seems like half the grid space
-        self.y_north_lim = 60  # upper lat limit
-        self.y_south_lim = -self.y_north_lim  # make symmetric around the equator
 
-        # derived grid characteristics.
-        self.dx: float = 360 / self.nx  # delta degrees
-        self.dy = (self.y_north_lim - self.y_south_lim) / self.ny  # delta degrees
+class Atmos:
+    """Atmos class."""
+
+    def __init__(self, cfg: DictConfig, setup: ModelSetup):
+        """Initialise the atmos function"""
+        self.atm = cfg.atm
+        self.setup = setup
 
         # make axes
-        self.x_axis = np.linspace(0, 360 - self.dx, self.nx)  # degrees
+        self.x_axis = np.linspace(0, 360 - self.atm.dx, self.atm.nx)  # degrees
         self.y_axis_v = np.linspace(
-            self.y_south_lim + self.dy / 2, self.y_north_lim - self.dy / 2, self.ny
+            self.atm.y_south_lim + self.atm.dy / 2,
+            self.atm.y_north_lim - self.atm.dy / 2,
+            self.atm.ny,
         )  # degrees
         self.y_axis_u = np.linspace(
-            self.y_south_lim + self.dy, self.y_north_lim - self.dy, self.ny - 1
+            self.atm.y_south_lim + self.atm.dy,
+            self.atm.y_north_lim - self.atm.dy,
+            self.atm.ny - 1,
         )  # degrees
         self.y_axis_i = np.linspace(
-            self.y_south_lim + 3 * self.dy / 2,
-            self.y_north_lim - 3 * self.dy / 2,
-            self.ny - 2,
-        ) # degrees
+            self.atm.y_south_lim + 3 * self.atm.dy / 2,
+            self.atm.y_north_lim - 3 * self.atm.dy / 2,
+            self.atm.ny - 2,
+        )  # degrees
 
         # adding coriolis params at different y axis locations
         self.fcu = self.f_cor(self.y_axis_u)  # vector of coriolis force coefficient.
@@ -154,21 +131,23 @@ class Atmos:
         # properties derived from grid axes
         self.x_spacing = self.x_axis[1] - self.x_axis[0]  # degrees
         self.y_spacing = self.y_axis_v[1] - self.y_axis_v[0]  # degrees
-        self.dxm = self.x_spacing * self.radius_earth * np.pi / 180
-        self.dym = self.y_spacing * self.radius_earth * np.pi / 180
+        self.dxm = self.x_spacing * self.atm.radius_earth * np.pi / 180
+        self.dym = self.y_spacing * self.atm.radius_earth * np.pi / 180
         self.dym_2 = self.dym * self.dym
 
         # need to have the correct ordering of the wave numbers for fft
-        if self.nx % 2 == 0:
+        if self.atm.nx % 2 == 0:
             self.kk_wavenumber = np.asarray(
-                list(range(0, self.nx // 2)) + [0] + list(range(-self.nx // 2 + 1, 0)),
+                list(range(0, self.atm.nx // 2))
+                + [0]
+                + list(range(-self.atm.nx // 2 + 1, 0)),
                 np.float64,
             )
         else:
             self.kk_wavenumber = np.asarray(
-                list(range(0, (self.nx - 1) // 2))
+                list(range(0, (self.atm.nx - 1) // 2))
                 + [0]
-                + list(range(-(self.nx - 1) // 2, 0)),
+                + list(range(-(self.atm.nx - 1) // 2, 0)),
                 np.float64,
             )
 
@@ -197,7 +176,7 @@ class Atmos:
         # END INIT.
 
     @typechecked
-    def f_cor(self, y: np.ndarray) -> np.ndarray:
+    def f_cor(self, y_axis: np.ndarray) -> np.ndarray:
         """Corriolis force coeff.
 
         omega_2 = 2 * (2 * np.pi / sec_in_day) # 2 * rad per second
@@ -210,7 +189,7 @@ class Atmos:
         Returns:
             np.ndarray: Corriolis force coeff.
         """
-        return self.omega_2 * y * np.pi / 180
+        return self.atm.omega_2 * y_axis * np.pi / 180
 
     # --------------- fluxes -----------------------------
 
@@ -224,10 +203,10 @@ class Atmos:
         Returns:
             xr.DataArray: Flux es.
         """
-        return self.es_0 * np.exp(
+        return self.atm.es_0 * np.exp(
             17.67
-            * (temperature - self.temp_0_c)
-            / (temperature - self.temp_0_c + 243.5)
+            * (temperature - self.atm.temp_0_c)
+            / (temperature - self.atm.temp_0_c + 243.5)
         )
 
     @typechecked
@@ -243,7 +222,7 @@ class Atmos:
         Returns:
             xr.DataArray: Flux q_s.
         """
-        return 0.622 * self.f_es(temperature) / self.p_s
+        return 0.622 * self.f_es(temperature) / self.atm.p_s
 
     @typechecked
     def f_dqs_dtemp(self, temperature: xr.DataArray) -> xr.DataArray:
@@ -258,7 +237,7 @@ class Atmos:
         return (
             self.f_qs(temperature)
             * (17.67 * 243.5)
-            / (temperature - self.temp_0_c + 243.5) ** 2
+            / (temperature - self.atm.temp_0_c + 243.5) ** 2
         )
 
     @typechecked
@@ -284,7 +263,7 @@ class Atmos:
             xr.DataArray: flux qlh.
 
         """
-        return self.qlh_coeff * u_sp * self.f_qs(temperature) * (1 - rh_loc)
+        return self.atm.qlh_coeff * u_sp * self.f_qs(temperature) * (1 - rh_loc)
 
     @typechecked
     def f_dqlh_dtemp(
@@ -303,7 +282,7 @@ class Atmos:
         Returns:
             xr.DataArray: flux dqlh_dtemp.
         """
-        return self.qlh_coeff * u_sp * self.f_dqs_dtemp(temperature) * (1 - rh_loc)
+        return self.atm.qlh_coeff * u_sp * self.f_dqs_dtemp(temperature) * (1 - rh_loc)
 
     @typechecked
     def f_temp_a(self, temperature: xr.DataArray) -> xr.DataArray:
@@ -317,7 +296,7 @@ class Atmos:
         Returns:
             xr.DataArray: temperature anomaly.
         """
-        return temperature - self.delta_temp
+        return temperature - self.atm.delta_temp
 
     @typechecked
     def f_ebar(self, temperature: xr.DataArray, rh_loc: xr.DataArray) -> xr.DataArray:
@@ -333,7 +312,7 @@ class Atmos:
         q_a = rh_loc * self.f_qs(temperature)
 
         # q_a is the surface-specific humidity
-        return q_a * self.p_s / 0.622
+        return q_a * self.atm.p_s / 0.622
 
     # ------------ heat flux functions:
 
@@ -360,11 +339,11 @@ class Atmos:
         """
         temp_a = self.f_temp_a(temperature)
         return (
-            self.qlw_coeff
-            * (1 - self.a_cloud_const * cloud_cover ** 2)
+            self.atm.qlw_coeff
+            * (1 - self.atm.a_cloud_const * cloud_cover ** 2)
             # bar(Ts)^4
             * temp_a ** 4
-            * (f - self.f2 * np.sqrt(self.f_ebar(temperature, rh_loc)))
+            * (f - self.atm.f2 * np.sqrt(self.f_ebar(temperature, rh_loc)))
             # f1'
         )
 
@@ -381,8 +360,8 @@ class Atmos:
         """
         return (
             4
-            * self.emmisivity
-            * self.stefan_boltzman_const
+            * self.atm.emmisivity
+            * self.atm.stefan_boltzman_const
             * temperature ** 3
             * (temperature - self.f_temp_a(temperature))
         )
@@ -422,8 +401,8 @@ class Atmos:
             xr.DataArray: flux dqlw_df.
         """
         return (
-            self.qlw_coeff
-            * (1 - self.a_cloud_const * cloud_cover ** 2)
+            self.atm.qlw_coeff
+            * (1 - self.atm.a_cloud_const * cloud_cover ** 2)
             * temperature ** 4
         )
 
@@ -452,14 +431,14 @@ class Atmos:
         # q_a is the surface-specific humidity
         # q_s(Ts) is the saturation-specific humidity at the SST
         dqs_dtemp = self.f_dqs_dtemp(temperature)
-        return self.qlw_coeff * (
-            (1 - self.a_cloud_const * cloud_cover ** 2)
+        return self.atm.qlw_coeff * (
+            (1 - self.atm.a_cloud_const * cloud_cover ** 2)
             * temperature ** 3
             * (
                 4 * f
-                - self.f2 * np.sqrt(e_bar) * (4 + temperature * dqs_dtemp / 2 / q_s)
+                - self.atm.f2 * np.sqrt(e_bar) * (4 + temperature * dqs_dtemp / 2 / q_s)
             )
-            + 12 * temperature ** 2 * self.delta_temp
+            + 12 * temperature ** 2 * self.atm.delta_temp
         )
 
     @typechecked
@@ -475,8 +454,8 @@ class Atmos:
 
         """
         e_fac = 0.622
-        e_s = self.es_0 * np.exp(17.67 * (t_s - 273.15) / ((t_s - 273.15) + 243.5))
-        return e_fac * self.relative_humidity * e_s / s_p
+        e_s = self.atm.es_0 * np.exp(17.67 * (t_s - 273.15) / ((t_s - 273.15) + 243.5))
+        return e_fac * self.atm.relative_humidity * e_s / s_p
 
     @typechecked
     def f_qa2(self, temp_surface: np.ndarray) -> np.ndarray:
@@ -508,11 +487,11 @@ class Atmos:
         # c_s_e = 0.0012
         return (
             c_s_e
-            * self.rho_air
-            * (1 - self.relative_humidity)
+            * self.atm.rho_air
+            * (1 - self.atm.relative_humidity)
             * q_a
             * wnsp
-            / self.relative_humidity
+            / self.atm.relative_humidity
         )
 
     @typechecked
@@ -534,14 +513,14 @@ class Atmos:
 
         """
         qu = q_a * u
-        qux = ifft(1.0j * self.kk_wavenumber * fft(qu) / self.radius_earth).real
-        aq = (q_a[1 : self.ny - 1, :] + q_a[0 : self.ny - 2, :]) / 2.0
-        qv = aq * v[1 : self.ny - 1, :]
-        z = np.zeros((1, self.nx))
+        qux = ifft(1.0j * self.kk_wavenumber * fft(qu) / self.atm.radius_earth).real
+        aq = (q_a[1 : self.atm.ny - 1, :] + q_a[0 : self.atm.ny - 2, :]) / 2.0
+        qv = aq * v[1 : self.atm.ny - 1, :]
+        z = np.zeros((1, self.atm.nx))
         qv = np.concatenate((z, qv, z), axis=0)
         # qvy = qv.diff('Yu')/dym
-        qvy = (qv[1 : self.ny, :] - qv[0 : self.ny - 1, :]) / self.dym
-        return -self.h_q * (qux + qvy) * self.rho_air
+        qvy = (qv[1 : self.atm.ny, :] - qv[0 : self.atm.ny - 1, :]) / self.dym
+        return -self.atm.h_q * (qux + qvy) * self.atm.rho_air
 
     # ---------------- equation solvers ---------------------
 
@@ -620,39 +599,41 @@ class Atmos:
 
         q1_time = fft(q1)
         f_q = self.fcu[:, np.newaxis] * q1_time
-        a_f_q = (f_q[1 : self.ny - 1, :] + f_q[0 : self.ny - 2, :]) / 2.0
-        km = self.kk_wavenumber / self.radius_earth
-        d_q = (q1_time[1 : self.ny - 1, :] - q1_time[0 : self.ny - 2, :]) / self.dym
+        a_f_q = (f_q[1 : self.atm.ny - 1, :] + f_q[0 : self.atm.ny - 2, :]) / 2.0
+        km = self.kk_wavenumber / self.atm.radius_earth
+        d_q = (
+            q1_time[1 : self.atm.ny - 1, :] - q1_time[0 : self.atm.ny - 2, :]
+        ) / self.dym
         rk = (
-            1.0j * km * self.beta
-            - self.eps_u * self.eps_v * self.eps_p
-            - self.eps_v * km ** 2
+            1.0j * km * self.atm.beta
+            - self.atm.eps_u * self.atm.eps_v * self.atm.eps_p
+            - self.atm.eps_v * km ** 2
         )
 
-        fcp = self.fcu[1 : self.ny - 1] ** 2 / 4.0
-        fcm = self.fcu[0 : self.ny - 2] ** 2 / 4.0
+        fcp = self.fcu[1 : self.atm.ny - 1] ** 2 / 4.0
+        fcm = self.fcu[0 : self.atm.ny - 2] ** 2 / 4.0
 
-        ak = self.eps_u / self.dym_2 - self.eps_p * fcm[:, np.newaxis]
-        ck = self.eps_u / self.dym_2 - self.eps_p * fcp[:, np.newaxis]
+        ak = self.atm.eps_u / self.dym_2 - self.atm.eps_p * fcm[:, np.newaxis]
+        ck = self.atm.eps_u / self.dym_2 - self.atm.eps_p * fcp[:, np.newaxis]
         bk = (
-            -2 * self.eps_u / self.dym_2
-            - self.eps_p * (fcm[:, np.newaxis] + fcp[:, np.newaxis])
+            -2 * self.atm.eps_u / self.dym_2
+            - self.atm.eps_p * (fcm[:, np.newaxis] + fcp[:, np.newaxis])
             + rk[np.newaxis, :]
         )
-        dk = -self.eps_u * d_q + 1.0j * km[np.newaxis, :] * a_f_q
+        dk = -self.atm.eps_u * d_q + 1.0j * km[np.newaxis, :] * a_f_q
 
-        vtk = self.tdma_solver(self.ny - 2, ak, bk, ck, dk)
+        vtk = self.tdma_solver(self.atm.ny - 2, ak, bk, ck, dk)
 
-        z = np.zeros((1, self.nx))
+        z = np.zeros((1, self.atm.nx))
         v_t = np.concatenate((z, vtk, z), axis=0)
-        av = (v_t[1 : self.ny, :] + v_t[0 : self.ny - 1, :]) / 2.0
+        av = (v_t[1 : self.atm.ny, :] + v_t[0 : self.atm.ny - 1, :]) / 2.0
         fav = self.fcu[:, np.newaxis] * av
-        dv = (v_t[1 : self.ny, :] - v_t[0 : self.ny - 1, :]) / self.dym
-        coeff = self.eps_u * self.eps_p + km * km
-        u_t = (self.eps_p * fav + 1.0j * (q1_time + dv) * km[np.newaxis, :]) / coeff[
-            np.newaxis, :
-        ]
-        phi_t = -(q1_time + 1.0j * u_t * km[np.newaxis, :] + dv) / self.eps_p
+        dv = (v_t[1 : self.atm.ny, :] - v_t[0 : self.atm.ny - 1, :]) / self.dym
+        coeff = self.atm.eps_u * self.atm.eps_p + km * km
+        u_t = (
+            self.atm.eps_p * fav + 1.0j * (q1_time + dv) * km[np.newaxis, :]
+        ) / coeff[np.newaxis, :]
+        phi_t = -(q1_time + 1.0j * u_t * km[np.newaxis, :] + dv) / self.atm.eps_p
         v = ifft(v_t).real
         u = ifft(u_t).real
         phi = ifft(phi_t).real
@@ -736,13 +717,13 @@ class Atmos:
         ds.Yu.attrs = [("units", "degree_north")]
         ds.Yv.attrs = [("units", "degree_north")]
 
-        ds["K"] = self.k_days
+        ds["K"] = self.atm.k_days
         ds.K.attrs = [("units", "day")]
-        ds["epsu"] = self.eps_days
+        ds["epsu"] = self.atm.eps_days
         ds.epsu.attrs = [("units", "day")]
-        ds["epsv"] = self.eps_days / self.e_frac
+        ds["epsv"] = self.atm.eps_days / self.atm.e_frac
         ds.epsv.attrs = [("units", "day")]
-        ds["hq"] = self.h_q
+        ds["hq"] = self.atm.h_q
         ds.hq.attrs = [("units", "m")]
 
         # CLIMATOLOGIES
@@ -765,7 +746,7 @@ class Atmos:
         fsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ps, kind="linear")
 
         wnsp = fwnsp(self.x_axis, self.y_axis_u)
-        wnsp[wnsp < self.wnsp_min] = self.wnsp_min
+        wnsp[wnsp < self.atm.wnsp_min] = self.atm.wnsp_min
         ds["wnspClim"] = (["Yu", "X"], wnsp)
         ds["tsClim"] = (["Yu", "X"], fts(self.x_axis, self.y_axis_u))
         ds["prClim"] = (["Yu", "X"], fpr(self.x_axis, self.y_axis_u))
@@ -803,7 +784,7 @@ class Atmos:
         # tsClim = ds.tsClim.values
         sp_clim = ds.spClim.values
         wnsp_clim = ds.wnspClim.values
-        wnsp_clim[wnsp_clim < self.wnsp_min] = self.wnsp_min
+        wnsp_clim[wnsp_clim < self.atm.wnsp_min] = self.atm.wnsp_min
         mask = ds.mask.values
         w_end = wnsp_clim
         w_beg = wnsp_clim
@@ -812,8 +793,12 @@ class Atmos:
         ts_beg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
         pr_end = (ds.prClim + ds.prTrend / 2).values
         pr_beg = (ds.prClim - ds.prTrend / 2).values
-        q_th_end = self.newtonian_cooling_coeff_k1 * (ts_end - 30) / self.b_coeff
-        q_th_beg = self.newtonian_cooling_coeff_k1 * (ts_beg - 30) / self.b_coeff
+        q_th_end = (
+            self.atm.newtonian_cooling_coeff_k1 * (ts_end - 30) / self.atm.b_coeff
+        )
+        q_th_beg = (
+            self.atm.newtonian_cooling_coeff_k1 * (ts_beg - 30) / self.atm.b_coeff
+        )
 
         qa_end = self.f_qa(ts_end, sp_clim)
         # qa_end = f_qa2(ts_end)
@@ -835,22 +820,22 @@ class Atmos:
         qa1 = qa_end
 
         # Find total pr, u and v at end
-        for _ in range(0, self.number_iterations):
+        for _ in range(0, self.atm.number_iterations):
             # Start main calculation
             q_c = (
                 np.pi
-                * self.latent_heat_vap
+                * self.atm.latent_heat_vap
                 * pr
-                / (2 * self.cp_air * self.rho_00 * self.height_tropopause)
+                / (2 * self.atm.cp_air * self.atm.rho_00 * self.atm.height_tropopause)
             )  # heating from precip
             # convective heating part, Qc
-            q1 = self.b_coeff * (q_c + q_th)
+            q1 = self.atm.b_coeff * (q_c + q_th)
             # Q1 is a modified heating since the part
             # involving θ is on the left-hand side
             (u1, v1, phi1) = self.s91_solver(q1)
             d_amc = xr.DataArray(self.f_mc(qa1, u1, v1), dims=["Yu", "X"])
             mc1 = self.smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
-            if self.prcp_land:
+            if self.atm.prcp_land:
                 pr = (1 - mask) * (mc1 + e1) + mask * pr_end
             else:
                 pr = (1 - mask) * (mc1 + e1)
@@ -869,19 +854,19 @@ class Atmos:
         qa1 = qa_beg
 
         # Find total pr, u and v at beginning
-        for _ in range(0, self.number_iterations):
+        for _ in range(0, self.atm.number_iterations):
             # Start main calculation
             q_c = (
                 np.pi
-                * self.latent_heat_vap
+                * self.atm.latent_heat_vap
                 * pr
-                / (2 * self.cp_air * self.rho_00 * self.height_tropopause)
+                / (2 * self.atm.cp_air * self.atm.rho_00 * self.atm.height_tropopause)
             )  # heating from precip
-            q1 = self.b_coeff * (q_c + q_th)
+            q1 = self.atm.b_coeff * (q_c + q_th)
             (u1, v1, phi1) = self.s91_solver(q1)
             d_amc = xr.DataArray(self.f_mc(qa1, u1, v1), dims=["Yu", "X"])
             mc1 = self.smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
-            if self.prcp_land:
+            if self.atm.prcp_land:
                 pr = (1 - mask) * (mc1 + e1) + mask * pr_beg
             else:
                 pr = (1 - mask) * (mc1 + e1)
@@ -965,9 +950,9 @@ class Atmos:
             outfile = (
                 basedir
                 + "-hq"
-                + str(self.h_q)
+                + str(self.atm.h_q)
                 + "-prcp_land"
-                + str(self.prcp_land)
+                + str(self.atm.prcp_land)
                 + ".nc"
             )
 
@@ -978,9 +963,9 @@ class Atmos:
             ftitle = (
                 r"Winds: (u,v) from sst: "
                 + r"  $K_1=1/"
-                + str(self.k_days)
+                + str(self.atm.k_days)
                 + r"$, $\epsilon=1/"
-                + str(self.eps_days)
+                + str(self.atm.eps_days)
                 + r"$"
             )
             # warnings.filterwarnings("ignore")
@@ -1027,9 +1012,9 @@ class Atmos:
                     os.path.join(
                         direc,
                         "windsFromSST-K"
-                        + str(self.k_days)
+                        + str(self.atm.k_days)
                         + "-eps"
-                        + str(self.eps_days)
+                        + str(self.atm.eps_days)
                         + ".eps",
                     ),
                     format="eps",
@@ -1076,32 +1061,32 @@ class Atmos:
 
         t_sb_loc = 1.0 * dclim_loc.ts
         tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
-        tmp[tmp < self.wnsp_min] = self.wnsp_min
+        tmp[tmp < self.atm.wnsp_min] = self.atm.wnsp_min
         u_b_loc = tmp.unstack("z").T
         c_b_loc = dclim_loc.clt / 100.0
         rh_loc = dclim_loc.rh / 100.0
         f1p = -0.003
 
-        alh0 = self.f_dqlh_dtemp(t_sb_loc, self.u_bar, rh_loc)
-        alw0 = self.f_dqlw_dtemp(t_sb_loc, self.c_bar, self.f1_bar, rh_loc)
-        blw0 = self.f_dqlw_df(t_sb_loc, self.c_bar)
+        alh0 = self.f_dqlh_dtemp(t_sb_loc, self.atm.u_bar, rh_loc)
+        alw0 = self.f_dqlw_dtemp(t_sb_loc, self.atm.c_bar, self.atm.f1_bar, rh_loc)
+        blw0 = self.f_dqlw_df(t_sb_loc, self.atm.c_bar)
         dtemp_se0 = -blw0 * f1p / (alh0 + alw0)
         dclim_loc["dTse0"] = dtemp_se0
 
         alh1 = self.f_dqlh_dtemp(t_sb_loc, u_b_loc, rh_loc)
-        alw1 = self.f_dqlw_dtemp(t_sb_loc, self.c_bar, self.f1_bar, rh_loc)
-        blw1 = self.f_dqlw_df(t_sb_loc, self.c_bar)
+        alw1 = self.f_dqlw_dtemp(t_sb_loc, self.atm.c_bar, self.atm.f1_bar, rh_loc)
+        blw1 = self.f_dqlw_df(t_sb_loc, self.atm.c_bar)
         dtemp_se1 = -blw1 * f1p / (alh1 + alw1)
         dclim_loc["dTse1"] = dtemp_se1
 
-        alh2 = self.f_dqlh_dtemp(t_sb_loc, self.u_bar, rh_loc)
-        alw2 = self.f_dqlw_dtemp(t_sb_loc, c_b_loc, self.f1_bar, rh_loc)
+        alh2 = self.f_dqlh_dtemp(t_sb_loc, self.atm.u_bar, rh_loc)
+        alw2 = self.f_dqlw_dtemp(t_sb_loc, c_b_loc, self.atm.f1_bar, rh_loc)
         blw2 = self.f_dqlw_df(t_sb_loc, c_b_loc)
         dtemp_se2 = -blw2 * f1p / (alh2 + alw2)
         dclim_loc["dTse2"] = dtemp_se2
 
         alh_loc = self.f_dqlh_dtemp(t_sb_loc, u_b_loc, rh_loc)
-        alw_loc = self.f_dqlw_dtemp(t_sb_loc, c_b_loc, self.f1_bar, rh_loc)
+        alw_loc = self.f_dqlw_dtemp(t_sb_loc, c_b_loc, self.atm.f1_bar, rh_loc)
         blw_loc = self.f_dqlw_df(t_sb_loc, c_b_loc)
         dtemp_se_loc = -blw_loc * f1p / (alh_loc + alw_loc)
 
@@ -1249,5 +1234,6 @@ class Atmos:
 
 # if __name__ == "__main__":
 #    # python3 src/models/atmos.py
-#    atmos = Atmos(OmegaConf.create({"atm": "v", "list": [1, {"a": "1", "b": "2"}]}))
+#    atmos = Atmos(OmegaConf.create({"atm": "v",
+#               "list": [1, {"a": "1", "b": "2"}]}))
 #    atmos.run_all()

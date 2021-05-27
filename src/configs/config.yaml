@@ -28,10 +28,10 @@ coup:
   cd: 2.25e-3    # Pa m-1 s
   rho_a: 1.225   # kg m-3
 atm:
+  # begining TCAM
   k_days: 10     # K: 1/10
-  efrac: 2.0     # multiply epsu by efrac to get epsv
+  e_frac: 2.0     # multiply epsu by efrac to get epsv
   prcp_land: 1   # use data precip trends over land
-  wnspmin: 4
   r: 0.80
   h_q: 1800  # Hq is a scale depth for moisture
   wnsp_min: 4 # m s-1 ?
@@ -42,13 +42,16 @@ atm:
   pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day.
   relative_humidity: 0.80  # relative humidity uniformly 0.8
   number_iterations: 50  #  int
-  gravity: 9.8  #  m s-2
   height_tropopause: 15e3  # metres
   theta_00: 300  # potential temperature at the surface.
   nbsq: 3.0e-4  # N^2 s-2. N^2 is a specified buoyancy frequency.
   radius_earth: 6.37e6  # metres
-  sec_in_day: 86400  # seconds in day.
+  # not really changeable :) Nonvariables.
   pi: 3.141592653589793
+  stefan_boltzman_const: 5.67e-8
+  sec_in_day: 86400  # seconds in day.
+  gravity: 9.8  #  m s-2
+  temp_0_c: 273.15  # zero degrees in kelvin
   omega_2: 2 * 2 * ${atm.pi} / ${atm.sec_in_day}  # 2 * rad per second
   latent_heat_vap: 2.5e6  # latent heat # J kg-1
   cp_air: 1000  #  cp_air is the specific heat capacity of air.
@@ -59,16 +62,13 @@ atm:
   # eps days might be the efficiency of entrainment.
   eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
   eps_u: ${atm.eps}  # 1/.75 d
-  e_frac: 0.5
   eps_v: ${atm.e_frac} * ${atm.eps}  # e_frac=1/2 in paper
   # Newtonian cooling, K
   newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
   eps_p: (${atm.pi} / ${atm.height_tropopause}) ** 2 / ${atm.nbsq} / ${atm.k_days} / ${atm.sec_in_day}
   beta: ${atm.omega_2} / ${atm.radius_earth}
   rho_air: 1.225  # kg m-3 - also called rho_00
-  c_e: 0.00125  # 1.25e-3 # cE is an exchange coefficient
   emmisivity: 0.97  # problem here with second definintion.
-  stefan_boltzman_const: 5.67e-8
   p_s: 1000  # pressure at the surface?
   es_0: 6.11
   delta_temp: 1.0  # ΔT: 1 K
@@ -79,19 +79,24 @@ atm:
   # a_cloud_const: 0.01*a_cloud_const
   a_cloud_const: 0.6  # this isn't the option used in the paper.
   # basic parameters
-  temp_0_c: 273.15  # zero degrees in kelvin
   f1_bar: 0.39  # f1 = 0.39
   # f'1  is the anomaly in f1—a parameter that can be adjusted
   # to control the variation in surface longwave radiation due
   # to a_cloud_const change in CO2
   u_bar: 5.0  # average velocity?
-  # temp_surface_bar: ${temp_0_c} + 25  # 25C in Kelvin
+  temp_surface_bar: ${atm.temp_0_c} + 25  # 25C in Kelvin
+  c_e: 0.00125  # 1.25e-3 # cE is an exchange coefficient
   c_bar: 0.6  # C is the cloud cover. perhaps C_bar is the average.
+  # Heat flux coefficients.
+  # Find linearization of Q_LH (latent heating)
+  qlh_coeff: ${atm.rho_air} * ${atm.c_e} * ${atm.latent_heat_vap}
+  # Find linearization of Q_LW (longwave)
+  qlw_coeff: ${atm.emmisivity} * ${atm.stefan_boltzman_const}
   # grid characteristics
   nx: 180  # number of x grid boxes
   ny: 60  # this seems like half the grid space
   y_north_lim: 60  # upper lat limit
-  y_south_lim: -${atm.y_north_lim}  # make symmetric around the equator
+  y_south_lim: -${atm.y_north_lim} / 1   # make symmetric around the equator
   # make grids
   dx:  360 / ${atm.nx}  # delta degrees
   dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
