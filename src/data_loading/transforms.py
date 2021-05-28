@@ -20,3 +20,18 @@ def rdict(index: int) -> dict:
         "X_0" + str(index): "x",
         "L_0" + str(index): "Z",
     }
+
+
+def qflx_rdict() -> dict:
+    """
+    To plot the heat flux it is useful to transform to the standard dict.
+
+    Returns:
+        dict: The rename dictionary to apply to the xr.DataArray.
+    """
+    return {
+        "T": "time",
+        "Y": "y",
+        "X": "x",
+        "Z": "Z",
+    }

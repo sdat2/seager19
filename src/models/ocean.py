@@ -1,5 +1,6 @@
 """Ocean model."""
 import os
+from typing import List
 import time
 import xarray as xr
 import logging
@@ -7,6 +8,7 @@ from omegaconf import DictConfig
 from typeguard import typechecked
 import wandb
 from src.visualisation.ani import animate_ds
+from src.data_loading.transforms import qflx_rdict
 from src.utils import timeit
 from src.data_loading.ingrid import linear_qflx_replacement
 from src.models.model_setup import ModelSetup
@@ -65,10 +67,29 @@ class Ocean:
                 string_list = read_file.readlines()
             # read_file.close()
             # print(string_list)
-            for j in range(len(string_list)):
-                string_list[j] = string_list[j].replace(
-                    "+NUMMODE              2",
-                    "+NUMMODE              " + str(self.cfg.oc.nummode),
+            def replace_item(
+                init: str, fin: str, loc_string_list: List[str]
+            ) -> List[str]:
+                for j in range(len(loc_string_list)):
+                    loc_string_list[j] = loc_string_list[j].replace(init, fin)
+                return loc_string_list
+
+            string_list = replace_item(
+                "+NUMMODE              2",
+                "+NUMMODE              " + str(self.cfg.oc.nummode),
+                string_list,
+            )
+            if i == "om_spin":
+                string_list = replace_item(
+                    "2 months", self.cfg.oc.time_spin, string_list
+                )
+            elif i == "time_diag":
+                string_list = replace_item(
+                    "2 years", self.cfg.oc.time_diag, string_list
+                )
+            elif i == "time_run2f":
+                string_list = replace_item(
+                    "58 years", self.cfg.oc.time_run2f, string_list
                 )
 
             with open(file_name, "w") as write_file:
@@ -140,12 +161,5 @@ class Ocean:
             else:
                 ds = xr.open_dataset(
                     str(os.path.join(self.setup.direc, x)) + ".nc", decode_times=False
-                ).rename(
-                    {
-                        "T": "time",
-                        "Y": "y",
-                        "X": "x",
-                        "Z": "Z",
-                    }
-                )
+                ).rename(qflx_rdict())
                 animate_ds(ds, x, self.setup.direc)
