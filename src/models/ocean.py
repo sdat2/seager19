@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 class Ocean:
     """Ocean."""
 
-    def __init__(self, cfg: DictConfig, setup: ModelSetup):
+    def __init__(self, cfg: DictConfig, setup: ModelSetup) -> None:
         """Init ocean.
 
         Args:

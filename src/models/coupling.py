@@ -12,6 +12,7 @@ from omegaconf import DictConfig
 from src.models.model_setup import ModelSetup
 
 
+# pylint: disable=no-value-for-parameter
 class Coupling:
     """
     Coupled model part.
@@ -40,11 +41,12 @@ class Coupling:
     is a drag coefficient and u is the vector surface wind change computed by the
     atmosphere model, which is added to the ECMWF climatological stresses. Since
     the atmosphere model dynamics are only applicable in the tropics, the computed
-    wind stress anomaly is only applied to the ocean model between 20° S and 20°N,
-    and is linearly tapered to zero at 25° S and 25°N.
+    wind stress anomaly is only applied to the ocean model between 20 S and 20 N,
+    and is linearly tapered to zero at 25 S and 2 5N.
     """
 
-    def __init__(self, cfg: DictConfig, setup: ModelSetup):
+    # pylint: disable=no-value-for-parameter
+    def __init__(self, cfg: DictConfig, setup: ModelSetup) -> None:
         """Initialise model in standard way.
 
         Args:

@@ -102,7 +102,7 @@ from src.utils import timeit
 class Atmos:
     """Atmos class."""
 
-    def __init__(self, cfg: DictConfig, setup: ModelSetup):
+    def __init__(self, cfg: DictConfig, setup: ModelSetup) -> None:
         """Initialise the atmos function"""
         self.atm = cfg.atm
         self.setup = setup

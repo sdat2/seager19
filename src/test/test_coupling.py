@@ -2,7 +2,8 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-from src.models.coupling import Coupling
+from src.models.coupling import Coupling, ModelSetup
+from src.configs.load_config import load_config
 
 
 def stress_test() -> None:
@@ -39,8 +40,13 @@ def stress_test() -> None:
         ),
         attrs=dict(),
     )
+    cfg = load_config()
+    setup = ModelSetup("")
 
-    couple = Coupling()
+    couple = Coupling(
+        cfg,
+        setup,
+    )
 
     tau_u, tau_v = couple.f_stress(0.5, u_da, v_da)
 

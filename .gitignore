@@ -175,3 +175,4 @@ report/
 # ocean
 ocean/SRC/tcom
 ocean/SRC/tios2cdf
+src/test/test_direc

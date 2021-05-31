@@ -13,7 +13,7 @@ from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
 import imageio
-from src.plot_settings import label_subplots, ps_defaults, time_title, cmap
+from src.plot_settings import ps_defaults, time_title, cmap  # ,label_subplots
 from src.utils import timeit, fix_calendar
 from src.data_loading.transforms import rdict
 

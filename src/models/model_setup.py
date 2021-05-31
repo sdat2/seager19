@@ -12,7 +12,7 @@ from src.constants import (
 class ModelSetup:
     """Initialise, store, and setup directories for models."""
 
-    def __init__(self, direc: str):
+    def __init__(self, direc: str) -> None:
         """
         Model directories init.
 
