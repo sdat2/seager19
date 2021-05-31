@@ -33,23 +33,31 @@ class ModelSetup:
         self.atmos_data_path = os.path.join(self.atmos_path, "DATA")
         self.atmos_tmp_path = os.path.join(self.atmos_path, "tmp")
 
-        # make ocean paths
-        os.mkdir(self.ocean_path)
-        os.mkdir(self.ocean_src_path)
-        os.mkdir(self.ocean_run_path)
-        os.mkdir(self.ocean_data_path)
-        os.mkdir(self.ocean_output_path)
-
-        # make atmos paths
-        os.mkdir(self.atmos_path)
-        os.mkdir(self.atmos_data_path)
-        os.mkdir(self.atmos_tmp_path)
+        for i in [
+            # make ocean paths
+            self.ocean_path,
+            self.ocean_src_path,
+            self.ocean_src_path,
+            self.ocean_data_path,
+            self.ocean_output_path,
+            # make atmos paths
+            self.atmos_path,
+            self.atmos_data_path,
+            self.atmos_tmp_path,
+        ]:
+            if not os.path.exists(i):
+                os.mkdir(i)
 
         # make symlinks in ocean model
-        os.symlink(self.ocean_data_path, os.path.join(self.ocean_run_path, "DATA"))
-        os.symlink(self.ocean_data_path, os.path.join(self.ocean_src_path, "DATA"))
-        os.symlink(self.ocean_output_path, os.path.join(self.ocean_run_path, "output"))
-        os.symlink(self.ocean_output_path, os.path.join(self.ocean_src_path, "output"))
+
+        for i, j in [
+            [self.ocean_data_path, os.path.join(self.ocean_run_path, "DATA")],
+            [self.ocean_data_path, os.path.join(self.ocean_src_path, "DATA")],
+            [self.ocean_output_path, os.path.join(self.ocean_run_path, "output")],
+            [self.ocean_output_path, os.path.join(self.ocean_src_path, "output")],
+        ]:
+            if not os.path.exists(j):
+                os.symlink(i, j)
 
         self.init_ocean()
         self.init_atmos()

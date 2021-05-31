@@ -216,20 +216,34 @@ def delete_folder_contents(folder: str = "/path/to/folder") -> None:
 
     Args:
         folder (str, optional): Path to a folder. Defaults to "/path/to/folder".
+
+    Example:
+        Previous implementation::
+            for filename in os.listdir(folder):
+                file_path = os.path.join(folder, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                # pylint: disable=broad-except
+                except Exception as e:
+                    print("Failed to delete %s. Reason: %s" % (file_path, e))
+                    assert False
+
+        Alternative implementation::
+            try:
+                shutil.rmtree(folder)
+                os.mkdir(folder)
+            except OSError as e:
+                print("Error: %s - %s." % (e.filename, e.strerror))
+
     """
-
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        # pylint: disable=broad-except
-        except Exception as e:
-
-            print("Failed to delete %s. Reason: %s" % (file_path, e))
-            assert False
+    try:
+        shutil.rmtree(folder)
+        os.mkdir(folder)
+    except OSError as e:
+        print("Error: %s - %s." % (e.filename, e.strerror))
 
 
 if __name__ == "__main__":

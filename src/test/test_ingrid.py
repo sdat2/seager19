@@ -14,7 +14,6 @@ from src.constants import OCEAN_DATA_PATH, TEST_DIREC, OCEAN_OUTPUT_PATH
 from src.data_loading.download import get_data
 from src.models.model_setup import ModelSetup
 from src.configs.load_config import load_config
-from src.utils import delete_folder_contents
 
 
 def test_ingrid() -> None:
@@ -25,7 +24,6 @@ def test_ingrid() -> None:
     cfg = load_config()
     print(cfg.name)
 
-    delete_folder_contents(str(TEST_DIREC))
     setup = ModelSetup(str(TEST_DIREC))
 
     shutil.copy(str(OCEAN_OUTPUT_PATH / "om_diag.nc"), str(setup.ocean_output_path))
@@ -58,5 +56,3 @@ def test_ingrid() -> None:
             # otherwise it would catch errors about what
             # the missing value attribute is.
             assert False
-
-    delete_folder_contents(str(TEST_DIREC))
