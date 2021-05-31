@@ -103,7 +103,12 @@ class Atmos:
     """Atmos class."""
 
     def __init__(self, cfg: DictConfig, setup: ModelSetup) -> None:
-        """Initialise the atmos function"""
+        """Initialise the atmos function
+
+        Args:
+            cfg (DictConfig): Config params to feed in.
+            setup (ModelSetup): file structure for run.
+        """
         self.atm = cfg.atm
         self.setup = setup
 

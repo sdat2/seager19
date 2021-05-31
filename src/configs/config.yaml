@@ -19,6 +19,8 @@ oc:
   nummode: 2
   boundaries: Periodic
   wind_file: tau-ECMWF-clim
+  dq_dtemp_file: dQdT-sample.nc
+  dq_df_file: dQdf-sample.nc
   mask_file: om_mask.nc
   time_test: 2 months
   time_spin: 2 months
@@ -32,7 +34,7 @@ atm:
   k_days: 10     # K: 1/10
   e_frac: 2.0     # multiply epsu by efrac to get epsv
   prcp_land: 1   # use data precip trends over land
-  r: 0.80
+  r: 0.80  # humidity
   h_q: 1800  # Hq is a scale depth for moisture
   wnsp_min: 4 # m s-1 ?
   rho_00: 0.3

@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 class Ocean:
-    """Ocean."""
+    """Ocean model component."""
 
     def __init__(self, cfg: DictConfig, setup: ModelSetup) -> None:
         """Init ocean.
@@ -36,13 +36,18 @@ class Ocean:
 
     @typechecked
     def run(self, command: str) -> float:
-        """Runs a line of bash in the ocean/RUN directory
+        """
+        Runs a line of bash in the ocean/RUN directory
         and times how long it takes.
 
         Args:
             command (str): a valid bash command.
             setup (ModelSetup): the model setup containing the file locations.
+
+        Returns:
+            float: time in seconds.
         """
+
         rc_prefix = "cd " + self.setup.ocean_run_path + " \n"
         full_command = rc_prefix + command
         ts = time.perf_counter()
@@ -52,13 +57,10 @@ class Ocean:
         print(full_command + " %2.5f s\n" % diff)
         return diff
 
-    def edit_run(self):
+    def edit_run(self) -> None:
         """
         Edit the run files to change ocean param.
 
-        Args:
-            cfg (DictConfig): [description]
-            setup (ModelSetup): The setup script.
         """
         for i in ["om_spin", "om_diag", "om_run2f"]:
             file_name = os.path.join(self.setup.ocean_run_path, i)
@@ -79,6 +81,15 @@ class Ocean:
                 "+NUMMODE              " + str(self.cfg.oc.nummode),
                 string_list,
             )
+            string_list = replace_item(
+                "tau-ECMWF-clim", self.cfg.oc.wind_file, string_list
+            )
+            string_list = replace_item(
+                "dQdT-sample.nc", self.cfg.dq_dtemp_file, string_list
+            )
+            string_list = replace_item(
+                "dQdf-sample.nc", self.cfg.dq_df_file, string_list
+            )
             if i == "om_spin":
                 string_list = replace_item(
                     "2 months", self.cfg.oc.time_spin, string_list
@@ -98,12 +109,7 @@ class Ocean:
     @timeit
     @typechecked
     def run_all(self) -> None:
-        """Run all the executables.
-
-        Args:
-            cfg (DictConfig): the model configs to pass.
-
-        """
+        """Run all the executables."""
         self.edit_run()
         # Run the test to see if it's working.
         self.run("../SRC/" + self.cfg.ocean.tcom_name + " -i om_test")
@@ -135,12 +141,7 @@ class Ocean:
     @timeit
     @typechecked
     def animate_all(self) -> None:
-        """Animate the sst into gifs.
-
-        Args:
-            cfg (DictConfig): the model configs to pass.
-
-        """
+        """Animate the sst into gifs. """
         l_x = list()
         if self.cfg.ocean.diag:
             l_x.append("om_diag")

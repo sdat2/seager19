@@ -9,7 +9,7 @@ Example:
 
 """
 
-# Place all your constants here
+# import os/pathlib to manipulate file names.
 import os
 import pathlib
 
@@ -33,6 +33,8 @@ ATMOS_PATH = PROJECT_PATH / "atmos"
 ATMOS_DATA_PATH = ATMOS_PATH / "DATA"
 ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
 GIF_PATH = PROJECT_PATH / "gifs"
+
+# General data from e.g. paper or cmip etc.
 DATA_PATH = PROJECT_PATH / "data"
 
 # Test DIREC

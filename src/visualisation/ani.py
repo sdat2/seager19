@@ -40,7 +40,6 @@ def animate_ds(
             to None. Introduced so that I could speed up the test animation,
             while still covering the function.
     """
-    # plot_list = ["SST_QFLX"]
     ps_defaults(use_tex=False, dpi=dpi)
     cmap_d = {
         "DYN_PRES": "delta",

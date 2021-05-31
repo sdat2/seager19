@@ -22,7 +22,7 @@ RUN apt-get update && apt-get -yq install sudo
 # install packages
 # https://hub.docker.com/r/nacyot/fortran-gfortran
 RUN sudo apt-get -yq install git curl && \
-    sudo apt-get -yq --fix-missing install make cmake gfortran cloc  && \
+    sudo apt-get -yq --fix-missing install make cmake gfortran gcc cloc  && \
     sudo apt-get clean -q
 
 # libcoarrays-dev libopenmpi-dev open-coarrays-bin
