@@ -45,7 +45,14 @@ class Coupling:
     """
 
     def __init__(self, cfg: DictConfig, setup: ModelSetup):
-        """Initialise model in standard way."""
+        """Initialise model in standard way.
+
+        Args:
+            cfg (DictConfig): The config file for this model
+                run containing run parameters.
+            setup (ModelSetup): The setup object for 
+                this run containing parameters.
+        """
         self.coup = cfg.coup
         self.setup = setup
 
