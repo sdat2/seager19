@@ -6,7 +6,7 @@ animate_prediction - plots inputs and outputs of old model.
 
 """
 import os
-from typing import Callable
+from typing import Callable, Optional
 import numpy as np
 import xarray as xr
 from tqdm import tqdm
@@ -25,6 +25,7 @@ def animate_ds(
     output_dir: str,
     dpi: float = 200,
     front_trim: int = 0,
+    plot_list: Optional[list] = None,
 ) -> None:
     """Animate the `xarray.Dataset`.
 
@@ -35,8 +36,11 @@ def animate_ds(
         dpi (float): the dots per inch for the figure. Defaults to 200.
         front_trim (int): the number of time indices to remove from the front of the
             xr.DataArray pieces. Defaults to 0.
-
+        plot_list (Optional[list], optional): Subset of variables to plot. Defaults
+            to None. Introduced so that I could speed up the test animation,
+            while still covering the function.
     """
+    # plot_list = ["SST_QFLX"]
     ps_defaults(use_tex=False, dpi=dpi)
     cmap_d = {
         "DYN_PRES": "delta",
@@ -49,44 +53,51 @@ def animate_ds(
         "TDEEP_HMODEL": "sst",
     }
     unit_d = {"SST_SST": r"$^{\circ}$C"}
+
+    if plot_list is None:
+        plot_list = [str(y) for y in ds.variables]
+
     for y in ds.variables:
         y = str(y)
-        if "X_" not in y:
-            if "Y_" not in y:
-                if "L_" not in y:
-                    if "T_" not in y or "SST" in y:
-                        if "GRID" != y:
-                            print(y)
-                            da = ds[y]
-                            if (
-                                "T_01" in da.coords
-                                or "T_02" in da.coords
-                                or "T_03" in da.coords
-                                or "T_04" in da.coords
-                            ):
-                                for key in da.coords:
-                                    num = str(key)[3]
-                                da = da.rename(rdict(num))
-                            if y in unit_d:
-                                da.attrs["units"] = unit_d[y]
-                            da.coords["x"].attrs["units"] = r"$^{\circ}$E"
-                            da.coords["y"].attrs["units"] = r"$^{\circ}$N"
-                            da = da.where(da != 0.0).isel(Z=0)
-                            da = fix_calendar(da, timevar="time")
-                            if "variable" in da.dims:
-                                da = da.isel(variable=0)
-                            da = da.rename(y)
-                            if y in unit_d:
-                                da.attrs["units"] = unit_d[y]
-                            da.attrs["long_name"] = y
-                            da.attrs["name"] = y
-                            animate_xr_da(
-                                da.isel(time=slice(front_trim, len(da.time.values))),
-                                video_path=os.path.join(
-                                    output_dir, file_name + "_" + y + ".gif"
-                                ),
-                                vcmap=cmap_d[y],
-                            )
+        if y in plot_list:
+            if "X_" not in y:
+                if "Y_" not in y:
+                    if "L_" not in y:
+                        if "T_" not in y or "SST" in y:
+                            if "GRID" != y:
+                                print(y)
+                                da = ds[y]
+                                if (
+                                    "T_01" in da.coords
+                                    or "T_02" in da.coords
+                                    or "T_03" in da.coords
+                                    or "T_04" in da.coords
+                                ):
+                                    for key in da.coords:
+                                        num = str(key)[3]
+                                    da = da.rename(rdict(num))
+                                if y in unit_d:
+                                    da.attrs["units"] = unit_d[y]
+                                da.coords["x"].attrs["units"] = r"$^{\circ}$E"
+                                da.coords["y"].attrs["units"] = r"$^{\circ}$N"
+                                da = da.where(da != 0.0).isel(Z=0)
+                                da = fix_calendar(da, timevar="time")
+                                if "variable" in da.dims:
+                                    da = da.isel(variable=0)
+                                da = da.rename(y)
+                                if y in unit_d:
+                                    da.attrs["units"] = unit_d[y]
+                                da.attrs["long_name"] = y
+                                da.attrs["name"] = y
+                                animate_xr_da(
+                                    da.isel(
+                                        time=slice(front_trim, len(da.time.values))
+                                    ),
+                                    video_path=os.path.join(
+                                        output_dir, file_name + "_" + y + ".gif"
+                                    ),
+                                    vcmap=cmap_d[y],
+                                )
 
 
 @timeit

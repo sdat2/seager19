@@ -36,4 +36,5 @@ def test_animate_ds() -> None:
             GIF_PATH,
             dpi=200,
             front_trim=1,
+            plot_list=["SST_QFLX"],
         )

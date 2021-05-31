@@ -1,12 +1,12 @@
 FROM ubuntu:16.04 
 # first half also works with ubuntu:14.04
+# I pieced varioud different docker files together so that they could reproduce the environment.
 
 # https://github.com/tianon/docker-brew-ubuntu-core/blob/c5bc8f61f0e0a8aa3780a8dc3a09ae6558693117/trusty/Dockerfile
 
 # sudo apt-get update
 # sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev
 # sudo apt-get install cloc
-ENV USERNAME=backus
 
 # install sudo
 RUN apt-get update && apt-get -yq install sudo 
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get -yq install sudo
 # install packages
 # https://hub.docker.com/r/nacyot/fortran-gfortran
 RUN sudo apt-get -yq install git curl && \
-    sudo apt-get -yq --fix-missing install make cmake gfortran  && \
+    sudo apt-get -yq --fix-missing install make cmake gfortran cloc  && \
     sudo apt-get clean -q
 
 # libcoarrays-dev libopenmpi-dev open-coarrays-bin
