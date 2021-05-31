@@ -17,6 +17,25 @@ from src.models.model_setup import ModelSetup
 log = logging.getLogger(__name__)
 
 
+@typechecked
+def replace_item(init: str, fin: str, loc_string_list: List[str]) -> List[str]:
+    """
+    Replace items in list.
+
+    Args:
+        init (str): initial expression to find.
+        fin (str): expression to replace it with.
+        loc_string_list (List[str]): string list to search through.
+
+    Returns:
+        List[str]: Altered list of strings.
+
+    """
+    for j in range(len(loc_string_list)):
+        loc_string_list[j] = loc_string_list[j].replace(init, fin)
+    return loc_string_list
+
+
 class Ocean:
     """Ocean model component."""
 
@@ -60,21 +79,13 @@ class Ocean:
     def edit_run(self) -> None:
         """
         Edit the run files to change ocean param.
-
+        This is for the initial run.
         """
         for i in ["om_spin", "om_diag", "om_run2f"]:
             file_name = os.path.join(self.setup.ocean_run_path, i)
             print("editing ", file_name)
             with open(file_name) as read_file:
                 string_list = read_file.readlines()
-            # read_file.close()
-            # print(string_list)
-            def replace_item(
-                init: str, fin: str, loc_string_list: List[str]
-            ) -> List[str]:
-                for j in range(len(loc_string_list)):
-                    loc_string_list[j] = loc_string_list[j].replace(init, fin)
-                return loc_string_list
 
             string_list = replace_item(
                 "+NUMMODE              2",
@@ -107,7 +118,6 @@ class Ocean:
                 write_file.writelines(string_list)
 
     @timeit
-    @typechecked
     def run_all(self) -> None:
         """Run all the executables."""
         self.edit_run()
@@ -139,7 +149,6 @@ class Ocean:
             self.run("rm -rf output/om_run2f.data output/om_run2f.indx")
 
     @timeit
-    @typechecked
     def animate_all(self) -> None:
         """Animate the sst into gifs. """
         l_x = list()
