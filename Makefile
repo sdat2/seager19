@@ -47,6 +47,10 @@ test:
 	coverage run --source=src -m pytest --durations=0 --pyargs src
 	# to update badge: coveralls
 
+## make the docker image without --no-cache
+docker_image:
+    DOCKER_BUILDKIT=1 docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg platform=generic --tag test:test_wo_netcdf 
+	
 ## Set up python interpreter environment and install basic dependencies
 env:
 ifeq (True,$(HAS_CONDA))
