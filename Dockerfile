@@ -1,4 +1,5 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 
+# first half also works with ubuntu:14.04
 
 # https://github.com/tianon/docker-brew-ubuntu-core/blob/c5bc8f61f0e0a8aa3780a8dc3a09ae6558693117/trusty/Dockerfile
 
@@ -8,20 +9,23 @@ FROM ubuntu:16.04
 ENV USERNAME=backus
 
 # install sudo
-RUN apt-get -yq update && apt-get -yq install sudo
+RUN apt-get update && apt-get -yq install sudo 
+# problem here
 
 # create and switch to a user
-RUN echo "backus ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN useradd --no-log-init --home-dir /home/$USERNAME --create-home --shell /bin/bash $USERNAME
-RUN adduser $USERNAME sudo
-USER $USERNAME
-WORKDIR /home/$USERNAME
+# RUN echo "backus ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# RUN useradd --no-log-init --home-dir /home/$USERNAME --create-home --shell /bin/bash $USERNAME
+# RUN adduser $USERNAME sudo
+# USER $USERNAME
+# WORKDIR /home/$USERNAME
 
 # install packages
 # https://hub.docker.com/r/nacyot/fortran-gfortran
-RUN sudo apt-get install -yq git curl && \
-    sudo apt-get install --no-install-recommends -yq make cmake gfortran libcoarrays-dev libopenmpi-dev open-coarrays-bin && \
+RUN sudo apt-get -yq install git curl && \
+    sudo apt-get -yq --fix-missing install make cmake gfortran  && \
     sudo apt-get clean -q
+
+# libcoarrays-dev libopenmpi-dev open-coarrays-bin
 
 # get modern-fortran code
 # RUN git clone https://github.com/modern-fortran/tsunami
@@ -58,12 +62,16 @@ RUN sudo apt-get install -yq git curl && \
 
 # anaconda section.
 # https://github.com/ContinuumIO/docker-images/blob/master/anaconda3/debian/Dockerfile
+
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
 
 # hadolint ignore=DL3008
 RUN apt-get update --fix-missing && \
-    apt-get install -y --no-install-recommends wget bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 git mercurial subversion && \
+    sudo apt-get install -y --no-install-recommends wget bzip2 ca-certificates && \
+    # build-essential
+    # libglib2.0-0 libxext6 libsm6 libxrender1
+    # apt-get install -y --no-install-recommends wget build-essential bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 git mercurial subversion sudo && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     wget --quiet https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh -O ~/anaconda.sh && \
@@ -75,5 +83,6 @@ RUN apt-get update --fix-missing && \
     find /opt/conda/ -follow -type f -name '*.a' -delete && \
     find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
     /opt/conda/bin/conda clean -afy
+# ARG PYTHON_VERSION=3.8
 
 CMD [ "/bin/bash" ]
