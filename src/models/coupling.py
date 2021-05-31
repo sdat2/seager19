@@ -50,7 +50,7 @@ class Coupling:
         Args:
             cfg (DictConfig): The config file for this model
                 run containing run parameters.
-            setup (ModelSetup): The setup object for 
+            setup (ModelSetup): The setup object for
                 this run containing parameters.
         """
         self.coup = cfg.coup
