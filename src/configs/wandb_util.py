@@ -1,4 +1,4 @@
-"""Sets up the weights and biases."""
+"""Sets up the weights and biases script."""
 import os
 import wandb
 import logging

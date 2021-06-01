@@ -10,7 +10,18 @@ from omegaconf import DictConfig
 #    it needs to have a __init__.py (can be empty). pytest src/test/test_hydra.py
 # 3. THe config path is relative to the file calling initialize (this file)
 def load_config(prefix: str = "../../", test=True) -> DictConfig:
-    """Tests loading hydra config file."""
+    """
+    Tests loading hydra config file.
+
+    Args:
+        prefix (str, optional): . Defaults to "../../".
+        test (bool, optional): Whether on not this is a test.
+            Defaults to True. This will turn off running the
+            main sections of the ocean model.
+
+    Returns:
+        DictConfig: Return the dict config.
+    """
     with initialize(
         config_path=prefix + str(CONFIG_PATH).replace(str(PROJECT_PATH) + "/", "")
     ):
@@ -30,8 +41,8 @@ def load_config(prefix: str = "../../", test=True) -> DictConfig:
             config_name=CONFIG_NAME,
             overrides=override_list,
         )
-        print(cfg)
+        # print(cfg)
         cfg = format_config(cfg)
-        print(cfg)
+        # print(cfg)
 
     return cfg

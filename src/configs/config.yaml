@@ -21,6 +21,7 @@ oc:
   wind_file: tau-ECMWF-clim
   dq_dtemp_file: dQdT-sample.nc
   dq_df_file: dQdf-sample.nc
+  sst_file: sst-ECMWF-clim.nc
   mask_file: om_mask.nc
   time_test: 2 months
   time_spin: 2 months
