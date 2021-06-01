@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 @typechecked
 def replace_item(init: str, fin: str, loc_string_list: List[str]) -> List[str]:
     """
-    Replace items in list.
+    Replace items in a list of strings.
 
     Args:
         init (str): initial expression to find.
