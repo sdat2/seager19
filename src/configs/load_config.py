@@ -9,14 +9,26 @@ from omegaconf import DictConfig
 # 2. The module with your configs should be importable.
 #    it needs to have a __init__.py (can be empty). pytest src/test/test_hydra.py
 # 3. THe config path is relative to the file calling initialize (this file)
-def load_config(prefix: str = "../../") -> DictConfig:
+def load_config(prefix: str = "../../", test=True) -> DictConfig:
     """Tests loading hydra config file."""
     with initialize(
         config_path=prefix + str(CONFIG_PATH).replace(str(PROJECT_PATH) + "/", "")
     ):
         # config is relative to a module
+        if test:
+            override_list = [
+                "user=test_user",
+                "name=test_run",
+                "ocean.spin=false",
+                "ocean.diag=false",
+                "ocean.ingrid=false",
+                "ocean.run_through=false",
+            ]
+        else:
+            override_list = ["user=non-test"]
         cfg = compose(
-            config_name=CONFIG_NAME, overrides=["user=test_user", "name=test_run"]
+            config_name=CONFIG_NAME,
+            overrides=override_list,
         )
         print(cfg)
         cfg = format_config(cfg)

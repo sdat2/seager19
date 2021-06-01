@@ -22,6 +22,9 @@ def replace_item(init: str, fin: str, loc_string_list: List[str]) -> List[str]:
     """
     Replace items in a list of strings.
 
+    A helper function for the Ocean class, as it allows the inputs
+    to fortran/C ocean model to be rewritten.
+
     Args:
         init (str): initial expression to find.
         fin (str): expression to replace it with.
@@ -96,10 +99,10 @@ class Ocean:
                 "tau-ECMWF-clim", self.cfg.oc.wind_file, string_list
             )
             string_list = replace_item(
-                "dQdT-sample.nc", self.cfg.dq_dtemp_file, string_list
+                "dQdT-sample.nc", self.cfg.oc.dq_dtemp_file, string_list
             )
             string_list = replace_item(
-                "dQdf-sample.nc", self.cfg.dq_df_file, string_list
+                "dQdf-sample.nc", self.cfg.oc.dq_df_file, string_list
             )
             if i == "om_spin":
                 string_list = replace_item(

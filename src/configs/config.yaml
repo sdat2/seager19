@@ -72,7 +72,8 @@ atm:
   rho_air: 1.225  # kg m-3 - also called rho_00
   emmisivity: 0.97  # problem here with second definintion.
   p_s: 1000  # pressure at the surface?
-  es_0: 6.11
+  # presumably in pascals
+  es_0: 6.11 # 
   delta_temp: 1.0  # ΔT: 1 K
   f2: 0.05  # f2: 0.05
   # 'a_cloud_const' should decrease when deep convection happens above 28 degC
@@ -102,6 +103,6 @@ atm:
   # make grids
   dx:  360 / ${atm.nx}  # delta degrees
   dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
-name: nummode_${oc.nummode}_uncoupled_test
-# python main.py --multirun oc.nummode=9,10
-# python main.py 
+name: nummode_${oc.nummode}_uncoupled_test2
+# python src/main.py --multirun oc.nummode=9,10
+# python src/main.py
