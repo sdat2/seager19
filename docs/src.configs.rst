@@ -20,6 +20,14 @@ src.configs.load\_config module
    :undoc-members:
    :show-inheritance:
 
+src.configs.wandb\_util module
+------------------------------
+
+.. automodule:: src.configs.wandb_util
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

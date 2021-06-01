@@ -24,6 +24,14 @@ src.constants module
    :undoc-members:
    :show-inheritance:
 
+src.main module
+---------------
+
+.. automodule:: src.main
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.plot\_settings module
 -------------------------
 

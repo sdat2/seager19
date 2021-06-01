@@ -11,7 +11,7 @@ import wandb
 import logging
 import hydra
 from omegaconf import DictConfig
-from src.constants import CONFIG_PATH, CONFIG_NAME
+from src.constants import CONFIG_PATH, CONFIG_NAME, TEST_DIREC
 from src.utils import timeit
 from src.models.ocean import Ocean
 from src.models.atmos import Atmos
@@ -33,12 +33,27 @@ def main(cfg: DictConfig) -> None:
     """
 
     cfg = format_config(cfg)
+    sub_main(cfg)
+
+
+def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
+    """
+    Subsection of main to run from a unit test.
+
+    Args:
+        cfg (DictConfig): The config from whichever method.
+        unit_test (bool): Whether or not this is run
+            from a unit test. Defaults to False.
+
+    """
 
     # print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
 
-    start_wandb(cfg)
-
-    setup = ModelSetup(str(wandb.run.dir))
+    if unit_test:
+        setup = ModelSetup(str(TEST_DIREC))
+    else:
+        start_wandb(cfg, unit_test=unit_test)
+        setup = ModelSetup(str(wandb.run.dir))
 
     # ocean model
     ocean = Ocean(cfg, setup)

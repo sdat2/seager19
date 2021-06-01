@@ -26,7 +26,7 @@ def get_v(inp: str) -> str:
     ).stderr.split("\n")[-2]
 
 
-def start_wandb(cfg: DictConfig, unit_test=False) -> None:
+def start_wandb(cfg: DictConfig, unit_test: bool = False) -> None:
     """
     Intialises wandb for run.
 
