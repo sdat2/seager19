@@ -64,7 +64,6 @@ class Ocean:
 
         Args:
             command (str): a valid bash command.
-            setup (ModelSetup): the model setup containing the file locations.
 
         Returns:
             float: time in seconds.
@@ -153,7 +152,7 @@ class Ocean:
 
     @timeit
     def animate_all(self) -> None:
-        """Animate the sst into gifs. """
+        """Animate the sst into gifs."""
         l_x = list()
         if self.cfg.ocean.diag:
             l_x.append("om_diag")
@@ -169,7 +168,8 @@ class Ocean:
                     ),
                     x,
                     self.setup.direc,
-                    front_trim=int("om_diag" == x),  # remove first month for om_diag
+                    front_trim=int("om_diag" == x),
+                    # remove first month for om_diag
                 )
             else:
                 ds = xr.open_dataset(
