@@ -36,7 +36,7 @@ class ModelSetup:
         for i in [
             # make ocean paths
             self.ocean_path,
-            self.ocean_src_path,
+            self.ocean_run_path,
             self.ocean_src_path,
             self.ocean_data_path,
             self.ocean_output_path,
