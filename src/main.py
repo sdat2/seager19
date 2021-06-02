@@ -4,6 +4,7 @@ Basically a wrapper for bash commands.
 
 Example:
    Usage of script::
+
        python3 main.py name=test26
 
 """

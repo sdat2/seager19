@@ -42,6 +42,7 @@ import numpy as np
 from sys import platform
 import itertools
 from distutils.spawn import find_executable
+import xarray as xr
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -393,3 +394,27 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     cmap_t.set_bad(color="#15b01a")
 
     return cmap_t
+
+
+def sel_plot_region(
+    xr_obj: Union[xr.Dataset, xr.DataArray]
+) -> Union[xr.Dataset, xr.DataArray]:
+    """
+    Select the region to plot (i.e the tropical Pacific).
+
+    Expects the longitudes to have the coordinate `x`
+    in degrees north,
+    and the latitudes to have the coordinate `y`
+    in degrees east,
+    and them both to be monotonically increasing.
+    If this isn't true you will have to change the
+    dataset before you run this function.
+
+    Args:
+        xr_obj (Union[xr.Dataset, xr.DataArray]): Either a dataset or dataarray
+            with the acceptable common coordinates.
+
+    Returns:
+        Union[xr.Dataset, xr.DataArray]: The reduced version of the input.
+    """
+    return xr_obj.sel(x=slice(100, 290), y=slice(-30, 30))
