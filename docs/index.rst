@@ -34,10 +34,9 @@ probably a better read.
    INIT.md
    current
    gallery.md
+   ocean-mod.ipynb
    dQ.ipynb
    TCAM.ipynb
-   sdat2-OCEAN-data-exploration.ipynb
-   sdat2-ATMOS-data-exploration.ipynb
    MRes.md
    src
    omod
