@@ -14,8 +14,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import imageio
 from src.plot_settings import ps_defaults, time_title, cmap  # ,label_subplots
-from src.utils import timeit, fix_calendar
+from src.utils import timeit, fix_calendar, open_dataarray
 from src.data_loading.transforms import rdict
+from src.constants import OCEAN_DATA_PATH
 
 
 @timeit
@@ -196,11 +197,11 @@ def animate_xr_da(
 
 @timeit
 def animate_diff(
-    init_da: xr.DataArray,
-    fin_da: xr.DataArray,
-    video_path: str = "diff-output.mp4",
-    vcmap: Union[str, matplotlib.colors.LinearSegmentedColormap] = cmap("sst"),
+    path_a: str = os.path.join(OCEAN_DATA_PATH, "qflx.nc"),
+    path_b: str = os.path.join(OCEAN_DATA_PATH, "qflx-0.nc"),
+    video_path: str = "diff-output.gif",
     fps: int = 5,
+    dpi: int = 200,
 ) -> None:
     """Animate two `xr.DataArray` and the difference between them.
 
@@ -208,24 +209,31 @@ def animate_diff(
         xr_da (xr.DataArray): Input xr.DataArray.
         sec_da (xr.DataArray): Second xr.DataArray to compare.
         video_path (str, optional): Video path. Defaults to "diff-output.mp4".
-        vcmap (any, optional): cmap for variable. Defaults to cmap("sst").
         fps (int, optional): frames per second.
-
+        dpi (int, optional): dots per inch. Defaults to 200.
 
     """
-    ps_defaults(use_tex=False, dpi=200)
-    balanced_colormap = False
+    ps_defaults(use_tex=False, dpi=dpi)
 
-    if isinstance(vcmap, str):
-        if vcmap == "delta":
-            balanced_colormap = True
-        vcmap = cmap(vcmap)
+    qflx = open_dataarray(path_a)
+    qflx_0 = open_dataarray(path_b)
+    diff = qflx - qflx_0
 
-    assert isinstance(vcmap, matplotlib.colors.LinearSegmentedColormap)
+    da = xr.concat([qflx.isel(Z=0), qflx_0.isel(Z=0), diff.isel(Z=0)], dim="flux")
+    da = (
+        da.assign_coords(coords={"flux": ["qflx", "qflx-0", "diff"]})
+        .isel(variable=0)
+        .drop(labels="Z")
+    )
 
-    def gen_frame_func(
-        xr_da1: xr.DataArray, xr_da2: xr.DataArray, diff_da: xr.DataArray
-    ) -> Callable:
+    da.X.attrs["units"] = r"$^{\circ}$E"
+    da.Y.attrs["units"] = r"$^{\circ}$N"
+    da.Y.attrs["long_name"] = "Latitude"
+    da.X.attrs["long_name"] = "Longitude"
+
+    vmin, vmax = -0.0002, 0.0002
+
+    def gen_frame_func(xr_da: xr.DataArray) -> Callable:
         """Create imageio frame function for `xarray.DataArray` visualisation.
 
         Args:
@@ -235,10 +243,6 @@ def animate_diff(
             make_frame (Callable): function to create each frame.
 
         """
-        vmin = xr_da.min(skipna=True)
-        vmax = xr_da.max(skipna=True)
-        if balanced_colormap:
-            vmin, vmax = [np.min([vmin, -vmax]), np.max([vmax, -vmin])]
 
         def make_frame(index: int) -> np.array:
             """Make an individual frame of the animation.
@@ -250,11 +254,24 @@ def animate_diff(
                 image (np.array): np.frombuffer output that can be fed into imageio
 
             """
-            fig, ax1 = plt.subplots(1, 1)
+            da.isel(T=index).sel(X=slice(100, 290), Y=slice(-30, 30)).plot(
+                row="flux",
+                vmin=vmin,
+                vmax=vmax,
+                cmap="RdBu",
+                aspect=2,
+                cbar_kwargs={
+                    "shrink": 1,
+                    "aspect": 25,
+                    "label": "qflx [dimensionless]",
+                },
+            )
 
-            xr_da.isel(time=index).plot.imshow(ax=ax1, cmap=vcmap, vmin=vmin, vmax=vmax)
-            time_title(ax1, xr_da.time.values[index])
-            plt.tight_layout()
+            plt.suptitle(da.coords["T"].values[index].strftime()[0:10], x=0.75, y=0.99)
+
+            # plt.tight_layout()
+
+            fig = plt.gcf()
 
             fig.canvas.draw()
             image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
@@ -265,10 +282,8 @@ def animate_diff(
 
         return make_frame
 
-    diff_da: xr.DataArray = init_da - fin_da
-
-    video_indices = list(range(len(init_da.time.values)))
-    make_frame = gen_frame_func(xr_da)
+    video_indices = list(range(len(da.coords["T"].values)))
+    make_frame = gen_frame_func(da)
     imageio.mimsave(
         video_path,
         [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
