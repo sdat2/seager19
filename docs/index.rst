@@ -31,7 +31,6 @@ probably a better read.
 
    self
    README.md
-   INIT.md
    current
    gallery.md
    ocean-mod.ipynb
@@ -41,8 +40,6 @@ probably a better read.
    TCAM.ipynb
    MRes.md
    src
-   omod
-   primes_test
    getting_started
    DOCS.md
    about

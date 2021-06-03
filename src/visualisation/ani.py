@@ -254,7 +254,7 @@ def animate_diff(
                 image (np.array): np.frombuffer output that can be fed into imageio
 
             """
-            da.isel(T=index).sel(X=slice(100, 290), Y=slice(-30, 30)).plot(
+            xr_da.isel(T=index).sel(X=slice(100, 290), Y=slice(-30, 30)).plot(
                 row="flux",
                 vmin=vmin,
                 vmax=vmax,
@@ -267,7 +267,7 @@ def animate_diff(
                 },
             )
 
-            plt.suptitle(da.coords["T"].values[index].strftime()[0:10], x=0.75, y=0.99)
+            plt.suptitle(xr_da.coords["T"].values[index].strftime()[0:10], x=0.75, y=0.99)
 
             # plt.tight_layout()
 
