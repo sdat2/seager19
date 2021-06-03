@@ -188,3 +188,94 @@ def animate_xr_da(
         print("Video " + video_path + " made.")
 
     xarray_to_video(xr_da, video_path, fps=5)
+
+
+@timeit
+def animate_diff(
+    xr_da: xr.DataArray,
+    video_path: str = "output.mp4",
+    vcmap: any = cmap("sst"),
+) -> None:
+    """Animate an `xr.DataArray`.
+
+    Args:
+        xr_da (xr.DataArray): input xr.DataArray.
+        video_path (str, optional): Video path. Defaults to "output.mp4".
+        vcmap (any, optional): cmap for variable. Defaults to cmap("sst").
+
+    """
+    ps_defaults(use_tex=False, dpi=200)
+    balanced_colormap = False
+
+    if isinstance(vcmap, str):
+        if vcmap == "delta":
+            balanced_colormap = True
+        vcmap = cmap(vcmap)
+
+    assert isinstance(vcmap, matplotlib.colors.LinearSegmentedColormap)
+
+    def gen_frame_func(
+        xr_da: xr.DataArray,
+    ) -> Callable:
+        """Create imageio frame function for `xarray.DataArray` visualisation.
+
+        Args:
+            x_da (xr.DataArray): input xr.DataArray.
+
+        Returns:
+            make_frame (Callable): function to create each frame.
+
+        """
+        vmin = xr_da.min(skipna=True)
+        vmax = xr_da.max(skipna=True)
+        if balanced_colormap:
+            vmin, vmax = [np.min([vmin, -vmax]), np.max([vmax, -vmin])]
+
+        def make_frame(index: int) -> np.array:
+            """Make an individual frame of the animation.
+
+            Args:
+                index (int): The time index.
+
+            Returns:
+                image (np.array): np.frombuffer output that can be fed into imageio
+
+            """
+            fig, ax1 = plt.subplots(1, 1)
+
+            xr_da.isel(time=index).plot.imshow(ax=ax1, cmap=vcmap, vmin=vmin, vmax=vmax)
+            time_title(ax1, xr_da.time.values[index])
+            plt.tight_layout()
+
+            fig.canvas.draw()
+            image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
+            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            plt.close()
+
+            return image
+
+        return make_frame
+
+    def xarray_to_video(
+        xr_da: xr.DataArray,
+        video_path: str,
+        fps: int = 5,
+    ) -> None:
+        """Generate video of an `xarray.DataArray`.
+
+        Args:
+            xr_da (xr.DataArray): input xarray.DataArray
+            video_path (str, optional): output path to save.
+            fps (int, optional): frames per second.
+
+        """
+        video_indices = list(range(len(xr_da.time.values)))
+        make_frame = gen_frame_func(xr_da)
+        imageio.mimsave(
+            video_path,
+            [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
+            fps=fps,
+        )
+        print("Video " + video_path + " made.")
+
+    xarray_to_video(xr_da, video_path, fps=5)

@@ -2,6 +2,7 @@
 
 Example:
     Import statement::
+
         from src.data_loading import get_data
 
 """
