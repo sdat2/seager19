@@ -267,7 +267,9 @@ def animate_diff(
                 },
             )
 
-            plt.suptitle(xr_da.coords["T"].values[index].strftime()[0:10], x=0.75, y=0.99)
+            plt.suptitle(
+                xr_da.coords["T"].values[index].strftime()[0:10], x=0.75, y=0.99
+            )
 
             # plt.tight_layout()
 
