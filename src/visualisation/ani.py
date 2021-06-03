@@ -16,7 +16,7 @@ import imageio
 from src.plot_settings import ps_defaults, time_title, cmap  # ,label_subplots
 from src.utils import timeit, fix_calendar, open_dataarray
 from src.data_loading.transforms import rdict
-from src.constants import OCEAN_DATA_PATH
+from src.constants import OCEAN_DATA_PATH, GIF_PATH
 
 
 @timeit
@@ -199,7 +199,7 @@ def animate_xr_da(
 def animate_diff(
     path_a: str = os.path.join(OCEAN_DATA_PATH, "qflx.nc"),
     path_b: str = os.path.join(OCEAN_DATA_PATH, "qflx-0.nc"),
-    video_path: str = "diff-output.gif",
+    video_path: str = os.path.join(GIF_PATH, "diff-output.gif"),
     fps: int = 5,
     dpi: int = 200,
 ) -> None:

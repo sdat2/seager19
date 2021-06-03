@@ -35,6 +35,8 @@ probably a better read.
    current
    gallery.md
    ocean-mod.ipynb
+   atmos-mod.ipynb
+   qflx-diff.ipynb
    dQ.ipynb
    TCAM.ipynb
    MRes.md
