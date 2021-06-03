@@ -6,7 +6,7 @@ animate_prediction - plots inputs and outputs of old model.
 
 """
 import os
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 import numpy as np
 import xarray as xr
 from tqdm import tqdm
@@ -96,6 +96,7 @@ def animate_ds(
                                         output_dir, file_name + "_" + y + ".gif"
                                     ),
                                     vcmap=cmap_d[y],
+                                    dpi=dpi,
                                 )
 
 
@@ -103,17 +104,20 @@ def animate_ds(
 def animate_xr_da(
     xr_da: xr.DataArray,
     video_path: str = "output.mp4",
-    vcmap: any = cmap("sst"),
+    vcmap: Union[str, matplotlib.colors.LinearSegmentedColormap] = cmap("sst"),
+    dpi: float = 200,
 ) -> None:
     """Animate an `xr.DataArray`.
 
     Args:
         xr_da (xr.DataArray): input xr.DataArray.
         video_path (str, optional): Video path. Defaults to "output.mp4".
-        vcmap (any, optional): cmap for variable. Defaults to cmap("sst").
+        vcmap (Union[str, matplotlib.colors.LinearSegmentedColormap], optional):
+            cmap for variable. Defaults to cmap("sst").
+        dpi (float, optional): dots per inch for plotting. Defaults to 200.
 
     """
-    ps_defaults(use_tex=False, dpi=200)
+    ps_defaults(use_tex=False, dpi=dpi)
     balanced_colormap = False
 
     if isinstance(vcmap, str):
@@ -192,16 +196,21 @@ def animate_xr_da(
 
 @timeit
 def animate_diff(
-    xr_da: xr.DataArray,
-    video_path: str = "output.mp4",
-    vcmap: any = cmap("sst"),
+    init_da: xr.DataArray,
+    fin_da: xr.DataArray,
+    video_path: str = "diff-output.mp4",
+    vcmap: Union[str, matplotlib.colors.LinearSegmentedColormap] = cmap("sst"),
+    fps: int = 5,
 ) -> None:
-    """Animate an `xr.DataArray`.
+    """Animate two `xr.DataArray` and the difference between them.
 
     Args:
-        xr_da (xr.DataArray): input xr.DataArray.
-        video_path (str, optional): Video path. Defaults to "output.mp4".
+        xr_da (xr.DataArray): Input xr.DataArray.
+        sec_da (xr.DataArray): Second xr.DataArray to compare.
+        video_path (str, optional): Video path. Defaults to "diff-output.mp4".
         vcmap (any, optional): cmap for variable. Defaults to cmap("sst").
+        fps (int, optional): frames per second.
+
 
     """
     ps_defaults(use_tex=False, dpi=200)
@@ -215,7 +224,7 @@ def animate_diff(
     assert isinstance(vcmap, matplotlib.colors.LinearSegmentedColormap)
 
     def gen_frame_func(
-        xr_da: xr.DataArray,
+        xr_da1: xr.DataArray, xr_da2: xr.DataArray, diff_da: xr.DataArray
     ) -> Callable:
         """Create imageio frame function for `xarray.DataArray` visualisation.
 
@@ -256,26 +265,13 @@ def animate_diff(
 
         return make_frame
 
-    def xarray_to_video(
-        xr_da: xr.DataArray,
-        video_path: str,
-        fps: int = 5,
-    ) -> None:
-        """Generate video of an `xarray.DataArray`.
+    diff_da: xr.DataArray = init_da - fin_da
 
-        Args:
-            xr_da (xr.DataArray): input xarray.DataArray
-            video_path (str, optional): output path to save.
-            fps (int, optional): frames per second.
-
-        """
-        video_indices = list(range(len(xr_da.time.values)))
-        make_frame = gen_frame_func(xr_da)
-        imageio.mimsave(
-            video_path,
-            [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
-            fps=fps,
-        )
-        print("Video " + video_path + " made.")
-
-    xarray_to_video(xr_da, video_path, fps=5)
+    video_indices = list(range(len(init_da.time.values)))
+    make_frame = gen_frame_func(xr_da)
+    imageio.mimsave(
+        video_path,
+        [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
+        fps=fps,
+    )
+    print("Video " + video_path + " made.")

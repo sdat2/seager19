@@ -2,6 +2,7 @@
 
 Example:
     Test using::
+
         pytest src/test/test_atmos.py
 
 """

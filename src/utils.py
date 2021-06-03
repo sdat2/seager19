@@ -1,5 +1,6 @@
 """General project utility functions."""
 import os
+import pathlib
 import shutil
 from typing import Callable, Union
 import inspect
@@ -111,6 +112,33 @@ def fix_calendar(
         xr_out = ds
 
     return xr_out
+
+
+def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:
+    """
+    Open a dataset and format it.
+
+    Args:
+        path (Union[str, pathlib.Path]): the path to the netcdf dataset file.
+
+    Returns:
+        xr.Dataset: The formatted dataset.
+    """
+    return fix_calendar(xr.open_dataset(str(path), decode_times=False))
+
+
+def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
+    """
+    Open a dataarray and format it.
+
+    Args:
+        path (Union[str, pathlib.Path]): the path to the netcdf datarray file.
+
+    Returns:
+        xr.DataArray: The formatted datarray.
+    """
+
+    return fix_calendar(xr.open_dataarray(str(path), decode_times=False))
 
 
 def human_readable_size(num: int, suffix: str = "B") -> str:
