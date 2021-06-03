@@ -137,7 +137,6 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
     Returns:
         xr.DataArray: The formatted datarray.
     """
-
     return fix_calendar(xr.open_dataarray(str(path), decode_times=False))
 
 
