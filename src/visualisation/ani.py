@@ -6,6 +6,7 @@ animate_prediction - plots inputs and outputs of old model.
 
 """
 import os
+import pathlib
 from typing import Callable, Optional, Union
 import numpy as np
 import xarray as xr
@@ -196,22 +197,25 @@ def animate_xr_da(
 
 
 @timeit
-def animate_diff(
-    path_a: str = os.path.join(OCEAN_DATA_PATH, "qflx.nc"),
-    path_b: str = os.path.join(OCEAN_DATA_PATH, "qflx-0.nc"),
+def animate_qflx_diff(
+    path_a: Union[str, pathlib.Path] = os.path.join(OCEAN_DATA_PATH, "qflx.nc"),
+    path_b: Union[str, pathlib.Path] = os.path.join(OCEAN_DATA_PATH, "qflx-0.nc"),
     video_path: str = os.path.join(GIF_PATH, "diff-output.gif"),
     fps: int = 5,
     dpi: int = 200,
 ) -> None:
-    """Animate two `xr.DataArray` and the difference between them.
+    """
+    Animate two `xr.DataArray` and the difference between them.
 
     Args:
-        xr_da (xr.DataArray): Input xr.DataArray.
-        sec_da (xr.DataArray): Second xr.DataArray to compare.
-        video_path (str, optional): Video path. Defaults to "diff-output.mp4".
-        fps (int, optional): frames per second.
+        path_a (Union[str, pathlib.Path], optional): Path to qflx. Defaults to
+            os.path.join(OCEAN_DATA_PATH, "qflx.nc").
+        path_b (Union[str, pathlib.Path], optional): Path to qflx-0. Defaults to
+            os.path.join(OCEAN_DATA_PATH, "qflx-0.nc").
+        video_path (str, optional): path to save video to. Defaults to
+            os.path.join(GIF_PATH, "diff-output.gif").
+        fps (int, optional): Frames per second. Defaults to 5.
         dpi (int, optional): dots per inch. Defaults to 200.
-
     """
     ps_defaults(use_tex=False, dpi=dpi)
 
@@ -264,6 +268,9 @@ def animate_diff(
                     "shrink": 1,
                     "aspect": 25,
                     "label": "qflx [dimensionless]",
+                    # further options available here:
+                    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html
+                    "extend": "both",
                 },
             )
 

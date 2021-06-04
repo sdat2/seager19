@@ -4,7 +4,7 @@ pytest src/test/test_ani.py
 """
 import os
 import xarray as xr
-from src.visualisation.ani import animate_xr_da, animate_ds, animate_diff
+from src.visualisation.ani import animate_xr_da, animate_ds, animate_qflx_diff
 from src.constants import OCEAN_OUTPUT_PATH, GIF_PATH
 from src.data_loading.download import get_data
 
@@ -42,4 +42,4 @@ def test_animate_ds() -> None:
 
 def test_animate_qflx() -> None:
     """Animate qflx."""
-    animate_diff()
+    animate_qflx_diff()
