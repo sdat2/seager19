@@ -9,7 +9,6 @@ dependencies:
   - pytest
   - matplotlib
   - cartopy=0.18
-  - pykdtree
   - ffmpeg
   - tqdm
   - pip:
@@ -22,6 +21,7 @@ dependencies:
     - typeguard
     - imageio
     - cmocean
+    - seaborn
     - wandb
     - numba
     - netCDF4

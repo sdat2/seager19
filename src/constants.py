@@ -35,7 +35,7 @@ ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
 GIF_PATH = PROJECT_PATH / "gifs"
 
 # General data from e.g. paper or cmip etc.
-DATA_PATH = PROJECT_PATH / "data"
+DATA_PATH = SRC_PATH / "data"
 
 # Test DIREC
 TEST_DIREC = SRC_PATH / "test" / "test_direc"
