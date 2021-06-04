@@ -225,7 +225,7 @@ def animate_qflx_diff(
 
     da = xr.concat([qflx.isel(Z=0), qflx_0.isel(Z=0), diff.isel(Z=0)], dim="flux")
     da = (
-        da.assign_coords(coords={"flux": ["qflx", "qflx-0", "diff"]})
+        da.assign_coords(coords={"flux": ["qflx", "qflx_0", "qflx - qflx_0"]})
         .isel(variable=0)
         .drop(labels="Z")
     )
@@ -241,10 +241,10 @@ def animate_qflx_diff(
         """Create imageio frame function for `xarray.DataArray` visualisation.
 
         Args:
-            x_da (xr.DataArray): input xr.DataArray.
+            xr_da (xr.DataArray): input xr.DataArray.
 
         Returns:
-            make_frame (Callable): function to create each frame.
+            Callable: make_frame function to create each frame.
 
         """
 
@@ -270,12 +270,15 @@ def animate_qflx_diff(
                     "label": "qflx [dimensionless]",
                     # further options available here:
                     # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html
-                    "extend": "both",
+                    "extend": "neither",  #  "both",
+                    "extendfrac": 0.0,
+                    "extendrect": True,
+                    "format": "%0.1e1",
                 },
             )
 
             plt.suptitle(
-                xr_da.coords["T"].values[index].strftime()[0:10], x=0.75, y=0.99
+                xr_da.coords["T"].values[index].strftime()[0:10], x=0.75, y=0.98
             )
 
             # plt.tight_layout()
