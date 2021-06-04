@@ -273,7 +273,7 @@ def animate_qflx_diff(
                     "extend": "neither",  #  "both",
                     "extendfrac": 0.0,
                     "extendrect": True,
-                    "format": "%0.1e1",
+                    "format": "%0.1e",
                 },
             )
 
