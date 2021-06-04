@@ -1,0 +1,28 @@
+
+name: test_env_seager19
+channels:
+  - conda-forge
+dependencies:
+  - xarray
+  - dask
+  - scipy
+  - numpy
+  - pytest
+  - matplotlib
+  - cartopy
+  - pykdtree
+  - ffmpeg
+  - tqdm
+- pip:
+    - hydra-core
+    - requests
+    - zipfile38
+    - codecov
+    - pytest-cov
+    - recursive_diff
+    - typeguard
+    - imageio
+    - cmocean
+    - wandb
+    - numba
+    - netCDF4

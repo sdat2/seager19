@@ -71,7 +71,6 @@ imageio-ffmpeg     # animations driver
 # improved plotting
 seaborn
 cmocean
-cmocean[plots]
 
 # downloads
 requests
