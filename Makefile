@@ -46,6 +46,7 @@ test:
 	# pytest --pyargs src
 	coverage run --source=src -m pytest --durations=0 --pyargs src
 	# to update badge: coveralls
+	sh .secret.sh
 
 ## make the docker image without --no-cache
 docker_image:
