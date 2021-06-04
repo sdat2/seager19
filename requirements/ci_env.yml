@@ -1,4 +1,3 @@
-
 name: test_env_seager19
 channels:
   - conda-forge
@@ -9,11 +8,11 @@ dependencies:
   - numpy
   - pytest
   - matplotlib
-  - cartopy
+  - cartopy=0.18
   - pykdtree
   - ffmpeg
   - tqdm
-- pip:
+  - pip:
     - hydra-core
     - requests
     - zipfile38
