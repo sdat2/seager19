@@ -15,6 +15,7 @@ def _hr_time(time_in: float) -> str:
     Print human readable time.
 
     I got fed up with converting the number in my head.
+    Probably runs very quickly.
 
     Args:
         time (float): time in seconds
@@ -112,6 +113,54 @@ def fix_calendar(
         xr_out = ds
 
     return xr_out
+
+
+def can_coords(
+    xr_obj: Union[xr.Dataset, xr.DataArray]
+) -> Union[xr.Dataset, xr.DataArray]:
+    """
+    Transform an object into having the canonical coordinates if possible.
+
+    Fail hard if impossible.
+
+    TODO: Should fail hard at the moment, need to setup.
+
+    Args:
+        xr_obj (Union[xr.Dataset, xr.DataArray]): The dataset or datarray to
+            canonicalise.
+
+    Returns:
+        Union[xr.Dataset, xr.DataArray]: The dataset that has been canoncilised.
+            Function will raise an assertion error otherwise.
+    """
+    assert isinstance(xr_obj, Union[xr.DataArray, xr.Dataset])
+
+    assert 1 < 2
+
+    return xr_obj
+
+
+def sel(
+    xr_obj: Union[xr.Dataset, xr.DataArray], reg="pac"
+) -> Union[xr.Dataset, xr.DataArray]:
+    """
+    Select a region of the dataset or datarray.
+
+    Assumes
+    reg options: "pac', 'nino3.4', "glob"
+
+    Args:
+        xr_obj (Union[xr.Dataset, xr.DataArray]): The xarray object.
+            Needs to have canonical coordinates.
+        reg (str, optional): The keyword region to select. Defaults to 'pac'.
+
+    Returns:
+        Union[xr.Dataset, xr.DataArray]: The downsized xarray object.
+    """
+    if reg == "pac":
+        return xr_obj.sel(X=slice(100, 290), Y=slice(-30, 30))
+    elif reg == "nino3.4":
+        return xr_obj.sel(X=slice(100, 290), Y=slice(-30, 30))
 
 
 def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:

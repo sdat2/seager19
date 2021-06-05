@@ -5,7 +5,7 @@ Basically a wrapper for bash commands.
 Example:
    Usage of script::
 
-       python3 main.py name=test26
+       python3 src/main.py name=test26
 
 """
 import wandb
@@ -27,6 +27,9 @@ log = logging.getLogger(__name__)
 @hydra.main(config_path=CONFIG_PATH, config_name=CONFIG_NAME)
 def main(cfg: DictConfig) -> None:
     """The main function to run the model and animations.
+
+    Takes the src/configs/config.yaml file as input alongside any command line
+    arguments.
 
     Args:
         cfg (DictConfig): The hyrda dict config from the wrapper.

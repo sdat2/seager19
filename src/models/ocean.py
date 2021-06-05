@@ -7,8 +7,7 @@ import logging
 from omegaconf import DictConfig
 from typeguard import typechecked
 import wandb
-from src.visualisation.ani import animate_ds
-from src.data_loading.transforms import qflx_rdict
+from src.visualisation.ani import animate_ds, animate_qflx_diff
 from src.utils import timeit
 from src.data_loading.ingrid import linear_qflx_replacement
 from src.models.model_setup import ModelSetup
@@ -171,8 +170,10 @@ class Ocean:
                     front_trim=int("om_diag" == x),
                     # remove first month for om_diag
                 )
-            else:
-                ds = xr.open_dataset(
-                    str(os.path.join(self.setup.direc, x)) + ".nc", decode_times=False
-                ).rename(qflx_rdict())
-                animate_ds(ds, x, self.setup.direc)
+
+        if self.cfg.ocean.animate_qflx:
+            animate_qflx_diff(
+                path_a=os.path.join(self.setup.ocean_data_path, "qflx.nc"),
+                path_b=os.path.join(self.setup.ocean_data_path, "qflx-0.nc"),
+                video_path=str(self.setup.direc, "qflx-diff.gif"),
+            )
