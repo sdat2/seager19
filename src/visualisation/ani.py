@@ -16,8 +16,7 @@ import matplotlib.pyplot as plt
 import imageio
 from src.plot_settings import ps_defaults, time_title, cmap  # ,label_subplots
 from src.utils import timeit
-from src.xr_utils import fix_calendar, open_dataarray
-from src.data_loading.transforms import rdict
+from src.xr_utils import fix_calendar, open_dataarray, om_rdict
 from src.constants import OCEAN_DATA_PATH, GIF_PATH
 
 
@@ -77,11 +76,13 @@ def animate_ds(
                                 ):
                                     for key in da.coords:
                                         num = str(key)[3]
-                                    da = da.rename(rdict(num))
+                                    da = da.rename(om_rdict(num))
                                 if y in unit_d:
                                     da.attrs["units"] = unit_d[y]
                                 da.coords["x"].attrs["units"] = r"$^{\circ}$E"
+                                da.coords["x"].attrs["long_name"] = "Longitude"
                                 da.coords["y"].attrs["units"] = r"$^{\circ}$N"
+                                da.coords["y"].attrs["long_name"] = "Latitude"
                                 da = da.where(da != 0.0).isel(Z=0)
                                 da = fix_calendar(da, timevar="time")
                                 if "variable" in da.dims:
