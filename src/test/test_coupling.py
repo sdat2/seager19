@@ -6,7 +6,7 @@ from src.models.coupling import Coupling, ModelSetup
 from src.configs.load_config import load_config
 
 
-def stress_test() -> None:
+def test_stress() -> None:
     """Stress test."""
 
     time = pd.date_range("2014-09-06", periods=3)

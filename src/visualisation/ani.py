@@ -74,7 +74,7 @@ def animate_ds(
         xr_da.coords["y"].attrs["long_name"] = "Latitude"
         return xr_da
 
-    excl_l = ["X_", "Y_", "L_", "T_", "SST", "GRID"]
+    excl_l = ["X_", "Y_", "L_", "T_", "GRID"]  # SST
     t_pos = ["T_01", "T_02", "T_03", "T_04"]
 
     for y in ds.variables:

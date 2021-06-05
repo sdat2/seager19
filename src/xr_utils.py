@@ -56,10 +56,10 @@ def om_rdict(index: int) -> dict:
 
     """
     return {
-        "T_0" + str(index): "time",
-        "Y_0" + str(index): "y",
-        "X_0" + str(index): "x",
-        "L_0" + str(index): "Z",
+        "T_0" + str(index): "T",  # "time",
+        "Y_0" + str(index): "Y",  # "y",
+        "X_0" + str(index): "X",  # "x",
+        "L_0" + str(index): "Z",  # "Z",
     }
 
 
