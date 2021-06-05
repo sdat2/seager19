@@ -84,18 +84,38 @@ def sel(
 
     Returns:
         Union[xr.Dataset, xr.DataArray]: The downsized xarray object.
+
+    Example:
+        Effect example::
+
+                if reg == "pac":
+                    return xr_obj.sel(X=slice(100, 290), Y=slice(-30, 30))
+                elif reg == "nino3.4":
+                    return xr_obj.sel(X=slice(190, 240), Y=slice(-5, 5))
+                elif reg == "nino4":
+                    return xr_obj.sel(X=slice(160, 210), Y=slice(-5, 5))
+                elif reg == "nino3":
+                    return xr_obj.sel(X=slice(210, 270), Y=slice(-5, 5))
+                elif reg == "nino1+2":
+                    return xr_obj.sel(X=slice(270, 280), Y=slice(-10, 0))
+
     """
-    # {}
-    if reg == "pac":
-        return xr_obj.sel(X=slice(100, 290), Y=slice(-30, 30))
-    elif reg == "nino3.4":
-        return xr_obj.sel(X=slice(190, 240), Y=slice(-5, 5))
-    elif reg == "nino4":
-        return xr_obj.sel(X=slice(160, 210), Y=slice(-5, 5))
-    elif reg == "nino3":
-        return xr_obj.sel(X=slice(210, 270), Y=slice(-5, 5))
-    elif reg == "nino1+2":
-        return xr_obj.sel(X=slice(270, 280), Y=slice(-10, 0))
+
+    sel_d = {
+        "pac": {"X": (100, 200), "Y": (-30, 30)},
+        "nino1+2": {"X": (270, 280), "Y": (-10, 0)},
+        "nino3": {"X": (210, 270), "Y": (-5, 5)},
+        "nino3.4": {"X": (190, 240), "Y": (-5, 5)},
+        "nino4": {"X": (160, 210), "Y": (-5, 5)},
+    }
+
+    assert reg in sel_d
+
+    sel_c = sel_d[reg]
+
+    return xr_obj.sel(
+        X=slice(sel_c["X"][0], sel_c["X"][1]), Y=slice(sel_c["Y"][0], sel_c["Y"][1])
+    )
 
 
 def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:
