@@ -2,11 +2,8 @@
 
 pytest src/test/test_utils.py
 """
-import xarray as xr
 import numpy as np
-from src.utils import timeit, get_byte_size, human_readable_size, fix_calendar
-from src.data_loading.download import get_data
-from src.constants import OCEAN_DATA_PATH  # , OCEAN_OUTPUT_PATH
+from src.utils import timeit, get_byte_size, human_readable_size
 
 
 def test_timeit() -> None:
@@ -40,19 +37,6 @@ def test_timeit() -> None:
 
     timed_loop = timeit(loop_2)
     timed_loop()
-
-
-def test_fix_calendar() -> None:
-    """Test `src.utils.fix_calendar`."""
-    get_data()
-    ds_new = fix_calendar(
-        xr.open_dataset(OCEAN_DATA_PATH / "qflx.nc", decode_times=False)
-    )
-    da_new = fix_calendar(
-        xr.open_dataset(OCEAN_DATA_PATH / "qflx.nc", decode_times=False).qflx
-    )
-    print(ds_new)
-    print(da_new)
 
 
 def test_get_byte_size() -> None:

@@ -175,5 +175,5 @@ class Ocean:
             animate_qflx_diff(
                 path_a=os.path.join(self.setup.ocean_data_path, "qflx.nc"),
                 path_b=os.path.join(self.setup.ocean_data_path, "qflx-0.nc"),
-                video_path=str(self.setup.direc, "qflx-diff.gif"),
+                video_path=os.path.join(self.setup.direc, "qflx-diff.gif"),
             )
