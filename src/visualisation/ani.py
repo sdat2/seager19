@@ -58,50 +58,51 @@ def animate_ds(
     if plot_list is None:
         plot_list = [str(y) for y in ds.variables]
 
+    def add_units(xr_da: xr.DataArray) -> xr.DataArray:
+        """
+        Adding units.
+
+        Args:
+            xr_da (xr.DataArray): [description]
+
+        Returns:
+            xr.DataArray: [description]
+        """
+        xr_da.coords["x"].attrs["units"] = r"$^{\circ}$E"
+        xr_da.coords["x"].attrs["long_name"] = "Longitude"
+        xr_da.coords["y"].attrs["units"] = r"$^{\circ}$N"
+        xr_da.coords["y"].attrs["long_name"] = "Latitude"
+        return xr_da
+
+    excl_l = ["X_", "Y_", "L_", "T_", "SST", "GRID"]
+    t_pos = ["T_01", "T_02", "T_03", "T_04"]
+
     for y in ds.variables:
         y = str(y)
-        if y in plot_list:
-            if "X_" not in y:
-                if "Y_" not in y:
-                    if "L_" not in y:
-                        if "T_" not in y or "SST" in y:
-                            if "GRID" != y:
-                                print(y)
-                                da = ds[y]
-                                if (
-                                    "T_01" in da.coords
-                                    or "T_02" in da.coords
-                                    or "T_03" in da.coords
-                                    or "T_04" in da.coords
-                                ):
-                                    for key in da.coords:
-                                        num = str(key)[3]
-                                    da = da.rename(om_rdict(num))
-                                if y in unit_d:
-                                    da.attrs["units"] = unit_d[y]
-                                da.coords["x"].attrs["units"] = r"$^{\circ}$E"
-                                da.coords["x"].attrs["long_name"] = "Longitude"
-                                da.coords["y"].attrs["units"] = r"$^{\circ}$N"
-                                da.coords["y"].attrs["long_name"] = "Latitude"
-                                da = da.where(da != 0.0).isel(Z=0)
-                                da = fix_calendar(da, timevar="time")
-                                if "variable" in da.dims:
-                                    da = da.isel(variable=0)
-                                da = da.rename(y)
-                                if y in unit_d:
-                                    da.attrs["units"] = unit_d[y]
-                                da.attrs["long_name"] = y
-                                da.attrs["name"] = y
-                                animate_xr_da(
-                                    da.isel(
-                                        time=slice(front_trim, len(da.time.values))
-                                    ),
-                                    video_path=os.path.join(
-                                        output_dir, file_name + "_" + y + ".gif"
-                                    ),
-                                    vcmap=cmap_d[y],
-                                    dpi=dpi,
-                                )
+        if np.all([x not in y for x in excl_l]) and y in plot_list:
+            da = ds[y]
+            if np.any([x in da.coords for x in t_pos]):
+                for key in da.coords:
+                    num = str(key)[3]
+                da = da.rename(om_rdict(num))
+                if y in unit_d:
+                    da.attrs["units"] = unit_d[y]
+                da = add_units(da)
+                da = da.where(da != 0.0).isel(Z=0)
+                da = fix_calendar(da, timevar="time")
+                if "variable" in da.dims:
+                    da = da.isel(variable=0)
+                da = da.rename(y)
+                if y in unit_d:
+                    da.attrs["units"] = unit_d[y]
+                da.attrs["long_name"] = y
+                da.attrs["name"] = y
+                animate_xr_da(
+                    da.isel(time=slice(front_trim, len(da.time.values))),
+                    video_path=os.path.join(output_dir, file_name + "_" + y + ".gif"),
+                    vcmap=cmap_d[y],
+                    dpi=dpi,
+                )
 
 
 @timeit
