@@ -75,6 +75,7 @@ def sel(
 
     Assumes
     reg options: "pac', 'nino3.4', "glob"
+    https://www.ncdc.noaa.gov/teleconnections/enso/indicators/sst/
 
     Args:
         xr_obj (Union[xr.Dataset, xr.DataArray]): The xarray object.
@@ -84,10 +85,17 @@ def sel(
     Returns:
         Union[xr.Dataset, xr.DataArray]: The downsized xarray object.
     """
+    # {}
     if reg == "pac":
         return xr_obj.sel(X=slice(100, 290), Y=slice(-30, 30))
     elif reg == "nino3.4":
-        return xr_obj.sel(X=slice(100, 290), Y=slice(-30, 30))
+        return xr_obj.sel(X=slice(190, 240), Y=slice(-5, 5))
+    elif reg == "nino4":
+        return xr_obj.sel(X=slice(160, 210), Y=slice(-5, 5))
+    elif reg == "nino3":
+        return xr_obj.sel(X=slice(210, 270), Y=slice(-5, 5))
+    elif reg == "nino1+2":
+        return xr_obj.sel(X=slice(270, 280), Y=slice(-10, 0))
 
 
 def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:

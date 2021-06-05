@@ -1,8 +1,8 @@
 """Test xr_utils."""
 import xarray as xr
-from src.xr_utils import fix_calendar, open_dataset
+from src.xr_utils import fix_calendar, open_dataset, sel
 from src.data_loading.download import get_data
-from src.constants import OCEAN_DATA_PATH  # , OCEAN_OUTPUT_PATH
+from src.constants import OCEAN_DATA_PATH
 
 
 def test_fix_calendar() -> None:
@@ -12,3 +12,5 @@ def test_fix_calendar() -> None:
     da_new: xr.DataArray = fix_calendar(open_dataset(OCEAN_DATA_PATH / "qflx.nc").qflx)
     print(ds_new)
     print(da_new)
+    sel(da_new)
+    sel(da_new, reg="nino3.4")

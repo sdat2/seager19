@@ -1,11 +1,9 @@
 """General project utility functions."""
 import os
-import pathlib
 import shutil
-from typing import Callable, Union
+from typing import Callable
 import inspect
 import time
-import xarray as xr
 from functools import wraps
 from sys import getsizeof
 
@@ -100,8 +98,8 @@ def human_readable_size(num: int, suffix: str = "B") -> str:
 def calculate_byte_size_recursively(obj: object, seen: set = None) -> int:
     """Recursively calculate size of objects in memory in bytes.
 
-    From: https://github.com/bosswissam/pysize. Meant as a helper function for
-    `get_byte_size`.
+    From: https://github.com/bosswissam/pysize.
+    Meant as a helper function for `get_byte_size`.
 
     Args:
         obj (object): The python object to get the size of
