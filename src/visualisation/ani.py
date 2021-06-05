@@ -20,6 +20,23 @@ from src.xr_utils import fix_calendar, open_dataarray, om_rdict
 from src.constants import OCEAN_DATA_PATH, GIF_PATH
 
 
+def add_units(xr_da: xr.DataArray) -> xr.DataArray:
+    """
+    Adding units.
+
+    Args:
+        xr_da (xr.DataArray): [description]
+
+    Returns:
+        xr.DataArray: [description]
+    """
+    xr_da.coords["X"].attrs["units"] = r"$^{\circ}$E"
+    xr_da.coords["X"].attrs["long_name"] = "Longitude"
+    xr_da.coords["Y"].attrs["units"] = r"$^{\circ}$N"
+    xr_da.coords["Y"].attrs["long_name"] = "Latitude"
+    return xr_da
+
+
 @timeit
 def animate_ds(
     ds: xr.Dataset,
@@ -58,23 +75,8 @@ def animate_ds(
     if plot_list is None:
         plot_list = [str(y) for y in ds.variables]
 
-    def add_units(xr_da: xr.DataArray) -> xr.DataArray:
-        """
-        Adding units.
-
-        Args:
-            xr_da (xr.DataArray): [description]
-
-        Returns:
-            xr.DataArray: [description]
-        """
-        xr_da.coords["x"].attrs["units"] = r"$^{\circ}$E"
-        xr_da.coords["x"].attrs["long_name"] = "Longitude"
-        xr_da.coords["y"].attrs["units"] = r"$^{\circ}$N"
-        xr_da.coords["y"].attrs["long_name"] = "Latitude"
-        return xr_da
-
     excl_l = ["X_", "Y_", "L_", "T_", "GRID"]  # SST
+
     t_pos = ["T_01", "T_02", "T_03", "T_04"]
 
     for y in ds.variables:
@@ -89,7 +91,7 @@ def animate_ds(
                     da.attrs["units"] = unit_d[y]
                 da = add_units(da)
                 da = da.where(da != 0.0).isel(Z=0)
-                da = fix_calendar(da, timevar="time")
+                da = fix_calendar(da, timevar="T")
                 if "variable" in da.dims:
                     da = da.isel(variable=0)
                 da = da.rename(y)
@@ -156,7 +158,8 @@ def animate_xr_da(
                 index (int): The time index.
 
             Returns:
-                image (np.array): np.frombuffer output that can be fed into imageio
+                image (np.array): np.frombuffer output
+                    that can be fed into imageio
 
             """
             fig, ax1 = plt.subplots(1, 1)
@@ -233,10 +236,7 @@ def animate_qflx_diff(
         .drop(labels="Z")
     )
 
-    da.X.attrs["units"] = r"$^{\circ}$E"
-    da.Y.attrs["units"] = r"$^{\circ}$N"
-    da.Y.attrs["long_name"] = "Latitude"
-    da.X.attrs["long_name"] = "Longitude"
+    da = add_units(da)
 
     vmin, vmax = -0.0002, 0.0002
 
