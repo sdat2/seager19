@@ -3,7 +3,7 @@
 Example:
     Usage with simple plots::
 
-        from src.plot_settings import (
+        from src.plot_utils import (
             ps_defaults,
             label_subplots,
             get_dim,
@@ -80,7 +80,7 @@ def label_subplots(
     Example:
         Here is an example of using this function::
 
-            >>> from src.plot_settings import label_subplots
+            >>> from src.plot_utis import label_subplots
             >>> label_subplots(axs, start_from=0, fontsize=10)
 
     """
@@ -128,7 +128,7 @@ def get_dim(
     Example:
         Here is an example of using this function::
 
-            >>> from src.plot_settings import get_dim
+            >>> from src.plot_utils import get_dim
             >>> dim_tuple = get_dim(fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
 
     """
@@ -173,7 +173,7 @@ def set_dim(
     Example:
         Here is an example of using this function::
 
-            >>> from src.plot_settings import set_dim
+            >>> from src.plot_utils import set_dim
             >>> set_dim(fig, fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
 
     """
@@ -198,12 +198,12 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     Examples:
         Basic setting the plotting defaults::
 
-            >>> from src.plot_settings import ps_defaults
+            >>> from src.plot_utils import ps_defaults
             >>> ps_defaults()
 
         Setting defaults for a jupyter notebook::
 
-            >>> from src.plot_settings import ps_defaults
+            >>> from src.plot_utils import ps_defaults
             >>> ps_defaults(use_tex=False, dpi=150)
 
     """
@@ -299,7 +299,7 @@ def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
     Example:
         When using multiple subplots::
 
-            from src.plot_settings import map_setup
+            from src.plot_utils import map_setup
             fig, axes = plt.subplots(
                2, 2, subplot_kw={"projection": default_projection()}
             )
@@ -332,7 +332,7 @@ def time_title(
     Example:
         Usage with an xarray.Datarray object::
 
-            >>> from src.plot_settings import time_title
+            >>> from src.plot_utils import time_title
             >>> time_title(ax, xr_da.time.values[index])
 
     """
@@ -364,7 +364,7 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     Example:
         Usage example for sea surface temperature::
 
-            from src.plot_settings import cmap
+            from src.plot_utils import cmap
             cmap_t = cmap("sst")
 
     """
