@@ -1,4 +1,5 @@
 """Utilities around opening and processing netcdfs from this project."""
+import numpy as np
 import pathlib
 from typing import Union
 import xarray as xr
@@ -175,7 +176,7 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
     return fix_calendar(xr.open_dataarray(str(path), decode_times=False))
 
 
-def cut_and_taper(da: xr.DataArray) -> xr.DataArray:
+def cut_and_taper(da: xr.DataArray, y_var="Y") -> xr.DataArray:
     """
     Cut and taper a field by latitude.
 
@@ -199,6 +200,20 @@ def cut_and_taper(da: xr.DataArray) -> xr.DataArray:
                 da = da - (0.2* (da.Y- 20)))*da
             else -20 >= da.Y >= -25:
                 da = da - (0.2* (-da.Y - 20))*da
+
     """
+
+    @np.vectorize
+    def test_vec(x: float, y: float):
+        if y > 25 or y < -25:
+            x = 0.0
+        elif 20 <= y <= 25:
+            x = x - (0.2 * (y - 20)) * x
+        elif -20 >= y >= -25:
+            x = x - (0.2 * (-y - 20)) * x
+        return x
+
+    for x in range(len(da.X.values)):
+        da[:, x] = test_vec(da[:, x], da.coords[y_var])
 
     return da
