@@ -188,6 +188,10 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     Call this at the start of a script which uses `matplotlib`.
     Can enable `matplotlib` LaTeX backend if it is available.
 
+    TODO: There seems to currently be a bug where markers
+         don't appear with 'plt.plot([], [], "x").
+         Need to figure out how I have caused this.
+
     Args:
         use_tex (bool, optional): Whether or not to use latex matplotlib backend.
             Defaults to True.
@@ -223,6 +227,8 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
         "legend.fontsize": 10,
         "xtick.labelsize": 9,
         "ytick.labelsize": 9,
+        # currently I don't use these autofomatters, but hopefully they
+        # are sensible choices to have made.
         "date.autoformatter.year": "%Y",
         "date.autoformatter.month": "%Y-%m",
         "date.autoformatter.day": "%Y-%m-%d",
@@ -236,7 +242,7 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
         # "font.monospace": [],
         "figure.figsize": get_dim(),
         "lines.linewidth": 1.0,
-        "scatter.marker": "+",
+        "scatter.marker": "x",
         "image.cmap": "viridis",
     }
     matplotlib.rcParams.update(p_general)
