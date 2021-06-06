@@ -23,12 +23,20 @@ def fix_calendar(
     else:
         ds = xr_in
 
-    # add 360_day attribute
-    if "calendar" not in ds[timevar].attrs:
-        ds[timevar].attrs["calendar"] = "360_day"
-    else:
-        if ds[timevar].attrs["calendar"] == "360":
-            ds[timevar].attrs["calendar"] = "360_day"
+    t_list = ["T_0" + str(x) for x in range(5)]
+    t_list.append("T")
+    t_list.append("time")
+    t_list.append(timevar)
+
+    for t_dim in t_list:
+
+        if t_dim in ds.dims:
+            # add 360_day attribute
+            if "calendar" not in ds[t_dim].attrs:
+                ds[t_dim].attrs["calendar"] = "360_day"
+            else:
+                if ds[t_dim].attrs["calendar"] == "360":
+                    ds[t_dim].attrs["calendar"] = "360_day"
 
     # decode
     ds = xr.decode_cf(ds)
@@ -156,7 +164,9 @@ def sel(
 
 def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:
     """
-    Open a dataset and format it.
+    Open a dataset and formats it.
+
+    Currently does not format the calendars if the time variable isn't "T".
 
     Args:
         path (Union[str, pathlib.Path]): the path to the netcdf dataset file.

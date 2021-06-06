@@ -80,6 +80,7 @@ MRes Citations
    ocean-mod.ipynb
    atmos-mod.ipynb
    qflx-exp.ipynb
+   nino.ipynb
    dQ.ipynb
    TCAM.ipynb
    src
