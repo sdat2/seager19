@@ -14,7 +14,7 @@ from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
 import imageio
-from src.plot_settings import ps_defaults, time_title, cmap  # ,label_subplots
+from src.plot_utils import ps_defaults, time_title, cmap  # ,label_subplots
 from src.utils import timeit
 from src.xr_utils import fix_calendar, open_dataarray, om_rdict
 from src.constants import OCEAN_DATA_PATH, GIF_PATH

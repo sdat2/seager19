@@ -3,7 +3,7 @@ import os
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
-from src.plot_settings import (
+from src.plot_utils import (
     ps_defaults,
     label_subplots,
     set_dim,
