@@ -32,10 +32,10 @@ src.main module
    :undoc-members:
    :show-inheritance:
 
-src.plot\_settings module
--------------------------
+src.plot\_utils module
+----------------------
 
-.. automodule:: src.plot_settings
+.. automodule:: src.plot_utils
    :members:
    :undoc-members:
    :show-inheritance:

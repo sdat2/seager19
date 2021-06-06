@@ -145,7 +145,12 @@ class Ocean:
             run_time = self.run(
                 "../SRC/" + self.cfg.ocean.tcom_name + " -i om_run2f -t om_run2f.tios"
             )
-            wandb.log({"ocean_run": run_time})
+            # TODO: Currently this will fail if wandb is not initialised
+            try:
+                wandb.log({"ocean_run": run_time})
+                # pylint: disable=bare-except
+            except:
+                print("wandb not initiliased, not logging.")
             self.run("../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_run2f")
             self.run("rm -rf output/om_run2f.data output/om_run2f.indx")
 

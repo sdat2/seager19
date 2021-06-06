@@ -79,13 +79,14 @@ MRes Citations
    MAIN_README.md
    ocean-mod.ipynb
    atmos-mod.ipynb
+   coup-mod.ipynb
    qflx-exp.ipynb
    nino.ipynb
-   dQ.ipynb
-   TCAM.ipynb
    src
    current
    gallery.md
+   dQ.ipynb
+   TCAM.ipynb
    about
 
 
