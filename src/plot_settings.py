@@ -42,7 +42,6 @@ import numpy as np
 from sys import platform
 import itertools
 from distutils.spawn import find_executable
-import xarray as xr
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -299,6 +298,7 @@ def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
 
     Example:
         When using multiple subplots::
+
             from src.plot_settings import map_setup
             fig, axes = plt.subplots(
                2, 2, subplot_kw={"projection": default_projection()}
@@ -356,13 +356,14 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     """Get cmap from a variable name string.
 
     Args:
-        variable_name (str): name of variable to give colormap
+        variable_name (str): name of variable to give colormap.
 
     Returns:
         matplotlib.colors.LinearSegmentedColormap: sensible colormap
 
     Example:
         Usage example for sea surface temperature::
+
             from src.plot_settings import cmap
             cmap_t = cmap("sst")
 
@@ -394,27 +395,3 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     cmap_t.set_bad(color="#15b01a")
 
     return cmap_t
-
-
-def sel_plot_region(
-    xr_obj: Union[xr.Dataset, xr.DataArray]
-) -> Union[xr.Dataset, xr.DataArray]:
-    """
-    Select the region to plot (i.e the tropical Pacific).
-
-    Expects the longitudes to have the coordinate `x`
-    in degrees north,
-    and the latitudes to have the coordinate `y`
-    in degrees east,
-    and them both to be monotonically increasing.
-    If this isn't true you will have to change the
-    dataset before you run this function.
-
-    Args:
-        xr_obj (Union[xr.Dataset, xr.DataArray]): Either a dataset or dataarray
-            with the acceptable common coordinates.
-
-    Returns:
-        Union[xr.Dataset, xr.DataArray]: The reduced version of the input.
-    """
-    return xr_obj.sel(x=slice(100, 290), y=slice(-30, 30))

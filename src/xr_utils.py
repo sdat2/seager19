@@ -71,21 +71,6 @@ def om_rdict(index: int) -> dict:
     }
 
 
-def qflx_rdict() -> dict:
-    """
-    To plot the heat flux it is useful to transform to the standard dict.
-
-    Returns:
-        dict: The rename dictionary to apply to the xr.DataArray.
-    """
-    return {
-        "T": "time",
-        "Y": "y",
-        "X": "x",
-        "Z": "Z",
-    }
-
-
 def can_coords(
     xr_obj: Union[xr.Dataset, xr.DataArray]
 ) -> Union[xr.Dataset, xr.DataArray]:

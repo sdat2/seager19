@@ -3,7 +3,7 @@
 pytest src/test/test_utils.py
 """
 import numpy as np
-from src.utils import timeit, get_byte_size, human_readable_size
+from src.utils import timeit, get_byte_size, human_readable_size, hr_time
 
 
 def test_timeit() -> None:
@@ -61,3 +61,9 @@ def test_human_readable_size() -> None:
     """Test `src.utils.get_byte_size` function."""
     assert human_readable_size(int(10e5)) == "977 KB"
     assert human_readable_size(int(10e13)) == "91 TB"
+
+
+def test_hr_time() -> None:
+    """Test `src.utils.hr_time`."""
+    assert hr_time(2) == "%2.5f s" % 2
+    assert hr_time(10e6) == "%2.5f s" % 10e6

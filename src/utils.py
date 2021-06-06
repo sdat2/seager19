@@ -8,7 +8,7 @@ from functools import wraps
 from sys import getsizeof
 
 
-def _hr_time(time_in: float) -> str:
+def hr_time(time_in: float) -> str:
     """
     Print human readable time.
 
@@ -67,9 +67,9 @@ def timeit(method: Callable) -> Callable:
         if "log_time" in kw:
             name = kw.get("log_name", method.__name__.lower())
             kw["log_time"][name] = te - ts
-            print("%r " % method.__name__, _hr_time(te - ts), "\n")
+            print("%r " % method.__name__, hr_time(te - ts), "\n")
         else:
-            print("%r " % method.__name__, _hr_time(te - ts), "\n")
+            print("%r " % method.__name__, hr_time(te - ts), "\n")
         return result
 
     return timed

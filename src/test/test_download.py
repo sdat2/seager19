@@ -12,6 +12,6 @@ def test_download() -> None:
     """
     Test download of data.
     """
-    get_member_data(force_refresh=True)
+    get_member_data()
     get_original_models()
-    get_figure_data()
+    get_figure_data(force_refresh=True)

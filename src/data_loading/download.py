@@ -95,7 +95,7 @@ def get_data() -> None:
     _get_data(lol)
 
 
-def get_figure_data() -> None:
+def get_figure_data(force_refresh: bool = False) -> None:
     """Downloads figure nc."""
 
     code = "r1vp6ny8wovyq2a/"
@@ -113,7 +113,7 @@ def get_figure_data() -> None:
         ],
     ]
 
-    _get_data(lol)
+    _get_data(lol, force_refresh=force_refresh)
 
 
 def get_original_models() -> None:
