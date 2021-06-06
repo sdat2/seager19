@@ -30,10 +30,16 @@ def start_wandb(cfg: DictConfig, unit_test: bool = False) -> None:
     """
     Intialises wandb for run.
 
+    Weights and biases provides the run tracking for the model runs at different
+    parameter settings.
+
+    TODO: Need to improve the ability to initialise wandb from a unit test.
+
     Args:
-        cfg (DictConfig): [description]
+        cfg (DictConfig): The config settings to pass in to the wandb syncing.
         unit_test (bool, optional): Whether or not this is a unit-test.
-            Defaults to False.
+            Defaults to False. If this is a unit test will currently not initialise
+            wandb, but will call related functions.
 
     """
     if not unit_test:
@@ -43,15 +49,19 @@ def start_wandb(cfg: DictConfig, unit_test: bool = False) -> None:
     else:
         run_dir = str(TEST_DIREC)
 
-    wandb.init(
-        project=cfg.project,
-        entity=cfg.user,
-        dir=run_dir,
-        save_code=True,
-        name=cfg.name,
-        notes=cfg.notes,
-        # pylint: disable=protected-access
-        config=cfg._content,
-    )
+    if not unit_test:
 
-    wandb.config.update({"gfortran": get_v("gfortran -v"), "gcc": get_v("gcc -v")})
+        wandb.init(
+            project=cfg.project,
+            entity=cfg.user,
+            dir=run_dir,
+            save_code=True,
+            name=cfg.name,
+            notes=cfg.notes,
+            # pylint: disable=protected-access
+            config=cfg._content,
+        )
+
+        wandb.config.update({"gfortran": get_v("gfortran -v"), "gcc": get_v("gcc -v")})
+    else:
+        print({"gfortran": get_v("gfortran -v"), "gcc": get_v("gcc -v")})
