@@ -272,7 +272,8 @@ def animate_qflx_diff(
                     "aspect": 35,
                     "label": "qflx [dimensionless]",
                     # further options available here:
-                    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html
+                    # https://matplotlib.org/stable/api/_as_gen/
+                    # matplotlib.pyplot.colorbar.html
                     "extend": "neither",  #  "both",
                     "extendfrac": 0.0,
                     "extendrect": True,

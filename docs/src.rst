@@ -48,6 +48,14 @@ src.utils module
    :undoc-members:
    :show-inheritance:
 
+src.xr\_utils module
+--------------------
+
+.. automodule:: src.xr_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
