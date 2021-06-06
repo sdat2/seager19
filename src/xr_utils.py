@@ -173,3 +173,32 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
         xr.DataArray: The formatted datarray.
     """
     return fix_calendar(xr.open_dataarray(str(path), decode_times=False))
+
+
+def cut_and_taper(da: xr.DataArray) -> xr.DataArray:
+    """
+    Cut and taper a field by latitude.
+
+    Since the atmosphere model dynamics are only applicable
+    in the tropics, the computed wind stress anomaly is only
+    applied to the ocean model between 20° S and 20° N, and
+    is linearly tapered to zero at 25° S and 25° N.
+
+    Args:
+        da (xr.DataArray): The datarray.
+
+    Returns:
+        xr.DataArray: The datarray with the function applied.
+
+    Example:
+        Should achieve::
+
+            if da.Y > 25 or da.Y < -25:
+                da = 0.0
+            elif 20 <= da.Y <= 25:
+                da = da - (0.2* (da.Y- 20)))*da
+            else -20 >= da.Y >= -25:
+                da = da - (0.2* (-da.Y - 20))*da
+    """
+
+    return da
