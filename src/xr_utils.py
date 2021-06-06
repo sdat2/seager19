@@ -185,8 +185,13 @@ def cut_and_taper(da: xr.DataArray, y_var="Y") -> xr.DataArray:
     applied to the ocean model between 20° S and 20° N, and
     is linearly tapered to zero at 25° S and 25° N.
 
+    Unsure whether this function will work generally enough;
+    requires that the x dimension is the second index,
+    and that the name of the x coord is "X".
+
     Args:
         da (xr.DataArray): The datarray.
+        y_var (string): The name of the Y coordinate.
 
     Returns:
         xr.DataArray: The datarray with the function applied.

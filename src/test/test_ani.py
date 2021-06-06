@@ -14,7 +14,7 @@ def test_animate_xr_da() -> None:
     da = (
         xr.tutorial.load_dataset("air_temperature")
         .air.isel(time=slice(0, 5))
-        .rename({"time": "time", "lat": "y", "lon": "x"})
+        .rename({"time": "T", "lat": "Y", "lon": "X"})
         - 150
     ) / 150
     animate_xr_da(da, video_path="gifs/test_output.mp4")

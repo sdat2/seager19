@@ -24,11 +24,13 @@ def add_units(xr_da: xr.DataArray) -> xr.DataArray:
     """
     Adding units.
 
+    Currently only for lat, lon axes, but could be improved.
+
     Args:
-        xr_da (xr.DataArray): [description]
+        xr_da (xr.DataArray): Initial datarray (potentially with units for axes).
 
     Returns:
-        xr.DataArray: [description]
+        xr.DataArray: Datarray with correct units/names for plotting.
     """
     xr_da.coords["X"].attrs["units"] = r"$^{\circ}$E"
     xr_da.coords["X"].attrs["long_name"] = "Longitude"
@@ -53,7 +55,7 @@ def animate_ds(
         file_name (str): Name of dataset to be associated with the animations.
         output_dir (str): Full path to output directory to put the animations in.
         dpi (float): the dots per inch for the figure. Defaults to 200.
-        front_trim (int): the number of time indices to remove from the front of the
+        front_trim (int): the number of T indices to remove from the front of the
             xr.DataArray pieces. Defaults to 0.
         plot_list (Optional[list], optional): Subset of variables to plot. Defaults
             to None. Introduced so that I could speed up the test animation,
@@ -75,6 +77,48 @@ def animate_ds(
     if plot_list is None:
         plot_list = [str(y) for y in ds.variables]
 
+    for y in ds.variables:
+        y = str(y)
+        if y in plot_list:
+            if "X_" not in y:
+                if "Y_" not in y:
+                    if "L_" not in y:
+                        if "T_" not in y or "SST" in y:
+                            if "GRID" != y:
+                                print(y)
+                                da = ds[y]
+                                if (
+                                    "T_01" in da.coords
+                                    or "T_02" in da.coords
+                                    or "T_03" in da.coords
+                                    or "T_04" in da.coords
+                                ):
+                                    for key in da.coords:
+                                        num = str(key)[3]
+                                    da = da.rename(om_rdict(num))
+                                if y in unit_d:
+                                    da.attrs["units"] = unit_d[y]
+                                da = add_units(da)
+                                da = da.where(da != 0.0).isel(Z=0)
+                                da = fix_calendar(da, timevar="T")
+                                if "variable" in da.dims:
+                                    da = da.isel(variable=0)
+                                da = da.rename(y)
+                                if y in unit_d:
+                                    da.attrs["units"] = unit_d[y]
+                                da.attrs["long_name"] = y
+                                da.attrs["name"] = y
+                                animate_xr_da(
+                                    da.isel(T=slice(front_trim, len(da.T.values))),
+                                    video_path=os.path.join(
+                                        output_dir, file_name + "_" + y + ".gif"
+                                    ),
+                                    vcmap=cmap_d[y],
+                                    dpi=dpi,
+                                )
+
+    # pylint: disable=pointless-string-statement
+    """
     excl_l = ["X_", "Y_", "L_", "T_", "GRID"]  # SST
 
     t_pos = ["T_01", "T_02", "T_03", "T_04"]
@@ -100,11 +144,12 @@ def animate_ds(
                 da.attrs["long_name"] = y
                 da.attrs["name"] = y
                 animate_xr_da(
-                    da.isel(time=slice(front_trim, len(da.time.values))),
+                    da.isel(T=slice(front_trim, len(da.T.values))),
                     video_path=os.path.join(output_dir, file_name + "_" + y + ".gif"),
                     vcmap=cmap_d[y],
                     dpi=dpi,
                 )
+    """
 
 
 @timeit
@@ -155,7 +200,7 @@ def animate_xr_da(
             """Make an individual frame of the animation.
 
             Args:
-                index (int): The time index.
+                index (int): The T index.
 
             Returns:
                 image (np.array): np.frombuffer output
@@ -164,8 +209,8 @@ def animate_xr_da(
             """
             fig, ax1 = plt.subplots(1, 1)
 
-            xr_da.isel(time=index).plot.imshow(ax=ax1, cmap=vcmap, vmin=vmin, vmax=vmax)
-            time_title(ax1, xr_da.time.values[index])
+            xr_da.isel(T=index).plot.imshow(ax=ax1, cmap=vcmap, vmin=vmin, vmax=vmax)
+            time_title(ax1, xr_da.T.values[index])
             plt.tight_layout()
 
             fig.canvas.draw()
@@ -190,7 +235,7 @@ def animate_xr_da(
             fps (int, optional): frames per second.
 
         """
-        video_indices = list(range(len(xr_da.time.values)))
+        video_indices = list(range(len(xr_da.T.values)))
         make_frame = gen_frame_func(xr_da)
         imageio.mimsave(
             video_path,
@@ -255,7 +300,7 @@ def animate_qflx_diff(
             """Make an individual frame of the animation.
 
             Args:
-                index (int): The time index.
+                index (int): The T index.
 
             Returns:
                 image (np.array): np.frombuffer output that can be fed into imageio
