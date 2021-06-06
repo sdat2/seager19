@@ -24,6 +24,8 @@ from src.constants import (
 def get_and_unzip(direc: str, url: str, name: str) -> None:
     """Get the data and unzip it.
 
+    TODO: This is not currently subject to a unit test.
+
     Args:
         direc (str): directory to put the data in.
         url (str): url of the zip file.
@@ -141,11 +143,11 @@ def get_original_models() -> None:
         _get_data(lol)
 
 
-def get_member_data() -> None:
+def get_member_data(force_refresh: bool = False) -> None:
     """Downloads ensemble members."""
     lol = [
         [
-            str(OCEAN_PATH),
+            str(DATA_PATH),
             [
                 [
                     PREFIX + "udui5x9c3q7y2ca/ts_nc.zip" + SUFFIX,
@@ -155,10 +157,10 @@ def get_member_data() -> None:
         ],
     ]
 
-    _get_data(lol)
+    _get_data(lol, force_refresh=force_refresh)
 
 
-def _get_data(lol: list) -> None:
+def _get_data(lol: list, force_refresh: bool = False) -> None:
     """Gets the data using lol."""
     for item in lol:
         direc = item[0]
@@ -173,7 +175,11 @@ def _get_data(lol: list) -> None:
                 get_and_unzip(direc, url, name)
                 print(full_direc + " created.")
             else:
-                print(full_direc + " already exists, not going to redownload.")
+                if not force_refresh:
+                    print(full_direc + " already exists, not going to redownload.")
+                else:
+                    print(full_direc + " already exists, but about to redownload.")
+                    get_and_unzip(direc, url, name)
 
 
 if __name__ == "__main__":
