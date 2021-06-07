@@ -49,6 +49,9 @@ extensions = [
     "sphinx_c_autodoc.napoleon",
 ]
 
+
+# C and fortran settings:
+
 c_autodoc_roots = ["ocean/SRC/"]
 
 
@@ -60,6 +63,8 @@ fortran_ext = ["F", "f95"]
 
 fortran_indent = 4
 
+## intersphinx
+
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.8", None),
     "sphinx": ("http://www.sphinx-doc.org/en/stable", None),
@@ -67,6 +72,12 @@ intersphinx_mapping = {
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
     "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
+}
+
+# mathjax.
+
+mathjax3_config = {
+    "tex": {"tags": "ams", "useLabelIds": True},
 }
 
 # Add any paths that contain templates here, relative to this directory.

@@ -36,6 +36,7 @@ sphinx-fortran
 sphinx-c-autodoc
 fortran-language-server
 pandoc
+mathjax
 
 # linear algebra and general data analysis
 numpy               # arrays, linear algebra

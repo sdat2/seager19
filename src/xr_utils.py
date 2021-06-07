@@ -152,8 +152,6 @@ def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:
     """
     Open a dataset and formats it.
 
-    Currently does not format the calendars if the time variable isn't "T".
-
     Args:
         path (Union[str, pathlib.Path]): the path to the netcdf dataset file.
 
@@ -176,7 +174,11 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
     return fix_calendar(xr.open_dataarray(str(path), decode_times=False))
 
 
-def cut_and_taper(da: xr.DataArray, y_var="Y") -> xr.DataArray:
+def cut_and_taper(
+    da: xr.DataArray,
+    y_var: str = "Y",
+    x_var: str = "X",
+) -> xr.DataArray:
     """
     Cut and taper a field by latitude.
 
@@ -185,13 +187,12 @@ def cut_and_taper(da: xr.DataArray, y_var="Y") -> xr.DataArray:
     applied to the ocean model between 20° S and 20° N, and
     is linearly tapered to zero at 25° S and 25° N.
 
-    Unsure whether this function will work generally enough;
-    requires that the x dimension is the second index,
-    and that the name of the x coord is "X".
+    Currently only copes if the array is two dimensional.
 
     Args:
         da (xr.DataArray): The datarray.
-        y_var (string): The name of the Y coordinate.
+        y_var (str, optional): The name of the Y coordinate. Defaults to "Y".
+        x_var (str, optional): The name of the X coordinate. Defaults to "X".
 
     Returns:
         xr.DataArray: The datarray with the function applied.
@@ -214,7 +215,8 @@ def cut_and_taper(da: xr.DataArray, y_var="Y") -> xr.DataArray:
             cut_and_taper(da_new.isel(Z=0, T=0, variable=0))
 
     """
-    da = da.transpose(y_var, "X")
+    # make sure that they are in the correct order.
+    da = da.transpose(y_var, x_var)
 
     @np.vectorize
     def test_vec(x: float, y: float):
@@ -226,7 +228,7 @@ def cut_and_taper(da: xr.DataArray, y_var="Y") -> xr.DataArray:
             x = x - (0.2 * (-y - 20)) * x
         return x
 
-    for x in range(len(da.X.values)):
+    for x in range(len(da.coords[x_var].values)):
         da[:, x] = test_vec(da[:, x], da.coords[y_var])
 
     return da

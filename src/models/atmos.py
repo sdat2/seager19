@@ -530,7 +530,6 @@ class Atmos:
 
     # ---------------- equation solvers ---------------------
 
-    @timeit
     @typechecked
     def tdma_solver(
         self,
@@ -577,7 +576,6 @@ class Atmos:
 
         return xc
 
-    @timeit
     @typechecked
     def s91_solver(self, q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """S91 folder from TCAM.py.
