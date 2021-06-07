@@ -17,13 +17,14 @@ ocean:
   run_through: true
   animate_qflx: true
 oc:
-  nummode: 2
-  boundaries: Periodic
+  nummode: 2 # each aditional mode adds about 7 minutes to the run time of run2f.
+  boundaries: Periodic # realistically this can't be changed.
   wind_file: tau-ECMWF-clim
   dq_dtemp_file: dQdT-sample.nc
   dq_df_file: dQdf-sample.nc
   sst_file: sst-ECMWF-clim.nc
   mask_file: om_mask.nc
+  # How long to run each part of the ocean model.
   time_test: 2 months
   time_spin: 2 months
   time_diag: 2 years
@@ -31,6 +32,9 @@ oc:
 coup:
   c_d: 2.25e-3    # Pa m-1 s,  wind stress.
   rho_air: 1.225   # kg m-3, density of sea surface air
+  iterations: 5  # how many times to repeat the coupling.
+  # The stopping condition is currently quite qualitative, and so 
+  # iterations will be quite hard to tune.
 atm:
   # begining TCAM
   k_days: 10     # K: 1/10

@@ -77,6 +77,7 @@ MRes Citations
 
    self
    MAIN_README.md
+   paper-fig.ipynb
    ocean-mod.ipynb
    atmos-mod.ipynb
    coup-mod.ipynb
