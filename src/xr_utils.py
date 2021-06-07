@@ -130,16 +130,24 @@ def can_coords(
             assert only1([dimstr2 in d_l for dimstr2 in dimtup])
             # (otherwise things might get messed up)
             # rename that dimension to the default.
-            return xr_ob1.rename({dstr1: var})
+            if var != "L":
+                return xr_ob1.rename({dstr1: var})
+            else:
+                return xr_ob1.rename({dstr1: "Z"})
 
-        if "X" in dstr or "lon" in dstr:
+
+        if "X" in dstr or "x" in dstr or "lon" in dstr:
             xr_ob = check_and_rep(xr_ob, "X", dstr)
-        if "Y" in dstr or "lat" in dstr:
+        elif "Y" in dstr or "y" in dstr or "lat" in dstr:
             xr_ob = check_and_rep(xr_ob, "Y", dstr)
-        if "L" in dstr or "Z" in dstr:
+        elif "L" in dstr or "z" in dstr or "Z" in dstr:
             xr_ob = check_and_rep(xr_ob, "L", dstr)
-        if "T" in dstr or "time" in dstr:
+        elif "T" in dstr or "t" in dstr or "time" in dstr:
             xr_ob = check_and_rep(xr_ob, "T", dstr)
+        else:
+            # what is this dimension, break this.
+            print("warning, not changing: ", dstr)
+            # assert False
 
         return xr_ob
 

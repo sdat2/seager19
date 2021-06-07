@@ -11,14 +11,13 @@ import xarray as xr
 from src.visualisation.ani import animate_xr_da, animate_ds, animate_qflx_diff
 from src.constants import OCEAN_OUTPUT_PATH, GIF_PATH
 from src.data_loading.download import get_data
+from src.xr_utils import can_coords
 
 
 def test_animate_xr_da() -> None:
     """Test `src.visualisation.ani.animate_xr_da`."""
     da = (
-        xr.tutorial.load_dataset("air_temperature")
-        .air.isel(time=slice(0, 5))
-        .rename({"time": "T", "lat": "Y", "lon": "X"})
+        can_coords(xr.tutorial.load_dataset("air_temperature").air).isel(T=slice(0, 5))
         - 150
     ) / 150
     animate_xr_da(da, video_path="gifs/test_output.mp4")

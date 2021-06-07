@@ -15,6 +15,7 @@ from src.plot_utils import (
     default_projection,
 )
 from src.constants import PROJECT_PATH
+from src.xr_utils import can_coords
 
 
 def test_plot() -> None:
@@ -100,6 +101,7 @@ def test_map_plot() -> None:
     ax = map_setup()
 
     da = xr.tutorial.open_dataset("rasm").load().Tair.isel(time=0)
+    da = can_coords(da)
     da.plot.imshow(
         ax=ax,
         transform=default_projection(),
