@@ -24,8 +24,6 @@ from src.constants import (
 def get_and_unzip(direc: str, url: str, name: str) -> None:
     """Get the data and unzip it.
 
-    TODO: This is not currently subject to a unit test.
-
     Args:
         direc (str): directory to put the data in.
         url (str): url of the zip file.

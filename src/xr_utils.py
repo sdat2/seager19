@@ -202,11 +202,19 @@ def cut_and_taper(da: xr.DataArray, y_var="Y") -> xr.DataArray:
             if da.Y > 25 or da.Y < -25:
                 da = 0.0
             elif 20 <= da.Y <= 25:
-                da = da - (0.2* (da.Y- 20)))*da
+                da = da - (0.2* (da.Y- 20))) * da
             else -20 >= da.Y >= -25:
-                da = da - (0.2* (-da.Y - 20))*da
+                da = da - (0.2* (-da.Y - 20)) * da
+
+        Usage::
+
+            from src.xr_utils import open_dataset, cut_and_taper
+            from src.constants import OCEAN_DATA_PATH
+            da_new: xr.DataArray = open_dataset(OCEAN_DATA_PATH / "qflx.nc").qflx
+            cut_and_taper(da_new.isel(Z=0, T=0, variable=0))
 
     """
+    da = da.transpose(y_var, "X")
 
     @np.vectorize
     def test_vec(x: float, y: float):
