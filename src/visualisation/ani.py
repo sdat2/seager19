@@ -13,6 +13,7 @@ import xarray as xr
 from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
+from typeguard import typechecked
 import imageio
 from src.plot_utils import ps_defaults, time_title, cmap  # ,label_subplots
 from src.utils import timeit
@@ -196,7 +197,8 @@ def animate_xr_da(
         if balanced_colormap:
             vmin, vmax = [np.min([vmin, -vmax]), np.max([vmax, -vmin])]
 
-        def make_frame(index: int) -> np.array:
+        @typechecked
+        def make_frame(index: int) -> np.ndarray:
             """Make an individual frame of the animation.
 
             Args:
@@ -210,7 +212,8 @@ def animate_xr_da(
             fig, ax1 = plt.subplots(1, 1)
 
             xr_da.isel(T=index).plot.imshow(ax=ax1, cmap=vcmap, vmin=vmin, vmax=vmax)
-            time_title(ax1, xr_da.T.values[index])
+            print("index", index)
+            time_title(ax1, xr_da.coords["T"].values[index])
             plt.tight_layout()
 
             fig.canvas.draw()
@@ -235,7 +238,7 @@ def animate_xr_da(
             fps (int, optional): frames per second.
 
         """
-        video_indices = list(range(len(xr_da.T.values)))
+        video_indices = list(range(len(xr_da.coords["T"].values)))
         make_frame = gen_frame_func(xr_da)
         imageio.mimsave(
             video_path,

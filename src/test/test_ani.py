@@ -1,6 +1,10 @@
 """Test `src.visualisation.ani.py`.
 
-pytest src/test/test_ani.py
+Example:
+    Call from command line::
+
+        pytest src/test/test_ani.py
+
 """
 import os
 import xarray as xr
@@ -43,3 +47,8 @@ def test_animate_ds() -> None:
 def test_animate_qflx() -> None:
     """Animate qflx."""
     animate_qflx_diff()
+
+
+if __name__ == "__main__":
+    test_animate_ds()
+    test_animate_xr_da()
