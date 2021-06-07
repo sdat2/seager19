@@ -87,4 +87,4 @@ class Coupling:
     def get_wind_speed_mean(self, file_name: str = "") -> float:
         """Get wind speed mean."""
         print("get wind speed mean")
-        xr.open_dataset(file_name).mean("time")
+        xr.open_dataset(file_name).mean("T")

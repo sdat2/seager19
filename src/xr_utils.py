@@ -51,27 +51,6 @@ def fix_calendar(
     return xr_out
 
 
-def om_rdict(index: int) -> dict:
-    """Returns renaming dict for xarray.DataArray output of ocean model.
-
-    Made to reformat the output datarrays of the Fortran
-    ocean model used.
-
-    Args:
-        index (int): index on coords.
-
-    Returns:
-        dict: renaming dict.
-
-    """
-    return {
-        "T_0" + str(index): "T",  # "time",
-        "Y_0" + str(index): "Y",  # "y",
-        "X_0" + str(index): "X",  # "x",
-        "L_0" + str(index): "Z",  # "Z",
-    }
-
-
 def can_coords(
     xr_obj: Union[xr.Dataset, xr.DataArray]
 ) -> Union[xr.Dataset, xr.DataArray]:
@@ -88,7 +67,7 @@ def can_coords(
         Union[xr.Dataset, xr.DataArray]: The dataset that has been canoncilised.
             Function will raise an assertion error otherwise.
     """
-    # assert isinstance(xr_obj, Union[xr.DataArray, xr.Dataset])
+    assert isinstance(xr_obj, (xr.DataArray, xr.Dataset))
 
     def only1(l):
         # check that there is only one true value in a list.
@@ -112,7 +91,7 @@ def can_coords(
         xr_ob: Union[xr.DataArray, xr.Dataset], dstr: str, dimtup: Tuple[str]
     ) -> Union[xr.DataArray, xr.Dataset]:
 
-        ext_pos = {"X": "lon", "Y": "lat", "Z": "height", "T": "time"}
+        ext_pos = {"X": "lon", "Y": "lat", "L": "Z", "T": "time"}
 
         def check_and_rep(
             xr_ob1: Union[xr.DataArray, xr.Dataset], var: str, dstr1: str
@@ -152,7 +131,7 @@ def can_coords(
 
     dims = xr_obj.dims
 
-    assert isinstance(dims, tuple)
+    assert isinstance(dims, (tuple, xr.core.utils.Frozen))
 
     for dim in dims:
         assert isinstance(dim, str)
@@ -218,7 +197,8 @@ def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:
 
     Will only work if there is only one set of each coordinate at the moment.
 
-    TODO: make it able to open and decode each sort of object.
+    TODO: make it able to open and decode each sort of object
+        if there are multiple time axes.
 
     Args:
         path (Union[str, pathlib.Path]): the path to the netcdf dataset file.

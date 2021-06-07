@@ -25,7 +25,7 @@ import os
 import numpy as np
 import xarray as xr
 from src.utils import timeit
-from src.xr_utils import om_rdict
+from src.xr_utils import can_coords
 from src.models.model_setup import ModelSetup
 
 
@@ -40,9 +40,11 @@ def linear_qflx_replacement(
 
     """
 
-    sst_qflx = xr.open_dataset(
-        os.path.join(setup.ocean_output_path, "om_diag.nc"), decode_times=False
-    ).SST_QFLX.rename(om_rdict(1))
+    sst_qflx = can_coords(
+        xr.open_dataset(
+            os.path.join(setup.ocean_output_path, "om_diag.nc"), decode_times=False
+        ).SST_QFLX
+    )
 
     # {"L_01": "Z", "T_01": "T", "X_01": "X", "Y_01": "Y"}
 
