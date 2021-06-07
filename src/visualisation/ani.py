@@ -17,7 +17,7 @@ from typeguard import typechecked
 import imageio
 from src.plot_utils import ps_defaults, time_title, cmap, add_units
 from src.utils import timeit
-from src.xr_utils import fix_calendar, open_dataarray, om_rdict
+from src.xr_utils import fix_calendar, open_dataarray, can_coords
 from src.constants import OCEAN_DATA_PATH, GIF_PATH
 
 
@@ -69,15 +69,7 @@ def animate_ds(
                             if "GRID" != y:
                                 print(y)
                                 da = ds[y]
-                                if (
-                                    "T_01" in da.coords
-                                    or "T_02" in da.coords
-                                    or "T_03" in da.coords
-                                    or "T_04" in da.coords
-                                ):
-                                    for key in da.coords:
-                                        num = str(key)[3]
-                                    da = da.rename(om_rdict(num))
+                                da = can_coords(da)
                                 if y in unit_d:
                                     da.attrs["units"] = unit_d[y]
                                 da = add_units(da)

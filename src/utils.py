@@ -1,6 +1,4 @@
 """General project utility functions."""
-import os
-import shutil
 from typing import Callable
 import inspect
 import time
@@ -167,51 +165,3 @@ def get_byte_size(obj: object) -> str:
     """
 
     return human_readable_size(calculate_byte_size_recursively(obj))
-
-
-def delete_folder_contents(folder: str = "/path/to/folder") -> None:
-    """
-    Delete the contents of a folder.
-
-    Taken from:
-    https://stackoverflow.com/questions/185936/how-to-delete-the-contents-of-a-folder
-
-    Args:
-        folder (str, optional): Path to a folder. Defaults to "/path/to/folder".
-
-    Example:
-        Previous implementation::
-
-            >>> for filename in os.listdir(folder):
-            >>>     file_path = os.path.join(folder, filename)
-            >>>     try:
-            >>>         if os.path.isfile(file_path) or os.path.islink(file_path):
-            >>>             os.unlink(file_path)
-            >>>         elif os.path.isdir(file_path):
-            >>>             shutil.rmtree(file_path)
-            >>>     # pylint: disable=broad-except
-            >>>     except Exception as e:
-            >>>         print("Failed to delete %s. Reason: %s" % (file_path, e))
-            >>>         assert False
-
-        Alternative implementation::
-
-            >>> try:
-            >>>     shutil.rmtree(folder)
-            >>>     os.mkdir(folder)
-            >>> except OSError as e:
-            >>>     print("Error: %s - %s." % (e.filename, e.strerror))
-
-    """
-    try:
-        shutil.rmtree(folder)
-        os.mkdir(folder)
-    except OSError as e:
-        print("Error: %s - %s." % (e.filename, e.strerror))
-
-
-if __name__ == "__main__":
-    from src.constants import TEST_DIREC
-
-    delete_folder_contents(str(TEST_DIREC))
-    # python3 src/utils.py

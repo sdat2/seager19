@@ -135,7 +135,6 @@ def can_coords(
             else:
                 return xr_ob1.rename({dstr1: "Z"})
 
-
         if "X" in dstr or "x" in dstr or "lon" in dstr:
             xr_ob = check_and_rep(xr_ob, "X", dstr)
         elif "Y" in dstr or "y" in dstr or "lat" in dstr:
@@ -217,13 +216,17 @@ def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:
     """
     Open a dataset and formats it.
 
+    Will only work if there is only one set of each coordinate at the moment.
+
+    TODO: make it able to open and decode each sort of object.
+
     Args:
         path (Union[str, pathlib.Path]): the path to the netcdf dataset file.
 
     Returns:
         xr.Dataset: The formatted dataset.
     """
-    return fix_calendar(xr.open_dataset(str(path), decode_times=False))
+    return fix_calendar(can_coords(xr.open_dataset(str(path), decode_times=False)))
 
 
 def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
@@ -236,7 +239,7 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
     Returns:
         xr.DataArray: The formatted datarray.
     """
-    return fix_calendar(xr.open_dataarray(str(path), decode_times=False))
+    return fix_calendar(can_coords(xr.open_dataarray(str(path), decode_times=False)))
 
 
 def cut_and_taper(
