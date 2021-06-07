@@ -15,29 +15,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 from typeguard import typechecked
 import imageio
-from src.plot_utils import ps_defaults, time_title, cmap  # ,label_subplots
+from src.plot_utils import ps_defaults, time_title, cmap, add_units
 from src.utils import timeit
 from src.xr_utils import fix_calendar, open_dataarray, om_rdict
 from src.constants import OCEAN_DATA_PATH, GIF_PATH
-
-
-def add_units(xr_da: xr.DataArray) -> xr.DataArray:
-    """
-    Adding units.
-
-    Currently only for lat, lon axes, but could be improved.
-
-    Args:
-        xr_da (xr.DataArray): Initial datarray (potentially with units for axes).
-
-    Returns:
-        xr.DataArray: Datarray with correct units/names for plotting.
-    """
-    xr_da.coords["X"].attrs["units"] = r"$^{\circ}$E"
-    xr_da.coords["X"].attrs["long_name"] = "Longitude"
-    xr_da.coords["Y"].attrs["units"] = r"$^{\circ}$N"
-    xr_da.coords["Y"].attrs["long_name"] = "Latitude"
-    return xr_da
 
 
 @timeit
@@ -173,6 +154,8 @@ def animate_xr_da(
     ps_defaults(use_tex=False, dpi=dpi)
     balanced_colormap = False
 
+    xr_da = add_units(xr_da)
+
     if isinstance(vcmap, str):
         if vcmap == "delta":
             balanced_colormap = True
@@ -212,7 +195,6 @@ def animate_xr_da(
             fig, ax1 = plt.subplots(1, 1)
 
             xr_da.isel(T=index).plot.imshow(ax=ax1, cmap=vcmap, vmin=vmin, vmax=vmax)
-            print("index", index)
             time_title(ax1, xr_da.coords["T"].values[index])
             plt.tight_layout()
 

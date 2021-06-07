@@ -44,6 +44,7 @@ import itertools
 from distutils.spawn import find_executable
 import matplotlib
 import matplotlib.pyplot as plt
+import xarray as xr
 import pandas as pd
 import seaborn as sns
 import cartopy.crs as ccrs
@@ -401,3 +402,27 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     cmap_t.set_bad(color="#15b01a")
 
     return cmap_t
+
+
+def add_units(
+    xr_obj: Union[xr.DataArray, xr.Dataset], x_val="X", y_val="Y"
+) -> Union[xr.DataArray, xr.Dataset]:
+    """
+    Adding good units to make axes plottable.
+
+    Currently only for lat, lon axes, but could be improved to
+    add degrees celsius and so on.
+
+    Args:
+        xr_da (Union[xr.DataArray, xr.Dataset]: Initial datarray/datset
+            (potentially with units for axes).
+
+    Returns:
+        Union[xr.DataArray, xr.Dataset]: Datarray/Dataset with correct
+            units/names for plotting.
+    """
+    xr_obj.coords[x_val].attrs["units"] = r"$^{\circ}$E"
+    xr_obj.coords[x_val].attrs["long_name"] = "Longitude"
+    xr_obj.coords[y_val].attrs["units"] = r"$^{\circ}$N"
+    xr_obj.coords[y_val].attrs["long_name"] = "Latitude"
+    return xr_obj
