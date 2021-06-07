@@ -1,7 +1,7 @@
 """Utilities around opening and processing netcdfs from this project."""
 import numpy as np
 import pathlib
-from typing import Union
+from typing import Union, Tuple
 import xarray as xr
 
 
@@ -80,8 +80,6 @@ def can_coords(
 
     Fail hard if impossible.
 
-    TODO: Should fail hard at the moment, need to setup.
-
     Args:
         xr_obj (Union[xr.Dataset, xr.DataArray]): The dataset or datarray to
             canonicalise.
@@ -90,9 +88,68 @@ def can_coords(
         Union[xr.Dataset, xr.DataArray]: The dataset that has been canoncilised.
             Function will raise an assertion error otherwise.
     """
-    assert isinstance(xr_obj, Union[xr.DataArray, xr.Dataset])
+    # assert isinstance(xr_obj, Union[xr.DataArray, xr.Dataset])
 
-    assert 1 < 2
+    def only1(l):
+        # check that there is only one true value in a list.
+        # answer taken from:
+        # https://stackoverflow.com/questions/16801322/
+        # how-can-i-check-that-a-list-has-one-and-only-one-truthy-value
+        true_found = False
+        for v in l:
+            if v:
+                # a True was found!
+                if true_found:
+                    # found too many True's
+                    return False
+                else:
+                    # found the first True
+                    true_found = True
+        # found zero or one True value
+        return true_found
+
+    def upgr(
+        xr_ob: Union[xr.DataArray, xr.Dataset], dstr: str, dimtup: Tuple[str]
+    ) -> Union[xr.DataArray, xr.Dataset]:
+
+        ext_pos = {"X": "lon", "Y": "lat", "Z": "height", "T": "time"}
+
+        def check_and_rep(
+            xr_ob1: Union[xr.DataArray, xr.Dataset], var: str, dstr1: str
+        ) -> Union[xr.DataArray, xr.Dataset]:
+            d_l = [var]
+            for i in range(0, 5):
+                d_l.append(var + "_0" + str(i))
+            d_l.append(var + "u")
+            d_l.append(var + "v")
+            d_l.append(ext_pos[var])
+            d_l.append(var.lower())
+            # check that the dimension is within the possiblities.
+            assert dstr1 in d_l
+            # check that there is only one dimension down that axis.
+            assert only1([dimstr2 in d_l for dimstr2 in dimtup])
+            # (otherwise things might get messed up)
+            # rename that dimension to the default.
+            return xr_ob1.rename({dstr1: var})
+
+        if "X" in dstr or "lon" in dstr:
+            xr_ob = check_and_rep(xr_ob, "X", dstr)
+        if "Y" in dstr or "lat" in dstr:
+            xr_ob = check_and_rep(xr_ob, "Y", dstr)
+        if "L" in dstr or "Z" in dstr:
+            xr_ob = check_and_rep(xr_ob, "L", dstr)
+        if "T" in dstr or "time" in dstr:
+            xr_ob = check_and_rep(xr_ob, "T", dstr)
+
+        return xr_ob
+
+    dims = xr_obj.dims
+
+    assert isinstance(dims, tuple)
+
+    for dim in dims:
+        assert isinstance(dim, str)
+        xr_obj = upgr(xr_obj, dim, dims)
 
     return xr_obj
 
