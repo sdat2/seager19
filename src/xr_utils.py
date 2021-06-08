@@ -105,6 +105,8 @@ def can_coords(
             d_l.append(var + "v")
             d_l.append(ext_pos[var])
             d_l.append(var.lower())
+            d_l.append(ext_pos[var].lower())
+
             # check that the dimension is within the possiblities.
             assert dstr1 in d_l
             # check that there is only one dimension down that axis.

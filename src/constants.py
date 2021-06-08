@@ -42,7 +42,11 @@ TEST_DIREC = SRC_PATH / "test" / "test_direc"
 
 # Figure data.
 FIGURE_DATA_NAME: str = "Seager_etal_NCC-2019_datasetdatafiles.nc"
-FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / "Seager_etal_NCC-2019_datasetdatafiles.nc"
+FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / FIGURE_DATA_NAME
+
+
+NOAA_DATA_NAME: str = "NOAA_NCDC_ERSST_v3b_SST.nc"
+NOAA_DATA_PATH: pathlib.Path = DATA_PATH / NOAA_DATA_NAME
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")

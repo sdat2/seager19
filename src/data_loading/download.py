@@ -17,6 +17,7 @@ from src.constants import (
     ATMOS_PATH,
     DATA_PATH,
     FIGURE_DATA_NAME,
+    NOAA_DATA_NAME,
 )
 
 
@@ -112,6 +113,27 @@ def get_figure_data(force_refresh: bool = False) -> None:
     ]
 
     _get_data(lol, force_refresh=force_refresh)
+
+
+def get_noaa_data() -> None:
+    """Downloads noaa sst nc."""
+
+    code = "f7sdvmvsziaxxj9/"
+    name = NOAA_DATA_NAME + ".zip"
+
+    lol = [
+        [
+            str(DATA_PATH),
+            [
+                [
+                    PREFIX + code + name + SUFFIX,
+                    name,
+                ],
+            ],
+        ],
+    ]
+
+    _get_data(lol)
 
 
 def get_original_models() -> None:
