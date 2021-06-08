@@ -24,6 +24,8 @@ def fix_calendar(
     else:
         ds = xr_in
 
+    # likely will not fail.
+
     t_list = ["T_0" + str(x) for x in range(5)]
     t_list.append("T")
     t_list.append("time")
@@ -147,8 +149,13 @@ def sel(
     Select a region of the dataset or datarray.
 
     Assumes
-    reg options: "pac', 'nino3.4', "glob"
+
+    reg options: "pac", "nino1+2", "nino3", "nino3.4", "nino3", "glob"
     https://www.ncdc.noaa.gov/teleconnections/enso/indicators/sst/
+
+    From Figure 1:
+    Distribution of 60-year trends in the NINO3.4 SST index
+    (SST averaged over 5° S−5° N and 170° W−120° W) for end dates from 2008–2017.
 
     Args:
         xr_obj (Union[xr.Dataset, xr.DataArray]): The xarray object.
@@ -174,7 +181,10 @@ def sel(
 
     """
 
+    # X in degrees east, Y in degrees north.
+
     sel_d = {
+        # [west, east] [south, north] boundaries
         "pac": {"X": (100, 290), "Y": (-30, 30)},
         "nino1+2": {"X": (270, 280), "Y": (-10, 0)},
         "nino3": {"X": (210, 270), "Y": (-5, 5)},
@@ -191,7 +201,9 @@ def sel(
     )
 
 
-def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:
+def open_dataset(
+    path: Union[str, pathlib.Path], use_can_coords: bool = False
+) -> xr.Dataset:
     """
     Open a dataset and formats it.
 
@@ -201,17 +213,27 @@ def open_dataset(path: Union[str, pathlib.Path]) -> xr.Dataset:
         if there are multiple time axes.
 
     Args:
-        path (Union[str, pathlib.Path]): the path to the netcdf dataset file.
+        path (Union[str, pathlib.Path]): the path to the
+            netcdf dataset file.
+        can_coords (bool): whether or not to try and make
+            the coordinate into the canonical names.
 
     Returns:
-        xr.Dataset: The formatted dataset.
+        xr.Dataset: The formatted dataset. Will have time variables decoded.
     """
-    return fix_calendar(can_coords(xr.open_dataset(str(path), decode_times=False)))
+    if not use_can_coords:
+        return fix_calendar(xr.open_dataset(str(path), decode_times=False))
+    else:
+        can_coords(fix_calendar(xr.open_dataset(str(path), decode_times=False)))
 
 
 def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
     """
-    Open a dataarray and format it.
+    Open an xarray dataarray and format it.
+
+    Will automatically try to make the dataset Coordinates
+     into the canonical coordinate names (using can_coords).
+    Will also decode the time axis.
 
     Args:
         path (Union[str, pathlib.Path]): the path to the netcdf datarray file.
