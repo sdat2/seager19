@@ -18,6 +18,8 @@ from src.constants import (
     DATA_PATH,
     FIGURE_DATA_NAME,
     NOAA_DATA_NAME,
+    NINO3_4_TEST_NAME,
+    NINO3_4_TEST_CODE
 )
 
 
@@ -120,6 +122,27 @@ def get_noaa_data() -> None:
 
     code = "f7sdvmvsziaxxj9/"
     name = NOAA_DATA_NAME + ".zip"
+
+    lol = [
+        [
+            str(DATA_PATH),
+            [
+                [
+                    PREFIX + code + name + SUFFIX,
+                    name,
+                ],
+            ],
+        ],
+    ]
+
+    _get_data(lol)
+
+
+def get_test_nino_data() -> None:
+    """Downloads noaa sst nc."""
+
+    code = NINO3_4_TEST_CODE
+    name = NINO3_4_TEST_NAME + ".zip"
 
     lol = [
         [

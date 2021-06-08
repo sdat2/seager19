@@ -44,9 +44,15 @@ TEST_DIREC = SRC_PATH / "test" / "test_direc"
 FIGURE_DATA_NAME: str = "Seager_etal_NCC-2019_datasetdatafiles.nc"
 FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / FIGURE_DATA_NAME
 
-
+# NOAA DATA
 NOAA_DATA_NAME: str = "NOAA_NCDC_ERSST_v3b_SST.nc"
 NOAA_DATA_PATH: pathlib.Path = DATA_PATH / NOAA_DATA_NAME
+
+# Nino3.4 test results from the noaa data.
+# get_test_nino_data
+NINO3_4_TEST_CODE: str = "8j698fap5iq2v9y/"
+NINO3_4_TEST_NAME: str = "noaa_nino3_4.nc"
+NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
