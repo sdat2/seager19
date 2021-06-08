@@ -376,6 +376,9 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
 
     """
 
+    # make the function case insensitive
+    variable_name = variable_name.lower()
+
     # collate the variables into a smaller number
     map_d = {
         "u": "v",
