@@ -55,13 +55,15 @@ def nino_calculate(
         + " region"
     )
     metric.attrs["units"] = r"$^{\circ}$C"
+    metric.attrs["reg"] = reg
     metric.attrs["rolling_average"] = str(roll_period) + " months"
+    metric.attrs["mean_state"] = mean_state.values
     return metric, mean_state
 
 
 def calculate_nino3_4_from_noaa() -> xr.DataArray:
     """
-    Calculate the default nino3_4.
+    Calculate the default nino3.4 region from noaa data.
 
     Returns:
         xr.DataArray: [description]
