@@ -325,12 +325,12 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
     .. math::
         :nowrap:
 
-        \begin{equoation}
-            \bar{T}_{\text {month }}=\frac{\sum_{j=1}^{n L a t}
-            \cos \left(\text { lat }_{j}\right)
-            \bar{T}_{\text {lat }, j}}{\sum_{j=1}^{\text {nLat }}
-            \cos \left(\text { lat }_{j}\right)}
-        \end{equation}
+        \\begin{equoation}
+            \\bar{T}_{\\text {month }}=\\frac{\\sum_{j=1}^{n L a t}
+            \\cos \\left(\\text { lat }_{j}\\right)
+            \\bar{T}_{\\text {lat }, j}}{\\sum_{j=1}^{\\text {nLat }}
+            \\cos \\left(\\text { lat }_{j}\\right)}
+        \\end{equation}
 
     (Should be latexed.
     If this is not the case, look at the documentation here to fix it:
@@ -361,7 +361,7 @@ def get_trend(da: xr.DataArray) -> float:
     """
     Get the linear trend increase of a datarray over the full time period.
 
-    Uses polyfig order 1.
+    Uses `xr.polyfit` order 1.
 
     Args:
         da (xr.DataArray): the timeseries.
@@ -369,7 +369,9 @@ def get_trend(da: xr.DataArray) -> float:
     Returns:
         float: The rise over the time period.
     """
-    slope = da.polyfit("T", 1).polyfit_coefficients.values[0][0]
+    slope = da.polyfit("T", 1).polyfit_coefficients.values[0]
+    if isinstance(slope, np.ndarray):
+        slope = slope[0]
     run = int((da.coords["T"][-1] - da.coords["T"][0]).values)
     rise = slope * run
     print("run", run, "slope", slope, "rise=slope*run", rise)
