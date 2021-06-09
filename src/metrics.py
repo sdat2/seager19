@@ -12,7 +12,10 @@ def nino_calculate(
     """
     Calculate the nino metric for a given region.
 
-    Can work on nino.
+    https://rabernat.github.io/research_computing_2018/assignment-8-xarray-for-enso.html
+    https://ncar.github.io/PySpark4Climate/tutorials/Oceanic-Ni%C3%B1o-Index/
+
+    Can work on nino1+2, nino3, nino3.4, nino4.
 
     Args:
         sst (xr.DataArray): [description]
@@ -21,7 +24,7 @@ def nino_calculate(
             the time axes. Defaults to 3.
 
     Returns:
-        Tuple[xr.DataArray, xr.DataArray]: [description]
+        Tuple[xr.DataArray, xr.DataArray]: metric, climateology
     """
     can_coords(sst)
 
@@ -34,12 +37,13 @@ def nino_calculate(
     mean_timeseries.attrs["units"] = r"$^{\circ}$C"
     mean_timeseries.coords["T"].attrs["long_name"] = "Month"
 
+    climatology = mean_timeseries.groupby("T.month").mean("T")
     mean_state = mean_timeseries.mean(dim=["T"])
     mean_state.attrs["long_name"] = (
         "Average sea surface temperature over " + reg + " region"
     )
     mean_state.attrs["units"] = r"$^{\circ}$C"
-    anomaly_timeseries = mean_timeseries - mean_state
+    anomaly_timeseries = mean_timeseries.groupby("T.month") - climatology
     anomaly_timeseries.attrs["long_name"] = (
         "Sea surface temperature averaged over " + reg + " region"
     )
@@ -58,10 +62,12 @@ def nino_calculate(
     metric.attrs["reg"] = reg
     metric.attrs["rolling_average"] = str(roll_period) + " months"
     metric.attrs["mean_state"] = mean_state.values
-    return metric, mean_state
+    metric.attrs["climatology"] = climatology.values
+    metric.attrs["clim_months"] = climatology.month.values
+    return metric, climatology
 
 
-def calculate_nino3_4_from_noaa() -> xr.DataArray:
+def calculate_nino3_4_from_noaa() -> Tuple[xr.DataArray, xr.DataArray]:
     """
     Calculate the default nino3.4 region from noaa data.
 
