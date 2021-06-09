@@ -1,7 +1,7 @@
 """Different metrics to calculate."""
 from typing import Tuple
 import xarray as xr
-from src.constants import NOAA_DATA_PATH
+from src.constants import NOAA_DATA_PATH, NINO3_4_TEST_PATH, DATA_PATH
 from src.xr_utils import sel, can_coords, spatial_mean
 from src.plot_utils import add_units
 
@@ -25,7 +25,7 @@ def nino_calculate(
             the time axes. Defaults to 3.
 
     Returns:
-        Tuple[xr.DataArray, xr.DataArray]: metric, climateology
+        Tuple[xr.DataArray, xr.DataArray]: metric timeseries, climateology
     """
     can_coords(sst)
 
@@ -65,9 +65,9 @@ def nino_calculate(
     metric.attrs["units"] = r"$^{\circ}$C"
     metric.attrs["reg"] = reg
     metric.attrs["rolling_average"] = str(roll_period) + " months"
-    metric.attrs["mean_state"] = mean_state.values
-    metric.attrs["climatology"] = climatology.values
-    metric.attrs["clim_months"] = climatology.month.values
+    metric.attrs["mean_state"] = float(mean_state.values)
+    metric.attrs["clim"] = climatology.values  # .tolist()
+    metric.attrs["clim_months"] = climatology.month.values  # .tolist()
     metric.attrs["clim_time_range"] = time_str
     return metric, climatology
 
@@ -77,7 +77,7 @@ def calculate_nino3_4_from_noaa() -> Tuple[xr.DataArray, xr.DataArray]:
     Calculate the default nino3.4 region from noaa data.
 
     Returns:
-        xr.DataArray: [description]
+        Tuple[xr.DataArray, xr.DataArray]: metric timeseries, climateology
     """
 
     def load_noaa_data() -> xr.DataArray:
@@ -86,3 +86,13 @@ def calculate_nino3_4_from_noaa() -> Tuple[xr.DataArray, xr.DataArray]:
         return noaa_da
 
     return nino_calculate(load_noaa_data())
+
+
+def replace_nino3_4_from_noaa() -> None:
+    """
+    Calculate the default nino3.4 region from noaa data.
+    """
+    metric, clim = calculate_nino3_4_from_noaa()
+    metric.to_netcdf(str(NINO3_4_TEST_PATH))
+    print(NINO3_4_TEST_PATH)
+    clim.to_netcdf(str(DATA_PATH / "nino3_4_noaa_clim.nc"))
