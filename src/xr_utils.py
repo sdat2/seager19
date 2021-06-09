@@ -304,3 +304,37 @@ def cut_and_taper(
         da[:, x] = test_vec(da[:, x], da.coords[y_var])
 
     return da
+
+
+def spatial_mean(da: xr.DataArray) -> xr.DataArray:
+    """
+    Average a datarray over "X" and "Y" coordinates.
+
+    Spatially weighted.
+
+    Originally from:
+    https://ncar.github.io/PySpark4Climate/tutorials/Oceanic-Ni%C3%B1o-Index/
+    (although their version is wrong as it assumes numpy input is degrees)
+
+    https://numpy.org/doc/stable/reference/generated/numpy.cos.html
+    https://numpy.org/doc/stable/reference/generated/numpy.radians.html
+
+    Args:
+        da (xr.DataArray): da to average.
+
+    Returns:
+        xr.DataArray: avarage of da.
+    """
+    # Find mean temperature for each latitude
+    mean_sst_lat = da.mean(dim="X")
+
+    # Find Weighted mean of those values
+    # https://numpy.org/doc/stable/reference/generated/numpy.cos.html
+    # https://numpy.org/doc/stable/reference/generated/numpy.radians.html
+    num = (np.cos(np.radians(da.Y)) * mean_sst_lat).sum(dim="Y")
+    denom = np.sum(np.cos(np.radians(da.Y)))
+
+    # Find mean global temperature
+    mean_temp = num / denom
+
+    return mean_temp

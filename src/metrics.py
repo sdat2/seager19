@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 import xarray as xr
 from src.constants import NOAA_DATA_PATH
-from src.xr_utils import sel, can_coords
+from src.xr_utils import sel, can_coords, spatial_mean
 from src.plot_utils import add_units
 
 
@@ -31,22 +31,7 @@ def nino_calculate(
 
     sst_reg = sel(sst, reg=reg)
 
-    def mean_sst(sst_da: xr.DataArray) -> xr.DataArray:
-        # Find mean temperature for each latitude
-        mean_sst_lat = sst_da.mean(dim="X")
-
-        # Find Weighted mean of those values
-        # https://numpy.org/doc/stable/reference/generated/numpy.cos.html
-        # https://numpy.org/doc/stable/reference/generated/numpy.radians.html
-        num = (np.cos(np.radians(sst_da.Y)) * mean_sst_lat).sum(dim="Y")
-        denom = np.sum(np.cos(np.radians(sst_da.Y)))
-
-        # Find mean global temperature
-        mean_temp = num / denom
-
-        return mean_temp
-
-    mean_timeseries = mean_sst(sst_reg)
+    mean_timeseries = spatial_mean(sst_reg)
     mean_timeseries.attrs["long_name"] = (
         "Sea surface temperature averaged over " + reg + " region"
     )
