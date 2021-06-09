@@ -1,6 +1,5 @@
 """Different metrics to calculate."""
 from typing import Tuple
-import numpy as np
 import xarray as xr
 from src.constants import NOAA_DATA_PATH
 from src.xr_utils import sel, can_coords, spatial_mean
@@ -16,11 +15,12 @@ def nino_calculate(
     https://rabernat.github.io/research_computing_2018/assignment-8-xarray-for-enso.html
     https://ncar.github.io/PySpark4Climate/tutorials/Oceanic-Ni%C3%B1o-Index/
 
-    Can work on nino1+2, nino3, nino3.4, nino4.
+    Can work on nino1+2, nino3, nino3.4, nino4 (or "pac").
 
     Args:
-        sst (xr.DataArray): [description]
-        reg (str, optional): [description]. Defaults to "nino3.4".
+        sst (xr.DataArray): Sea surface temperature datarray in standard format.
+        reg (str, optional): The region to select form src.xr_utils.sel.
+            Defaults to "nino3.4".
         roll_period (int, optional): The rolling period defined with respect to
             the time axes. Defaults to 3.
 
