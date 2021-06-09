@@ -15,7 +15,7 @@ def nino_calculate(
     https://rabernat.github.io/research_computing_2018/assignment-8-xarray-for-enso.html
     https://ncar.github.io/PySpark4Climate/tutorials/Oceanic-Ni%C3%B1o-Index/
 
-    Can work on nino1+2, nino3, nino3.4, nino4 (or "pac").
+    Can work on regions nino1+2, nino3, nino3.4, nino4 (or "pac").
 
     Args:
         sst (xr.DataArray): Sea surface temperature datarray in standard format.

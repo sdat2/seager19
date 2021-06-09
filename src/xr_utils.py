@@ -307,6 +307,7 @@ def cut_and_taper(
 
 
 def spatial_mean(da: xr.DataArray) -> xr.DataArray:
+    # pylint: disable=anomalous-backslash-in-string
     """
     Average a datarray over "X" and "Y" coordinates.
 
@@ -318,6 +319,13 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
 
     https://numpy.org/doc/stable/reference/generated/numpy.cos.html
     https://numpy.org/doc/stable/reference/generated/numpy.radians.html
+
+
+    .. math::
+        \bar{T}_{\text {month }}=\frac{\sum_{j=1}^{n L a t}
+        \cos \left(\text { lat }_{j}\right)
+        \bar{T}_{\text {lat }, j}}{\sum_{j=1}^{\text {nLat }}
+        \cos \left(\text { lat }_{j}\right)}
 
     Args:
         da (xr.DataArray): da to average.
