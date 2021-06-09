@@ -1,5 +1,6 @@
 """Different metrics to calculate."""
 from typing import Tuple
+import numpy as np
 import xarray as xr
 from src.constants import NOAA_DATA_PATH
 from src.xr_utils import sel, can_coords
@@ -30,14 +31,32 @@ def nino_calculate(
 
     sst_reg = sel(sst, reg=reg)
 
-    mean_timeseries = sst_reg.mean(dim=["X", "Y"])
+    def mean_sst(sst_da: xr.DataArray) -> xr.DataArray:
+        # Find mean temperature for each latitude
+        mean_sst_lat = sst_da.mean(dim="X")
+
+        # Find Weighted mean of those values
+        # https://numpy.org/doc/stable/reference/generated/numpy.cos.html
+        # https://numpy.org/doc/stable/reference/generated/numpy.radians.html
+        num = (np.cos(np.radians(sst_da.Y)) * mean_sst_lat).sum(dim="Y")
+        denom = np.sum(np.cos(np.radians(sst_da.Y)))
+
+        # Find mean global temperature
+        mean_temp = num / denom
+
+        return mean_temp
+
+    mean_timeseries = mean_sst(sst_reg)
     mean_timeseries.attrs["long_name"] = (
         "Sea surface temperature averaged over " + reg + " region"
     )
     mean_timeseries.attrs["units"] = r"$^{\circ}$C"
     mean_timeseries.coords["T"].attrs["long_name"] = "Month"
-
+    time_coord = mean_timeseries.coords["T"].values
+    time_str = time_coord[0].__str__()[0:4] + " to " + time_coord[-1].__str__()[0:4]
     climatology = mean_timeseries.groupby("T.month").mean("T")
+    climatology.attrs["units"] = r"$^{\circ}$C"
+    climatology.attrs["long_name"] = "Climateology for " + reg + " region " + time_str
     mean_state = mean_timeseries.mean(dim=["T"])
     mean_state.attrs["long_name"] = (
         "Average sea surface temperature over " + reg + " region"
@@ -64,6 +83,7 @@ def nino_calculate(
     metric.attrs["mean_state"] = mean_state.values
     metric.attrs["climatology"] = climatology.values
     metric.attrs["clim_months"] = climatology.month.values
+    metric.attrs["clim_time_range"] = time_str
     return metric, climatology
 
 
