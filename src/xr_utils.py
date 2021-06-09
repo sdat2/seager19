@@ -325,7 +325,7 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
     .. math::
         :nowrap:
 
-        \\begin{equoation}
+        \\begin{equation}
             \\bar{T}_{\\text {month }}=\\frac{\\sum_{j=1}^{n L a t}
             \\cos \\left(\\text { lat }_{j}\\right)
             \\bar{T}_{\\text {lat }, j}}{\\sum_{j=1}^{\\text {nLat }}
