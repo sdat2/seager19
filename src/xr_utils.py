@@ -355,3 +355,22 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
     mean_temp = num / denom
 
     return mean_temp
+
+
+def get_trend(da: xr.DataArray) -> float:
+    """
+    Get the linear trend increase of a datarray over the full time period.
+
+    Uses polyfig order 1.
+
+    Args:
+        da (xr.DataArray): the timeseries.
+
+    Returns:
+        float: The rise over the time period.
+    """
+    slope = da.polyfit("T", 1).polyfit_coefficients.values[0][0]
+    run = int((da.coords["T"][-1] - da.coords["T"][0]).values)
+    rise = slope * run
+    print("run", run, "slope", slope, "rise=slope*run", rise)
+    return rise
