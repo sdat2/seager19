@@ -320,15 +320,21 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
     https://numpy.org/doc/stable/reference/generated/numpy.cos.html
     https://numpy.org/doc/stable/reference/generated/numpy.radians.html
 
+    The average should look behave like:
 
     .. math::
+        :nowrap:
 
-        \\[
-        \\bar{T}_{\\text {month }}=\\frac{\\sum_{j=1}^{n L a t}
-        \\cos \\left(\\text { lat }_{j}\\right)
-        \\bar{T}_{\\text {lat }, j}}{\\sum_{j=1}^{\\text {nLat }}
-        \\cos \\left(\\text { lat }_{j}\\right)}
-        \\]
+        \begin{equoation}
+            \bar{T}_{\text {month }}=\frac{\sum_{j=1}^{n L a t}
+            \cos \left(\text { lat }_{j}\right)
+            \bar{T}_{\text {lat }, j}}{\sum_{j=1}^{\text {nLat }}
+            \cos \left(\text { lat }_{j}\right)}
+        \end{equation}
+
+    (Should be latexed.
+    If this is not the case, look at the documentation here to fix it:
+    https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#math)
 
     Args:
         da (xr.DataArray): da to average.
