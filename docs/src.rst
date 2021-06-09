@@ -32,6 +32,14 @@ src.main module
    :undoc-members:
    :show-inheritance:
 
+src.metrics module
+------------------
+
+.. automodule:: src.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.plot\_utils module
 ----------------------
 
