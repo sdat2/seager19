@@ -132,7 +132,7 @@ class Coupling:
             format="NETCDF3_CLASSIC",
         )
 
-    def run(self):
+    def run(self) -> None:
         """
         Run coupling.
         """
