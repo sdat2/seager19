@@ -109,7 +109,7 @@ class Coupling:
             # atmos takes in cfg
             self.atmos.run_all()
 
-        for x in self.coup.iterations:
+        for x in range(self.coup.iterations):
             print(x)
             # self.ocean.run_all()
             # self.atmos.run_all()

@@ -647,7 +647,6 @@ class Atmos:
     # -------------- smoother --------------------------
 
     # pylint: disable=dangerous-default-value
-    @timeit
     @typechecked
     def smooth121(
         self,
