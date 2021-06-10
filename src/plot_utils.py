@@ -416,6 +416,8 @@ def add_units(
     Currently only for lat, lon axes, but could be improved to
     add degrees celsius and so on.
 
+    Fails softly.
+
     Args:
         xr_da (Union[xr.DataArray, xr.Dataset]: Initial datarray/datset
             (potentially with units for axes).
@@ -424,8 +426,10 @@ def add_units(
         Union[xr.DataArray, xr.Dataset]: Datarray/Dataset with correct
             units/names for plotting.
     """
-    xr_obj.coords[x_val].attrs["units"] = r"$^{\circ}$E"
-    xr_obj.coords[x_val].attrs["long_name"] = "Longitude"
-    xr_obj.coords[y_val].attrs["units"] = r"$^{\circ}$N"
-    xr_obj.coords[y_val].attrs["long_name"] = "Latitude"
+    if x_val in xr_obj.coords:
+        xr_obj.coords[x_val].attrs["units"] = r"$^{\circ}$E"
+        xr_obj.coords[x_val].attrs["long_name"] = "Longitude"
+    if y_val in xr_obj.coords:
+        xr_obj.coords[y_val].attrs["units"] = r"$^{\circ}$N"
+        xr_obj.coords[y_val].attrs["long_name"] = "Latitude"
     return xr_obj

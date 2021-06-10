@@ -3,6 +3,7 @@ import numpy as np
 import pathlib
 from typing import Union, Tuple
 import xarray as xr
+from src.plot_utils import add_units
 
 
 def fix_calendar(
@@ -357,7 +358,7 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
     return mean_temp
 
 
-def get_trend(da: xr.DataArray) -> float:
+def get_trend(da: xr.DataArray) -> Union[float, xr.DataArray]:
     """
     Get the linear trend increase of a datarray over the full time period.
 
@@ -369,10 +370,25 @@ def get_trend(da: xr.DataArray) -> float:
     Returns:
         float: The rise over the time period.
     """
-    slope = da.polyfit("T", 1).polyfit_coefficients.values[0]
-    if isinstance(slope, np.ndarray):
-        slope = slope[0]
-    run = int((da.coords["T"][-1] - da.coords["T"][0]).values)
+
+    def length_time(da):
+        return int((da.coords["T"][-1] - da.coords["T"][0]).values)
+
+    if "X" in da.dims or "Y" in da.dims:
+        slope = da.polyfit("T", 1).polyfit_coefficients.sel(degree=1).drop("degree")
+    else:
+        slope = da.polyfit("T", 1).polyfit_coefficients.values[0]
+        if isinstance(slope, np.ndarray):
+            slope = slope[0]
+
+    run = length_time(da)
     rise = slope * run
+
+    if isinstance(rise, xr.DataArray):
+        for pr_name in ["units", "long_name"]:
+            if pr_name in da.attrs:
+                rise.attrs[pr_name] = da.attrs[pr_name]
+        rise = add_units(rise)
+
     print("run", run, "slope", slope, "rise=slope*run", rise)
     return rise
