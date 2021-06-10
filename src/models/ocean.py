@@ -102,14 +102,17 @@ class Ocean:
             string_list = replace_item(
                 "dQdf-sample.nc", self.cfg.oc.dq_df_file, string_list
             )
+
             if i == "om_spin":
                 string_list = replace_item(
                     "2 months", self.cfg.oc.time_spin, string_list
                 )
+
             elif i == "om_diag":
                 string_list = replace_item(
                     "2 years", self.cfg.oc.time_diag, string_list
                 )
+
             elif i == "om_run2f":
                 string_list = replace_item(
                     "58 years", self.cfg.oc.time_run2f, string_list
