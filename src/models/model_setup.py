@@ -16,6 +16,8 @@ class ModelSetup:
         """
         Model directories init.
 
+        Copies directories, relevant files, and creates
+
         Args:
             direc (str): The main model directory.
         """

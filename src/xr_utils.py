@@ -390,5 +390,5 @@ def get_trend(da: xr.DataArray) -> Union[float, xr.DataArray]:
                 rise.attrs[pr_name] = da.attrs[pr_name]
         rise = add_units(rise)
 
-    print("run", run, "slope", slope, "rise=slope*run", rise)
+    print("run", run, "slope", slope, "rise = slope * run", rise)
     return rise

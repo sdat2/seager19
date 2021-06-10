@@ -10,6 +10,8 @@ import xarray as xr
 from typeguard import typechecked
 from omegaconf import DictConfig
 from src.models.model_setup import ModelSetup
+from src.models.atmos import Atmos
+from src.models.ocean import Ocean
 
 
 # pylint: disable=no-value-for-parameter
@@ -56,7 +58,10 @@ class Coupling:
                 this run containing parameters.
         """
         self.coup = cfg.coup
+        self.cfg = cfg
         self.setup = setup
+        self.ocean = Ocean(cfg, setup)
+        self.atmos = Atmos(cfg, setup)
 
     @typechecked
     def f_stress(
@@ -88,3 +93,21 @@ class Coupling:
         """Get wind speed mean."""
         print("get wind speed mean")
         xr.open_dataset(file_name).mean("T")
+
+    def run_coupling(self):
+        """
+        Run coupling.
+        """
+        # Initial set up.
+        self.ocean.compile_all()
+        if self.cfg.run:
+            self.ocean.run_all()
+
+        # set up.
+        if self.cfg.animate:
+            self.ocean.animate_all()
+
+        # atmos model.
+        if self.cfg.atmos:
+            # atmos takes in cfg
+            self.atmos.run_all()
