@@ -13,7 +13,7 @@ from omegaconf import DictConfig
 from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
-from srs.xr_utils import can_coords, open_dataset
+from src.xr_utils import can_coords, open_dataset
 
 
 # pylint: disable=no-value-for-parameter
@@ -98,7 +98,10 @@ class Coupling:
 
     def replace_dq(self, it: int) -> None:
         """
-        Replace delta q variables.
+        Replace dQ variables.
+
+        dQdf
+        dQdT
         """
         dq_df_from_atm = open_dataset(
             os.path.join(self.setup.atmos_path, "dQ.nc")
@@ -110,7 +113,9 @@ class Coupling:
         dq_df_new = dq_df_sample.copy()
         for t in range(12):
             dq_df_new[t, 0, 30:151, :] = can_coords(dq_df_from_atm)[:, :]
-        dq_df_new.to_netcdf("it" + str(it) + "dq_df.nc", format="NETCDF3_CLASSIC")
+        dq_df_new.to_dataset().to_netcdf(
+            "it" + str(it) + "dq_df.nc", format="NETCDF3_CLASSIC"
+        )
         dq_dt_from_atm = open_dataset(
             os.path.join(self.setup.atmos_path, "dQ.nc")
         ).dq_dt
@@ -121,7 +126,9 @@ class Coupling:
         dq_dt_new = dq_dt_sample.copy()
         for t in range(12):
             dq_dt_new[t, 0, 30:151, :] = can_coords(dq_dt_from_atm)[:, :]
-        dq_dt_new.to_netcdf("it" + str(it) + "_dq_dt.nc", format="NETCDF3_CLASSIC")
+        dq_dt_new.to_dataset().to_netcdf(
+            "it" + str(it) + "_dq_dt.nc", format="NETCDF3_CLASSIC"
+        )
 
     def run(self):
         """
