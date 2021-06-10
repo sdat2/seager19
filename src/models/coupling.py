@@ -5,6 +5,7 @@ Example:
         from src.models.coupling import Coupling
 
 """
+import os
 from typing import Tuple
 import xarray as xr
 from typeguard import typechecked
@@ -12,6 +13,7 @@ from omegaconf import DictConfig
 from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
+from srs.xr_utils import can_coords, open_dataset
 
 
 # pylint: disable=no-value-for-parameter
@@ -93,6 +95,33 @@ class Coupling:
         """Get wind speed mean."""
         print("get wind speed mean")
         xr.open_dataset(file_name).mean("T")
+
+    def replace_dq(self, it: int) -> None:
+        """
+        Replace delta q variables.
+        """
+        dq_df_from_atm = open_dataset(
+            os.path.join(self.setup.atmos_path, "dQ.nc")
+        ).dq_df
+        dq_df_sample = xr.open_dataarray(
+            os.path.join(self.setup.ocean_data_path, "dQdf-sample.nc"),
+            decode_times=False,
+        )
+        dq_df_new = dq_df_sample.copy()
+        for t in range(12):
+            dq_df_new[t, 0, 30:151, :] = can_coords(dq_df_from_atm)[:, :]
+        dq_df_new.to_netcdf("it" + str(it) + "dq_df.nc", format="NETCDF3_CLASSIC")
+        dq_dt_from_atm = open_dataset(
+            os.path.join(self.setup.atmos_path, "dQ.nc")
+        ).dq_dt
+        dq_dt_sample = xr.open_dataarray(
+            os.path.join(self.setup.ocean_data_path, "dQdT-sample.nc"),
+            decode_times=False,
+        )
+        dq_dt_new = dq_dt_sample.copy()
+        for t in range(12):
+            dq_dt_new[t, 0, 30:151, :] = can_coords(dq_dt_from_atm)[:, :]
+        dq_dt_new.to_netcdf("it" + str(it) + "_dq_dt.nc", format="NETCDF3_CLASSIC")
 
     def run(self):
         """
