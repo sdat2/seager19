@@ -94,20 +94,26 @@ class Coupling:
         print("get wind speed mean")
         xr.open_dataset(file_name).mean("T")
 
-    def run_coupling(self):
+    def run(self):
         """
         Run coupling.
         """
+
         # Initial set up.
         self.ocean.compile_all()
         if self.cfg.run:
             self.ocean.run_all()
 
-        # set up.
-        if self.cfg.animate:
-            self.ocean.animate_all()
-
         # atmos model.
         if self.cfg.atmos:
             # atmos takes in cfg
             self.atmos.run_all()
+
+        for x in self.coup.iterations:
+            print(x)
+            # self.ocean.run_all()
+            # self.atmos.run_all()
+
+        # set up.
+        if self.cfg.animate:
+            self.ocean.animate_all()

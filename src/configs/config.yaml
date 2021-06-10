@@ -28,7 +28,7 @@ oc:
   time_test: 2 months
   time_spin: 2 months
   time_diag: 2 years
-  time_run2f: 58 years
+  time_run2f: 2 years # 58 years # now shortened for quick testing.
 coup:
   c_d: 2.25e-3    # Pa m-1 s,  wind stress.
   rho_air: 1.225   # kg m-3, density of sea surface air

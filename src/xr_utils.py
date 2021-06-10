@@ -324,6 +324,7 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
     The average should behave like:
 
     .. math::
+        :nowrap:
 
         \\begin{equation}
             \\bar{T}_{\\text {lat }}=\\frac{1}{n \\text { Lon }}
