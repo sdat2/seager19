@@ -153,6 +153,13 @@ class Coupling:
             # self.ocean.rename(x)
             # self.ocean.run_all()
             # self.atmos.run_all()
+            # '/home/users/sithom/seager19/src/test/test_direc/'
+            # 'ocean/DATA/tau-ECMWF-clim.x',
+            # 'test.x
+            # /home/users/sithom/seager19/src/test/test_direc/
+            # ocean/DATA/tau-ECMWF-clim.x test.x differ: byte 1, line 1
+            # �HDF
+            # CDF
 
         # set up.
         if self.cfg.animate:
