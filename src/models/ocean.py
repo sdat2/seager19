@@ -106,11 +106,11 @@ class Ocean:
                 string_list = replace_item(
                     "2 months", self.cfg.oc.time_spin, string_list
                 )
-            elif i == "time_diag":
+            elif i == "om_diag":
                 string_list = replace_item(
                     "2 years", self.cfg.oc.time_diag, string_list
                 )
-            elif i == "time_run2f":
+            elif i == "om_run2f":
                 string_list = replace_item(
                     "58 years", self.cfg.oc.time_run2f, string_list
                 )
