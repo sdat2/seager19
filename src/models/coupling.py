@@ -114,7 +114,8 @@ class Coupling:
         for t in range(12):
             dq_df_new[t, 0, 30:151, :] = can_coords(dq_df_from_atm)[:, :]
         dq_df_new.to_dataset().to_netcdf(
-            "it" + str(it) + "dq_df.nc", format="NETCDF3_CLASSIC"
+            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "dq_df.nc"),
+            format="NETCDF3_CLASSIC",
         )
         dq_dt_from_atm = open_dataset(
             os.path.join(self.setup.atmos_path, "dQ.nc")
@@ -127,7 +128,8 @@ class Coupling:
         for t in range(12):
             dq_dt_new[t, 0, 30:151, :] = can_coords(dq_dt_from_atm)[:, :]
         dq_dt_new.to_dataset().to_netcdf(
-            "it" + str(it) + "_dq_dt.nc", format="NETCDF3_CLASSIC"
+            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "_dq_dt.nc"),
+            format="NETCDF3_CLASSIC",
         )
 
     def run(self):
@@ -147,6 +149,8 @@ class Coupling:
 
         for x in range(self.coup.iterations):
             print(x)
+            self.replace_dq(x)
+            # self.ocean.rename(x)
             # self.ocean.run_all()
             # self.atmos.run_all()
 
