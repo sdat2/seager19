@@ -5,12 +5,15 @@ CC    = x86_64-linux-gnu-gcc-4.8 # gcc
 LCDF   = -lnetcdf -lnetcdff
 
 ifeq (, $(shell which x86_64-linux-gnu-gfortran-4.8))
-$(error "No x86_64-linux-gnu-gfortran-4.8 in $(PATH), consider doing apt-get install x86_64-linux-gnu-gfortran-4.8")
+FC = gfortran
 endif
 
-EXECUTABLES = x86_64-linux-gnu-gfortran-4.8 x86_64-linux-gnu-gcc-4.8
-K := $(foreach exec,$(EXECUTABLES),\
-        $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
+ifeq (, $(shell which x86_64-linux-gnu-gcc-4.8))
+CC = gcc
+endif
+
+# gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
+# GNU Fortran (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
 
 FFLAGS = -ffixed-line-length-132 -Ofast
 CFLAGS = -Wno-implicit-function-declaration -Ofast
