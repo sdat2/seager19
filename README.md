@@ -115,11 +115,14 @@ The code and data was taken from:
 
     TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:g4.8
 
-    singularity run seager19_init.sif
+    singularity run seager19_g4.8.sif
 
     conda init bash
 
     source ~/.bash_profile
 
     conda activate ./env/
+    
+    # x86_64-linux-gnu-gcc-4.8
+    # x86_64-linux-gnu-gfortran-4.8
 ```

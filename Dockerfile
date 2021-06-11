@@ -23,6 +23,8 @@ RUN apt-get update && apt-get -yq install sudo && \
     && make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all \
     && sudo make INSTALLDIR=/usr/local/cdf install
 
+# x86_64-linux-gnu-gcc-4.8
+# x86_64-linux-gnu-gfortran-4.8
 
 # libcoarrays-dev libopenmpi-dev open-coarrays-bin
 
