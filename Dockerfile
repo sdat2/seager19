@@ -1,4 +1,5 @@
 FROM ubuntu:16.04 
+
 # first half also works with ubuntu:14.04
 # I pieced varioud different docker files together so that they could reproduce the environment.
 
@@ -14,12 +15,14 @@ RUN apt-get update && apt-get -yq install sudo &&\
     sudo apt-get -yq --fix-missing install make cmake gfortran gcc cloc  && \
     sudo apt-get -yq install --fix-missing libnetcdf-dev libnetcdff-dev && \
     sudo apt-get clean -q &&\
-    sudo apt-get install ncurses-dev && \
+    sudo apt-get -yq install ncurses-dev && \
     cd /tmp \ 
     && curl -O https://spdf.gsfc.nasa.gov/pub/software/cdf/dist/cdf36_4/linux/cdf36_4-dist-all.tar.gz \ 
     && tar xzf cdf36_4-dist-all.tar.gz \ 
     && cd cdf36_4-dist \ 
-    && make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all
+    && make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all\
+    && sudo make INSTALLDIR=/usr/local/cdf install
+
 
 # libcoarrays-dev libopenmpi-dev open-coarrays-bin
 
@@ -42,7 +45,7 @@ RUN apt-get update && apt-get -yq install sudo &&\
 # configure the container to run the hello world executable by default
 # CMD ["./HelloWorld"]
 
-# anaconda section.
+################ Anaconda section. ####################
 # https://github.com/ContinuumIO/docker-images/blob/master/anaconda3/debian/Dockerfile
 
 
