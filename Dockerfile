@@ -12,14 +12,15 @@ FROM ubuntu:16.04
 RUN apt-get update && apt-get -yq install sudo &&\
     sudo apt-get -yq install git curl && \
     sudo apt-get -yq --fix-missing install make cmake gfortran gcc cloc  && \
-    sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev && \
+    sudo apt-get -yq install --fix-missing libnetcdf-dev libnetcdff-dev && \
     sudo apt-get clean -q &&\
+    sudo apt-get install ncurses-dev && \
     cd /tmp \ 
-    && curl -O https://spdf.sci.gsfc.nasa.gov/pub/software/cdf/dist/cdf36_4/linux/cdf36_4-dist-all.tar.gz \ 
+    && curl -O https://spdf.gsfc.nasa.gov/pub/software/cdf/dist/cdf36_4/linux/cdf36_4-dist-all.tar.gz \ 
     && tar xzf cdf36_4-dist-all.tar.gz \ 
     && cd cdf36_4-dist \ 
-    && make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all \ 
-    && sudo make INSTALLDIR=/usr/local/cdf install 
+    && make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all
+
 # libcoarrays-dev libopenmpi-dev open-coarrays-bin
 
 # https://urban-institute.medium.com/fortran-and-docker-how-to-combine-legacy-code-with-cutting-edge-components-35e934b15023
@@ -43,6 +44,7 @@ RUN apt-get update && apt-get -yq install sudo &&\
 
 # anaconda section.
 # https://github.com/ContinuumIO/docker-images/blob/master/anaconda3/debian/Dockerfile
+
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
