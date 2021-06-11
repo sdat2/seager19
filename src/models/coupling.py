@@ -114,7 +114,7 @@ class Coupling:
         for t in range(12):
             dq_df_new[t, 0, 30:151, :] = can_coords(dq_df_from_atm)[:, :]
         dq_df_new.to_dataset().to_netcdf(
-            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "dq_df.nc"),
+            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "_dq_df.nc"),
             format="NETCDF3_CLASSIC",
         )
         dq_dt_from_atm = open_dataset(
@@ -139,14 +139,14 @@ class Coupling:
             os.path.join(self.setup.ocean_data_path, "tau-ECMWF.x"), decode_times=False
         )
         taux_obj.to_dataset().to_netcdf(
-            os.path.join(self.setup.ocean_data_path, "it" + str(it) + ".x"),
+            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "-tau.x"),
             format="NETCDF3_CLASSIC",
         )
         tauy_obj = xr.open_dataarray(
             os.path.join(self.setup.ocean_data_path, "tau-ECMWF.y"), decode_times=False
         )
         tauy_obj.to_dataset().to_netcdf(
-            os.path.join(self.setup.ocean_data_path, "it" + str(it) + ".x"),
+            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "-tau.y"),
             format="NETCDF3_CLASSIC",
         )
         cut_and_taper(
@@ -190,8 +190,6 @@ class Coupling:
             # 'test.x
             # /home/users/sithom/seager19/src/test/test_direc/
             # ocean/DATA/tau-ECMWF-clim.x test.x differ: byte 1, line 1
-            # �HDF
-            # CDF
 
         # set up.
         if self.cfg.animate:

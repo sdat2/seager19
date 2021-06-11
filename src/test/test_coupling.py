@@ -52,3 +52,6 @@ def test_stress() -> None:
 
     assert isinstance(tau_u, xr.DataArray)
     assert isinstance(tau_v, xr.DataArray)
+
+    couple.replace_stress(1)
+    couple.replace_dq(1)
