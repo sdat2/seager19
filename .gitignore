@@ -21,6 +21,7 @@ logs/
 ocean/SRC/backup
 multirun/
 *.save
+*.sif
 *.output
 *.data
 *.y
