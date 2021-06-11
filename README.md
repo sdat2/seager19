@@ -14,6 +14,8 @@
 
 Model run results: <https://wandb.ai/sdat2/seager19>
 
+Docker image for gfortran/gcc/cdf/conda: <https://hub.docker.com/repository/docker/sdat2/seager19>
+
 ![SST output over spin up period](gifs/om_diag_SST_SST.gif)
 
 ## Purpose
@@ -111,5 +113,13 @@ The code and data was taken from:
 
     https://sylabs.io/guides/2.6/user-guide/troubleshooting.html#no-space-left-on-device
 
-    TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:init
+    TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:g4.8
+
+    singularity run seager19_init.sif
+
+    conda init bash
+
+    source ~/.bash_profile
+
+    conda activate ./env/
 ```
