@@ -1,8 +1,16 @@
 # https://opensource.com/article/18/8/what-how-makefile#:~:text=The%20make%20utility%20requires%20a,be%20installed%20using%20make%20install%20.
 ARCH = Linux
-FC    = gfortran  # works fine for gfortran-4.8 or gfortran-5.5
-CC    = gcc
+FC    = x86_64-linux-gnu-gfortran-4.8 #gfortran  # works fine for gfortran-4.8 or gfortran-5.5
+CC    = x86_64-linux-gnu-gcc-4.8 # gcc
 LCDF   = -lnetcdf -lnetcdff
+
+ifeq (, $(shell which x86_64-linux-gnu-gfortran-4.8))
+$(error "No x86_64-linux-gnu-gfortran-4.8 in $(PATH), consider doing apt-get install x86_64-linux-gnu-gfortran-4.8")
+endif
+
+EXECUTABLES = x86_64-linux-gnu-gfortran-4.8 x86_64-linux-gnu-gcc-4.8
+K := $(foreach exec,$(EXECUTABLES),\
+        $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
 
 FFLAGS = -ffixed-line-length-132 -Ofast
 CFLAGS = -Wno-implicit-function-declaration -Ofast

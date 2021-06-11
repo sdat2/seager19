@@ -111,8 +111,6 @@ The code and data was taken from:
 
     docker push sdat2/seager19:init
 
-    https://sylabs.io/guides/2.6/user-guide/troubleshooting.html#no-space-left-on-device
-
     TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:g4.8
 
     singularity run seager19_g4.8.sif
