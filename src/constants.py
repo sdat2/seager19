@@ -57,6 +57,14 @@ NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
 
+if os.path.exists(GWS_DIR):
+    LOG_PATH = GWS_DIR / "logs"
+else:
+    LOG_PATH = PROJECT_PATH / "logs"
+
+if not os.path.exists(str(LOG_PATH)):
+    os.mkdir(str(LOG_PATH))
+
 # Report WIDTH
 REPORT_WIDTH: float = 398.3386  # in pixels
 
