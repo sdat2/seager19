@@ -68,8 +68,8 @@ RUN apt-get update --fix-missing && \
     echo "conda activate base" >> ~/.bashrc && \
     find /opt/conda/ -follow -type f -name '*.a' -delete && \
     find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
-    /opt/conda/bin/conda clean -afy \
-    conda init bash \
+    /opt/conda/bin/conda clean -afy && \
+    conda init bash && \
     source ~/.bash_profile
 
 # ARG PYTHON_VERSION=3.8
