@@ -13,7 +13,7 @@ from omegaconf import DictConfig
 from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
-from src.xr_utils import can_coords, open_dataset
+from src.xr_utils import can_coords, open_dataset, cut_and_taper
 
 
 # pylint: disable=no-value-for-parameter
@@ -130,6 +130,38 @@ class Coupling:
         dq_dt_new.to_dataset().to_netcdf(
             os.path.join(self.setup.ocean_data_path, "it" + str(it) + "_dq_dt.nc"),
             format="NETCDF3_CLASSIC",
+        )
+
+    def replace_stress(self, it: int) -> None:
+        """Replace the stress files. Currently just resaves the files."""
+
+        taux_obj = xr.open_dataarray(
+            os.path.join(self.setup.ocean_data_path, "tau-ECMWF.x"), decode_times=False
+        )
+        taux_obj.to_dataset().to_netcdf(
+            os.path.join(self.setup.ocean_data_path, "it" + str(it) + ".x"),
+            format="NETCDF3_CLASSIC",
+        )
+        tauy_obj = xr.open_dataarray(
+            os.path.join(self.setup.ocean_data_path, "tau-ECMWF.y"), decode_times=False
+        )
+        tauy_obj.to_dataset().to_netcdf(
+            os.path.join(self.setup.ocean_data_path, "it" + str(it) + ".x"),
+            format="NETCDF3_CLASSIC",
+        )
+        cut_and_taper(
+            can_coords(
+                xr.open_dataset(
+                    os.path.join(self.setup.atmos_path, "S91-hq1800-prcp_land1.nc")
+                ).vtrend
+            )
+        )
+        cut_and_taper(
+            can_coords(
+                xr.open_dataset(
+                    os.path.join(self.setup.atmos_path, "S91-hq1800-prcp_land1.nc")
+                ).utrend
+            )
         )
 
     def run(self) -> None:
