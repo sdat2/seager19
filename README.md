@@ -104,4 +104,12 @@ The code and data was taken from:
     make jupyter_pro
 
     make report
+
+    docker build . -t sdat2/seager19:init
+
+    docker push sdat2/seager19:init
+
+    https://sylabs.io/guides/2.6/user-guide/troubleshooting.html#no-space-left-on-device
+
+    TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:init
 ```
