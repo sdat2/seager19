@@ -10,9 +10,9 @@ FROM ubuntu:16.04
 # sudo apt-get install cloc
 
 # install sudo
-RUN apt-get update && apt-get -yq install sudo &&\
+RUN apt-get update && apt-get -yq install sudo && \
     sudo apt-get -yq install git curl && \
-    sudo apt-get -yq --fix-missing install make cmake gfortran gcc cloc  && \
+    sudo apt-get -yq --fix-missing install make cmake gfortran-4.8 gcc-4.8 cloc  && \
     sudo apt-get -yq install --fix-missing libnetcdf-dev libnetcdff-dev && \
     sudo apt-get clean -q &&\
     sudo apt-get -yq install ncurses-dev && \
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get -yq install sudo &&\
     && curl -O https://spdf.gsfc.nasa.gov/pub/software/cdf/dist/cdf36_4/linux/cdf36_4-dist-all.tar.gz \ 
     && tar xzf cdf36_4-dist-all.tar.gz \ 
     && cd cdf36_4-dist \ 
-    && make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all\
+    && make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all \
     && sudo make INSTALLDIR=/usr/local/cdf install
 
 
@@ -68,7 +68,10 @@ RUN apt-get update --fix-missing && \
     echo "conda activate base" >> ~/.bashrc && \
     find /opt/conda/ -follow -type f -name '*.a' -delete && \
     find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
-    /opt/conda/bin/conda clean -afy
+    /opt/conda/bin/conda clean -afy \
+    conda init bash \
+    source ~/.bash_profile
+
 # ARG PYTHON_VERSION=3.8
 
 CMD [ "/bin/bash" ]
