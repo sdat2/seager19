@@ -114,7 +114,7 @@ class Coupling:
         for t in range(12):
             dq_df_new[t, 0, 30:151, :] = can_coords(dq_df_from_atm)[:, :]
         dq_df_new.to_dataset().to_netcdf(
-            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "_dq_df.nc"),
+            self.setup.dq_df(it),
             format="NETCDF3_CLASSIC",
         )
         dq_dt_from_atm = open_dataset(
@@ -128,7 +128,7 @@ class Coupling:
         for t in range(12):
             dq_dt_new[t, 0, 30:151, :] = can_coords(dq_dt_from_atm)[:, :]
         dq_dt_new.to_dataset().to_netcdf(
-            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "_dq_dt.nc"),
+            self.setup.dq_dt(it),
             format="NETCDF3_CLASSIC",
         )
 
@@ -139,16 +139,18 @@ class Coupling:
             os.path.join(self.setup.ocean_data_path, "tau-ECMWF.x"), decode_times=False
         )
         taux_obj.to_dataset().to_netcdf(
-            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "-tau.x"),
+            self.setup.tau_x(it),
             format="NETCDF3_CLASSIC",
         )
         tauy_obj = xr.open_dataarray(
             os.path.join(self.setup.ocean_data_path, "tau-ECMWF.y"), decode_times=False
         )
         tauy_obj.to_dataset().to_netcdf(
-            os.path.join(self.setup.ocean_data_path, "it" + str(it) + "-tau.y"),
+            self.setup.tau_y(it),
             format="NETCDF3_CLASSIC",
         )
+
+        # test the cut and taper functions work.
         cut_and_taper(
             can_coords(
                 xr.open_dataset(
@@ -180,6 +182,9 @@ class Coupling:
             self.atmos.run_all()
 
         for x in range(self.coup.iterations):
+            # TODO: need to rename all the .tr files after each run.
+            # TODO: need to edit om_spin etc.\
+            # TODO: need to edit
             print(x)
             self.replace_dq(x)
             # self.ocean.rename(x)

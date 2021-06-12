@@ -65,7 +65,7 @@ class ModelSetup:
         self.init_atmos()
 
     def init_ocean(self):
-        """initialise the ocean model."""
+        """initialise the ocean model by copying files over."""
         for file_ending in ["*.F", "*.c", "*.h", "*.inc", "*.mod", ".tios"]:
 
             os.system(
@@ -107,7 +107,7 @@ class ModelSetup:
         os.system("cd " + str(self.ocean_data_path) + " \n make all")
 
     def init_atmos(self):
-        """Creating atmos."""
+        """Creating atmos by copying files over."""
         os.system(
             "cd "
             + str(ATMOS_DATA_PATH)
@@ -124,3 +124,18 @@ class ModelSetup:
             + " "
             + str(self.atmos_tmp_path)
         )
+
+    def tcam_output(self):
+        return os.path.join(self.atmos_path, "S91-hq1800-prcp_land1.nc")
+
+    def tau_y(self, it: int) -> str:
+        return os.path.join(self.ocean_data_path, "it" + str(it) + "-tau.y")
+
+    def tau_x(self, it: int) -> str:
+        return os.path.join(self.ocean_data_path, "it" + str(it) + "-tau.x")
+
+    def dq_df(self, it: int) -> str:
+        return os.path.join(self.ocean_data_path, "it" + str(it) + "_dq_df.nc")
+
+    def dq_dt(self, it: int) -> str:
+        return os.path.join(self.ocean_data_path, "it" + str(it) + "_dq_dt.nc")
