@@ -1,4 +1,4 @@
-# Ocean model.
+# Ocean model
 
 The ocean model code is built on legacy Fortran 90 and C code.
 
@@ -12,7 +12,7 @@ sh ./backup-data.sh
 sh ./comp-data.sh >> changes-mid-run.txt
 ```
 
-```bash 
+```bash
 sh ./comp-dat.sh
 ```
 
@@ -22,7 +22,7 @@ Run the programs in `RUN`.
 
 Ocean model file structure:
 
-```
+```txt
   files.txt
   README.md
   file_struct.txt
@@ -138,7 +138,7 @@ Ocean model file structure:
     om_test.log
 ```
 
-```
+```txt
 GNU Fortran (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
 Copyright (C) 2015 Free Software Foundation, Inc.
 
@@ -148,14 +148,14 @@ under the terms of the GNU General Public License.
 For more information about these matters, see the file named COPYING
 ```
 
-```
+```txt
 gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
 Copyright (C) 2015 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ```
 
-```
+```yaml
 before_install:
   - sudo apt-get install gfortran
 
@@ -173,7 +173,8 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-4.8.5 && CXX=g++-4.8.5"
 ```
-```
+
+```yaml
 language: c
 sudo: required
 before_install:
@@ -186,8 +187,8 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 ```
-```
-before_install:
+
+```bash
   sudo apt-get install python-software-properties
   sudo add-apt-repository ppa:ubuntu-toolchain-r/test
   sudo apt-get update

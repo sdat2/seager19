@@ -1215,14 +1215,8 @@ class Atmos:
 
         dq.to_netcdf(self.setup.dq_output())
 
-    def run_all(self):
+    def run_all(self, it: int = 0) -> None:
+        print(it)
         self.output_trends(direc=self.setup.atmos_path)
         self.output_dq(direc=self.setup.atmos_path)
         self.make_figure(direc=self.setup.atmos_path)
-
-
-# if __name__ == "__main__":
-#    # python3 src/models/atmos.py
-#    atmos = Atmos(OmegaConf.create({"atm": "v",
-#               "list": [1, {"a": "1", "b": "2"}]}))
-#    atmos.run_all()

@@ -159,8 +159,9 @@ class Coupling:
 
         # Initial set up.
         self.ocean.compile_all()
+        self.ocean.edit_run()
         if self.cfg.run:
-            self.ocean.run_all()
+            self.ocean.run_all(it=0)
 
         # atmos model.
         if self.cfg.atmos:
@@ -176,8 +177,8 @@ class Coupling:
             self.replace_stress(it)
             self.ocean.edit_inputs(it)
             # self.ocean.rename(x)
-            # self.ocean.run_all()
-            # self.atmos.run_all()
+            self.ocean.run_all(it=it)
+            self.atmos.run_all(it=it)
             # '/home/users/sithom/seager19/src/test/test_direc/'
             # 'ocean/DATA/tau-ECMWF-clim.x',
             # 'test.x

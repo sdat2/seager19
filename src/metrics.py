@@ -2,8 +2,16 @@
 from typing import Tuple
 import xarray as xr
 from src.constants import NOAA_DATA_PATH, NINO3_4_TEST_PATH, DATA_PATH
-from src.xr_utils import sel, can_coords, spatial_mean, get_clim
-from src.plot_utils import add_units
+from src.xr_utils import (
+    sel,
+    can_coords,
+    spatial_mean,
+    get_clim,
+    open_dataset,
+    get_trend,
+)
+from src.plot_utils import add_units, ps_defaults
+import matplotlib.pyplot as plt
 
 
 def nino_calculate(
@@ -95,3 +103,26 @@ def replace_nino3_4_from_noaa() -> None:
     metric.to_netcdf(str(NINO3_4_TEST_PATH))
     print(NINO3_4_TEST_PATH)
     clim.to_netcdf(str(DATA_PATH / "nino3_4_noaa_clim.nc"))
+
+
+def get_nino_trend(path_of_run2f: str, graph_path: str, it: int = 0) -> dict:
+    """
+    Get nino, plot the graphs.
+
+    Returns:
+        dict: nino_dict.
+    """
+    ps_defaults()
+    nino_dict = {"it": it}
+    sst_output_example = can_coords(open_dataset(path_of_run2f).SST_SST)
+
+    for reg in ["nino1+2", "nino3", "nino3.4", "nino4", "pac"]:
+        metric, _ = nino_calculate(sst_output_example, reg=reg)
+        metric.attrs["long_name"] = "3 month rolling average SST anomaly"
+        metric.plot(label=metric.attrs["reg"])
+        nino_dict[reg] = get_trend(metric)
+
+    plt.legend()
+    plt.savefig(graph_path)
+
+    return nino_dict

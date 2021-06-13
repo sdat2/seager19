@@ -12,7 +12,7 @@ from src.visualisation.ani import animate_ds, animate_qflx_diff
 from src.utils import timeit, hr_time
 from src.data_loading.ingrid import linear_qflx_replacement
 from src.models.model_setup import ModelSetup
-
+from src.metrics import get_nino_trend
 
 log = logging.getLogger(__name__)
 
@@ -104,9 +104,14 @@ class Ocean:
                 "dQdf-sample.nc", self.cfg.oc.dq_df_file, string_list
             )
 
+            if i == "om_test":
+                string_list = replace_item(
+                    "2 months", self.cfg.oc.time_test, string_list
+                )
+
             if i == "om_spin":
                 string_list = replace_item(
-                    "2 months", self.cfg.oc.time_spin, string_list
+                    "20 years", self.cfg.oc.time_spin, string_list
                 )
 
             elif i == "om_diag":
@@ -175,12 +180,10 @@ class Ocean:
                 write_file.writelines(string_list)
 
     @timeit
-    def run_all(self) -> None:
+    def run_all(self, it=0) -> None:
         """Run all the executables."""
-        self.edit_run()
         # Run the test to see if it's working.
         self.run("../SRC/" + self.cfg.ocean.tcom_name + " -i om_test")
-        log.info("Run.")
         if self.cfg.ocean.spin:
             self.run(
                 "../SRC/" + self.cfg.ocean.tcom_name + " -i om_spin -t om_spin.tios"
@@ -204,6 +207,12 @@ class Ocean:
             try:
                 # TODO: Currently this will fail
                 # if wandb is not initialised
+                dict_nino_trend = get_nino_trend(
+                    os.path.join(self.setup.ocean_output_path, "om_run.nc"),
+                    os.path.join(self.setup.direc, "nino_" + str(it) + ".png"),
+                    it=it,
+                )
+                wandb.log(dict_nino_trend)
                 wandb.log({"ocean_run": run_time})
                 # pylint: disable=bare-except
             except:
