@@ -191,6 +191,22 @@ class ModelSetup:
     def tau_x(self, it: int, path: bool = True) -> str:
         return self.tau_base(it, path=path) + ".x"
 
+    def tau_clim_base(self, it: int, path: bool = True) -> str:
+        if it == 0:
+            name = "tau-ECMWF-clim"
+        else:
+            name = "it_" + str(it) + "_clim_tau"
+        if path:
+            return os.path.join(self.ocean_data_path, name)
+        else:
+            return name
+
+    def tau_clim_y(self, it: int, path: bool = True) -> str:
+        return self.tau_clim_base(it, path=path) + ".y"
+
+    def tau_clim_x(self, it: int, path: bool = True) -> str:
+        return self.tau_clim_base(it, path=path) + ".x"
+
     def dq_df(self, it: int, path: bool = True) -> str:
         if it == 0:
             name = "dQdf-sample.nc"

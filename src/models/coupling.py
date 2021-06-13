@@ -133,18 +133,25 @@ class Coupling:
     def replace_stress(self, it: int) -> None:
         """Replace the stress files. Currently just resaves the files."""
 
-        taux_obj = xr.open_dataarray(
-            os.path.join(self.setup.ocean_data_path, "tau-ECMWF.x"), decode_times=False
-        )
-        taux_obj.to_dataset().to_netcdf(
+        taux_obj = xr.open_dataset(self.setup.tau_x(0), decode_times=False)
+        taux_obj.to_netcdf(
             self.setup.tau_x(it),
             format="NETCDF3_CLASSIC",
         )
-        tauy_obj = xr.open_dataarray(
-            os.path.join(self.setup.ocean_data_path, "tau-ECMWF.y"), decode_times=False
-        )
-        tauy_obj.to_dataset().to_netcdf(
+        tauy_obj = xr.open_dataset(self.setup.tau_y(0), decode_times=False)
+        tauy_obj.to_netcdf(
             self.setup.tau_y(it),
+            format="NETCDF3_CLASSIC",
+        )
+
+        taux_clim_obj = xr.open_dataset(self.setup.tau_clim_x(0), decode_times=False)
+        taux_clim_obj.to_netcdf(
+            self.setup.tau_clim_x(it),
+            format="NETCDF3_CLASSIC",
+        )
+        tauy_clim_obj = xr.open_dataset(self.setup.tau_clim_y(0), decode_times=False)
+        tauy_clim_obj.to_netcdf(
+            self.setup.tau_clim_y(it),
             format="NETCDF3_CLASSIC",
         )
 

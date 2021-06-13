@@ -1,6 +1,8 @@
 ###################################################################################################
 # Config file for Hydra:
 # hopefully passes all the important parameters.
+# The majority of this file can be directly edited, apart from the oc bit, 
+# and the sync names.
 project: seager19
 user: sdat2
 test: true # unimportant param for filtering later.
@@ -17,11 +19,13 @@ ocean:
   run_through: true
   animate_qflx: true
 oc:
+  # These are set to be the defaults, and so if you edit these,
+  # it will break.
   nummode: 2 # each aditional mode adds about 7 minutes to the run time of run2f.
   boundaries: Periodic # realistically this can't be changed.
   # these are the default start files.
-  wind_clim_file: tau-ECMWF-clim'
-  wind_file: tau-ECMWF'
+  wind_clim_file: tau-ECMWF-clim
+  wind_file: tau-ECMWF
   dq_dtemp_file: dQdT-sample.nc
   dq_df_file: dQdf-sample.nc
   sst_file: sst-ECMWF-clim.nc
