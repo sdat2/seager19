@@ -85,64 +85,69 @@ class Ocean:
         This is for the initial run.
         """
         for i in ["om_spin", "om_diag", "om_run2f"]:
-            oc_defaults = load_config(test=False).oc
             file_name = os.path.join(self.setup.ocean_run_path, i)
             print("editing ", file_name)
             with open(file_name) as read_file:
                 string_list = read_file.readlines()
 
             string_list = replace_item(
-                "+NUMMODE              " + str(oc_defaults.nummode),
+                "+NUMMODE              " + str(2),
                 "+NUMMODE              " + str(self.cfg.oc.nummode),
                 string_list,
             )
             string_list = replace_item(
-                "+Hcut " + str(oc_defaults.hcut),
+                "+Hcut " + str(5),
                 "+Hcut " + str(self.cfg.oc.hcut),
                 string_list,
             )
             string_list = replace_item(
-                "+Tcut " + str(oc_defaults.tcut),
+                "+Tcut " + str(14.6),
                 "+Tcut " + str(self.cfg.oc.tcut),
                 string_list,
             )
             string_list = replace_item(
-                "+f1prime        " + str(oc_defaults.f1prime),
+                "+f1prime        " + str(-0.006),
                 "+f1prime        " + str(self.cfg.oc.f1prime),
                 string_list,
             )
 
             string_list = replace_item(
-                oc_defaults.wind_file, self.cfg.oc.wind_file, string_list
+                self.setup.tau_base(0, path=False), self.cfg.oc.wind_file, string_list
             )
             string_list = replace_item(
-                oc_defaults.wind_clim_file, self.cfg.oc.wind_clim_file, string_list
+                self.setup.tau_clim_base(0, path=False),
+                self.cfg.oc.wind_clim_file,
+                string_list,
             )
             string_list = replace_item(
-                oc_defaults.dq_dtemp_file, self.cfg.oc.dq_dtemp_file, string_list
+                self.setup.dq_dt(0, path=False),
+                self.cfg.oc.dq_dtemp_file,
+                string_list,
             )
             string_list = replace_item(
-                oc_defaults.dq_df_file, self.cfg.oc.dq_df_file, string_list
+                self.setup.dq_df(0, path=False),
+                self.cfg.oc.dq_df_file,
+                string_list,
             )
 
             if i == "om_test":
                 string_list = replace_item(
-                    oc_defaults.time_test, self.cfg.oc.time_test, string_list
+                    "2 months", self.cfg.oc.time_test, string_list
                 )
 
             if i == "om_spin":
                 string_list = replace_item(
-                    oc_defaults.time_spin, self.cfg.oc.time_spin, string_list
+                    "20 years", self.cfg.oc.time_spin, string_list
                 )
 
             elif i == "om_diag":
                 string_list = replace_item(
-                    oc_defaults.time_diag, self.cfg.oc.time_diag, string_list
+                    "2 years", self.cfg.oc.time_diag, string_list
                 )
 
             elif i == "om_run2f":
                 string_list = replace_item(
-                    oc_defaults.time_run2f, self.cfg.oc.time_run2f, string_list
+                    "58 years", self.cfg.oc.time_run2f, string_list
                 )
 
             with open(file_name, "w") as write_file:
@@ -180,6 +185,12 @@ class Ocean:
 
             with open(file_name, "r") as read_file:
                 string_list = read_file.readlines()
+
+            string_list = replace_item(
+                self.setup.tau_clim_base(it - 1, path=False),
+                self.setup.tau_clim_base(it, path=False),
+                string_list,
+            )
 
             string_list = replace_item(
                 self.setup.tau_base(it - 1, path=False),

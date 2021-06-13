@@ -1,8 +1,6 @@
 ###################################################################################################
 # Config file for Hydra:
 # hopefully passes all the important parameters.
-# The majority of this file can be directly edited, apart from the oc bit, 
-# and the sync names.
 project: seager19
 user: sdat2
 test: true # unimportant param for filtering later.
@@ -19,8 +17,6 @@ ocean:
   run_through: true
   animate_qflx: true
 oc:
-  # These are set to be the defaults, and so if you edit these,
-  # it will break.
   nummode: 2 # each aditional mode adds about 7 minutes to the run time of run2f.
   boundaries: Periodic # realistically this can't be changed.
   # these are the default start files.
@@ -46,7 +42,7 @@ coup:
   # iterations will be quite hard to tune.
 atm:
   # begining TCAM
-  k_days: 10     # K: 1/10
+  k_days: 10     # K: 1/10 days
   e_frac: 2.0     # multiply epsu by efrac to get epsv
   prcp_land: 1   # use data precip trends over land
   r: 0.80  # humidity
@@ -64,7 +60,7 @@ atm:
   nbsq: 3.0e-4  # N^2 s-2. N^2 is a specified buoyancy frequency.
   radius_earth: 6.37e6  # metres
   # not really changeable :) Nonvariables.
-  pi: 3.141592653589793
+  pi: 3.141592653589793  # pi :)
   stefan_boltzman_const: 5.67e-8
   sec_in_day: 86400  # seconds in day.
   gravity: 9.8  #  m s-2

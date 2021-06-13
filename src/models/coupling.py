@@ -159,14 +159,26 @@ class Coupling:
         cut_and_taper(can_coords(xr.open_dataset(self.setup.tcam_output()).vtrend))
         cut_and_taper(can_coords(xr.open_dataset(self.setup.tcam_output()).utrend))
 
+    def replace_surface_temp(self, it: int) -> None:
+        """
+        Replace sst for forcing atmosphere model.
+
+        Args:
+            it (int): iteration.
+        """
+        print(it)
+
     def run(self) -> None:
         """
         Run coupling.
         """
+        print("setting up spin up run")
 
         # Initial set up.
         self.ocean.compile_all()
         self.ocean.edit_run()
+
+        print("run")
         if self.cfg.run:
             self.ocean.run_all(it=0)
 
@@ -176,10 +188,9 @@ class Coupling:
             self.atmos.run_all()
 
         self.ocean.copy_old_io(0)
-        self.ocean.copy_old_io(0)
 
         for it in range(1, self.coup.iterations):
-            print(it)
+            print("coupling number ", it, " of iterations.")
             self.replace_dq(it)
             self.replace_stress(it)
             self.ocean.edit_inputs(it)
