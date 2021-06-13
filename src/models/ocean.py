@@ -13,7 +13,6 @@ from src.utils import timeit, hr_time
 from src.data_loading.ingrid import linear_qflx_replacement
 from src.models.model_setup import ModelSetup
 from src.metrics import get_nino_trend
-from src.configs.load_config import load_config
 
 log = logging.getLogger(__name__)
 
@@ -236,14 +235,14 @@ class Ocean:
             run_time = self.run(
                 "../SRC/" + self.cfg.ocean.tcom_name + " -i om_run2f -t om_run2f.tios"
             )
-            try:
-                # TODO: Currently this will fail
-                # if wandb is not initialised
-                dict_nino_trend = get_nino_trend(
-                    os.path.join(self.setup.ocean_output_path, "om_run.nc"),
+            dict_nino_trend = get_nino_trend(
+                    os.path.join(self.setup.ocean_output_path, "om_run2f.nc"),
                     os.path.join(self.setup.direc, "nino_" + str(it) + ".png"),
                     it=it,
                 )
+            try:
+                # TODO: Currently this will fail
+                # if wandb is not initialised
                 wandb.log(dict_nino_trend)
                 wandb.log({"ocean_run": run_time})
                 # pylint: disable=bare-except

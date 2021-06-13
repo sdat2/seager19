@@ -190,18 +190,18 @@ class Coupling:
         self.ocean.copy_old_io(0)
 
         for it in range(1, self.coup.iterations):
-            print("coupling number ", it, " of iterations.")
+            print(
+                "coupling number ",
+                it,
+                " of " + str(self.coup.iterations) + " iterations.",
+            )
             self.replace_dq(it)
             self.replace_stress(it)
+            self.replace_surface_temp(it)
             self.ocean.edit_inputs(it)
             # self.ocean.rename(x)
             self.ocean.run_all(it=it)
             self.atmos.run_all(it=it)
-            # '/home/users/sithom/seager19/src/test/test_direc/'
-            # 'ocean/DATA/tau-ECMWF-clim.x',
-            # 'test.x
-            # /home/users/sithom/seager19/src/test/test_direc/
-            # ocean/DATA/tau-ECMWF-clim.x test.x differ: byte 1, line 1
             self.ocean.copy_old_io(it)
 
         # set up.

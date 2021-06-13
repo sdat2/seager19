@@ -123,6 +123,7 @@ def get_nino_trend(path_of_run2f: str, graph_path: str, it: int = 0) -> dict:
         nino_dict[reg] = get_trend(metric)
 
     plt.legend()
+    plt.title("")
     plt.savefig(graph_path)
 
     return nino_dict
