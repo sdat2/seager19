@@ -168,6 +168,7 @@ class Coupling:
             self.atmos.run_all()
 
         self.ocean.copy_old_io(0)
+        self.ocean.copy_old_io(0)
 
         for it in range(1, self.coup.iterations):
             print(it)

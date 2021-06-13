@@ -14,8 +14,7 @@ import hydra
 from omegaconf import DictConfig
 from src.constants import CONFIG_PATH, CONFIG_NAME, TEST_DIREC
 from src.utils import timeit
-from src.models.ocean import Ocean
-from src.models.atmos import Atmos
+from src.models.coupling import Coupling
 from src.models.model_setup import ModelSetup
 from src.configs.config import format_config
 from src.configs.wandb_util import start_wandb
@@ -59,19 +58,8 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
         start_wandb(cfg, unit_test=unit_test)
         setup = ModelSetup(str(wandb.run.dir), cfg)
 
-    # ocean model
-    ocean = Ocean(cfg, setup)
-    ocean.compile_all()
-    if cfg.run:
-        ocean.run_all()
-    if cfg.animate:
-        ocean.animate_all()
-
-    # atmos model.
-    if cfg.atmos:
-        # atmos takes in cfg
-        atmos = Atmos(cfg, setup)
-        atmos.run_all()
+    couple = Coupling(cfg, setup)
+    couple.run()
 
     wandb.finish()
 

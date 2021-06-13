@@ -132,6 +132,7 @@ class ModelSetup:
     # a new name. The name alone should be an option to
     # allow renaming to occur.
 
+    # pylint: disable=missing-function-docstring
     def tcam_output(self, path: bool = True) -> str:
         name = (
             "S91"
@@ -157,6 +158,20 @@ class ModelSetup:
         name = "Q.nc"
         if path:
             return os.path.join(self.atmos_path, name)
+        else:
+            return name
+
+    def ts(self, it: int, path: bool = True) -> str:
+        name = int(it) + "_Q.nc"
+        if path:
+            return os.path.join(self.atmos_data_path, name)
+        else:
+            return name
+
+    def ts_trend(self, it: int, path: bool = True) -> str:
+        name = int(it) + "_Q.nc"
+        if path:
+            return os.path.join(self.atmos_data_path, name)
         else:
             return name
 
