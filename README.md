@@ -123,7 +123,7 @@ The code and data was taken from:
     
 ```
 
-### compilers in signularity.
+### compilers in singularity container
 
 ```bash
     # x86_64-linux-gnu-gcc-4.8

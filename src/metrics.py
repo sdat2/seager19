@@ -2,7 +2,7 @@
 from typing import Tuple
 import xarray as xr
 from src.constants import NOAA_DATA_PATH, NINO3_4_TEST_PATH, DATA_PATH
-from src.xr_utils import sel, can_coords, spatial_mean
+from src.xr_utils import sel, can_coords, spatial_mean, get_clim
 from src.plot_utils import add_units
 
 
@@ -38,11 +38,9 @@ def nino_calculate(
     )
     mean_timeseries.attrs["units"] = r"$^{\circ}$C"
     mean_timeseries.coords["T"].attrs["long_name"] = "Month"
+    climatology = get_clim(mean_timeseries)
     time_coord = mean_timeseries.coords["T"].values
     time_str = time_coord[0].__str__()[0:4] + " to " + time_coord[-1].__str__()[0:4]
-    climatology = mean_timeseries.groupby("T.month").mean("T")
-    climatology.attrs["units"] = r"$^{\circ}$C"
-    climatology.attrs["long_name"] = "Climateology for " + reg + " region " + time_str
     mean_state = mean_timeseries.mean(dim=["T"])
     mean_state.attrs["long_name"] = (
         "Average sea surface temperature over " + reg + " region"

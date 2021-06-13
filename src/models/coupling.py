@@ -103,9 +103,7 @@ class Coupling:
         dQdf
         dQdT
         """
-        dq_df_from_atm = open_dataset(
-            os.path.join(self.setup.atmos_path, "dQ.nc")
-        ).dq_df
+        dq_df_from_atm = open_dataset(self.setup.dq_output()).dq_df
         dq_df_sample = xr.open_dataarray(
             os.path.join(self.setup.ocean_data_path, "dQdf-sample.nc"),
             decode_times=False,
@@ -151,20 +149,8 @@ class Coupling:
         )
 
         # test the cut and taper functions work.
-        cut_and_taper(
-            can_coords(
-                xr.open_dataset(
-                    os.path.join(self.setup.atmos_path, "S91-hq1800-prcp_land1.nc")
-                ).vtrend
-            )
-        )
-        cut_and_taper(
-            can_coords(
-                xr.open_dataset(
-                    os.path.join(self.setup.atmos_path, "S91-hq1800-prcp_land1.nc")
-                ).utrend
-            )
-        )
+        cut_and_taper(can_coords(xr.open_dataset(self.setup.tcam_output()).vtrend))
+        cut_and_taper(can_coords(xr.open_dataset(self.setup.tcam_output()).utrend))
 
     def run(self) -> None:
         """

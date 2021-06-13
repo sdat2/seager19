@@ -393,3 +393,26 @@ def get_trend(da: xr.DataArray) -> Union[float, xr.DataArray]:
 
     print("run", run, "slope", slope, "rise = slope * run", rise)
     return rise
+
+
+def get_clim(xr_da: xr.DataArray) -> xr.DataArray:
+    """
+    Get the climateology of an xr.DataArray.
+
+    Args:
+        xr_da (xr.DataArray): The input datarray.
+            Assumes that the time coordinate is canonical "T".
+
+    Returns:
+        xr.DataArray: The climatology for the time period.
+    """
+    time_coord = xr_da.coords["T"].values
+    time_str = time_coord[0].__str__()[0:4] + " to " + time_coord[-1].__str__()[0:4]
+    init_long_name = xr_da.attrs["long_name"]
+    init_units = xr_da.attrs["units"]
+    climatology = xr_da.groupby("T.month").mean("T")
+    climatology.attrs["units"] = init_units
+    climatology.attrs["long_name"] = (
+        "Climateology for " + time_str + " " + init_long_name.lower()
+    )
+    return climatology

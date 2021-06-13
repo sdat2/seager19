@@ -128,6 +128,9 @@ class ModelSetup:
     def tcam_output(self):
         return os.path.join(self.atmos_path, "S91-hq1800-prcp_land1.nc")
 
+    def dq_output(self):
+        return os.path.join(self.atmos_path, "dQ.nc")
+
     def tau_y(self, it: int) -> str:
         return os.path.join(self.ocean_data_path, "it" + str(it) + "-tau.y")
 

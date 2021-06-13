@@ -172,12 +172,14 @@ class Ocean:
                 # pylint: disable=bare-except
             except:
                 print("wandb not initiliased, not logging.")
+
             self.run("../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_run2f")
             self.run("rm -rf output/om_run2f.data output/om_run2f.indx")
 
     @timeit
     def animate_all(self) -> None:
         """Animate the sst into gifs."""
+
         l_x = list()
         if self.cfg.ocean.diag:
             l_x.append("om_diag")
