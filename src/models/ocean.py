@@ -1,5 +1,6 @@
 """Ocean model."""
 import os
+import shutil
 from typing import List
 import time
 import xarray as xr
@@ -120,6 +121,22 @@ class Ocean:
 
             with open(file_name, "w") as write_file:
                 write_file.writelines(string_list)
+
+    def move_old_io(self, it: int) -> None:
+        """
+        Move old io files to their new name after that step has completed.
+
+        Args:
+            it (int): The iteration number of the coupling.
+        """
+        for part in ["om_run2f", "om_spin", "om_diag"]:
+            for ending in ["", ".tr", ".tios"]:
+                shutil.copy(
+                    os.path.join(self.setup.ocean_run_path, part + ending),
+                    os.path.join(
+                        self.setup.ocean_run_path, str(it) + "_" + part + ending
+                    ),
+                )
 
     @timeit
     def run_all(self) -> None:
