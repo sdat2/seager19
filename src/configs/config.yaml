@@ -20,7 +20,8 @@ oc:
   nummode: 2 # each aditional mode adds about 7 minutes to the run time of run2f.
   boundaries: Periodic # realistically this can't be changed.
   # these are the default start files.
-  wind_file: tau-ECMWF-clim
+  wind_clim_file: tau-ECMWF-clim'
+  wind_file: tau-ECMWF'
   dq_dtemp_file: dQdT-sample.nc
   dq_df_file: dQdf-sample.nc
   sst_file: sst-ECMWF-clim.nc
@@ -30,6 +31,9 @@ oc:
   time_spin: 20 years # months
   time_diag: 2 years
   time_run2f: 2 years # 58 years # now shortened for quick testing.
+  hcut: 5
+  tcut: 14.6
+  f1prime: -0.006
 coup:
   c_d: 2.25e-3    # Pa m-1 s,  wind stress.
   rho_air: 1.225   # kg m-3, density of sea surface air
