@@ -54,10 +54,10 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
     # print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
 
     if unit_test:
-        setup = ModelSetup(str(TEST_DIREC))
+        setup = ModelSetup(str(TEST_DIREC), cfg)
     else:
         start_wandb(cfg, unit_test=unit_test)
-        setup = ModelSetup(str(wandb.run.dir))
+        setup = ModelSetup(str(wandb.run.dir), cfg)
 
     # ocean model
     ocean = Ocean(cfg, setup)

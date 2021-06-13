@@ -17,7 +17,7 @@ def test_atmos():
     """test all functions in document."""
     get_data()
     cfg = load_config()
-    setup = ModelSetup(str(TEST_DIREC))
+    setup = ModelSetup(str(TEST_DIREC), cfg)
     atmos = Atmos(cfg, setup)
     atmos.run_all()
     # atmos.make_figure()

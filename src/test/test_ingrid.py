@@ -25,7 +25,7 @@ def test_ingrid() -> None:
     cfg = load_config()
     print(cfg.name)
 
-    setup = ModelSetup(str(TEST_DIREC))
+    setup = ModelSetup(str(TEST_DIREC), cfg)
 
     shutil.copy(str(OCEAN_OUTPUT_PATH / "om_diag.nc"), str(setup.ocean_output_path))
 

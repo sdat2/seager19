@@ -167,12 +167,10 @@ class Coupling:
             # atmos takes in cfg
             self.atmos.run_all()
 
+        self.ocean.copy_old_io(0)
+
         for it in range(1, self.coup.iterations):
-            # TODO: need to rename all the .tr files after each run.
-            # TODO: need to edit om_spin etc.\
-            # TODO: need to edit
             print(it)
-            self.ocean.copy_old_io(it)
             self.replace_dq(it)
             self.replace_stress(it)
             self.ocean.edit_inputs(it)
@@ -184,6 +182,7 @@ class Coupling:
             # 'test.x
             # /home/users/sithom/seager19/src/test/test_direc/
             # ocean/DATA/tau-ECMWF-clim.x test.x differ: byte 1, line 1
+            self.ocean.copy_old_io(it)
 
         # set up.
         if self.cfg.animate:

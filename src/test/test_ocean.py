@@ -8,7 +8,7 @@ from src.models.ocean import Ocean
 def test_ocean() -> None:
     """Test ocean model runs."""
     cfg = load_config()
-    setup = ModelSetup(str(TEST_DIREC))
+    setup = ModelSetup(str(TEST_DIREC), cfg)
     ocean = Ocean(cfg, setup)
     ocean.compile_all()
     if cfg.run:

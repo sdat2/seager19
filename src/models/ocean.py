@@ -75,7 +75,7 @@ class Ocean:
         os.system(full_command)
         te = time.perf_counter()
         diff = te - ts
-        print(full_command + " %2.5f s\n" % hr_time(diff))
+        print(full_command + " " + hr_time(diff))
         return diff
 
     def edit_run(self) -> None:

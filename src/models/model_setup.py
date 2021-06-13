@@ -1,5 +1,6 @@
 """Set up the model, copy the files, get the names."""
 import os
+from omegaconf import DictConfig
 from src.constants import (
     OCEAN_RUN_PATH,
     OCEAN_SRC_PATH,
@@ -12,7 +13,7 @@ from src.constants import (
 class ModelSetup:
     """Initialise, store, and setup directories for models."""
 
-    def __init__(self, direc: str) -> None:
+    def __init__(self, direc: str, cfg: DictConfig) -> None:
         """
         Model directories init.
 
@@ -20,10 +21,12 @@ class ModelSetup:
 
         Args:
             direc (str): The main model directory.
+            cfg (DictConfig): The config.
         """
 
         # setup ocean paths
         self.direc = direc
+        self.cfg = cfg
         self.ocean_path = os.path.join(direc, "ocean")
         self.ocean_run_path = os.path.join(self.ocean_path, "RUN")
         self.ocean_src_path = os.path.join(self.ocean_path, "SRC")
@@ -126,11 +129,18 @@ class ModelSetup:
         )
 
     # Iteration 0 is the initial name, itertion Z+ returns
-    #  a new name. The name alone should be an option to
-    #  allow renaming to occur.
+    # a new name. The name alone should be an option to
+    # allow renaming to occur.
 
     def tcam_output(self, path: bool = True) -> str:
-        name = "S91-hq1800-prcp_land1.nc"
+        name = (
+            "S91"
+            + "-hq"
+            + str(self.cfg.atm.h_q)
+            + "-prcp_land"
+            + str(self.cfg.atm.prcp_land)
+            + ".nc"
+        )
         if path:
             return os.path.join(self.atmos_path, name)
         else:
@@ -143,11 +153,18 @@ class ModelSetup:
         else:
             return name
 
+    def q_output(self, path: bool = True) -> str:
+        name = "Q.nc"
+        if path:
+            return os.path.join(self.atmos_path, name)
+        else:
+            return name
+
     def tau_base(self, it: int, path: bool = True) -> str:
         if it == 0:
             name = "tau-ECMWF"
         else:
-            name = "it" + str(it) + "-tau"
+            name = "it_" + str(it) + "_tau"
         if path:
             return os.path.join(self.ocean_data_path, name)
         else:
@@ -163,7 +180,7 @@ class ModelSetup:
         if it == 0:
             name = "dQdf-sample.nc"
         else:
-            name = "it" + str(it) + "_dq_df.nc"
+            name = "it_" + str(it) + "_dq_df.nc"
 
         if path:
             return os.path.join(self.ocean_data_path, name)
@@ -174,7 +191,8 @@ class ModelSetup:
         if it == 0:
             name = "dQdT-sample.nc"
         else:
-            name = "it" + str(it) + "_dq_dt.nc"
+            name = "it_" + str(it) + "_dq_dt.nc"
+
         if path:
             return os.path.join(self.ocean_data_path, name)
         else:
