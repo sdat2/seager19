@@ -59,7 +59,8 @@ The citation for this paper is:
 The paper is discussed in a podcast available at:
 
 <a href='https://deep-convection.org/2020/04/13/episode-5-richard-seager/'>
-    <img src='https://deep-convection.org/wp-content/uploads/2020/02/DC_logo_small_rectangular.png' alt='Deep Convection Season 1 Episode 5' width='150' />
+<img src='https://deep-convection.org/wp-content/uploads/2020/02/DC_logo_small_rectangular.png'
+alt='Deep Convection: Season 1 Episode 5' width='150' />
 </a>
 
 ## Code

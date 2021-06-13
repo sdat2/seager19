@@ -9,7 +9,7 @@ from omegaconf import DictConfig
 from typeguard import typechecked
 import wandb
 from src.visualisation.ani import animate_ds, animate_qflx_diff
-from src.utils import timeit
+from src.utils import timeit, hr_time
 from src.data_loading.ingrid import linear_qflx_replacement
 from src.models.model_setup import ModelSetup
 
@@ -75,7 +75,7 @@ class Ocean:
         os.system(full_command)
         te = time.perf_counter()
         diff = te - ts
-        print(full_command + " %2.5f s\n" % diff)
+        print(full_command + " %2.5f s\n" % hr_time(diff))
         return diff
 
     def edit_run(self) -> None:

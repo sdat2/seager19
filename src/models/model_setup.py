@@ -61,10 +61,10 @@ class ModelSetup:
             if not os.path.exists(j):
                 os.symlink(i, j)
 
-        self.init_ocean()
-        self.init_atmos()
+        self._init_ocean()
+        self._init_atmos()
 
-    def init_ocean(self):
+    def _init_ocean(self):
         """initialise the ocean model by copying files over."""
         for file_ending in ["*.F", "*.c", "*.h", "*.inc", "*.mod", ".tios"]:
 
@@ -106,7 +106,7 @@ class ModelSetup:
 
         os.system("cd " + str(self.ocean_data_path) + " \n make all")
 
-    def init_atmos(self):
+    def _init_atmos(self):
         """Creating atmos by copying files over."""
         os.system(
             "cd "
@@ -125,20 +125,48 @@ class ModelSetup:
             + str(self.atmos_tmp_path)
         )
 
-    def tcam_output(self):
-        return os.path.join(self.atmos_path, "S91-hq1800-prcp_land1.nc")
+    # Iteration 0 is the initial name, itertion Z+ returns
+    #  a new name. The name alone should be an option to
+    #  allow renaming to occur.
 
-    def dq_output(self):
-        return os.path.join(self.atmos_path, "dQ.nc")
+    def tcam_output(self, path: bool = True) -> str:
+        name = "S91-hq1800-prcp_land1.nc"
+        if path:
+            return os.path.join(self.atmos_path, name)
+        else:
+            return name
 
-    def tau_y(self, it: int) -> str:
-        return os.path.join(self.ocean_data_path, "it" + str(it) + "-tau.y")
+    def dq_output(self, path: bool = True) -> str:
+        name = "dQ.nc"
+        if path:
+            return os.path.join(self.atmos_path, name)
+        else:
+            return name
 
-    def tau_x(self, it: int) -> str:
-        return os.path.join(self.ocean_data_path, "it" + str(it) + "-tau.x")
+    def tau_y(self, it: int, path: bool = True) -> str:
+        name = "it" + str(it) + "-tau.y"
+        if path:
+            return os.path.join(self.ocean_data_path, name)
+        else:
+            return name
 
-    def dq_df(self, it: int) -> str:
-        return os.path.join(self.ocean_data_path, "it" + str(it) + "_dq_df.nc")
+    def tau_x(self, it: int, path: bool = True) -> str:
+        name = "it" + str(it) + "-tau.x"
+        if path:
+            return os.path.join(self.ocean_data_path, name)
+        else:
+            return name
 
-    def dq_dt(self, it: int) -> str:
-        return os.path.join(self.ocean_data_path, "it" + str(it) + "_dq_dt.nc")
+    def dq_df(self, it: int, path: bool = True) -> str:
+        name = "it" + str(it) + "_dq_df.nc"
+        if path:
+            return os.path.join(self.ocean_data_path, name)
+        else:
+            return name
+
+    def dq_dt(self, it: int, path: bool = True) -> str:
+        name = "it" + str(it) + "_dq_dt.nc"
+        if path:
+            return os.path.join(self.ocean_data_path, name)
+        else:
+            return name
