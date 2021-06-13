@@ -167,12 +167,15 @@ class Coupling:
             # atmos takes in cfg
             self.atmos.run_all()
 
-        for x in range(self.coup.iterations):
+        for it in range(1, self.coup.iterations):
             # TODO: need to rename all the .tr files after each run.
             # TODO: need to edit om_spin etc.\
             # TODO: need to edit
-            print(x)
-            self.replace_dq(x)
+            print(it)
+            self.ocean.copy_old_io(it)
+            self.replace_dq(it)
+            self.replace_stress(it)
+            self.ocean.edit_inputs(it)
             # self.ocean.rename(x)
             # self.ocean.run_all()
             # self.atmos.run_all()

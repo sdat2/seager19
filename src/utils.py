@@ -135,6 +135,7 @@ def calculate_byte_size_recursively(obj: object, seen: set = None) -> int:
                     # Recursively calculate size of member objects & variables
                     size += calculate_byte_size_recursively(obj.__dict__, seen)
                 break
+
     if isinstance(obj, dict):
         # handles dictionaries
         size += sum((calculate_byte_size_recursively(v, seen) for v in obj.values()))

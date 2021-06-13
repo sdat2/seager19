@@ -122,7 +122,7 @@ class Ocean:
             with open(file_name, "w") as write_file:
                 write_file.writelines(string_list)
 
-    def move_old_io(self, it: int) -> None:
+    def copy_old_io(self, it: int) -> None:
         """
         Move old io files to their new name after that step has completed.
 
@@ -137,6 +137,30 @@ class Ocean:
                         self.setup.ocean_run_path, str(it) + "_" + part + ending
                     ),
                 )
+
+    def edit_inputs(self, it: int) -> None:
+        """
+        Edit the input files.
+
+        Args:
+            it (int): The iteration number.
+        """
+        for part in ["om_run2f", "om_spin", "om_diag"]:
+
+            print(part, it)
+            file_name = os.path.join(self.setup.ocean_run_path, part)
+
+            with open(file_name, "r") as read_file:
+                string_list = read_file.readlines()
+
+            string_list = replace_item(
+                "+NUMMODE              2",
+                "+NUMMODE              " + str(self.cfg.oc.nummode),
+                string_list,
+            )
+
+            with open(file_name, "w") as write_file:
+                write_file.writelines(string_list)
 
     @timeit
     def run_all(self) -> None:
