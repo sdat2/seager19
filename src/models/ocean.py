@@ -130,7 +130,7 @@ class Ocean:
             it (int): The iteration number of the coupling.
         """
         for part in ["om_run2f", "om_spin", "om_diag"]:
-            for ending in ["", ".tr", ".tios"]:
+            for ending in ["", ".tr", ".tios", ".log"]:
                 shutil.copy(
                     os.path.join(self.setup.ocean_run_path, part + ending),
                     os.path.join(
@@ -145,6 +145,8 @@ class Ocean:
         Args:
             it (int): The iteration number.
         """
+        assert it != 0
+
         for part in ["om_run2f", "om_spin", "om_diag"]:
 
             print(part, it)
@@ -154,8 +156,18 @@ class Ocean:
                 string_list = read_file.readlines()
 
             string_list = replace_item(
-                "+NUMMODE              2",
-                "+NUMMODE              " + str(self.cfg.oc.nummode),
+                self.setup.tau_base(it - 1, path=False),
+                self.setup.tau_base(it, path=False),
+                string_list,
+            )
+            string_list = replace_item(
+                self.setup.dq_df(it - 1, path=False),
+                self.setup.dq_df(it, path=False),
+                string_list,
+            )
+            string_list = replace_item(
+                self.setup.dq_dt(it - 1, path=False),
+                self.setup.dq_dt(it, path=False),
                 string_list,
             )
 

@@ -63,6 +63,8 @@ The paper is discussed in a podcast available at:
 alt='Deep Convection: Season 1 Episode 5' width='150' />
 </a>
 
+Specifically the time period 33:00-44:30.
+
 ## Code
 
 The code and data was taken from:

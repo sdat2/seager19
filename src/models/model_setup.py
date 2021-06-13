@@ -143,29 +143,38 @@ class ModelSetup:
         else:
             return name
 
-    def tau_y(self, it: int, path: bool = True) -> str:
-        name = "it" + str(it) + "-tau.y"
+    def tau_base(self, it: int, path: bool = True) -> str:
+        if it == 0:
+            name = "tau-ECMWF"
+        else:
+            name = "it" + str(it) + "-tau"
         if path:
             return os.path.join(self.ocean_data_path, name)
         else:
             return name
+
+    def tau_y(self, it: int, path: bool = True) -> str:
+        return self.tau_base(it, path=path) + ".y"
 
     def tau_x(self, it: int, path: bool = True) -> str:
-        name = "it" + str(it) + "-tau.x"
-        if path:
-            return os.path.join(self.ocean_data_path, name)
-        else:
-            return name
+        return self.tau_base(it, path=path) + ".x"
 
     def dq_df(self, it: int, path: bool = True) -> str:
-        name = "it" + str(it) + "_dq_df.nc"
+        if it == 0:
+            name = "dQdf-sample.nc"
+        else:
+            name = "it" + str(it) + "_dq_df.nc"
+
         if path:
             return os.path.join(self.ocean_data_path, name)
         else:
             return name
 
     def dq_dt(self, it: int, path: bool = True) -> str:
-        name = "it" + str(it) + "_dq_dt.nc"
+        if it == 0:
+            name = "dQdT-sample.nc"
+        else:
+            name = "it" + str(it) + "_dq_dt.nc"
         if path:
             return os.path.join(self.ocean_data_path, name)
         else:
