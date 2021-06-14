@@ -228,3 +228,12 @@ class ModelSetup:
             return os.path.join(self.ocean_data_path, name)
         else:
             return name
+
+    def om_run2f_nc(self) -> str:
+        return os.path.join(self.ocean_output_path, "om_run2f.nc")
+
+    def nino_png(self, it: int) -> str:
+        return os.path.join(self.direc, "nino_" + str(it) + ".png")
+
+    def nino_nc(self, it: int) -> str:
+        return os.path.join(self.direc, "nino_" + str(it) + ".nc")
