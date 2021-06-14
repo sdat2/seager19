@@ -242,8 +242,11 @@ class Ocean:
             dict_nino_trend = get_nino_trend(
                 os.path.join(self.setup.ocean_output_path, "om_run2f.nc"),
                 os.path.join(self.setup.direc, "nino_" + str(it) + ".png"),
+                os.path.join(self.setup.direc, "nino_" + str(it) + ".nc"),
                 it=it,
             )
+            dict_nino_trend["it"] = it
+
             dict_nino_trend["ocean_run"] = run_time
             try:
                 # This will fail if wandb is not initialised

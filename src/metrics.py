@@ -73,8 +73,8 @@ def nino_calculate(
     metric.attrs["reg"] = reg
     metric.attrs["rolling_average"] = str(roll_period) + " months"
     metric.attrs["mean_state"] = float(mean_state.values)
-    metric.attrs["clim"] = climatology.values  # .tolist()
-    metric.attrs["clim_months"] = climatology.month.values  # .tolist()
+    # metric.attrs["clim"] = climatology.values  # .tolist()
+    # metric.attrs["clim_months"] = climatology.month.values  # .tolist()
     metric.attrs["clim_time_range"] = time_str
     return metric, climatology
 
@@ -105,20 +105,32 @@ def replace_nino3_4_from_noaa() -> None:
     clim.to_netcdf(str(DATA_PATH / "nino3_4_noaa_clim.nc"))
 
 
-def get_nino_trend(path_of_run2f: str, graph_path: str, it: int = 0) -> dict:
+def get_nino_trend(
+    path_of_run2f: str,
+    graph_path: str,
+    nc_path: str,
+) -> dict:
     """
     Get nino trend, mean, plot the graph.
 
+    Args:
+        path_of_run2f (str): path to the main output netcdf.
+        graph_path (str): path to output plot.
+        nc_path (str): path to output netcdf
+
     Returns:
-        dict: nino_dict.
+        dict: nino dict.
     """
     plt.clf()
     ps_defaults()
-    nino_dict = {"it": it}
     sst_output = can_coords(open_dataset(path_of_run2f).SST_SST)
     sst_output = sst_output.where(sst_output != 0.0)
 
     _, axs = plt.subplots(2, 1, figsize=get_dim(ratio=1.2))
+    metric_l = list()
+    clim_l = list()
+    reg_l = list()
+    nino_dict = {}
 
     for reg in ["nino1+2", "nino3", "nino3.4", "nino4", "pac"]:
         metric, clim = nino_calculate(sst_output, reg=reg)
@@ -131,11 +143,33 @@ def get_nino_trend(path_of_run2f: str, graph_path: str, it: int = 0) -> dict:
         axs[1].set_title("")
         nino_dict["trend_" + reg] = get_trend(metric)
         nino_dict["mean_" + reg] = metric.attrs["mean_state"]
+        metric_l.append(metric)
+        clim_l.append(clim)
+        reg_l.append(reg)
 
     plt.legend()
     plt.title("")
+    axs[0].set_xlabel("")
+    axs[1].set_xlabel("Month")
+
     label_subplots(axs, x_pos=-0.18, y_pos=1)
     plt.savefig(graph_path)
-    # plt.clf()
+    plt.clf()
+
+    anom = (
+        xr.concat(metric_l, "reg")
+        .assign_coords(reg=reg_l)
+        .isel(Z=0)
+        .drop("Z")
+        .to_dataset(name="anomaly")
+    )
+    clim = (
+        xr.concat(clim_l, "reg")
+        .assign_coords(reg=reg_l)
+        .isel(Z=0)
+        .drop("Z")
+        .to_dataset(name="clim")
+    )
+    xr.merge([anom, clim]).to_netcdf(nc_path)
 
     return nino_dict
