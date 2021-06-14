@@ -9,6 +9,7 @@ from src.xr_utils import (
     get_clim,
     open_dataset,
     get_trend,
+    min_clim,
 )
 from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots
 import matplotlib.pyplot as plt
@@ -54,6 +55,7 @@ def nino_calculate(
         "Average sea surface temperature over " + reg + " region"
     )
     mean_state.attrs["units"] = r"$^{\circ}$C"
+    anomaly_timeseries = min_clim(mean_timeseries, clim=climatology)
     anomaly_timeseries = mean_timeseries.groupby("T.month") - climatology
     anomaly_timeseries.attrs["long_name"] = (
         "Sea surface temperature anomaly averaged over " + reg + " region"

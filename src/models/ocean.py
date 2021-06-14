@@ -271,7 +271,7 @@ class Ocean:
                         decode_times=False,
                     ),
                     x,
-                    self.setup.direc,
+                    self.setup.gif_path,
                     front_trim=int("om_diag" == x),
                     # remove first month for om_diag
                 )
@@ -280,5 +280,5 @@ class Ocean:
             animate_qflx_diff(
                 path_a=os.path.join(self.setup.ocean_data_path, "qflx.nc"),
                 path_b=os.path.join(self.setup.ocean_data_path, "qflx-0.nc"),
-                video_path=os.path.join(self.setup.direc, "qflx-diff.gif"),
+                video_path=os.path.join(self.setup.gif_path, "qflx-diff.gif"),
             )

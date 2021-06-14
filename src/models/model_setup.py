@@ -13,7 +13,7 @@ from src.constants import (
 class ModelSetup:
     """Initialise, store, and setup directories for models."""
 
-    def __init__(self, direc: str, cfg: DictConfig) -> None:
+    def __init__(self, direc: str, cfg: DictConfig, make_move: bool = True) -> None:
         """
         Model directories init.
 
@@ -21,12 +21,21 @@ class ModelSetup:
 
         Args:
             direc (str): The main model directory.
-            cfg (DictConfig): The config.
+            cfg (DictConfig): The config object.
+            make_move (bool): whether to move the files and make the folders.
+                Defaults to true.
         """
 
         # setup ocean paths
         self.direc = direc
         self.cfg = cfg
+
+        # setup general output paths
+        self.gif_path = os.path.join(direc, "ocean")
+        self.nino_data_path = os.path.join(direc, "nino_data")
+        self.nino_plot_path = os.path.join(direc, "nino_plot")
+
+        # setup ocean paths
         self.ocean_path = os.path.join(direc, "ocean")
         self.ocean_run_path = os.path.join(self.ocean_path, "RUN")
         self.ocean_src_path = os.path.join(self.ocean_path, "SRC")
@@ -38,34 +47,40 @@ class ModelSetup:
         self.atmos_data_path = os.path.join(self.atmos_path, "DATA")
         self.atmos_tmp_path = os.path.join(self.atmos_path, "tmp")
 
-        for i in [
-            # make ocean paths
-            self.ocean_path,
-            self.ocean_run_path,
-            self.ocean_src_path,
-            self.ocean_data_path,
-            self.ocean_output_path,
-            # make atmos paths
-            self.atmos_path,
-            self.atmos_data_path,
-            self.atmos_tmp_path,
-        ]:
-            if not os.path.exists(i):
-                os.mkdir(i)
+        if make_move:
 
-        # make symlinks in ocean model
+            for i in [
+                # make general paths
+                self.gif_path,
+                self.nino_data_path,
+                self.nino_plot_path,
+                # make ocean paths
+                self.ocean_path,
+                self.ocean_run_path,
+                self.ocean_src_path,
+                self.ocean_data_path,
+                self.ocean_output_path,
+                # make atmos paths
+                self.atmos_path,
+                self.atmos_data_path,
+                self.atmos_tmp_path,
+            ]:
+                if not os.path.exists(i):
+                    os.mkdir(i)
 
-        for i, j in [
-            [self.ocean_data_path, os.path.join(self.ocean_run_path, "DATA")],
-            [self.ocean_data_path, os.path.join(self.ocean_src_path, "DATA")],
-            [self.ocean_output_path, os.path.join(self.ocean_run_path, "output")],
-            [self.ocean_output_path, os.path.join(self.ocean_src_path, "output")],
-        ]:
-            if not os.path.exists(j):
-                os.symlink(i, j)
+            # make symlinks in ocean model
 
-        self._init_ocean()
-        self._init_atmos()
+            for i, j in [
+                [self.ocean_data_path, os.path.join(self.ocean_run_path, "DATA")],
+                [self.ocean_data_path, os.path.join(self.ocean_src_path, "DATA")],
+                [self.ocean_output_path, os.path.join(self.ocean_run_path, "output")],
+                [self.ocean_output_path, os.path.join(self.ocean_src_path, "output")],
+            ]:
+                if not os.path.exists(j):
+                    os.symlink(i, j)
+
+            self._init_ocean()
+            self._init_atmos()
 
     def _init_ocean(self):
         """initialise the ocean model by copying files over."""
@@ -236,7 +251,7 @@ class ModelSetup:
         return os.path.join(self.ocean_data_path, "om_mask.nc")
 
     def nino_png(self, it: int) -> str:
-        return os.path.join(self.direc, "nino_" + str(it) + ".png")
+        return os.path.join(self.nino_plot_path, "nino_" + str(it) + ".png")
 
     def nino_nc(self, it: int) -> str:
-        return os.path.join(self.direc, "nino_" + str(it) + ".nc")
+        return os.path.join(self.nino_data_path, "nino_" + str(it) + ".nc")
