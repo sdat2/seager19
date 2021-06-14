@@ -10,7 +10,7 @@ from src.xr_utils import (
     open_dataset,
     get_trend,
 )
-from src.plot_utils import add_units, ps_defaults
+from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots
 import matplotlib.pyplot as plt
 
 
@@ -107,23 +107,35 @@ def replace_nino3_4_from_noaa() -> None:
 
 def get_nino_trend(path_of_run2f: str, graph_path: str, it: int = 0) -> dict:
     """
-    Get nino, plot the graphs.
+    Get nino trend, mean, plot the graph.
 
     Returns:
         dict: nino_dict.
     """
+    plt.clf()
     ps_defaults()
     nino_dict = {"it": it}
-    sst_output_example = can_coords(open_dataset(path_of_run2f).SST_SST)
+    sst_output = can_coords(open_dataset(path_of_run2f).SST_SST)
+    sst_output = sst_output.where(sst_output != 0.0)
+
+    _, axs = plt.subplots(2, 1, figsize=get_dim(ratio=1.2))
 
     for reg in ["nino1+2", "nino3", "nino3.4", "nino4", "pac"]:
-        metric, _ = nino_calculate(sst_output_example, reg=reg)
+        metric, clim = nino_calculate(sst_output, reg=reg)
         metric.attrs["long_name"] = "3 month rolling average SST anomaly"
-        metric.plot(label=metric.attrs["reg"])
-        nino_dict[reg] = get_trend(metric)
+        clim.attrs["long_name"] = clim.attrs["long_name"][0:29]
+        # metric.plot(label=metric.attrs["reg"])
+        metric.plot(ax=axs[0], label=metric.attrs["reg"])
+        axs[0].set_title("")
+        clim.plot(ax=axs[1], label=metric.attrs["reg"])
+        axs[1].set_title("")
+        nino_dict["trend_" + reg] = get_trend(metric)
+        nino_dict["mean_" + reg] = metric.attrs["mean_state"]
 
     plt.legend()
     plt.title("")
+    label_subplots(axs, x_pos=-0.18, y_pos=1)
     plt.savefig(graph_path)
+    # plt.clf()
 
     return nino_dict

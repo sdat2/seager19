@@ -235,22 +235,22 @@ class Ocean:
             run_time = self.run(
                 "../SRC/" + self.cfg.ocean.tcom_name + " -i om_run2f -t om_run2f.tios"
             )
-            dict_nino_trend = get_nino_trend(
-                    os.path.join(self.setup.ocean_output_path, "om_run2f.nc"),
-                    os.path.join(self.setup.direc, "nino_" + str(it) + ".png"),
-                    it=it,
-                )
-            try:
-                # TODO: Currently this will fail
-                # if wandb is not initialised
-                wandb.log(dict_nino_trend)
-                wandb.log({"ocean_run": run_time})
-                # pylint: disable=bare-except
-            except:
-                print("wandb not initiliased, not logging.")
 
             self.run("../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_run2f")
             self.run("rm -rf output/om_run2f.data output/om_run2f.indx")
+
+            dict_nino_trend = get_nino_trend(
+                os.path.join(self.setup.ocean_output_path, "om_run2f.nc"),
+                os.path.join(self.setup.direc, "nino_" + str(it) + ".png"),
+                it=it,
+            )
+            dict_nino_trend["ocean_run"] = run_time
+            try:
+                # This will fail if wandb is not initialised
+                wandb.log(dict_nino_trend)
+                # pylint: disable=bare-except
+            except:
+                print("wandb not initiliased, not logging.")
 
     @timeit
     def animate_all(self) -> None:
