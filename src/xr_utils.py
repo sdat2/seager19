@@ -1,7 +1,7 @@
 """Utilities around opening and processing netcdfs from this project."""
 import numpy as np
 import pathlib
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 import xarray as xr
 from src.plot_utils import add_units
 
@@ -359,7 +359,7 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
     return mean_temp
 
 
-def get_trend(da: xr.DataArray) -> Union[float, xr.DataArray]:
+def get_trend(da: xr.DataArray, min_clim_f: bool = False) -> Union[float, xr.DataArray]:
     """
     Get the linear trend increase of a datarray over the full time period.
 
@@ -367,6 +367,8 @@ def get_trend(da: xr.DataArray) -> Union[float, xr.DataArray]:
 
     Args:
         da (xr.DataArray): the timeseries.
+        min_clim_f (bool, optional): whether to calculate and remove the climateology.
+            Defaults to false.
 
     Returns:
         float: The rise over the time period.
@@ -374,6 +376,9 @@ def get_trend(da: xr.DataArray) -> Union[float, xr.DataArray]:
 
     def length_time(da):
         return int((da.coords["T"][-1] - da.coords["T"][0]).values)
+
+    if min_clim_f:
+        da = min_clim(da)
 
     if "X" in da.dims or "Y" in da.dims:
         slope = da.polyfit("T", 1).polyfit_coefficients.sel(degree=1).drop("degree")
@@ -408,11 +413,35 @@ def get_clim(xr_da: xr.DataArray) -> xr.DataArray:
     """
     time_coord = xr_da.coords["T"].values
     time_str = time_coord[0].__str__()[0:4] + " to " + time_coord[-1].__str__()[0:4]
-    init_long_name = xr_da.attrs["long_name"]
-    init_units = xr_da.attrs["units"]
+
+    if "long_name" in xr_da.attrs:
+        init_long_name = xr_da.attrs["long_name"]
+    else:
+        init_long_name = ""
+    if "units" in xr_da.attrs:
+        init_units = xr_da.attrs["units"]
+    else:
+        init_units = ""
+
     climatology = xr_da.groupby("T.month").mean("T")
     climatology.attrs["units"] = init_units
     climatology.attrs["long_name"] = (
         "Climateology for " + time_str + " " + init_long_name.lower()
     )
     return climatology
+
+
+def min_clim(xr_da: xr.DataArray, clim: Optional[xr.DataArray] = None) -> xr.DataArray:
+    """
+    Take away the climatology from an xr.DataArray.
+
+    Args:
+        xr_da (xr.DataArray): The xarray input. Canonical coords.
+        clim (Optional[xr.DataArray]): The climateology.
+
+    Returns:
+        xr.DataArray: The anomaly.
+    """
+    if clim is None:
+        clim = get_clim(xr_da)
+    return xr_da.groupby("T.month") - clim

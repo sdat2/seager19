@@ -56,7 +56,7 @@ def nino_calculate(
     mean_state.attrs["units"] = r"$^{\circ}$C"
     anomaly_timeseries = mean_timeseries.groupby("T.month") - climatology
     anomaly_timeseries.attrs["long_name"] = (
-        "Sea surface temperature averaged over " + reg + " region"
+        "Sea surface temperature anomaly averaged over " + reg + " region"
     )
     anomaly_timeseries.attrs["units"] = r"$^{\circ}$C"
     metric = anomaly_timeseries.rolling(

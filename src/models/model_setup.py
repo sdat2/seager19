@@ -232,6 +232,9 @@ class ModelSetup:
     def om_run2f_nc(self) -> str:
         return os.path.join(self.ocean_output_path, "om_run2f.nc")
 
+    def om_mask(self) -> str:
+        return os.path.join(self.ocean_data_path, "om_mask.nc")
+
     def nino_png(self, it: int) -> str:
         return os.path.join(self.direc, "nino_" + str(it) + ".png")
 
