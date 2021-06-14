@@ -23,7 +23,7 @@ class ModelSetup:
             direc (str): The main model directory.
             cfg (DictConfig): The config object.
             make_move (bool): whether to move the files and make the folders.
-                Defaults to true.
+                Defaults to True.
         """
 
         # setup ocean paths
@@ -182,7 +182,7 @@ class ModelSetup:
         if it == 0:
             name = "ts-ECMWF-clim.nc"
         else:
-            name = "ts-ECMWF-clim.nc"
+            name = "ts-" + str(it) + "-clim.nc"
 
         if path:
             return os.path.join(self.atmos_data_path, name)
@@ -193,7 +193,7 @@ class ModelSetup:
         if it == 0:
             name = "ts-ECMWF-clim60.nc"
         else:
-            name = "ts-ECMWF-clim60.nc"
+            name = "ts-" + str(it) + "-clim60.nc"
 
         if path:
             return os.path.join(self.atmos_data_path, name)
@@ -204,8 +204,7 @@ class ModelSetup:
         if it == 0:
             name = "ts-ECMWF-trend.nc"
         else:
-            name = "ts-ECMWF-trend.nc"
-
+            name = "ts-" + str(it) + "-trend.nc"
         if path:
             return os.path.join(self.atmos_data_path, name)
         else:

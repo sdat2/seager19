@@ -6,6 +6,7 @@ Example:
 
 """
 import os
+import shutil
 from typing import Tuple
 import xarray as xr
 from typeguard import typechecked
@@ -166,7 +167,17 @@ class Coupling:
         Args:
             it (int): iteration.
         """
+
         print(it)
+        print(self.setup.ts_trend(it - 1))
+        print(self.setup.ts_clim(it - 1))
+        print(self.setup.ts_clim60(it - 1))
+        print(self.setup.ts_trend(it))
+        print(self.setup.ts_clim(it))
+        print(self.setup.ts_clim60(it))
+        shutil.copy(self.setup.ts_trend(it - 1), self.setup.ts_trend(it))
+        shutil.copy(self.setup.ts_clim(it - 1), self.setup.ts_clim(it))
+        shutil.copy(self.setup.ts_clim60(it - 1), self.setup.ts_clim60(it))
 
     def run(self) -> None:
         """
@@ -200,9 +211,10 @@ class Coupling:
             self.replace_surface_temp(it)
             self.ocean.edit_inputs(it)
             # self.ocean.rename(x)
-            self.ocean.run_all(it=it)
-            self.atmos.run_all(it=it)
-            self.ocean.copy_old_io(it)
+            if self.cfg.run:
+                self.ocean.run_all(it=it)
+                self.atmos.run_all(it=it)
+                self.ocean.copy_old_io(it)
 
         # set up.
         if self.cfg.animate:
