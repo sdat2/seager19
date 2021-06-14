@@ -14,7 +14,7 @@ from omegaconf import DictConfig
 from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
-from src.xr_utils import can_coords, open_dataset, cut_and_taper
+from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
 
 
 # pylint: disable=no-value-for-parameter
@@ -175,9 +175,23 @@ class Coupling:
         print(self.setup.ts_trend(it))
         print(self.setup.ts_clim(it))
         print(self.setup.ts_clim60(it))
-        shutil.copy(self.setup.ts_trend(it - 1), self.setup.ts_trend(it))
-        shutil.copy(self.setup.ts_clim(it - 1), self.setup.ts_clim(it))
-        shutil.copy(self.setup.ts_clim60(it - 1), self.setup.ts_clim60(it))
+        shutil.copy(self.setup.ts_trend(0), self.setup.ts_trend(it))
+        shutil.copy(self.setup.ts_clim(0), self.setup.ts_clim(it))
+        shutil.copy(self.setup.ts_clim60(0), self.setup.ts_clim60(it))
+
+        sst = can_coords(open_dataset(self.setup.om_run2f_nc()).SST_SST)
+        # sst = sst.where(sst != 0.0)
+        trend_new = (
+            get_trend(sst + self.cfg.atm.temp_0_c, min_clim_f=True)
+            .rename("ts")
+            .isel(Z=0)
+            .drop("Z")
+        )
+        trend_old = xr.open_dataset(self.setup.ts_trend(0), decode_times=False).ts
+        trend_final = trend_old.copy()
+        trend_final[10:171, :] = trend_new[:, :]
+        trend_fin_ds = trend_final.to_dataset(name="ts")
+        trend_fin_ds.to_netcdf(self.setup.ts_trend(it))
 
     def run(self) -> None:
         """
