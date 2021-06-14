@@ -394,7 +394,7 @@ def get_trend(da: xr.DataArray, min_clim_f: bool = False) -> Union[float, xr.Dat
         for pr_name in ["units", "long_name"]:
             if pr_name in da.attrs:
                 rise.attrs[pr_name] = da.attrs[pr_name]
-        rise = add_units(rise)
+        rise = add_units(rise).rename("rise")
 
     print("run", run, "slope", slope, "rise = slope * run", rise)
     return rise
@@ -437,11 +437,18 @@ def min_clim(xr_da: xr.DataArray, clim: Optional[xr.DataArray] = None) -> xr.Dat
 
     Args:
         xr_da (xr.DataArray): The xarray input. Canonical coords.
-        clim (Optional[xr.DataArray]): The climateology.
+        clim (Optional[xr.DataArray], optional): The climateology.
 
     Returns:
         xr.DataArray: The anomaly.
     """
     if clim is None:
         clim = get_clim(xr_da)
-    return xr_da.groupby("T.month") - clim
+
+    anom = xr_da.groupby("T.month") - clim
+
+    for pr_name in ["units", "long_name"]:
+        if pr_name in xr_da.attrs:
+            anom.attrs[pr_name] = xr_da.attrs[pr_name]
+
+    return anom
