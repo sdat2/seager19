@@ -31,7 +31,7 @@ class ModelSetup:
         self.cfg = cfg
 
         # setup general output paths
-        self.gif_path = os.path.join(direc, "ocean")
+        self.gif_path = os.path.join(direc, "gifs")
         self.nino_data_path = os.path.join(direc, "nino_data")
         self.nino_plot_path = os.path.join(direc, "nino_plot")
 
@@ -176,15 +176,34 @@ class ModelSetup:
         else:
             return name
 
-    def ts(self, it: int, path: bool = True) -> str:
-        name = int(it) + "_Q.nc"
+    def ts_clim(self, it: int, path: bool = True) -> str:
+        if it == 0:
+            name = "ts-ECMWF-clim.nc"
+        else:
+            name = "ts-ECMWF-clim.nc"
+
+        if path:
+            return os.path.join(self.atmos_data_path, name)
+        else:
+            return name
+
+    def ts_clim60(self, it: int, path: bool = True) -> str:
+        if it == 0:
+            name = "ts-ECMWF-clim60.nc"
+        else:
+            name = "ts-ECMWF-clim60.nc"
+
         if path:
             return os.path.join(self.atmos_data_path, name)
         else:
             return name
 
     def ts_trend(self, it: int, path: bool = True) -> str:
-        name = int(it) + "_Q.nc"
+        if it == 0:
+            name = "ts-ECMWF-trend.nc"
+        else:
+            name = "ts-ECMWF-trend.nc"
+
         if path:
             return os.path.join(self.atmos_data_path, name)
         else:

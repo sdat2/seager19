@@ -730,39 +730,46 @@ class Atmos:
 
         # CLIMATOLOGIES
 
-        ds_clim = xr.open_dataset(
-            os.path.join(self.setup.atmos_data_path, "sfcWind-ECMWF-clim.nc")
-        )
-        fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
-        ds_clim = xr.open_dataset(
-            os.path.join(self.setup.atmos_data_path, "ts-ECMWF-clim.nc")
-        )
-        fts = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ts, kind="linear")
-        ds_clim = xr.open_dataset(
-            os.path.join(self.setup.atmos_data_path, "pr-ECMWF-clim.nc")
-        )
-        fpr = interp2d(ds_clim.X, ds_clim.Y, ds_clim.pr, kind="linear")
-        ds_clim = xr.open_dataset(
-            os.path.join(self.setup.atmos_data_path, "ps-ECMWF-clim.nc")
-        )
-        fsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ps, kind="linear")
+        def get_clim():
+            ds_clim = xr.open_dataset(
+                os.path.join(self.setup.atmos_data_path, "sfcWind-ECMWF-clim.nc")
+            )
+            fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
+            ds_clim = xr.open_dataset(self.setup.ts_clim(0))
+            fts = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ts, kind="linear")
+            ds_clim = xr.open_dataset(
+                os.path.join(self.setup.atmos_data_path, "pr-ECMWF-clim.nc")
+            )
+            fpr = interp2d(ds_clim.X, ds_clim.Y, ds_clim.pr, kind="linear")
+            ds_clim = xr.open_dataset(
+                os.path.join(self.setup.atmos_data_path, "ps-ECMWF-clim.nc")
+            )
+            fps = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ps, kind="linear")
+
+            return fwnsp, fts, fpr, fps
+
+        fwnsp, fts, fpr, fps = get_clim()
+
+        # Regrid:
 
         wnsp = fwnsp(self.x_axis, self.y_axis_u)
         wnsp[wnsp < self.atm.wnsp_min] = self.atm.wnsp_min
         ds["wnspClim"] = (["Yu", "X"], wnsp)
         ds["tsClim"] = (["Yu", "X"], fts(self.x_axis, self.y_axis_u))
         ds["prClim"] = (["Yu", "X"], fpr(self.x_axis, self.y_axis_u))
-        ds["spClim"] = (["Yu", "X"], fsp(self.x_axis, self.y_axis_u))
+        ds["spClim"] = (["Yu", "X"], fps(self.x_axis, self.y_axis_u))
 
         # TRENDS
-        ds_trend = xr.open_dataset(
-            os.path.join(self.setup.atmos_data_path, "ts-ECMWF-trend.nc")
-        )
-        fts_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.ts, kind="linear")
-        ds_trend = xr.open_dataset(
-            os.path.join(self.setup.atmos_data_path, "pr-ECMWF-trend.nc")
-        )
-        fpr_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.pr, kind="linear")
+        def get_trend():
+            ds_trend = xr.open_dataset(self.setup.ts_trend(0))
+            fts_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.ts, kind="linear")
+            ds_trend = xr.open_dataset(
+                os.path.join(self.setup.atmos_data_path, "pr-ECMWF-trend.nc")
+            )
+            fpr_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.pr, kind="linear")
+            return fts_trend, fpr_trend
+
+        fts_trend, fpr_trend = get_trend()
 
         ts_trend = fts_trend(self.x_axis, self.y_axis_u)
         ds["tsTrend"] = (["Yu", "X"], ts_trend)
@@ -1014,7 +1021,7 @@ class Atmos:
 
     # ##--------------------------- Begin dQ ----------------------------
 
-    def load_clim(self) -> xr.Dataset:
+    def load_clim60(self) -> xr.Dataset:
         """
         Load the inputs to get_dclim before processing.
 
@@ -1029,9 +1036,12 @@ class Atmos:
         for i, m in enumerate(self.mem):
             name = self.names[m]
             variable = self.var[i]
-            file = os.path.join(
-                self.setup.atmos_data_path, variable + "-" + name + "-clim60.nc"
-            )
+            if variable == "ts":
+                file = self.setup.ts_clim60(0)
+            else:
+                file = os.path.join(
+                    self.setup.atmos_data_path, variable + "-" + name + "-clim60.nc"
+                )
             print(name, variable, file)
             print(file)
             assert os.path.isfile(file)
@@ -1059,7 +1069,7 @@ class Atmos:
         # Q'_LH is from formula 13 in paper
         # Q'_LW is from formula 14 in paper
 
-        dclim_loc = self.load_clim()
+        dclim_loc = self.load_clim60()
 
         t_sb_loc = 1.0 * dclim_loc.ts
         tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
