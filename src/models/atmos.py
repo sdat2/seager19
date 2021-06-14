@@ -1107,7 +1107,7 @@ class Atmos:
         dclim_loc["BLW"] = blw_loc
         dclim_loc["QLW"] = alw_loc + blw_loc * f1p / dtemp_se_loc
 
-        # dclim_loc.to_netcdf(os.path.join(direc, "Q.nc"))
+        dclim_loc.to_netcdf(self.setup.q_output())
 
         return (
             dclim_loc,

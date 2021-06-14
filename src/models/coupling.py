@@ -168,17 +168,6 @@ class Coupling:
             it (int): iteration.
         """
 
-        print(it)
-        print(self.setup.ts_trend(it - 1))
-        print(self.setup.ts_clim(it - 1))
-        print(self.setup.ts_clim60(it - 1))
-        print(self.setup.ts_trend(it))
-        print(self.setup.ts_clim(it))
-        print(self.setup.ts_clim60(it))
-        shutil.copy(self.setup.ts_trend(0), self.setup.ts_trend(it))
-        shutil.copy(self.setup.ts_clim(0), self.setup.ts_clim(it))
-        shutil.copy(self.setup.ts_clim60(0), self.setup.ts_clim60(it))
-
         sst = can_coords(open_dataset(self.setup.om_run2f_nc()).SST_SST)
         # sst = sst.where(sst != 0.0)
         trend_new = (
@@ -192,6 +181,23 @@ class Coupling:
         trend_final[10:171, :] = trend_new[:, :]
         trend_fin_ds = trend_final.to_dataset(name="ts")
         trend_fin_ds.to_netcdf(self.setup.ts_trend(it))
+
+        # take mean
+        sst_mean = sst.mean("T").isel(Z=0).drop("Z") + self.cfg.atm.temp_0_c
+
+        # ts_clim60
+        sst_a = sst_mean.rename({"Y": "lat", "X": "lon"})
+        sst_mean60_old = xr.open_dataset(self.setup.ts_clim60(0), decode_times=False)
+        sst_mean60_final = sst_mean60_old.copy()
+        sst_mean60_final.ts[:, :] = sst_a[20:141, :]
+        sst_mean60_final.to_netcdf(self.setup.ts_clim60(it))
+
+        # ts_clim
+        sst_b = sst_mean.rename({"Y": "Y", "X": "X"})
+        sst_mean_old = xr.open_dataset(self.setup.ts_clim(0), decode_times=False)
+        sst_mean_final = sst_mean_old.copy()
+        sst_mean_final.ts[10:171, :] = sst_b[:, :]
+        sst_mean_final.to_netcdf(self.setup.ts_clim(it))
 
     def run(self) -> None:
         """

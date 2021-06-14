@@ -212,9 +212,6 @@ def open_dataset(
 
     Will only work if there is only one set of each coordinate at the moment.
 
-    TODO: make it able to open and decode each sort of object
-        if there are multiple time axes.
-
     Args:
         path (Union[str, pathlib.Path]): the path to the
             netcdf dataset file.
@@ -438,6 +435,7 @@ def min_clim(xr_da: xr.DataArray, clim: Optional[xr.DataArray] = None) -> xr.Dat
     Args:
         xr_da (xr.DataArray): The xarray input. Canonical coords.
         clim (Optional[xr.DataArray], optional): The climateology.
+            Defaults to None, which will remake climatology.
 
     Returns:
         xr.DataArray: The anomaly.
