@@ -195,7 +195,7 @@ class Atmos:
         Returns:
             np.ndarray: Corriolis force coeff.
         """
-        return self.atm.omega_2 * y_axis * np.pi / 180
+        return self.atm.omega_2 * y_axis * np.pi / 180 ## convert from degrees to rad.
 
     # --------------- fluxes -----------------------------
 
@@ -336,8 +336,9 @@ class Atmos:
 
         Args:
             temperature (xr.DataArray): temperature of the surface?
-            cloud_cover (Union[xr.DataArray, float]): [description]
-            f (float): [description]
+            cloud_cover (Union[xr.DataArray, float]): the cloud cover, which could be
+                a constant or an array.
+            f (float):
             rh_loc (xr.DataArray): [description]
 
         Returns:
@@ -423,10 +424,10 @@ class Atmos:
         """Flux dqlw_dtemp.
 
         Args:
-            temperature (xr.DataArray): [description]
-            cloud_cover (Union[xr.DataArray, float]): [description]
+            temperature (xr.DataArray): Temperature dataarray.
+            cloud_cover (Union[xr.DataArray, float]): Cloud cover.
             f (float): [description]
-            rh_loc (xr.DataArray): [description]
+            rh_loc (xr.DataArray): the relative humidity.
 
         Returns:
             xr.DataArray: [description]
