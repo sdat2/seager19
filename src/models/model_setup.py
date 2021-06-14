@@ -41,6 +41,7 @@ class ModelSetup:
         self.ocean_src_path = os.path.join(self.ocean_path, "SRC")
         self.ocean_data_path = os.path.join(self.ocean_path, "DATA")
         self.ocean_output_path = os.path.join(self.ocean_path, "output")
+        self.ocean_old_io_path = os.path.join(self.ocean_path, "old_io")
 
         # setup atmospheric paths
         self.atmos_path = os.path.join(direc, "atmos")
@@ -60,6 +61,7 @@ class ModelSetup:
                 self.ocean_src_path,
                 self.ocean_data_path,
                 self.ocean_output_path,
+                self.ocean_old_io_path,
                 # make atmos paths
                 self.atmos_path,
                 self.atmos_data_path,

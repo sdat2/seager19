@@ -164,7 +164,7 @@ class Ocean:
                 shutil.copy(
                     os.path.join(self.setup.ocean_run_path, part + ending),
                     os.path.join(
-                        self.setup.ocean_run_path, str(it) + "_" + part + ending
+                        self.setup.ocean_old_io_path, str(it) + "_" + part + ending
                     ),
                 )
 

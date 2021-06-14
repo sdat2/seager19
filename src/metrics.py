@@ -124,7 +124,7 @@ def get_nino_trend(
         dict: nino dict.
     """
     plt.clf()
-    ps_defaults()
+    ps_defaults(dpi=150)
     sst_output = can_coords(open_dataset(path_of_run2f).SST_SST)
     sst_output = sst_output.where(sst_output != 0.0)
 

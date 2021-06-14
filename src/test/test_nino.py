@@ -21,6 +21,6 @@ def test_nino() -> None:
     ):
         print(x)
         assert False
-    print(clim)
     replace_nino3_4_from_noaa()
+    print(clim)
     get_trend(metric)

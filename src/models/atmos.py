@@ -112,6 +112,7 @@ class Atmos:
         """
         self.atm = cfg.atm
         self.setup = setup
+        self.it = 0
 
         # make axes
         self.x_axis = np.linspace(0, 360 - self.atm.dx, self.atm.nx)  # degrees
@@ -694,7 +695,7 @@ class Atmos:
 
     @timeit
     @typechecked
-    def output_trends(self, direc: str = "") -> None:
+    def output_trends(self) -> None:
         """output trends ds.
 
         𝜀𝑢 . 𝑢 − 𝑓 . 𝑣 + 𝜙 . 𝑥 =  0   (1)
@@ -702,9 +703,6 @@ class Atmos:
         𝜀𝑣 . 𝑣 + 𝑓 . 𝑢 + 𝜙 . 𝑦 =  0   (2)
 
         𝜀𝜙 . 𝜙 + 𝑢 . 𝑥 + 𝑣 . 𝑦 = −𝑄1  (3)
-
-        Args:
-            direc (str): directory to save to.
 
         """
 
@@ -735,7 +733,7 @@ class Atmos:
                 os.path.join(self.setup.atmos_data_path, "sfcWind-ECMWF-clim.nc")
             )
             fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
-            ds_clim = xr.open_dataset(self.setup.ts_clim(0))
+            ds_clim = xr.open_dataset(self.setup.ts_clim(self.it))
             fts = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ts, kind="linear")
             ds_clim = xr.open_dataset(
                 os.path.join(self.setup.atmos_data_path, "pr-ECMWF-clim.nc")
@@ -761,7 +759,7 @@ class Atmos:
 
         # TRENDS
         def get_trend():
-            ds_trend = xr.open_dataset(self.setup.ts_trend(0))
+            ds_trend = xr.open_dataset(self.setup.ts_trend(self.it))
             fts_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.ts, kind="linear")
             ds_trend = xr.open_dataset(
                 os.path.join(self.setup.atmos_data_path, "pr-ECMWF-trend.nc")
@@ -781,7 +779,7 @@ class Atmos:
         ds["prTrend"] = self.smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
         ds.prTrend.plot()
-        plt.savefig(os.path.join(direc, "prTrend.png"))
+        plt.savefig(os.path.join(self.setup.atmos_path, "prTrend.png"))
         plt.clf()
 
         dsmask = xr.open_dataset(
@@ -930,7 +928,11 @@ class Atmos:
         ds_subset.vtrend.plot(cmap="RdBu_r")
         plt.subplot(313)
         ds_subset.PRtrend.plot(cmap="RdBu_r")
-        plt.savefig(os.path.join(direc, "S90-H2000-Stab.eps"), format="eps", dpi=1000)
+        plt.savefig(
+            os.path.join(self.setup.atmos_path, "S90-H2000-Stab.eps"),
+            format="eps",
+            dpi=1000,
+        )
         plt.clf()
 
         # adding units.
@@ -1007,7 +1009,7 @@ class Atmos:
             plt.subplots_adjust(top=0.90)
             plt.savefig(
                 os.path.join(
-                    direc,
+                    self.setup.atmos_path,
                     "windsFromSST-K"
                     + str(self.atm.k_days)
                     + "-eps"
@@ -1037,7 +1039,7 @@ class Atmos:
             name = self.names[m]
             variable = self.var[i]
             if variable == "ts":
-                file = self.setup.ts_clim60(0)
+                file = self.setup.ts_clim60(self.it)
             else:
                 file = os.path.join(
                     self.setup.atmos_data_path, variable + "-" + name + "-clim60.nc"
@@ -1051,11 +1053,8 @@ class Atmos:
 
     @timeit
     @typechecked
-    def get_dclim(self, direc: str = "") -> any:
+    def get_dclim(self) -> any:
         """Opens the files, and applies functions.
-
-        Args:
-            direc (str): directory to save outputs to.
 
         Returns:
             any: A list of outputs.
@@ -1108,7 +1107,7 @@ class Atmos:
         dclim_loc["BLW"] = blw_loc
         dclim_loc["QLW"] = alw_loc + blw_loc * f1p / dtemp_se_loc
 
-        dclim_loc.to_netcdf(os.path.join(direc, "Q.nc"))
+        # dclim_loc.to_netcdf(os.path.join(direc, "Q.nc"))
 
         return (
             dclim_loc,
@@ -1125,7 +1124,6 @@ class Atmos:
     @typechecked
     def make_figure(
         self,
-        direc: str = "",
         cmap: Union[str] = "viridis",
         lat: str = "latitude",
         lon: str = "longitude",
@@ -1133,14 +1131,13 @@ class Atmos:
         """Make figure.
 
         Args:
-            direc (str): directory to save outputs to.
             cmap (str, optional): matplotlib colormap. Defaults to "viridis".
             lat (str, optional): latitude label name. Defaults to "latitude".
             lon (str, optional): longitude label name. Defaults to "longitude".
 
         """
 
-        dclim, u_b, _, _, _, _, _, _, _ = self.get_dclim(direc=direc)
+        dclim, u_b, _, _, _, _, _, _, _ = self.get_dclim()
 
         v_min_ad = 0.0
         v_max_ad = 0.6
@@ -1198,15 +1195,10 @@ class Atmos:
         )
 
     @typechecked
-    def output_dq(self, direc: str = "") -> None:
-        """Outputs "dQ.nc".
+    def output_dq(self) -> None:
+        """Outputs "dQ.nc"."""
 
-        Args:
-            direc (str): directory to save outputs to.
-
-        """
-
-        dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = self.get_dclim(direc=direc)
+        dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = self.get_dclim()
 
         # Now, save the dq_df and dq_dt terms for using in TCOM:
         dq_dt = alh + alw
@@ -1239,7 +1231,7 @@ class Atmos:
         dq.to_netcdf(self.setup.dq_output())
 
     def run_all(self, it: int = 0) -> None:
-        print(it)
-        self.output_trends(direc=self.setup.atmos_path)
-        self.output_dq(direc=self.setup.atmos_path)
-        self.make_figure(direc=self.setup.atmos_path)
+        self.it = it
+        self.output_trends()
+        self.output_dq()
+        self.make_figure()
