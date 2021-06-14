@@ -86,6 +86,7 @@ class ModelSetup:
 
     def _init_ocean(self):
         """initialise the ocean model by copying files over."""
+
         for file_ending in ["*.F", "*.c", "*.h", "*.inc", "*.mod", ".tios"]:
 
             os.system(
@@ -128,6 +129,7 @@ class ModelSetup:
 
     def _init_atmos(self):
         """Creating atmos by copying files over."""
+
         os.system(
             "cd "
             + str(ATMOS_DATA_PATH)
@@ -151,6 +153,7 @@ class ModelSetup:
 
     # pylint: disable=missing-function-docstring
     def tcam_output(self, path: bool = True) -> str:
+
         name = (
             "S91"
             + "-hq"

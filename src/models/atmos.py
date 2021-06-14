@@ -959,7 +959,7 @@ class Atmos:
         ds.to_netcdf(outfile, encoding=en_dict)
 
         # warnings.filterwarnings("ignore")
-        do_plot = False
+        do_plot = False  # False
         # vtrend = ds.vtrend.values
         # utrend = ds.utrend.values
         if do_plot:

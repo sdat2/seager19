@@ -28,7 +28,7 @@ oc:
   mask_file: om_mask.nc
   # How long to run each part of the ocean model.
   time_test: 2 months
-  time_spin: 20 years # months
+  time_spin: 20 years # months?
   time_diag: 2 years
   time_run2f: 2 years # 58 years # now shortened for quick testing.
   hcut: 5

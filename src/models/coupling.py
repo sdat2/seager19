@@ -6,8 +6,7 @@ Example:
 
 """
 import os
-import shutil
-from typing import Tuple
+from typing import Tuple, Union
 import xarray as xr
 from typeguard import typechecked
 from omegaconf import DictConfig
@@ -69,14 +68,14 @@ class Coupling:
     @typechecked
     def f_stress(
         self,
-        wind_speed_mean: float,
+        wind_speed_mean: Union[xr.DataArray, float],
         u_wind: xr.DataArray,
         v_wind: xr.DataArray,
     ) -> Tuple[xr.DataArray, xr.DataArray]:
         """Wind stress flux.
 
         Args:
-            wind_speed_mean (float): the climatological annual
+            wind_speed_mean (Union[xr.DataArray, float]): the climatological annual
                 mean wind speed, which is taken from ECMWF
                 reanalysis for our standard model and from the CMIP5
                 multimodel mean when examining causes of bias in the
@@ -182,7 +181,7 @@ class Coupling:
         trend_fin_ds = trend_final.to_dataset(name="ts")
         trend_fin_ds.to_netcdf(self.setup.ts_trend(it))
 
-        # take mean
+        # sst_mean: take mean
         sst_mean = sst.mean("T").isel(Z=0).drop("Z") + self.cfg.atm.temp_0_c
 
         # ts_clim60
@@ -209,7 +208,6 @@ class Coupling:
         self.ocean.compile_all()
         self.ocean.edit_run()
 
-        print("run")
         if self.cfg.run:
             self.ocean.run_all(it=0)
 
@@ -234,7 +232,9 @@ class Coupling:
             if self.cfg.run:
                 self.ocean.run_all(it=it)
                 self.atmos.run_all(it=it)
-                self.ocean.copy_old_io(it)
+
+            # copy old io.
+            self.ocean.copy_old_io(it)
 
         # set up.
         if self.cfg.animate:
