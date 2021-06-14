@@ -30,7 +30,7 @@ oc:
   time_test: 2 months
   time_spin: 20 years # months
   time_diag: 2 years
-  time_run2f: 58 years # 58 years # now shortened for quick testing.
+  time_run2f: 2 years # 58 years # now shortened for quick testing.
   hcut: 5
   tcut: 14.6
   f1prime: -0.006

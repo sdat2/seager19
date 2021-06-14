@@ -160,7 +160,7 @@ class Atmos:
         # Strange properties to plot different models etc.
         self.mem: str = "EEEf"  # string is iterated through
 
-        # the different model names in a dict?
+        # the different model names in a dict? - used by key.
         self.names: dict = {
             "E": "ECMWF",
             "F": "ECMWF-orig",
@@ -176,8 +176,9 @@ class Atmos:
             "I": "ISCCP",
         }
 
-        # dict of variables
+        # dict of variables that are read in.
         self.var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        # temperature of the surface, cloud area fraction, surface wind, rel humidity.
 
         # END INIT.
 
@@ -1013,19 +1014,16 @@ class Atmos:
 
     # ##--------------------------- Begin dQ ----------------------------
 
-    @timeit
-    @typechecked
-    def get_dclim(self, direc: str = "") -> any:
-        """Opens the files, and applies functions.
+    def load_clim(self) -> xr.Dataset:
+        """
+        Load the inputs to get_dclim before processing.
 
-        Args:
-            direc (str): directory to save outputs to.
+        This is ok for the first iteration, but will need to be changed.
 
         Returns:
-            any: A list of outputs.
-                dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
-
+            xr.Dataset: An mfdataset with "ts", "clt', "sfcWind.
         """
+
         files = []
 
         for i, m in enumerate(self.mem):
@@ -1039,14 +1037,29 @@ class Atmos:
             assert os.path.isfile(file)
             files += [file]
 
-        dclim_loc = xr.open_mfdataset(files, decode_times=False)
+        return xr.open_mfdataset(files, decode_times=False)
 
+    @timeit
+    @typechecked
+    def get_dclim(self, direc: str = "") -> any:
+        """Opens the files, and applies functions.
+
+        Args:
+            direc (str): directory to save outputs to.
+
+        Returns:
+            any: A list of outputs.
+                dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
+
+        """
         # set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
         # Q'_LW = (alw(temp_surface_bar,c_bar,f1_bar)* Tsprime
         #          + blw(temp_surface_bar,c_bar) * f1prime)
         # Q'_LH = alh(temp_surface_bar,u_bar) * Tsprime
         # Q'_LH is from formula 13 in paper
         # Q'_LW is from formula 14 in paper
+
+        dclim_loc = self.load_clim()
 
         t_sb_loc = 1.0 * dclim_loc.ts
         tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
