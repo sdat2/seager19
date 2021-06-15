@@ -6,6 +6,7 @@ Example:
 
 """
 from typing import Tuple, Union
+from scipy.interpolate import interp2d
 import xarray as xr
 from typeguard import typechecked
 from omegaconf import DictConfig
@@ -90,10 +91,62 @@ class Coupling:
         stress_coeff = self.coup.rho_air * self.coup.c_d * wind_speed_mean
         return stress_coeff * u_wind, stress_coeff * v_wind
 
-    def get_wind_speed_mean(self, file_name: str = "") -> float:
-        """Get wind speed mean."""
-        print("get wind speed mean")
-        xr.open_dataset(file_name).mean("T")
+    def get_tau_anom(
+        self, wind: xr.DataArray, u_vel: xr.DataArray, v_vel: xr.DataArray
+    ) -> Tuple[xr.DataArray, xr.DataArray]:
+        """
+        Return the tau anomaly with a clipping.
+
+        Args:
+            wind (xr.DataArray): [description]
+            u_vel (xr.DataArray): [description]
+            v_vel (xr.DataArray): [description]
+
+        Returns:
+            Tuple[xr.DataArray, xr.DataArray]: [description]
+        """
+        sfcw50 = wind.sel(Y=slice(-50, 50))
+        ds = xr.Dataset(
+            {
+                "X": ("X", sfcw50.X.values),
+                "Y": ("Y", sfcw50.Y.values),
+            }
+        )
+        fuend = interp2d(u_vel.X, u_vel.Yu, u_vel, kind="linear")
+        ds["u_vel"] = (["Y", "X"], fuend(sfcw50.X.values, sfcw50.Y.values))
+        fuend = interp2d(v_vel.X, v_vel.Yv, v_vel, kind="linear")
+        ds["v_vel"] = (["Y", "X"], fuend(sfcw50.X.values, sfcw50.Y.values))
+        t_u, t_v = self.f_stress(
+            sfcw50,
+            ds.u_vel,
+            ds.v_vel,
+        )
+        return cut_and_taper(t_u).rename("tau_u"), cut_and_taper(t_v).rename("tau_v")
+
+    def tau_anom_ds(self) -> xr.Dataset:
+        """
+        Wind stress anomaly.
+
+        Returns:
+            xr.Dataset: dataset with different different tau fields.
+        """
+        sfcwind = xr.open_dataset(self.setup.ecmwf_sfcwind()).sfcWind
+        ubeg = xr.open_dataset(self.setup.tcam_output()).ubeg
+        vbeg = xr.open_dataset(self.setup.tcam_output()).vbeg
+        utrend = xr.open_dataset(self.setup.tcam_output()).utrend
+        vtrend = xr.open_dataset(self.setup.tcam_output()).vtrend
+        uend = xr.open_dataset(self.setup.tcam_output()).uend
+        vend = xr.open_dataset(self.setup.tcam_output()).vend
+        t_beg_u, t_beg_v = self.get_tau_anom(sfcwind, ubeg, vbeg)
+        t_end_u, t_end_v = self.get_tau_anom(sfcwind, uend, vend)
+        t_trend_u, t_trend_v = self.get_tau_anom(sfcwind, utrend, vtrend)
+        t_beg_u = t_beg_u.rename("t_beg_u")
+        t_beg_v = t_beg_v.rename("t_beg_v")
+        t_end_u = t_end_u.rename("t_end_u")
+        t_end_v = t_end_u.rename("t_end_v")
+        t_trend_u = t_trend_u.rename("t_trend_u")
+        t_trend_v = t_trend_v.rename("t_trend_v")
+        return xr.merge([t_beg_u, t_beg_v, t_end_u, t_end_v, t_trend_u, t_trend_v])
 
     def replace_dq(self, it: int) -> None:
         """
