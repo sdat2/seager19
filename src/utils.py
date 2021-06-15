@@ -17,7 +17,7 @@ def hr_time(time_in: float) -> str:
         time (float): time in seconds
 
     Returns:
-        str: string.
+        str: string to print.
     """
     if time_in < 60:
         return "%2.5f s" % time_in
@@ -106,7 +106,7 @@ def calculate_byte_size_recursively(obj: object, seen: set = None) -> int:
             Leave it at "None" to get the full byte size of an object. Defaults to None.
 
     Returns:
-        int: The size of the object in bytes
+        int: The size of the object in bytes.
 
     """
 

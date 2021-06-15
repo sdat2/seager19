@@ -186,17 +186,24 @@ class Coupling:
         Currently just resaves the files with a diff name.
 
         """
+        ds = self.tau_anom_ds()
+        taux = xr.open_dataset(self.setup.tau_x(0), decode_times=False)
+        taux_trend = ds.t_trend_u
+        taux_new = taux.copy()
+        for i in range(len(taux.coords["T"].values)):
+            taux_new.taux[0, 0, 40:141, :] = taux.taux[
+                0, 0, 40:141, :
+            ] + i * taux_trend[:, :] / len(taux.coords["T"].values)
+        taux_new.to_netcdf(self.setup.tau_x(it), format="NETCDF3_CLASSIC")
 
-        taux_obj = xr.open_dataset(self.setup.tau_x(0), decode_times=False)
-        taux_obj.to_netcdf(
-            self.setup.tau_x(it),
-            format="NETCDF3_CLASSIC",
-        )
-        tauy_obj = xr.open_dataset(self.setup.tau_y(0), decode_times=False)
-        tauy_obj.to_netcdf(
-            self.setup.tau_y(it),
-            format="NETCDF3_CLASSIC",
-        )
+        tauy = xr.open_dataset(self.setup.tau_y(0), decode_times=False)
+        tauy_trend = ds.t_trend_v
+        tauy_new = tauy.copy()
+        for i in range(len(tauy.coords["T"].values)):
+            tauy_new.tauy[0, 0, 40:141, :] = tauy.tauy[
+                0, 0, 40:141, :
+            ] + i * tauy_trend[:, :] / len(tauy.coords["T"].values)
+        tauy_new.to_netcdf(self.setup.tau_y(it), format="NETCDF3_CLASSIC")
 
         taux_clim_obj = xr.open_dataset(self.setup.tau_clim_x(0), decode_times=False)
         taux_clim_obj.to_netcdf(
@@ -208,10 +215,6 @@ class Coupling:
             self.setup.tau_clim_y(it),
             format="NETCDF3_CLASSIC",
         )
-
-        # test the cut and taper functions work.
-        cut_and_taper(can_coords(xr.open_dataset(self.setup.tcam_output()).vtrend))
-        cut_and_taper(can_coords(xr.open_dataset(self.setup.tcam_output()).utrend))
 
     def replace_surface_temp(self, it: int) -> None:
         """

@@ -154,7 +154,7 @@ def get_nino_trend(
     axs[0].set_xlabel("")
     axs[1].set_xlabel("Month")
 
-    label_subplots(axs, x_pos=-0.18, y_pos=1)
+    label_subplots(axs, x_pos=-0.1, y_pos=1)
     plt.savefig(graph_path)
     plt.clf()
 
