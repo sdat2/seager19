@@ -5,7 +5,6 @@ Example:
         from src.models.coupling import Coupling
 
 """
-import os
 from typing import Tuple, Union
 import xarray as xr
 from typeguard import typechecked
@@ -105,7 +104,7 @@ class Coupling:
         """
         dq_df_from_atm = open_dataset(self.setup.dq_output()).dq_df
         dq_df_sample = xr.open_dataarray(
-            os.path.join(self.setup.ocean_data_path, "dQdf-sample.nc"),
+            self.setup.dq_df(0),
             decode_times=False,
         )
         dq_df_new = dq_df_sample.copy()
@@ -115,11 +114,9 @@ class Coupling:
             self.setup.dq_df(it),
             format="NETCDF3_CLASSIC",
         )
-        dq_dt_from_atm = open_dataset(
-            os.path.join(self.setup.atmos_path, "dQ.nc")
-        ).dq_dt
+        dq_dt_from_atm = open_dataset(self.setup.dq_output()).dq_dt
         dq_dt_sample = xr.open_dataarray(
-            os.path.join(self.setup.ocean_data_path, "dQdT-sample.nc"),
+            self.setup.dq_dt(0),
             decode_times=False,
         )
         dq_dt_new = dq_dt_sample.copy()
@@ -131,7 +128,11 @@ class Coupling:
         )
 
     def replace_stress(self, it: int) -> None:
-        """Replace the stress files. Currently just resaves the files."""
+        """Replace the stress files.
+
+        Currently just resaves the files with a diff name.
+
+        """
 
         taux_obj = xr.open_dataset(self.setup.tau_x(0), decode_times=False)
         taux_obj.to_netcdf(

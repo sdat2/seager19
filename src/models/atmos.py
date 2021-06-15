@@ -579,7 +579,7 @@ class Atmos:
 
     @typechecked
     def s91_solver(self, q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """S91 folder from TCAM.py.
+        """S91 solver from TCAM.py.
 
         's91_solver'  0.00564 s
 
@@ -590,9 +590,9 @@ class Atmos:
 
         Usef fft, ifft.
 
-            g . pi . N ^ 2
-        q1 = ---------------- . (k theta_s Q_c)
-            theta_00 . z_t
+              g . pi . N ^ 2
+        q1 = ---------------- . (k . theta_s . Q_c)
+              theta_00 . z_t
 
         Args:
             q1 (np.ndarray): modified heating that drives winds.
