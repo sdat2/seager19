@@ -98,12 +98,12 @@ class Coupling:
         Return the tau anomaly with a clipping.
 
         Args:
-            wind (xr.DataArray): [description]
-            u_vel (xr.DataArray): [description]
-            v_vel (xr.DataArray): [description]
+            wind (xr.DataArray): wind speed field.
+            u_vel (xr.DataArray): u wind velocity. (X, Yu).
+            v_vel (xr.DataArray): v wind velocity. (X, Yv).
 
         Returns:
-            Tuple[xr.DataArray, xr.DataArray]: [description]
+            Tuple[xr.DataArray, xr.DataArray]: tau_u, tau_v
         """
         sfcw50 = wind.sel(Y=slice(-50, 50))
         ds = xr.Dataset(
