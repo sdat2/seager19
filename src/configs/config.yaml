@@ -27,10 +27,11 @@ oc:
   sst_file: sst-ECMWF-clim.nc
   mask_file: om_mask.nc
   # How long to run each part of the ocean model.
-  time_test: 2 months
-  time_spin: 20 years # months?
-  time_diag: 2 years
-  time_run2f: 58 years # 58 years # now shortened for quick testing.
+  time_test: 2 months # the time input to the tests.
+  time_spin: 20 years # seems long - maybe check that this is the correct number to be quoting.
+  time_diag: 2 years # This time period includes the period during which qflx is removed.
+  time_run2f: 58 years # 58 years
+  # editing of hcut and tcut currently disabled just in case.
   hcut: 5
   tcut: 14.6
   f1prime: -0.006
@@ -40,6 +41,7 @@ coup:
   iterations: 5  # how many times to repeat the coupling.
   # The stopping condition is currently quite qualitative, and so 
   # iterations will be quite hard to tune.
+  # Initially when fully coupled the models blew up.
 atm:
   # begining TCAM
   k_days: 10     # K: 1/10 days

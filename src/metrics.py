@@ -129,10 +129,11 @@ def get_nino_trend(
     sst_output = sst_output.where(sst_output != 0.0)
 
     _, axs = plt.subplots(2, 1, figsize=get_dim(ratio=1.2))
+
     metric_l = list()
     clim_l = list()
     reg_l = list()
-    nino_dict = {}
+    nino_dict = dict()
 
     for reg in ["nino1+2", "nino3", "nino3.4", "nino4", "pac"]:
         metric, clim = nino_calculate(sst_output, reg=reg)
@@ -153,8 +154,8 @@ def get_nino_trend(
     plt.title("")
     axs[0].set_xlabel("")
     axs[1].set_xlabel("Month")
-
     label_subplots(axs, x_pos=-0.1, y_pos=1)
+    plt.tight_layout()
     plt.savefig(graph_path)
     plt.clf()
 
