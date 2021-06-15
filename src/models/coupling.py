@@ -249,7 +249,7 @@ class Coupling:
         sst_a = sst_mean.rename({"Y": "lat", "X": "lon"})
         sst_c_mean_ll = sst_c_mean.rename({"Y": "lat", "X": "lon"})
         sst_mean60_old = xr.open_dataset(
-            self.coupsetup.ts_clim60(0), decode_times=False
+            self.setup.ts_clim60(0), decode_times=False
         )
         sst_mean60_final = sst_mean60_old.copy()
         sst_mean60_final.ts[:, :] = (
