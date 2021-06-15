@@ -271,7 +271,7 @@ class ModelSetup:
         return os.path.join(self.ocean_output_path, "om_run2f.nc")
 
     def ecmwf_sfcwind(self) -> str:
-        return os.path.join(self.setup.atmos_data_path, "sfcWind-ECMWF-clim.nc")
+        return os.path.join(self.atmos_data_path, "sfcWind-ECMWF-clim.nc")
 
     def om_mask(self) -> str:
         return os.path.join(self.ocean_data_path, "om_mask.nc")
