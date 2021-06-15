@@ -94,16 +94,16 @@ class Ocean:
                 "+NUMMODE              " + str(self.cfg.oc.nummode),
                 string_list,
             )
-            string_list = replace_item(
-                "+Hcut " + str(5),
-                "+Hcut " + str(self.cfg.oc.hcut),
-                string_list,
-            )
-            string_list = replace_item(
-                "+Tcut " + str(14.6),
-                "+Tcut " + str(self.cfg.oc.tcut),
-                string_list,
-            )
+            #string_list = replace_item(
+            #    "+Hcut " + str(5),
+            #    "+Hcut " + str(self.cfg.oc.hcut),
+            #    string_list,
+            #)
+            #string_list = replace_item(
+            #    "+Tcut " + str(14.6),
+            #    "+Tcut " + str(self.cfg.oc.tcut),
+            #    string_list,
+            #)
             string_list = replace_item(
                 "+f1prime        " + str(-0.006),
                 "+f1prime        " + str(self.cfg.oc.f1prime),

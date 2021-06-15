@@ -183,7 +183,7 @@ class Coupling:
     def replace_stress(self, it: int) -> None:
         """Replace the stress files.
 
-        Currently just resaves the files with a diff name.
+        Currently just resaves the clim files with a diff name.
 
         """
         ds = self.tau_anom_ds()
@@ -204,6 +204,31 @@ class Coupling:
                 0, 0, 40:141, :
             ] + i * tauy_trend[:, :] / len(tauy.coords["T"].values)
         tauy_new.to_netcdf(self.setup.tau_y(it), format="NETCDF3_CLASSIC")
+
+        taux_clim_obj = xr.open_dataset(self.setup.tau_clim_x(0), decode_times=False)
+        taux_clim_obj.to_netcdf(
+            self.setup.tau_clim_x(it),
+            format="NETCDF3_CLASSIC",
+        )
+        tauy_clim_obj = xr.open_dataset(self.setup.tau_clim_y(0), decode_times=False)
+        tauy_clim_obj.to_netcdf(
+            self.setup.tau_clim_y(it),
+            format="NETCDF3_CLASSIC",
+        )
+
+    def replace_stress_old(self, it: int) -> None:
+        """Replace the stress files. Currently just resaves the files."""
+
+        taux_obj = xr.open_dataset(self.setup.tau_x(0), decode_times=False)
+        taux_obj.to_netcdf(
+            self.setup.tau_x(it),
+            format="NETCDF3_CLASSIC",
+        )
+        tauy_obj = xr.open_dataset(self.setup.tau_y(0), decode_times=False)
+        tauy_obj.to_netcdf(
+            self.setup.tau_y(it),
+            format="NETCDF3_CLASSIC",
+        )
 
         taux_clim_obj = xr.open_dataset(self.setup.tau_clim_x(0), decode_times=False)
         taux_clim_obj.to_netcdf(
@@ -248,9 +273,7 @@ class Coupling:
         # ts_clim60
         sst_a = sst_mean.rename({"Y": "lat", "X": "lon"})
         sst_c_mean_ll = sst_c_mean.rename({"Y": "lat", "X": "lon"})
-        sst_mean60_old = xr.open_dataset(
-            self.setup.ts_clim60(0), decode_times=False
-        )
+        sst_mean60_old = xr.open_dataset(self.setup.ts_clim60(0), decode_times=False)
         sst_mean60_final = sst_mean60_old.copy()
         sst_mean60_final.ts[:, :] = (
             sst_a[20:141, :]

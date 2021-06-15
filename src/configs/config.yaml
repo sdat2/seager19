@@ -30,7 +30,7 @@ oc:
   time_test: 2 months
   time_spin: 20 years # months?
   time_diag: 2 years
-  time_run2f: 2 years # 58 years # now shortened for quick testing.
+  time_run2f: 58 years # 58 years # now shortened for quick testing.
   hcut: 5
   tcut: 14.6
   f1prime: -0.006
@@ -114,6 +114,6 @@ atm:
   # make grids
   dx:  360 / ${atm.nx}  # delta degrees
   dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
-name: nummode_${oc.nummode}_uncoupled_test5
+name: ???
 # python src/main.py --multirun oc.nummode=9,10
 # python src/main.py
