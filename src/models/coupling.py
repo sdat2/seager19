@@ -239,20 +239,34 @@ class Coupling:
         trend_fin_ds.to_netcdf(self.setup.ts_trend(it))
 
         # sst_mean: take mean
-        sst_mean = sst.mean("T").isel(Z=0).drop("Z") + self.cfg.atm.temp_0_c
+        # take mean
+        sst_c_mean = sst.mean("T").isel(Z=0).drop("Z")
+        sst_mean = sst_c_mean + self.cfg.atm.temp_0_c
+        # fill in land.
+        sst_mean = sst_mean.where(sst_c_mean != 0.0).fillna(0.0)
 
         # ts_clim60
         sst_a = sst_mean.rename({"Y": "lat", "X": "lon"})
-        sst_mean60_old = xr.open_dataset(self.setup.ts_clim60(0), decode_times=False)
+        sst_c_mean_ll = sst_c_mean.rename({"Y": "lat", "X": "lon"})
+        sst_mean60_old = xr.open_dataset(
+            self.coupsetup.ts_clim60(0), decode_times=False
+        )
         sst_mean60_final = sst_mean60_old.copy()
-        sst_mean60_final.ts[:, :] = sst_a[20:141, :]
+        sst_mean60_final.ts[:, :] = (
+            sst_a[20:141, :]
+            + sst_mean60_final.ts.where(
+                sst_c_mean_ll.isel(lat=slice(20, 141)) == 0.0
+            ).fillna(0.0)[:, :]
+        )
         sst_mean60_final.to_netcdf(self.setup.ts_clim60(it))
 
         # ts_clim
         sst_b = sst_mean.rename({"Y": "Y", "X": "X"})
         sst_mean_old = xr.open_dataset(self.setup.ts_clim(0), decode_times=False)
         sst_mean_final = sst_mean_old.copy()
-        sst_mean_final.ts[10:171, :] = sst_b[:, :]
+        sst_mean_final.ts[10:171, :] = sst_b[:, :] + sst_mean_final.ts[10:171, :].where(
+            sst_c_mean == 0.0
+        ).fillna(0.0)
         sst_mean_final.to_netcdf(self.setup.ts_clim(it))
 
     def run(self) -> None:
