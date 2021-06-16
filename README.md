@@ -1,9 +1,10 @@
 # seager19
+
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src=https://img.shields.io/badge/License-MIT-blue.svg></a>
  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
  <a href=https://www.python.org/downloads/release/python-388/><img src='https://img.shields.io/badge/python-3.8-blue.svg' alt='Python 3.8' /></a>
 <a href='https://seager19.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/seager19/badge/?version=latest' alt='Documentation Status' />
+<img src='https://readthedocs.org/projects/seager19/badge/?version=latest' alt='Documentation Status' />
 </a>
 <a href='https://travis-ci.com/sdat2/seager19'>
     <img src='https://travis-ci.com/sdat2/seager19.svg?branch=main' alt='Build Status' />
@@ -86,6 +87,7 @@ The code and data was taken from:
 ## Setup
 
 ```bash
+
     git clone https://github.com/sdat2/seager19.git
 
     cd seager19
