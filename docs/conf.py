@@ -139,4 +139,8 @@ latex_elements = {
 }
 
 # update the language totals
-os.system("cd .. \n cloc --report-file=docs/lang.txt $(git ls-files)")
+try:
+    os.system("cd .. \n cloc --report-file=docs/lang.txt $(git ls-files)")
+#pylint: disable=broad-except
+except:
+    print("could not update language totals")
