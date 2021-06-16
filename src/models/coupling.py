@@ -239,7 +239,7 @@ class Coupling:
 
         sst = can_coords(open_dataset(self.setup.om_run2f_nc()).SST_SST)
         sst_c_mean = sst.mean("T").isel(Z=0).drop("Z")
-        # sst = sst.where(sst != 0.0)
+
         trend_new = (
             (
                 get_trend(sst + self.cfg.atm.temp_0_c, min_clim_f=True)
@@ -252,10 +252,12 @@ class Coupling:
         )
         trend_old = xr.open_dataset(self.setup.ts_trend(0), decode_times=False)
         trend_final = trend_old.copy()
-        trend_final["ts"] = trend_final.ts.where(sst_c_mean == 0.0).fillna(0.0)
+        trend_final["ts"][10:171, :] = (
+            trend_final.ts[10:171, :].where(mask == 0.0).fillna(0.0)
+        )
         trend_final["ts"][10:171, :] = trend_new[:, :] + trend_final.ts[10:171, :]
         # xr.testing.assert_allclose(trend_final, trend_old, atol=10)
-        trend_final.to_netcdf(self.setup.ts_trend(it))
+        trend_final.fillna(0.0).to_netcdf(self.setup.ts_trend(it))
 
         # sst_mean: take mean
         # take mean
