@@ -123,6 +123,8 @@ The code and data was taken from:
     source ~/.bash_profile
 
     conda activate ./env/
+
+    mv logs/fix_2yr gws/nopw/j04/ai4er/users/sdat2/logs/
     
 ```
 

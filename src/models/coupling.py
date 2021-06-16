@@ -28,7 +28,7 @@ class Coupling:
     inversion, transforming back into longitude. Finally, u and Φ are derived by
     backsubstitution. The ocean equations are solved using the ‘INC’ scheme31,
     integrating the model forward, after spin-up with climatological conditions,
-    forced by the time-varying ECMWF wind stress and, for the case with CO2 forcing,
+    forced by the time-varying ECMWF wind stress, and, for the case with CO2 forcing,
     changing f′1
     in the net surface longwave radiation calculation. Change over 1958–2017
     is computed by a linear trend. The atmosphere model is solved forced by a Ts
@@ -58,6 +58,7 @@ class Coupling:
                 run containing run parameters.
             setup (ModelSetup): The setup object for
                 this run containing parameters.
+
         """
         self.coup = cfg.coup
         self.cfg = cfg
@@ -121,8 +122,8 @@ class Coupling:
         )
         fuend = interp2d(u_vel.X, u_vel.Yu, u_vel, kind="linear")
         ds["u_vel"] = (["Y", "X"], fuend(sfcw50.X.values, sfcw50.Y.values))
-        fuend = interp2d(v_vel.X, v_vel.Yv, v_vel, kind="linear")
-        ds["v_vel"] = (["Y", "X"], fuend(sfcw50.X.values, sfcw50.Y.values))
+        fvend = interp2d(v_vel.X, v_vel.Yv, v_vel, kind="linear")
+        ds["v_vel"] = (["Y", "X"], fvend(sfcw50.X.values, sfcw50.Y.values))
         t_u, t_v = self.f_stress(
             sfcw50,
             ds.u_vel,
@@ -136,6 +137,7 @@ class Coupling:
 
         Returns:
             xr.Dataset: dataset with different different tau fields.
+
         """
         sfcwind = xr.open_dataset(self.setup.ecmwf_sfcwind()).sfcWind
         ubeg = xr.open_dataset(self.setup.tcam_output()).ubeg
@@ -155,44 +157,10 @@ class Coupling:
         t_trend_v = t_trend_v.rename("t_trend_v")
         return xr.merge([t_beg_u, t_beg_v, t_end_u, t_end_v, t_trend_u, t_trend_v])
 
-    def replace_dq(self, it: int) -> None:
-        """
-        Replace dQ variables.
-
-        dQdf
-        dQdT
-        """
-        dq_df_from_atm = open_dataset(self.setup.dq_output()).dq_df
-        dq_df_sample = xr.open_dataarray(
-            self.setup.dq_df(0),
-            decode_times=False,
-        )
-        dq_df_new = dq_df_sample.copy()
-        for t in range(12):
-            dq_df_new[t, 0, 30:151, :] = can_coords(dq_df_from_atm)[:, :]
-        dq_df_new.to_dataset().to_netcdf(
-            self.setup.dq_df(it),
-            format="NETCDF3_CLASSIC",
-        )
-        dq_dt_from_atm = open_dataset(self.setup.dq_output()).dq_dt
-        dq_dt_sample = xr.open_dataarray(
-            self.setup.dq_dt(0),
-            decode_times=False,
-        )
-        dq_dt_new = dq_dt_sample.copy()
-        for t in range(12):
-            dq_dt_new[t, 0, 30:151, :] = can_coords(dq_dt_from_atm)[:, :]
-        dq_dt_new.to_dataset().to_netcdf(
-            self.setup.dq_dt(it),
-            format="NETCDF3_CLASSIC",
-        )
-
     def replace_stress(self, it: int) -> None:
         """Replace the stress files.
 
         Currently just resaves the clim files with a diff name.
-
-        TODO: currently does not spread the wind stress out; will likely break the model
 
         """
         ds = self.tau_anom_ds()
@@ -226,28 +194,35 @@ class Coupling:
             format="NETCDF3_CLASSIC",
         )
 
-    def replace_stress_old(self, it: int) -> None:
-        """Replace the stress files. Currently just resaves the files."""
+    def replace_dq(self, it: int) -> None:
+        """
+        Replace dQ variables.
 
-        taux_obj = xr.open_dataset(self.setup.tau_x(0), decode_times=False)
-        taux_obj.to_netcdf(
-            self.setup.tau_x(it),
+        dQdf
+        dQdT
+        """
+        dq_df_from_atm = open_dataset(self.setup.dq_output()).dq_df
+        dq_df_sample = xr.open_dataarray(
+            self.setup.dq_df(0),
+            decode_times=False,
+        )
+        dq_df_new = dq_df_sample.copy()
+        for t in range(12):
+            dq_df_new[t, 0, 30:151, :] = can_coords(dq_df_from_atm)[:, :]
+        dq_df_new.to_dataset().to_netcdf(
+            self.setup.dq_df(it),
             format="NETCDF3_CLASSIC",
         )
-        tauy_obj = xr.open_dataset(self.setup.tau_y(0), decode_times=False)
-        tauy_obj.to_netcdf(
-            self.setup.tau_y(it),
-            format="NETCDF3_CLASSIC",
+        dq_dt_from_atm = open_dataset(self.setup.dq_output()).dq_dt
+        dq_dt_sample = xr.open_dataarray(
+            self.setup.dq_dt(0),
+            decode_times=False,
         )
-
-        taux_clim_obj = xr.open_dataset(self.setup.tau_clim_x(0), decode_times=False)
-        taux_clim_obj.to_netcdf(
-            self.setup.tau_clim_x(it),
-            format="NETCDF3_CLASSIC",
-        )
-        tauy_clim_obj = xr.open_dataset(self.setup.tau_clim_y(0), decode_times=False)
-        tauy_clim_obj.to_netcdf(
-            self.setup.tau_clim_y(it),
+        dq_dt_new = dq_dt_sample.copy()
+        for t in range(12):
+            dq_dt_new[t, 0, 30:151, :] = can_coords(dq_dt_from_atm)[:, :]
+        dq_dt_new.to_dataset().to_netcdf(
+            self.setup.dq_dt(it),
             format="NETCDF3_CLASSIC",
         )
 
