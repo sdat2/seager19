@@ -89,6 +89,8 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 
+# filetype mapping
+
 source_suffix = {
     ".rst": "restructuredtext",
     ".txt": "markdown",
@@ -135,3 +137,6 @@ latex_elements = {
     "extraclassoptions": "openany,oneside",
     "papersize": "a4paper",
 }
+
+# update the language totals
+os.system("cd .. \n cloc --report-file=docs/lang.txt $(git ls-files)")
