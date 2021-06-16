@@ -129,10 +129,3 @@ The code and data was taken from:
     mv logs/fix_2yr gws/nopw/j04/ai4er/users/sdat2/logs/
     
 ```
-
-### compilers in singularity container
-
-```bash
-    # x86_64-linux-gnu-gcc-4.8
-    # x86_64-linux-gnu-gfortran-4.8
-```
