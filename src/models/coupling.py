@@ -6,7 +6,6 @@ Example:
 
 """
 import os
-import shutil
 from typing import Tuple
 import xarray as xr
 from typeguard import typechecked
