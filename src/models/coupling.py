@@ -74,18 +74,25 @@ class Coupling:
     ) -> Tuple[xr.DataArray, xr.DataArray]:
         """Wind stress flux.
 
+        .. math::
+            :nowrap:
+
+            \\begin{equation}
+                \\boldsymbol{\\tau}= \\rho c_{D} W \\mathbf{u}
+            \\end{equation}
+
         Args:
-            wind_speed_mean (Union[xr.DataArray, float]): the climatological annual
+            wind_speed_mean (Union[xr.DataArray, float]): W, the climatological annual
                 mean wind speed, which is taken from ECMWF
                 reanalysis for our standard model and from the CMIP5
                 multimodel mean when examining causes of bias in the
                 CMIP5 model.
-            u_wind (xr.DataArray): The zonal wind speed.
-            v_wind (xr.DataArray): The meridional wind speed.
+            u_wind (xr.DataArray): u_u, the zonal wind velocity.
+            v_wind (xr.DataArray): u_v, the meridional wind velocity.
 
         Returns:
-            Tuple[xr.DataArray, xr.DataArray]: [zonal wind stress,
-                meridional wind stress]
+            Tuple[xr.DataArray, xr.DataArray]: tau_x (zonal wind stress),
+               tau_y (meridional wind stress)
 
         """
         stress_coeff = self.coup.rho_air * self.coup.c_d * wind_speed_mean
@@ -277,7 +284,7 @@ class Coupling:
 
         # sst_mean: take mean
         # take mean
-        sst_mean = sst_c_mean + self.cfg.atm.temp_0_c # kelvin
+        sst_mean = sst_c_mean + self.cfg.atm.temp_0_c  # kelvin
         # fill in land.
         sst_mean = sst_mean.where(mask != 0.0).fillna(0.0)
 
@@ -288,23 +295,20 @@ class Coupling:
         sst_mean60_final = sst_mean60_old.copy()
         sst_mean60_final["ts"][:, :] = (
             sst_a[20:141, :]
-            + sst_mean60_final.ts.where(
-                mask_ll.isel(lat=slice(20, 141)) == 0.0
-            ).fillna(0.0)[:, :]
+            + sst_mean60_final.ts.where(mask_ll.isel(lat=slice(20, 141)) == 0.0).fillna(
+                0.0
+            )[:, :]
         )
         # xr.testing.assert_allclose(sst_mean60_final, sst_mean60_old, atol=10)
         sst_mean60_final.to_netcdf(self.setup.ts_clim60(it))
-
 
         # ts_clim
         sst_b = sst_mean.rename({"Y": "Y", "X": "X"})
         sst_mean_old = xr.open_dataset(self.setup.ts_clim(0), decode_times=False)
         sst_mean_final = sst_mean_old.copy()
-        sst_mean_final["ts"][10:171, :] = (
-                sst_b[:, :]
-                + sst_mean_final.ts[10:171, :].where(
-                    mask == 0.0
-                ).fillna(0.0))
+        sst_mean_final["ts"][10:171, :] = sst_b[:, :] + sst_mean_final.ts[
+            10:171, :
+        ].where(mask == 0.0).fillna(0.0)
         # xr.testing.assert_allclose(sst_mean_final, sst_mean_old, atol=10)
         sst_mean_final.to_netcdf(self.setup.ts_clim(it))
 
