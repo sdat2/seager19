@@ -262,11 +262,12 @@ class Coupling:
             .where(sst_c_mean != 0.0)
             .fillna(0.0)
         )
-        trend_old = xr.open_dataset(self.setup.ts_trend(0), decode_times=False).ts
-        trend_final = trend_old.copy().where(sst_c_mean == 0.0).fillna(0.0)
-        trend_final[10:171, :] = trend_new[:, :] + trend_final[10:171, :]
-        trend_fin_ds = trend_final.to_dataset(name="ts")
-        trend_fin_ds.to_netcdf(self.setup.ts_trend(it))
+        trend_old = xr.open_dataset(self.setup.ts_trend(0), decode_times=False)
+        trend_final = trend_old.copy()
+        trend_final.ts = trend_final.ts.where(sst_c_mean == 0.0).fillna(0.0)
+        trend_final.ts[10:171, :] = trend_new[:, :] + trend_final.ts[10:171, :]
+        # trend_fin_ds = trend_final.to_dataset(name="ts")
+        trend_final.to_netcdf(self.setup.ts_trend(it))
 
         # sst_mean: take mean
         # take mean
