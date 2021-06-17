@@ -37,6 +37,9 @@ GIF_PATH = PROJECT_PATH / "gifs"
 # General data from e.g. paper or cmip etc.
 DATA_PATH = SRC_PATH / "data"
 
+# Wandb-summary file download:
+WANDB_DATA = DATA_PATH / "results.csv"
+
 # Test DIREC
 TEST_DIREC = SRC_PATH / "test" / "test_direc"
 
