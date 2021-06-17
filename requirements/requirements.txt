@@ -67,6 +67,7 @@ hydra-core
 
 # Wandb
 wandb              # automatic recording of runs
+wandb_summarizer  # cool summarisation library
 
 # graphics
 imageio
