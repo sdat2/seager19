@@ -14,6 +14,7 @@ from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
 from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
+from src.visualisation.ani import animate_coupling
 
 
 # pylint: disable=no-value-for-parameter
@@ -330,3 +331,4 @@ class Coupling:
         # set up.
         if self.cfg.animate:
             self.ocean.animate_all()
+            animate_coupling(self.setup)

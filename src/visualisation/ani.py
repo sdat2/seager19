@@ -351,10 +351,7 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
     ps_defaults(use_tex=False, dpi=dpi)
 
     def gen_frame_func() -> Callable:
-        """Create imageio frame function for `xarray.DataArray` visualisation.
-
-        Args:
-            xr_da (xr.DataArray): input xr.DataArray.
+        """Create imageio frame function.
 
         Returns:
             Callable: make_frame function to create each frame.
@@ -365,7 +362,7 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
             """Make an individual frame of the animation.
 
             Args:
-                index (int): The T index.
+                index (int): index.
 
             Returns:
                 image (np.array): np.frombuffer output that can be fed into imageio
@@ -378,38 +375,36 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
             add_units(open_dataarray(setup.tau_y(it=index)).isel(T=1)).plot(
                 ax=axs[0, 0], cmap=cmap("delta")
             )
-            axs[0, 0].set_title(r"$\tau_y$")
+            axs[0, 0].set_title(r"$\tau_y$ [Pa]")
             axs[0, 0].set_xlabel("")
             add_units(open_dataarray(setup.tau_x(it=index)).isel(T=1)).plot(
                 ax=axs[0, 1], cmap=cmap("delta")
             )
-            axs[0, 1].set_title(r"$\tau_x$")
+            axs[0, 1].set_title(r"$\tau_x$ [Pa]")
             axs[0, 1].set_xlabel("")
             axs[0, 1].set_ylabel("")
             add_units(open_dataarray(setup.dq_df(it=index)).isel(T=1)).plot(
                 ax=axs[1, 0], cmap=cmap("sst")
             )
-            axs[1, 0].set_title(r"$\frac{dQ}{df}$")
+            axs[1, 0].set_title(r"$\frac{dQ}{df}$ [W m$^{-2}$]")
             axs[1, 0].set_xlabel("")
             add_units(open_dataarray(setup.dq_dt(it=index)).isel(T=1)).plot(
                 ax=axs[1, 1], cmap=cmap("sst")
             )
-            axs[1, 1].set_title(r"$\frac{dQ}{dT}$")
+            axs[1, 1].set_title(r"$\frac{dQ}{dT}$ [W m$^{-2}$ K$^{-1}$]")
             axs[1, 1].set_xlabel("")
             axs[1, 1].set_ylabel("")
             add_units(open_dataarray(setup.ts_clim(it=index))).plot(
                 ax=axs[2, 0], cmap=cmap("sst")
             )
-            axs[2, 0].set_title(r"$\bar{T}_s$")
+            axs[2, 0].set_title(r"$\bar{T}_s$ [K]")
             add_units(open_dataarray(setup.ts_trend(it=index))).plot(
                 ax=axs[2, 1], cmap=cmap("sst")
             )
-            axs[2, 1].set_title(r"Trend $T_s$")
+            axs[2, 1].set_title(r"Trend $T_s$ [K]")
             axs[2, 1].set_ylabel("")
             plt.tight_layout()
             label_subplots(axs, y_pos=1.08, x_pos=-0.15)
-            # plt.tight_layout()
-
             fig.canvas.draw()
             image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
             image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
@@ -420,7 +415,7 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
         return make_frame
 
     video_indices = list(range(len(setup.cfg.coup.iterations)))
-    video_path = os.path.join(setup.gif_path, "coupling")
+    video_path = os.path.join(setup.gif_path, "coupling.gif")
     make_frame = gen_frame_func()
     imageio.mimsave(
         video_path,
