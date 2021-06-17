@@ -17,7 +17,7 @@ Model run results: <https://wandb.ai/sdat2/seager19>
 
 Docker image for gfortran/gcc/cdf/conda: <https://hub.docker.com/repository/docker/sdat2/seager19>
 
-![SST output over spin up period](gifs/om_diag_SST_SST.gif)
+![Coupling over iterations with c_d=2.7](gifs/coupling.gif)
 
 ## Purpose
 

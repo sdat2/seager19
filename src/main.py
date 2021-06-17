@@ -18,6 +18,7 @@ from src.models.coupling import Coupling
 from src.models.model_setup import ModelSetup
 from src.configs.config import format_config
 from src.configs.wandb_util import start_wandb
+from src.data_loading.download import get_data
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ def main(cfg: DictConfig) -> None:
         cfg (DictConfig): The hyrda dict config from the wrapper.
 
     """
-
+    get_data()  # try to get the data at this point if not already downloaded.
     cfg = format_config(cfg)
     sub_main(cfg)
 

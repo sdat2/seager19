@@ -372,12 +372,12 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
                 3, 2, figsize=get_dim(ratio=(5 ** 0.5 - 1) / 2 * 1.5)
             )
             plt.suptitle("Iteration: " + str(index))
-            add_units(open_dataarray(setup.tau_y(it=index)).isel(T=1)).plot(
+            add_units(open_dataarray(setup.tau_y(it=index)).isel(T=600)).plot(
                 ax=axs[0, 0], cmap=cmap("delta")
             )
             axs[0, 0].set_title(r"$\tau_y$ [Pa]")
             axs[0, 0].set_xlabel("")
-            add_units(open_dataarray(setup.tau_x(it=index)).isel(T=1)).plot(
+            add_units(open_dataarray(setup.tau_x(it=index)).isel(T=600)).plot(
                 ax=axs[0, 1], cmap=cmap("delta")
             )
             axs[0, 1].set_title(r"$\tau_x$ [Pa]")
@@ -399,7 +399,7 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
             )
             axs[2, 0].set_title(r"$\bar{T}_s$ [K]")
             add_units(open_dataarray(setup.ts_trend(it=index))).plot(
-                ax=axs[2, 1], cmap=cmap("sst")
+                ax=axs[2, 1], cmap=cmap("delta")
             )
             axs[2, 1].set_title(r"Trend $T_s$ [K]")
             axs[2, 1].set_ylabel("")
@@ -414,7 +414,7 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
 
         return make_frame
 
-    video_indices = list(range(len(setup.cfg.coup.iterations)))
+    video_indices = list(range(setup.cfg.coup.iterations))
     video_path = os.path.join(setup.gif_path, "coupling.gif")
     make_frame = gen_frame_func()
     imageio.mimsave(
