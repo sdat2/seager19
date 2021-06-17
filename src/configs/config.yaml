@@ -38,7 +38,7 @@ oc:
 coup:
   c_d: 2.25e-3    # Pa m-1 s,  wind stress.
   rho_air: 1.225   # kg m-3, density of sea surface air
-  iterations: 5  # how many times to repeat the coupling.
+  iterations: 6  # how many times to repeat the coupling.
   # The stopping condition is currently quite qualitative, and so 
   # iterations will be quite hard to tune.
   # Initially when fully coupled the models blew up.

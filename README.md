@@ -124,8 +124,18 @@ The code and data was taken from:
 
     source ~/.bash_profile
 
+    python src/main.py name=cd_1.7 coup.c_d=1.7e-3
+
+    python src/main.py name=cd_2.0 coup.c_d=2.0e-3
+
+    python src/main.py name=cd_1.0 coup.c_d=1.0e-3
+
+
+
     conda activate ./env/
 
-    mv logs/fix_2yr gws/nopw/j04/ai4er/users/sdat2/logs/
-    
+    mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/logs/
+
+    mv -f so-fronts /gws/nopw/j04/ai4er/users/sdat2/
+
 ```
