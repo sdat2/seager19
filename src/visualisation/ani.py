@@ -15,10 +15,18 @@ import matplotlib
 import matplotlib.pyplot as plt
 from typeguard import typechecked
 import imageio
-from src.plot_utils import ps_defaults, time_title, cmap, add_units
+from src.plot_utils import (
+    ps_defaults,
+    time_title,
+    cmap,
+    add_units,
+    get_dim,
+    label_subplots,
+)
 from src.utils import timeit
 from src.xr_utils import fix_calendar, open_dataarray, can_coords
 from src.constants import OCEAN_DATA_PATH, GIF_PATH
+from src.models.model_setup import ModelSetup
 
 
 @timeit
@@ -326,5 +334,97 @@ def animate_qflx_diff(
         video_path,
         [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
         fps=fps,
+    )
+    print("Video " + video_path + " made.")
+
+
+@timeit
+def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
+    """
+    Animatie coupling.
+
+    Args:
+        setup (ModelSetup): setup object.
+        dpi (int, optional): Dots per inch. Defaults to 200.
+
+    """
+    ps_defaults(use_tex=False, dpi=dpi)
+
+    def gen_frame_func() -> Callable:
+        """Create imageio frame function for `xarray.DataArray` visualisation.
+
+        Args:
+            xr_da (xr.DataArray): input xr.DataArray.
+
+        Returns:
+            Callable: make_frame function to create each frame.
+
+        """
+
+        def make_frame(index: int) -> np.array:
+            """Make an individual frame of the animation.
+
+            Args:
+                index (int): The T index.
+
+            Returns:
+                image (np.array): np.frombuffer output that can be fed into imageio
+
+            """
+            fig, axs = plt.subplots(
+                3, 2, figsize=get_dim(ratio=(5 ** 0.5 - 1) / 2 * 1.5)
+            )
+            plt.suptitle("Iteration: " + str(index))
+            add_units(open_dataarray(setup.tau_y(it=index)).isel(T=1)).plot(
+                ax=axs[0, 0], cmap=cmap("delta")
+            )
+            axs[0, 0].set_title(r"$\tau_y$")
+            axs[0, 0].set_xlabel("")
+            add_units(open_dataarray(setup.tau_x(it=index)).isel(T=1)).plot(
+                ax=axs[0, 1], cmap=cmap("delta")
+            )
+            axs[0, 1].set_title(r"$\tau_x$")
+            axs[0, 1].set_xlabel("")
+            axs[0, 1].set_ylabel("")
+            add_units(open_dataarray(setup.dq_df(it=index)).isel(T=1)).plot(
+                ax=axs[1, 0], cmap=cmap("sst")
+            )
+            axs[1, 0].set_title(r"$\frac{dQ}{df}$")
+            axs[1, 0].set_xlabel("")
+            add_units(open_dataarray(setup.dq_dt(it=index)).isel(T=1)).plot(
+                ax=axs[1, 1], cmap=cmap("sst")
+            )
+            axs[1, 1].set_title(r"$\frac{dQ}{dT}$")
+            axs[1, 1].set_xlabel("")
+            axs[1, 1].set_ylabel("")
+            add_units(open_dataarray(setup.ts_clim(it=index))).plot(
+                ax=axs[2, 0], cmap=cmap("sst")
+            )
+            axs[2, 0].set_title(r"$\bar{T}_s$")
+            add_units(open_dataarray(setup.ts_trend(it=index))).plot(
+                ax=axs[2, 1], cmap=cmap("sst")
+            )
+            axs[2, 1].set_title(r"Trend $T_s$")
+            axs[2, 1].set_ylabel("")
+            plt.tight_layout()
+            label_subplots(axs, y_pos=1.08, x_pos=-0.15)
+            # plt.tight_layout()
+
+            fig.canvas.draw()
+            image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
+            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            plt.close()
+
+            return image
+
+        return make_frame
+
+    video_indices = list(range(len(setup.cfg.coup.iterations)))
+    video_path = os.path.join(setup.gif_path, "coupling")
+    make_frame = gen_frame_func()
+    imageio.mimsave(
+        video_path,
+        [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
+        fps=2,
     )
     print("Video " + video_path + " made.")
