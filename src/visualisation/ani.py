@@ -24,7 +24,7 @@ from src.plot_utils import (
     label_subplots,
 )
 from src.utils import timeit
-from src.xr_utils import fix_calendar, open_dataarray, can_coords
+from src.xr_utils import fix_calendar, open_dataarray, can_coords, sel
 from src.constants import OCEAN_DATA_PATH, GIF_PATH
 from src.models.model_setup import ModelSetup
 
@@ -339,16 +339,23 @@ def animate_qflx_diff(
 
 
 @timeit
-def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
+def animate_coupling(setup: ModelSetup, dpi: int = 200, pac=False) -> None:
     """
     Animatie coupling.
 
     Args:
         setup (ModelSetup): setup object.
         dpi (int, optional): Dots per inch. Defaults to 200.
+        pac (bool, optional): Whether to only plot the Pacific. Defaults to False.
 
     """
     ps_defaults(use_tex=False, dpi=dpi)
+
+    def clip(da: xr.DataArray):
+        if pac:
+            return sel(da)
+        else:
+            return da
 
     def gen_frame_func() -> Callable:
         """Create imageio frame function.
@@ -372,39 +379,39 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
                 3, 2, figsize=get_dim(ratio=(5 ** 0.5 - 1) / 2 * 1.5)
             )
             plt.suptitle("Iteration: " + str(index))
-            add_units(open_dataarray(setup.tau_y(it=index)).isel(T=600)).plot(
+            clip(add_units(open_dataarray(setup.tau_y(it=index)).isel(T=600))).plot(
                 ax=axs[0, 0], cmap=cmap("delta")
             )
             axs[0, 0].set_title(r"$\tau_y$ [Pa]")
             axs[0, 0].set_xlabel("")
-            add_units(open_dataarray(setup.tau_x(it=index)).isel(T=600)).plot(
+            clip(add_units(open_dataarray(setup.tau_x(it=index)).isel(T=600))).plot(
                 ax=axs[0, 1], cmap=cmap("delta")
             )
             axs[0, 1].set_title(r"$\tau_x$ [Pa]")
             axs[0, 1].set_xlabel("")
             axs[0, 1].set_ylabel("")
-            add_units(open_dataarray(setup.dq_df(it=index)).isel(T=1)).plot(
+            clip(add_units(open_dataarray(setup.dq_df(it=index)).isel(T=1))).plot(
                 ax=axs[1, 0], cmap=cmap("sst")
             )
             axs[1, 0].set_title(r"$\frac{dQ}{df}$ [W m$^{-2}$]")
             axs[1, 0].set_xlabel("")
-            add_units(open_dataarray(setup.dq_dt(it=index)).isel(T=1)).plot(
+            clip(add_units(open_dataarray(setup.dq_dt(it=index)).isel(T=1))).plot(
                 ax=axs[1, 1], cmap=cmap("sst")
             )
             axs[1, 1].set_title(r"$\frac{dQ}{dT}$ [W m$^{-2}$ K$^{-1}$]")
             axs[1, 1].set_xlabel("")
             axs[1, 1].set_ylabel("")
-            add_units(open_dataarray(setup.ts_clim(it=index))).plot(
+            clip(add_units(open_dataarray(setup.ts_clim(it=index)))).plot(
                 ax=axs[2, 0], cmap=cmap("sst")
             )
             axs[2, 0].set_title(r"$\bar{T}_s$ [K]")
-            add_units(open_dataarray(setup.ts_trend(it=index))).plot(
+            clip(add_units(open_dataarray(setup.ts_trend(it=index)))).plot(
                 ax=axs[2, 1], cmap=cmap("delta")
             )
             axs[2, 1].set_title(r"Trend $T_s$ [K]")
             axs[2, 1].set_ylabel("")
             plt.tight_layout()
-            label_subplots(axs, y_pos=1.08, x_pos=-0.15)
+            label_subplots(axs, y_pos=1.1, x_pos=-0.15)
             fig.canvas.draw()
             image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
             image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
@@ -415,7 +422,10 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200) -> None:
         return make_frame
 
     video_indices = list(range(setup.cfg.coup.iterations))
-    video_path = os.path.join(setup.gif_path, "coupling.gif")
+    if pac:
+        video_path = os.path.join(setup.gif_path, "coupling_pac.gif")
+    else:
+        video_path = os.path.join(setup.gif_path, "coupling.gif")
     make_frame = gen_frame_func()
     imageio.mimsave(
         video_path,

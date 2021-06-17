@@ -332,3 +332,5 @@ class Coupling:
         if self.cfg.animate:
             self.ocean.animate_all()
             animate_coupling(self.setup)
+            animate_coupling(self.setup, pac=True)
+
