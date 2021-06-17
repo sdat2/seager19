@@ -424,7 +424,8 @@ def add_units(
 
     Returns:
         Union[xr.DataArray, xr.Dataset]: Datarray/Dataset with correct
-            units/names for plotting.
+            units/names for plotting. Assuming that you've given the
+            correct x_val and y_val for the object.
     """
     if x_val in xr_obj.coords:
         xr_obj.coords[x_val].attrs["units"] = r"$^{\circ}$E"
