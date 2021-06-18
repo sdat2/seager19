@@ -375,43 +375,66 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200, pac=False) -> None:
                 image (np.array): np.frombuffer output that can be fed into imageio
 
             """
+            mask = open_dataarray(setup.om_mask())
+            cbar_dict = {
+                "extend": "neither",  #  "both",
+                "extendfrac": 0.0,
+                "extendrect": True,
+            }
             fig, axs = plt.subplots(
                 3, 2, figsize=get_dim(ratio=(5 ** 0.5 - 1) / 2 * 1.5)
             )
             plt.suptitle("Iteration: " + str(index))
             clip(add_units(open_dataarray(setup.tau_y(it=index)).isel(T=600))).plot(
-                ax=axs[0, 0], cmap=cmap("delta")
+                ax=axs[0, 0],
+                cmap=cmap("delta"),
+                vmin=-0.6,
+                vmax=0.6,
+                add_colorbar=0,
+                cbar_kwargs=cbar_dict,
             )
             axs[0, 0].set_title(r"$\tau_y$ [Pa]")
             axs[0, 0].set_xlabel("")
             clip(add_units(open_dataarray(setup.tau_x(it=index)).isel(T=600))).plot(
-                ax=axs[0, 1], cmap=cmap("delta")
+                ax=axs[0, 1],
+                cmap=cmap("delta"),
+                vmin=-0.9,
+                vmax=0.9,
+                cbar_kwargs=cbar_dict,
             )
             axs[0, 1].set_title(r"$\tau_x$ [Pa]")
             axs[0, 1].set_xlabel("")
             axs[0, 1].set_ylabel("")
             clip(add_units(open_dataarray(setup.dq_df(it=index)).isel(T=1))).plot(
-                ax=axs[1, 0], cmap=cmap("sst")
+                ax=axs[1, 0],
+                cmap=cmap("sst"),
+                vmin=180,
+                vmax=450,
+                cbar_kwargs=cbar_dict,
             )
             axs[1, 0].set_title(r"$\frac{dQ}{df}$ [W m$^{-2}$]")
             axs[1, 0].set_xlabel("")
             clip(add_units(open_dataarray(setup.dq_dt(it=index)).isel(T=1))).plot(
-                ax=axs[1, 1], cmap=cmap("sst")
+                ax=axs[1, 1], cmap=cmap("sst"), vmin=0, vmax=7.5, cbar_kwargs=cbar_dict
             )
             axs[1, 1].set_title(r"$\frac{dQ}{dT}$ [W m$^{-2}$ K$^{-1}$]")
             axs[1, 1].set_xlabel("")
             axs[1, 1].set_ylabel("")
             clip(add_units(open_dataarray(setup.ts_clim(it=index)))).plot(
-                ax=axs[2, 0], cmap=cmap("sst")
+                ax=axs[2, 0],
+                cmap=cmap("sst"),
+                vmin=270,
+                vmax=310,
+                cbar_kwargs=cbar_dict,
             )
             axs[2, 0].set_title(r"$\bar{T}_s$ [K]")
             clip(add_units(open_dataarray(setup.ts_trend(it=index)))).plot(
-                ax=axs[2, 1], cmap=cmap("delta")
+                ax=axs[2, 1], cmap=cmap("delta"), vmin=-5, vmax=5, cbar_kwargs=cbar_dict
             )
-            axs[2, 1].set_title(r"Trend $T_s$ [K]")
+            axs[2, 1].set_title(r"$\Delta T_s$ [$\Delta$ K]")
             axs[2, 1].set_ylabel("")
             plt.tight_layout()
-            label_subplots(axs, y_pos=1.1, x_pos=-0.15)
+            label_subplots(axs, y_pos=1.15, x_pos=-0.15)
             fig.canvas.draw()
             image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
             image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
