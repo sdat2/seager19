@@ -24,7 +24,7 @@ from src.plot_utils import (
     label_subplots,
 )
 from src.utils import timeit
-from src.xr_utils import fix_calendar, open_dataarray, can_coords, sel
+from src.xr_utils import fix_calendar, open_dataarray, open_dataset, can_coords, sel
 from src.constants import OCEAN_DATA_PATH, GIF_PATH
 from src.models.model_setup import ModelSetup
 
@@ -339,7 +339,9 @@ def animate_qflx_diff(
 
 
 @timeit
-def animate_coupling(setup: ModelSetup, dpi: int = 200, pac=False) -> None:
+def animate_coupling(
+    setup: ModelSetup, dpi: int = 200, pac: bool = False, mask_land: bool = False
+) -> None:
     """
     Animatie coupling.
 
@@ -347,13 +349,21 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200, pac=False) -> None:
         setup (ModelSetup): setup object.
         dpi (int, optional): Dots per inch. Defaults to 200.
         pac (bool, optional): Whether to only plot the Pacific. Defaults to False.
+        mask_land (bool, optional): Whether to mask the land in green.
+            Defaults to False.
 
     """
-    ps_defaults(use_tex=False, dpi=dpi)
+    ps_defaults(use_tex=False, dpi=dpi)  # set the plot settings sensibly.
+
+    mask = open_dataset(setup.om_mask()).mask
 
     def clip(da: xr.DataArray):
-        if pac:
+        if pac and not mask_land:
             return sel(da)
+        elif pac and mask_land:
+            return sel(da).where(sel(mask) != 0.0)
+        elif not pac and mask_land:
+            return da.where(mask != 0.0)  # may not work if they have different grids.
         else:
             return da
 
@@ -375,7 +385,6 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200, pac=False) -> None:
                 image (np.array): np.frombuffer output that can be fed into imageio
 
             """
-            mask = open_dataarray(setup.om_mask())
             cbar_dict = {
                 "extend": "neither",  #  "both",
                 "extendfrac": 0.0,
@@ -445,10 +454,7 @@ def animate_coupling(setup: ModelSetup, dpi: int = 200, pac=False) -> None:
         return make_frame
 
     video_indices = list(range(setup.cfg.coup.iterations))
-    if pac:
-        video_path = os.path.join(setup.gif_path, "coupling_pac.gif")
-    else:
-        video_path = os.path.join(setup.gif_path, "coupling.gif")
+    video_path = setup.coupling_video(pac=pac, mask_land=mask_land)
     make_frame = gen_frame_func()
     imageio.mimsave(
         video_path,

@@ -36,7 +36,8 @@ oc:
   tcut: 14.6
   f1prime: -0.006
 coup:
-  c_d: 2.25e-3    # Pa m-1 s,  wind stress.
+  c_d: 2.25e-3    # dimensionless?,  wind stress.
+  # breaks ocean model by the time you get to 3.5e0, but probably before.
   rho_air: 1.225   # kg m-3, density of sea surface air
   iterations: 6  # how many times to repeat the coupling.
   # The stopping condition is currently quite qualitative, and so 
@@ -83,7 +84,7 @@ atm:
   eps_p: (${atm.pi} / ${atm.height_tropopause}) ** 2 / ${atm.nbsq} / ${atm.k_days} / ${atm.sec_in_day}
   beta: ${atm.omega_2} / ${atm.radius_earth}
   rho_air: 1.225  # kg m-3 - also called rho_00
-  emmisivity: 0.97  # problem here with second definintion.
+  emmisivity: 0.97
   p_s: 1000  # pressure at the surface?
   # presumably in pascals
   es_0: 6.11 # 

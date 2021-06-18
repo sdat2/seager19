@@ -281,3 +281,11 @@ class ModelSetup:
 
     def nino_nc(self, it: int) -> str:
         return os.path.join(self.nino_data_path, "nino_" + str(it) + ".nc")
+
+    def coupling_video(self, pac: bool = False, mask_land=False) -> str:
+        name = "coupling"
+        if pac:
+            name += "_pac"
+        if mask_land:
+            name += "_mask"
+        return os.path.join(self.gif_path, name + ".gif")

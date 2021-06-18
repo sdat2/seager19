@@ -333,4 +333,6 @@ class Coupling:
             self.ocean.animate_all()
             animate_coupling(self.setup)
             animate_coupling(self.setup, pac=True)
+            animate_coupling(self.setup, pac=True, mask_land=True)
+            animate_coupling(self.setup, pac=False, mask_land=True)
 
