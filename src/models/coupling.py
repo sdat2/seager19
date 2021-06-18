@@ -10,6 +10,7 @@ from scipy.interpolate import interp2d
 import xarray as xr
 from typeguard import typechecked
 from omegaconf import DictConfig
+import wandb
 from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
@@ -335,4 +336,12 @@ class Coupling:
             animate_coupling(self.setup, pac=True)
             animate_coupling(self.setup, pac=True, mask_land=True)
             animate_coupling(self.setup, pac=False, mask_land=True)
-
+            wandb.log(
+                {
+                    "coupling_video": wandb.Video(
+                        self.setup.coupling_video(pac=True, mask_land=True),
+                        fps=1,
+                        format="gif",
+                    )
+                }
+            )

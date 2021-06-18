@@ -382,7 +382,7 @@ def animate_coupling(
                 index (int): index.
 
             Returns:
-                image (np.array): np.frombuffer output that can be fed into imageio
+                image (np.ndarray): np.frombuffer output that can be fed into imageio.
 
             """
             cbar_dict = {
@@ -459,6 +459,6 @@ def animate_coupling(
     imageio.mimsave(
         video_path,
         [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
-        fps=2,
+        fps=1,
     )
     print("Video " + video_path + " made.")
