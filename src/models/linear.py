@@ -1,9 +1,10 @@
 """To apply linear regression functions."""
-from typing import Callable, Tuple, Sequence, Union
+from typing import Callable, Tuple, Sequence, Union, Optional
 import numpy as np
 from uncertainties import unumpy as unp
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+from src.plot_utils import tex_param
 
 
 def _parab(x: float, a: float, b: float, c: float):
@@ -61,7 +62,7 @@ def fit(
     Args:
         x_npa (np.ndarray): The x values to fit.
         y_npa (np.ndarray): The y values to fit
-        reg_type (str, optional): [description]. Defaults to "lin".
+        reg_type (str, optional): Which regression to do. Defaults to "lin".
 
     Returns:
         Tuple[unp.uarray, Callable]: Paramaters with uncertainty,
@@ -80,23 +81,24 @@ def fit(
 def plot(
     x_values: Sequence[Union[float, int]],
     y_values: Sequence[Union[float, int]],
-    x_label: str,
-    y_label: str,
-    fig_path: str,
+    reg_type: str = "lin",
+    x_label: str = "x label",
+    y_label: str = "y label",
+    fig_path: Optional[str] = None,
 ) -> Tuple[unp.uarray, Callable]:
     """
-    [summary]
-
-    [extended_summary]
+    Plot the polynomial.
 
     Args:
         x_values (Sequence[Union[float, int]]): The x values to fit.
         y_values (Sequence[Union[float, int]]): The y values to fit.
-        x_label (str): X label for plot. e.g.
+        reg_type (str, optional): Which regression to do. Defaults to "lin".
+        x_label (str, optional): X label for plot. e.g.
             r"$\\Delta \\bar{T}_s$ over tropical pacific (pac) region [$\\Delta$ K]"
         y_label (str): Y labelsfor plot. e.g.
             r"$\\Delta \\bar{T}_s$ over nino3.4 region [$\\Delta$ K]"
-        fig_path (str): Path to stor the figure in.
+        fig_path (Optional[str], optional): Path to stor the figure in.
+            Defaults to None.
 
     Returns:
         Tuple[unp.uarray, Callable]: Paramaters with uncertainty,
@@ -105,7 +107,7 @@ def plot(
     plt.scatter(x_values, y_values)
     ext = 0.05
 
-    param, func = fit(x_values, y_values)
+    param, func = fit(x_values, y_values, reg_type=reg_type)
     min_x_data = min(x_values)
     max_x_data = max(x_values)
     min_x_pred = min_x_data - (max_x_data - min_x_data) * ext
@@ -113,16 +115,38 @@ def plot(
 
     x_pred = np.linspace(min_x_pred, max_x_pred, num=50)
     y_pred = func(x_pred)
+
+    if len(param) == 1:
+        label = "y = (" + tex_param(param[0]) + ")$x$"
+    elif len(param) == 2:
+        label = (
+            "y = " + tex_param(param[0], bracket=True) + "$x$  + " + tex_param(param[1])
+        )
+    elif len(param) == 3:
+        label = (
+            "y = "
+            + tex_param(param[0], bracket=True)
+            + " $x^2$  + "
+            + tex_param(param[1], bracket=True)
+            + " $x$  + "
+            + tex_param(param[2])
+        )
+    else:
+        print("Too many parameters.")
+        assert False
+
     plt.plot(
         x_pred,
         y_pred,
-        label="y = ({:2.1f}".format(param[0]) + ")$x$  +  {:2.1f}".format(param[1]),
+        label=label,
         color="red",
     )
     plt.legend()
     plt.xlabel(x_label)
     plt.ylabel(y_label)
+    plt.xlim(min_x_pred, max_x_pred)
     plt.tight_layout()
-    plt.savefig(fig_path)
+    if fig_path is not None:
+        plt.savefig(fig_path)
 
     return param, func

@@ -437,17 +437,22 @@ def add_units(
     return xr_obj
 
 
-def tex_param(uf: ufloat) -> str:
+def tex_param(uf: ufloat, bracket: bool = False) -> str:
     """
     A tool to take an uncertainty object, and return a latex string
     for plotting, which has the right number of decimal places.
 
     Args:
         uf (ufloat): The uncertainties ufloat object.
+        bracket (bool, optional): Whether or not to add latex brackets around
+            the parameter. Defaults to False.
 
     Returns:
         str: Raw string ready to be added to a graph label.
     """
     sf = round(np.log10(abs(uf.n)) - np.log10(abs(uf.s)))
-    fs = "${:." + str(sf) + "eL}$"
+    if bracket:
+        fs = "$ \\left( {:." + str(sf) + "eL} \\right) $"
+    else:
+        fs = "${:." + str(sf) + "eL}$"
     return fs.format(uf)
