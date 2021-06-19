@@ -399,7 +399,6 @@ def animate_coupling(
                 cmap=cmap("delta"),
                 vmin=-0.6,
                 vmax=0.6,
-                add_colorbar=0,
                 cbar_kwargs=cbar_dict,
             )
             axs[0, 0].set_title(r"$\tau_y$ [Pa]")
@@ -443,7 +442,7 @@ def animate_coupling(
             axs[2, 1].set_title(r"$\Delta T_s$ [$\Delta$ K]")
             axs[2, 1].set_ylabel("")
             plt.tight_layout()
-            label_subplots(axs, y_pos=1.15, x_pos=-0.15)
+            label_subplots(axs, y_pos=1.25, x_pos=-0.15)
             fig.canvas.draw()
             image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
             image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))

@@ -17,7 +17,7 @@ Model run results: <https://wandb.ai/sdat2/seager19>
 
 Docker image for gfortran/gcc/cdf/conda: <https://hub.docker.com/repository/docker/sdat2/seager19>
 
-![Coupling over iterations with c_d=2.7](gifs/coupling.gif)
+![Coupling over iterations with c_d=2.25e-3 over tha Pacific with the land masked out](gifs/coupling_pac_mask.gif)
 
 ## Purpose
 
@@ -102,6 +102,8 @@ The code and data was taken from:
 
     sudo apt-get install gcc
 
+    sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev
+
     sudo apt-get install cloc
 
     cloc --report-file=docs/lang.txt $(git ls-files)
@@ -112,9 +114,9 @@ The code and data was taken from:
 
     make report
 
-    docker build . -t sdat2/seager19:init
+    docker build . -t sdat2/seager19:g4.8
 
-    docker push sdat2/seager19:init
+    docker push sdat2/seager19:g4.8
 
     TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:g4.8
 
@@ -124,15 +126,13 @@ The code and data was taken from:
 
     source ~/.bash_profile
 
+    conda activate ./env/
+
     python src/main.py name=cd_1.7 coup.c_d=1.7e-3
 
     python src/main.py name=cd_2.0 coup.c_d=2.0e-3
 
     python src/main.py name=cd_1.0 coup.c_d=1.0e-3
-
-
-
-    conda activate ./env/
 
     mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/logs/
 
