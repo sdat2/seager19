@@ -141,7 +141,14 @@ def plot(
         label=label,
         color="red",
     )
-    plt.legend()
+    if len(param) == 3:
+        plt.legend(
+            bbox_to_anchor=(-0.15, 1.02, 1, 0.102),
+            loc="lower left",
+            mode="expand",
+        )
+    else:
+        plt.legend()
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.xlim(min_x_pred, max_x_pred)

@@ -439,7 +439,7 @@ def add_units(
 
 def tex_param(uf: ufloat, bracket: bool = False) -> str:
     """
-    A tool to take an uncertainty object, and return a latex string
+    A function to take an uncertainty object, and return a latex string
     for plotting, which has the right number of decimal places.
 
     Args:
