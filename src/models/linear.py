@@ -3,7 +3,7 @@ from typing import Callable, Tuple, Sequence, Union
 import numpy as np
 from uncertainties import unumpy as unp
 from scipy.optimize import curve_fit
-from matplotlib.pylot import plt
+import matplotlib.pyplot as plt
 
 
 def _parab(x: float, a: float, b: float, c: float):

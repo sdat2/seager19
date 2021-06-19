@@ -44,8 +44,9 @@ import itertools
 from distutils.spawn import find_executable
 import matplotlib
 import matplotlib.pyplot as plt
-import xarray as xr
 import pandas as pd
+import xarray as xr
+from uncertainties import ufloat
 import seaborn as sns
 import cartopy.crs as ccrs
 import cftime
@@ -434,3 +435,19 @@ def add_units(
         xr_obj.coords[y_val].attrs["units"] = r"$^{\circ}$N"
         xr_obj.coords[y_val].attrs["long_name"] = "Latitude"
     return xr_obj
+
+
+def tex_param(uf: ufloat) -> str:
+    """
+    A tool to take an uncertainty object, and return a latex string
+    for plotting, which has the right number of decimal places.
+
+    Args:
+        uf (ufloat): The uncertainties ufloat object.
+
+    Returns:
+        str: Raw string ready to be added to a graph label.
+    """
+    sf = round(np.log10(abs(uf.n)) - np.log10(abs(uf.s)))
+    fs = "${:." + str(sf) + "eL}$"
+    return fs.format(uf)
