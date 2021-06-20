@@ -1,4 +1,4 @@
-"""To apply linear regression functions."""
+"""To apply polynomial fits, and propogate error."""
 from typing import Callable, Tuple, Sequence, Union, Optional, Literal
 import numpy as np
 from uncertainties import unumpy as unp, ufloat
@@ -66,14 +66,16 @@ def _return_func(param: unp.uarray, reg_type: str = "lin") -> Callable:
 
 
 def fit(
-    x_npa: np.ndarray, y_npa: np.ndarray, reg_type: str = "lin"
+    x_npa: Sequence[Union[float, int]],
+    y_npa: Sequence[Union[float, int]],
+    reg_type: Literal["lin_0", "lin", "parab", "cubic"] = "lin",
 ) -> Tuple[unp.uarray, Callable]:
     """
     Fit a line, with an estimate of the uncertainty.
 
     Args:
-        x_npa (np.ndarray): The x values to fit.
-        y_npa (np.ndarray): The y values to fit
+        x_npa (Sequence[Union[float, int]]): The x values to fit.
+        y_npa (Sequence[Union[float, int]]): The y values to fit
         reg_type (str, optional): Which regression to do. Defaults to "lin".
 
     Returns:
@@ -94,7 +96,7 @@ def fit(
 def plot(
     x_values: Sequence[Union[float, int]],
     y_values: Sequence[Union[float, int]],
-    reg_type: str = "lin",
+    reg_type: Literal["lin_0", "lin", "parab", "cubic"] = "lin",
     x_label: str = "x label",
     y_label: str = "y label",
     fig_path: Optional[str] = None,
@@ -119,6 +121,26 @@ def plot(
     Returns:
         Tuple[unp.uarray, Callable]: Paramaters with uncertainty,
             function to put data into.
+
+    Example:
+        Using plot::
+
+            import wandb_summarizer.download
+            from src.models.linear import plot
+
+            run_info = wandb_summarizer.download.get_results("sdat2/seager19")
+            f_df = pd.DataFrame(run_info)[3:13]
+            f_df = f_df.drop(labels=[11], axis=0)
+            nino_3_list = f_df["end_trend_nino3"].tolist()
+            nino_4_list = f_df["end_trend_nino4"].tolist()
+            plot(
+                nino_3_list,
+                nino_4_list,
+                x_label=r"$\\Delta \\bar{T}_s$ over nino3 region [$\\Delta$ K]",
+                y_label=r"$\\Delta \\bar{T}_s$ over nino4 region [$\\Delta$ K]",
+                ax_format=None,
+                reg_type="lin",
+            )
     """
 
     ext = 0.05
@@ -134,7 +156,7 @@ def plot(
     y_pred_s = unp.std_devs(y_pred)
 
     if len(param) == 1:
-        label = "y = (" + tex_uf(param[0]) + ")$x$"
+        label = "y = " + tex_uf(param[0], bracket=True) + "$x$"
     elif len(param) == 2:
         label = "y = " + tex_uf(param[0], bracket=True) + "$x$  + " + tex_uf(param[1])
     elif len(param) == 3:

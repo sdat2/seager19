@@ -20,6 +20,14 @@ src.data\_loading.ingrid module
    :undoc-members:
    :show-inheritance:
 
+src.data\_loading.move\_old module
+----------------------------------
+
+.. automodule:: src.data_loading.move_old
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

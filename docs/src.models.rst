@@ -20,6 +20,14 @@ src.models.coupling module
    :undoc-members:
    :show-inheritance:
 
+src.models.linear module
+------------------------
+
+.. automodule:: src.models.linear
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.models.model\_setup module
 ------------------------------
 
