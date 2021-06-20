@@ -439,7 +439,7 @@ def add_units(
 
 def tex_uf(uf: ufloat, bracket: bool = False) -> str:
     """
-    A function to take an uncertainty object, and return a latex string
+    A function to take an uncertainties.ufloat, and return a tex containing string
     for plotting, which has the right number of decimal places.
 
     Args:
@@ -448,11 +448,11 @@ def tex_uf(uf: ufloat, bracket: bool = False) -> str:
             the parameter. Defaults to False.
 
     Returns:
-        str: Raw string ready to be added to a graph label.
+        str: String ready to be added to a graph label.
     """
-    sf = round(np.log10(abs(uf.n)) - np.log10(abs(uf.s)))
+    dp = round(np.log10(abs(uf.n)) - np.log10(abs(uf.s)))
     if bracket:
-        fs = "$ \\left( {:." + str(sf) + "eL} \\right) $"
+        fs = "$ \\left( {:." + str(dp) + "eL} \\right) $"
     else:
-        fs = "${:." + str(sf) + "eL}$"
+        fs = "${:." + str(dp) + "eL}$"
     return fs.format(uf)

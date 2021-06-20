@@ -12,6 +12,14 @@ src.visualisation.ani module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.sensitivity module
+------------------------------------
+
+.. automodule:: src.visualisation.sensitivity
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

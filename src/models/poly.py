@@ -20,12 +20,12 @@ def _parab(x: float, a: Flt, b: Flt, c: Flt) -> Flt:
 
 
 def _lin(x: float, a: Flt, b: Flt) -> Flt:
-    """ fit line to data using curve_fit"""
+    """Fit line to data using curve_fit."""
     return (a * x) + b
 
 
 def _lin_0(x: float, a: Flt) -> Flt:
-    """ fit line through zero data using curve_fit"""
+    """Fit line through zero data using curve_fit."""
     return a * x
 
 
@@ -71,7 +71,7 @@ def fit(
     reg_type: Literal["lin_0", "lin", "parab", "cubic"] = "lin",
 ) -> Tuple[unp.uarray, Callable]:
     """
-    Fit a line, with an estimate of the uncertainty.
+    Fit a polynomial curve, with an estimate of the uncertainty.
 
     Args:
         x_npa (Sequence[Union[float, int]]): The x values to fit.
@@ -126,7 +126,7 @@ def plot(
         Using plot::
 
             import wandb_summarizer.download
-            from src.models.linear import plot
+            from src.models.poly import plot
 
             run_info = wandb_summarizer.download.get_results("sdat2/seager19")
             f_df = pd.DataFrame(run_info)[3:13]

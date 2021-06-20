@@ -43,9 +43,20 @@ WANDB_DATA = DATA_PATH / "results.csv"
 # Test DIREC
 TEST_DIREC = SRC_PATH / "test" / "test_direc"
 
-# Figure data.
+# Original paper figure data.
 FIGURE_DATA_NAME: str = "Seager_etal_NCC-2019_datasetdatafiles.nc"
 FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / FIGURE_DATA_NAME
+
+# region selection dictionary
+SEL_DICT = {
+    # [west, east] [south, north] boundaries
+    # X in degrees east, Y in degrees north.
+    "pac": {"X": (100, 290), "Y": (-30, 30)},
+    "nino1+2": {"X": (270, 280), "Y": (-10, 0)},
+    "nino3": {"X": (210, 270), "Y": (-5, 5)},
+    "nino3.4": {"X": (190, 240), "Y": (-5, 5)},
+    "nino4": {"X": (160, 210), "Y": (-5, 5)},
+}
 
 # NOAA DATA
 NOAA_DATA_NAME: str = "NOAA_NCDC_ERSST_v3b_SST.nc"
@@ -56,6 +67,7 @@ NOAA_DATA_PATH: pathlib.Path = DATA_PATH / NOAA_DATA_NAME
 NINO3_4_TEST_CODE: str = "8j698fap5iq2v9y/"
 NINO3_4_TEST_NAME: str = "noaa_nino3_4.nc"
 NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
+
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")

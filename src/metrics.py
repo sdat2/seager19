@@ -1,7 +1,7 @@
 """Different metrics to calculate."""
 from typing import Tuple
 import xarray as xr
-from src.constants import NOAA_DATA_PATH, NINO3_4_TEST_PATH, DATA_PATH
+from src.constants import NOAA_DATA_PATH, NINO3_4_TEST_PATH, DATA_PATH, SEL_DICT
 from src.xr_utils import (
     sel,
     can_coords,
@@ -135,7 +135,7 @@ def get_nino_trend(
     reg_l = list()
     nino_dict = dict()
 
-    for reg in ["nino1+2", "nino3", "nino3.4", "nino4", "pac"]:
+    for reg in SEL_DICT:
         metric, clim = nino_calculate(sst_output, reg=reg)
         metric.attrs["long_name"] = "3 month rolling average SST anomaly"
         clim.attrs["long_name"] = clim.attrs["long_name"][0:29]

@@ -4,6 +4,7 @@ import pathlib
 from typing import Union, Tuple, Optional
 import xarray as xr
 from src.plot_utils import add_units
+from src.constants import SEL_DICT
 
 
 def fix_calendar(
@@ -186,18 +187,9 @@ def sel(
 
     # X in degrees east, Y in degrees north.
 
-    sel_d = {
-        # [west, east] [south, north] boundaries
-        "pac": {"X": (100, 290), "Y": (-30, 30)},
-        "nino1+2": {"X": (270, 280), "Y": (-10, 0)},
-        "nino3": {"X": (210, 270), "Y": (-5, 5)},
-        "nino3.4": {"X": (190, 240), "Y": (-5, 5)},
-        "nino4": {"X": (160, 210), "Y": (-5, 5)},
-    }
+    assert reg in SEL_DICT
 
-    assert reg in sel_d
-
-    sel_c = sel_d[reg]
+    sel_c = SEL_DICT[reg]
 
     return xr_obj.sel(
         X=slice(sel_c["X"][0], sel_c["X"][1]), Y=slice(sel_c["Y"][0], sel_c["Y"][1])
