@@ -1,47 +1,49 @@
 """To apply linear regression functions."""
-from typing import Callable, Tuple, Sequence, Union, Optional
+from typing import Callable, Tuple, Sequence, Union, Optional, Literal
 import numpy as np
-from uncertainties import unumpy as unp
+from uncertainties import unumpy as unp, ufloat
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
-from src.plot_utils import tex_param
+from src.plot_utils import tex_uf, CAM_BLUE, BRICK_RED, OX_BLUE
+
+Flt = Union[float, ufloat]
 
 
-def _parab(x: float, a: float, b: float, c: float):
+def _parab(x: float, a: Flt, b: Flt, c: Flt) -> Flt:
     """Fit parabola to data."""
     return a * (x ** 2) + b * x + c
 
 
-def _lin(x: float, a: float, b: float) -> float:
+def _lin(x: float, a: Flt, b: Flt) -> Flt:
     """ fit line to data using curve_fit"""
     return (a * x) + b
 
 
-def _lin_0(x: float, a: float) -> float:
+def _lin_0(x: float, a: Flt) -> Flt:
     """ fit line through zero data using curve_fit"""
     return a * x
 
 
-def _return_func(popt: np.ndarray, reg_type: str = "lin") -> Callable:
+def _return_func(param: unp.uarray, reg_type: str = "lin") -> Callable:
     """
     Return function so that the linear function only has to be referenced once.
 
     Args:
-        popt (np.ndarray): the param.
+        param (np.ndarray): the param.
         reg_type (str, optional): Which fit occured. Defaults to "lin".
 
     Returns:
         Callable: Function
     """
 
-    def lin(x):
-        return _lin(np.array(x), popt[0], popt[1])
+    def lin(x: Sequence[Flt]) -> np.array:
+        return _lin(np.array(x), param[0], param[1])
 
-    def lin_0(x):
-        return _lin_0(np.array(x), popt[0])
+    def lin_0(x: Sequence[Flt]) -> np.array:
+        return _lin_0(np.array(x), param[0])
 
-    def parab(x):
-        return _parab(np.array(x), popt[0], popt[1], popt[2])
+    def parab(x: Sequence[Flt]) -> np.array:
+        return _parab(np.array(x), param[0], param[1], param[2])
 
     if reg_type == "lin":
         return lin
@@ -74,8 +76,9 @@ def fit(
 
     popt, pcov = curve_fit(func_dict[reg_type], x_npa, y_npa)
     perr = np.sqrt(np.diag(pcov))
+    param = unp.uarray(popt, perr)
 
-    return unp.uarray(popt, perr), _return_func(popt, reg_type=reg_type)
+    return param, _return_func(param, reg_type=reg_type)
 
 
 def plot(
@@ -85,6 +88,7 @@ def plot(
     x_label: str = "x label",
     y_label: str = "y label",
     fig_path: Optional[str] = None,
+    ax_format: Optional[Literal["both", "x", "y"]] = "both",
 ) -> Tuple[unp.uarray, Callable]:
     """
     Plot the polynomial.
@@ -99,14 +103,15 @@ def plot(
             r"$\\Delta \\bar{T}_s$ over nino3.4 region [$\\Delta$ K]"
         fig_path (Optional[str], optional): Path to stor the figure in.
             Defaults to None.
+        ax_format (Literal["both", "x", "y"], optional): which axes to format
+            in scientific notation. Defaults to "both".
 
     Returns:
         Tuple[unp.uarray, Callable]: Paramaters with uncertainty,
             function to put data into.
     """
-    plt.scatter(x_values, y_values)
-    ext = 0.05
 
+    ext = 0.05
     param, func = fit(x_values, y_values, reg_type=reg_type)
     min_x_data = min(x_values)
     max_x_data = max(x_values)
@@ -115,32 +120,37 @@ def plot(
 
     x_pred = np.linspace(min_x_pred, max_x_pred, num=50)
     y_pred = func(x_pred)
+    y_pred_n = unp.nominal_values(y_pred)
+    y_pred_s = unp.std_devs(y_pred)
 
     if len(param) == 1:
-        label = "y = (" + tex_param(param[0]) + ")$x$"
+        label = "y = (" + tex_uf(param[0]) + ")$x$"
     elif len(param) == 2:
-        label = (
-            "y = " + tex_param(param[0], bracket=True) + "$x$  + " + tex_param(param[1])
-        )
+        label = "y = " + tex_uf(param[0], bracket=True) + "$x$  + " + tex_uf(param[1])
     elif len(param) == 3:
         label = (
             "y = "
-            + tex_param(param[0], bracket=True)
+            + tex_uf(param[0], bracket=True)
             + " $x^2$  + "
-            + tex_param(param[1], bracket=True)
+            + tex_uf(param[1], bracket=True)
             + " $x$  + "
-            + tex_param(param[2])
+            + tex_uf(param[2])
         )
     else:
         print("Too many parameters.")
         assert False
 
-    plt.plot(
-        x_pred,
-        y_pred,
-        label=label,
-        color="red",
+    plt.fill_between(
+        x_pred, y_pred_n + y_pred_s, y_pred_n - y_pred_s, alpha=0.5, color=CAM_BLUE
     )
+    plt.plot(x_pred, y_pred_n, label=label, color=BRICK_RED, alpha=0.7)
+    plt.scatter(x_values, y_values, color=OX_BLUE, alpha=0.7)
+
+    if ax_format is not None:
+        plt.gca().ticklabel_format(
+            axis=ax_format, style="sci", scilimits=(0, 0), useMathText=True
+        )
+
     if len(param) == 3:
         plt.legend(
             bbox_to_anchor=(-0.15, 1.02, 1, 0.102),

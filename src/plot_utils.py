@@ -437,7 +437,7 @@ def add_units(
     return xr_obj
 
 
-def tex_param(uf: ufloat, bracket: bool = False) -> str:
+def tex_uf(uf: ufloat, bracket: bool = False) -> str:
     """
     A function to take an uncertainty object, and return a latex string
     for plotting, which has the right number of decimal places.
