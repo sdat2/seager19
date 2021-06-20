@@ -9,6 +9,11 @@ from src.plot_utils import tex_uf, CAM_BLUE, BRICK_RED, OX_BLUE
 Flt = Union[float, ufloat]
 
 
+def _cubic(x: float, a: Flt, b: Flt, c: Flt, d: Flt) -> Flt:
+    """Fit cubic curve to data"""
+    return a * (x ** 3) + b * (x ** 2) + c * x + d
+
+
 def _parab(x: float, a: Flt, b: Flt, c: Flt) -> Flt:
     """Fit parabola to data."""
     return a * (x ** 2) + b * x + c
@@ -45,12 +50,17 @@ def _return_func(param: unp.uarray, reg_type: str = "lin") -> Callable:
     def parab(x: Sequence[Flt]) -> np.array:
         return _parab(np.array(x), param[0], param[1], param[2])
 
+    def cubic(x: Sequence[Flt]) -> np.array:
+        return _cubic(np.array(x), param[0], param[1], param[2], param[3])
+
     if reg_type == "lin":
         return lin
     elif reg_type == "lin0":
         return lin_0
     elif reg_type == "parab":
         return parab
+    elif reg_type == "cubic":
+        return cubic
     else:
         assert False
 
@@ -70,7 +80,7 @@ def fit(
         Tuple[unp.uarray, Callable]: Paramaters with uncertainty,
             function to put data into.
     """
-    func_dict = {"lin": _lin, "lin0": _lin_0, "parab": _parab}
+    func_dict = {"lin": _lin, "lin0": _lin_0, "parab": _parab, "cubic": _cubic}
 
     assert reg_type in func_dict
 
@@ -131,10 +141,21 @@ def plot(
         label = (
             "y = "
             + tex_uf(param[0], bracket=True)
-            + " $x^2$  + "
+            + "$x^2$  + "
             + tex_uf(param[1], bracket=True)
-            + " $x$  + "
+            + "$x$  + "
             + tex_uf(param[2])
+        )
+    elif len(param) == 4:
+        label = (
+            "y = "
+            + tex_uf(param[0], bracket=True)
+            + "$x^3$ + "
+            + tex_uf(param[1], bracket=True)
+            + "$x^2$ + "
+            + tex_uf(param[2], bracket=True)
+            + "$x$ + "
+            + tex_uf(param[3])
         )
     else:
         print("Too many parameters.")
@@ -151,7 +172,7 @@ def plot(
             axis=ax_format, style="sci", scilimits=(0, 0), useMathText=True
         )
 
-    if len(param) == 3:
+    if len(param) >= 3:
         plt.legend(
             bbox_to_anchor=(-0.15, 1.02, 1, 0.102),
             loc="lower left",
