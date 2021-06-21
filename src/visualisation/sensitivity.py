@@ -1,9 +1,28 @@
 """Find the sensitivity of the coupled omodel."""
+from typing import Optional
 import pandas as pd
 import matplotlib.pyplot as plt
 import wandb_summarizer.download
 from src.models.poly import plot
-from src.constants import SEL_DICT, FIGURE_PATH, WANDB_DATA
+from src.constants import SEL_DICT, FIGURE_PATH, ORIG_WANDB_DATA, NEW_WANDB_DATA
+
+
+def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Get stop data (and save it?).
+
+    Args:
+        save_path (Optional[str], optional): Path to new csv file. Defaults to None.
+            If it is None then doesn't try to save.
+
+    Returns:
+        pd.DataFrame: The pandas dataframe of final results.
+    """
+    run_info = wandb_summarizer.download.get_results("sdat2/seager19")
+    df = pd.DataFrame(run_info)
+    if save_path is not None:
+        df.to_csv(save_path)
+    return df
 
 
 def cd_plots(show_plots: bool = False) -> None:
@@ -11,9 +30,9 @@ def cd_plots(show_plots: bool = False) -> None:
     Generate the cd sensitivity plots.
     """
 
-    run_info = wandb_summarizer.download.get_results("sdat2/seager19")
+    df = get_wandb_data(str(NEW_WANDB_DATA))
 
-    f_df = pd.DataFrame(run_info)[3:13]
+    f_df = df[3:13]
     f_df = f_df.drop(labels=[11], axis=0)
 
     cd_list = list()
@@ -51,7 +70,7 @@ def nummode_plots(show_plots: bool = False) -> None:
     """
     Make a plot of the number of modes vs. time taken to run the ocean section.
     """
-    df = pd.read_csv(WANDB_DATA)
+    df = pd.read_csv(ORIG_WANDB_DATA)
 
     uncoup_df = df[13:]
     uncoup_df = uncoup_df[uncoup_df["state"] == "finished"]
