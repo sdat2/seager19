@@ -17,7 +17,7 @@ Model run results: <https://wandb.ai/sdat2/seager19>
 
 Docker image for gfortran/gcc/cdf/conda: <https://hub.docker.com/repository/docker/sdat2/seager19>
 
-![Coupling over iterations with c_d=2.25e-3 over tha Pacific with the land masked out](gifs/coupling_pac_mask.gif)
+![Coupling over iterations with c_d=2.25e-3 over tha Pacific with the land masked out in green](gifs/coupling_pac_mask.gif)
 
 ## Purpose
 
@@ -27,7 +27,7 @@ A repository to contain, analyse, and expand upon the model from:
 
 <https://doi.org/10.1038/s41558-019-0505-x>
 
-### Summary of paper
+### Summary of their paper
 
 - There is a west-east warm-to-cold contrast in the Pacific.
 
@@ -39,7 +39,7 @@ A repository to contain, analyse, and expand upon the model from:
 
 ### Citation
 
-The citation for this paper is:
+The citation for their paper is:
 
 ```bibtex
 @article{seager2019strengthening,
@@ -76,6 +76,8 @@ The code and data were taken from a Columbia University website:
 
 ## Setup
 
+### Get the github repository
+
 ```bash
 
     git clone https://github.com/sdat2/seager19.git
@@ -86,6 +88,7 @@ The code and data were taken from a Columbia University website:
 ### If you have root access and can install linux packages
 
 ```bash
+
     sudo apt-get install gfortran
 
     sudo apt-get install gcc
@@ -98,6 +101,7 @@ The code and data were taken from a Columbia University website:
 ### If you want to make the docker environment yourself
 
 ```bash
+
     docker build . -t sdat2/seager19:g4.8
 
     docker push sdat2/seager19:g4.8
@@ -106,6 +110,7 @@ The code and data were taken from a Columbia University website:
 ### If you need to install the singularity environment
 
 ```bash
+
     TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:g4.8
 
     singularity run seager19_g4.8.sif
@@ -115,6 +120,7 @@ The code and data were taken from a Columbia University website:
 ### Making the environment and testing it works
 
 ```bash
+
     conda init bash
 
     source ~/.bash_profile
@@ -128,10 +134,10 @@ The code and data were taken from a Columbia University website:
 ### Add optional features
 
 ```bash
+
     make jupyter_pro
 
     make report
-
 ```
 
 ### Examples of running the model
@@ -148,8 +154,8 @@ The code and data were taken from a Columbia University website:
 ### Moving old model runs
 
 ```bash
+
     mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/logs/
 
     mv -f so-fronts /gws/nopw/j04/ai4er/users/sdat2/
-
 ```
