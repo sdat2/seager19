@@ -16,7 +16,7 @@ from src.constants import (
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
 from src.utils import timeit
-from src.configs.wandb_utils import get_wandb_data
+from src.wandb_utils import get_wandb_data
 
 ps_defaults(use_tex=False, dpi=200)
 

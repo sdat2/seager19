@@ -1,5 +1,5 @@
 """Test wandb."""
-from src.configs.wandb_util import start_wandb
+from src.wandb_utils import start_wandb
 from src.configs.load_config import load_config
 
 

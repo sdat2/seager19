@@ -17,7 +17,7 @@ from src.utils import timeit
 from src.models.coupling import Coupling
 from src.models.model_setup import ModelSetup
 from src.configs.config import format_config
-from src.configs.wandb_util import start_wandb
+from src.wandb_utils import start_wandb
 from src.data_loading.download import get_data
 
 log = logging.getLogger(__name__)
