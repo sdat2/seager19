@@ -83,7 +83,8 @@ def cd_heatmaps(show_plots: bool = False) -> None:
     Return the cd heatmaps
 
     Args:
-        show_plots (bool, optional): [description]. Defaults to False.
+        show_plots (bool, optional): Whether or not to show plots or just clear them.
+            Defaults to False.
     """
     cfg = load_config(test=False)
     name_direc_l = []
