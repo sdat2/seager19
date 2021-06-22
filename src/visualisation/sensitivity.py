@@ -1,10 +1,8 @@
 """Find the sensitivity of the coupled omodel."""
-from typing import Optional
 import os
 import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
-import wandb_summarizer.download
 from src.xr_utils import get_trend, sel
 from src.plot_utils import add_units, cmap, get_dim, ps_defaults
 from src.models.poly import plot
@@ -18,26 +16,9 @@ from src.constants import (
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
 from src.utils import timeit
+from src.configs.wandb_utils import get_wandb_data
 
 ps_defaults(use_tex=False, dpi=200)
-
-
-def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
-    """
-    Get wandb data (and save it?).
-
-    Args:
-        save_path (Optional[str], optional): Path to new csv file. Defaults to None.
-            If it is None then doesn't try to save.
-
-    Returns:
-        pd.DataFrame: The pandas dataframe of final results.
-    """
-    run_info = wandb_summarizer.download.get_results("sdat2/seager19")
-    df = pd.DataFrame(run_info)
-    if save_path is not None:
-        df.to_csv(save_path)
-    return df
 
 
 @timeit
@@ -231,5 +212,5 @@ def nummode_plots(show_plots: bool = False) -> None:
 if __name__ == "__main__":
     # python src/visualisation/sensitivity.py
     cd_plots()
-    cd_heatmaps()
     nummode_plots()
+    cd_heatmaps()
