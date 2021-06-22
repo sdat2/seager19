@@ -56,6 +56,14 @@ src.utils module
    :undoc-members:
    :show-inheritance:
 
+src.wandb\_utils module
+-----------------------
+
+.. automodule:: src.wandb_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.xr\_utils module
 --------------------
 
