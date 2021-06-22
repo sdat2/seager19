@@ -349,7 +349,12 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
     return mean_temp
 
 
-def get_trend(da: xr.DataArray, min_clim_f: bool = False) -> Union[float, xr.DataArray]:
+def get_trend(
+    da: xr.DataArray,
+    min_clim_f: bool = False,
+    t_var: str = "T",
+    make_hatch_mask=False,
+) -> Union[float, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
     """
     Get the linear trend increase of a datarray over the full time period.
 
@@ -365,15 +370,28 @@ def get_trend(da: xr.DataArray, min_clim_f: bool = False) -> Union[float, xr.Dat
     """
 
     def length_time(da):
-        return int((da.coords["T"][-1] - da.coords["T"][0]).values)
+        if t_var == "T":
+            return int((da.coords[t_var][-1] - da.coords[t_var][0]).values)
+        else:
+            return (da.coords[t_var][-1] - da.coords[t_var][0]).values
 
     if min_clim_f:
         da = min_clim(da)
 
     if "X" in da.dims or "Y" in da.dims:
-        slope = da.polyfit("T", 1).polyfit_coefficients.sel(degree=1).drop("degree")
+
+        fit_da = da.polyfit(t_var, 1, cov=make_hatch_mask)
+
+        if make_hatch_mask:
+            frac_error = np.abs(
+                np.sqrt(fit_da.polyfit_covariance.isel(cov_i=0, cov_j=0))
+                / fit_da.polyfit_coefficients.isel(degree=0)
+            )
+            hatch_mask = frac_error >= 1.0
+
+        slope = fit_da.polyfit_coefficients.sel(degree=1).drop("degree")
     else:
-        slope = da.polyfit("T", 1).polyfit_coefficients.values[0]
+        slope = da.polyfit(t_var, 1).polyfit_coefficients.values[0]
         if isinstance(slope, np.ndarray):
             slope = slope[0]
 
@@ -387,7 +405,11 @@ def get_trend(da: xr.DataArray, min_clim_f: bool = False) -> Union[float, xr.Dat
         rise = add_units(rise).rename("rise")
 
     print("run", run, "slope", slope, "rise = slope * run", rise)
-    return rise
+
+    if make_hatch_mask and not isinstance(rise, float):
+        return rise, hatch_mask
+    else:
+        return rise
 
 
 def get_clim(xr_da: xr.DataArray) -> xr.DataArray:
