@@ -161,10 +161,15 @@ def cd_heatmaps(show_plots: bool = False) -> None:
     add_units(slope).plot(
         cmap=cmap("delta"),
         cbar_kwargs={"label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]"},
+        aspect=2,
+        figsize=get_dim(ratio=0.5),
     )
     add_units(hatch_mask).where(hatch_mask != 0).plot(
-        add_colorbar=False, cmap="Greys", alpha=0.3
+        add_colorbar=False,
+        cmap="Greys",
+        alpha=0.3,
     )
+    plt.tight_layout()
     plt.title("")
     plt.savefig(FIGURE_PATH / "ts_cd_sensitivity_hatched.png")
     plt.savefig(FIGURE_PATH / "ts_cd_sensitivity_hatched.pdf")
@@ -176,8 +181,11 @@ def cd_heatmaps(show_plots: bool = False) -> None:
     add_units(slope).plot(
         cmap=cmap("delta"),
         cbar_kwargs={"label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]"},
+        aspect=2,
+        figsize=get_dim(ratio=0.5),
     )
     plt.title("")
+    plt.tight_layout()
     plt.savefig(FIGURE_PATH / "ts_cd_sensitivity.png")
     plt.savefig(FIGURE_PATH / "ts_cd_sensitivity.pdf")
 
