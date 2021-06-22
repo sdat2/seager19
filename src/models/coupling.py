@@ -2,7 +2,7 @@
 
 Example:
     Import statement usage::
- 
+
         from src.models.coupling import Coupling
 
 """
@@ -73,7 +73,7 @@ class Coupling:
             :nowrap:
 
             \\begin{equation}
-                \\boldsymbol{\\tau}= \\rho c_{D} W \\mathbf{u}
+                \\vec{\\tau}= \\rho c_{D} W \\vec{u}
             \\end{equation}
 
         Args:
