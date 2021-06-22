@@ -21,7 +21,7 @@ Docker image for gfortran/gcc/cdf/conda: <https://hub.docker.com/repository/dock
 
 ## Purpose
 
-A repository to contain and analyse the code from:
+A repository to contain, analyse, and expand upon the model from:
 
 ### Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal Sea Surface Temperature Gradient Consistent with Rising Greenhouse Gases
 
@@ -57,7 +57,7 @@ The citation for this paper is:
 
 ### Podcast
 
-The paper is discussed in a podcast available at:
+The paper is discussed in a podcast available at Deep Convection Season 1 Episode 5:
 
 <a href='https://deep-convection.org/2020/04/13/episode-5-richard-seager/'>
 <img src='https://deep-convection.org/wp-content/uploads/2020/02/DC_logo_small_rectangular.png'
@@ -68,21 +68,11 @@ Specifically the time period 33:00-44:30.
 
 ## Code
 
-The code and data was taken from:
+The code and data were taken from a Columbia University website:
 
 <a href='http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.PublicationsData/.Seager_etal_NCC-2019/'>
 <img src='https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Columbia_University_shield.svg/1200px-Columbia_University_shield.svg.png', width='150'>
 </a>
-
-## Videos of outputs
-
-### ocean-model/RUN/output/
-
-- SST_SST full in om_run2f: <https://youtu.be/JA97IWPmwxs>
-- DYN_PRES in om_run2f: <https://youtu.be/5oRMWWAK1sM>
-- TDEEP_HMODEL in om_run2f: <https://youtu.be/n25l6uYWEzY>
-- TDEEP_HTHERM in om_run2f: <https://youtu.be/ikOo6VTXfkg>
-- TDEEP_TDEEP in om_run2f: <https://youtu.be/BSRyTuESzLA>
 
 ## Setup
 
@@ -91,13 +81,11 @@ The code and data was taken from:
     git clone https://github.com/sdat2/seager19.git
 
     cd seager19
+```
 
-    make env
+### If you have root access and can install linux packages
 
-    conda activate ./env
-
-    python3 src/data_loading/download.py
-
+```bash
     sudo apt-get install gfortran
 
     sudo apt-get install gcc
@@ -105,35 +93,61 @@ The code and data was taken from:
     sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev
 
     sudo apt-get install cloc
+```
 
-    cloc --report-file=docs/lang.txt $(git ls-files)
+### If you want to make the docker environment yourself
 
-    make test        # Also downloads the data.
-
-    make jupyter_pro
-
-    make report
-
+```bash
     docker build . -t sdat2/seager19:g4.8
 
     docker push sdat2/seager19:g4.8
+```
 
+### If you need to install the singularity environment
+
+```bash
     TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:g4.8
 
     singularity run seager19_g4.8.sif
 
+```
+
+### Making the environment and testing it works
+
+```bash
     conda init bash
 
     source ~/.bash_profile
 
     conda activate ./env/
 
+    make test        # Also downloads the data if needed.
+
+```
+
+### Add optional features
+
+```bash
+    make jupyter_pro
+
+    make report
+
+```
+
+### Examples of running the model
+
+```bash
+
     python src/main.py name=cd_1.7 coup.c_d=1.7e-3
 
     python src/main.py name=cd_2.0 coup.c_d=2.0e-3
 
     python src/main.py name=cd_1.0 coup.c_d=1.0e-3
+```
 
+### Moving old model runs
+
+```bash
     mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/logs/
 
     mv -f so-fronts /gws/nopw/j04/ai4er/users/sdat2/
