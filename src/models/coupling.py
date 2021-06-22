@@ -1,7 +1,8 @@
-"""Coupling between ocean and atmos models is through the sea surface stress.
+"""Coupling between ocean and atmospheric models.
 
 Example:
     Import statement usage::
+ 
         from src.models.coupling import Coupling
 
 """
@@ -23,16 +24,7 @@ class Coupling:
     """
     Coupled model part.
 
-    Model solution method. The atmosphere equations are solved by Fourier
-    transforming in longitude, forming an equation for v for each zonal wavenumber
-    that is finite differenced, and the resulting tri-diagonal system
-    is solved by matrix
-    inversion, transforming back into longitude. Finally, u and Φ are derived by
-    backsubstitution. The ocean equations are solved using the ‘INC’ scheme31,
-    integrating the model forward, after spin-up with climatological conditions,
-    forced by the time-varying ECMWF wind stress, and, for the case with CO2 forcing,
-    changing f′1
-    in the net surface longwave radiation calculation. Change over 1958–2017
+    Change over 1958–2017
     is computed by a linear trend. The atmosphere model is solved forced by a Ts
     comprised of the climatological mean for 1958–2017 plus and minus half of the
     SST trend and the difference of the two simulations taken to derive the change.
