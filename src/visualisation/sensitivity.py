@@ -163,6 +163,18 @@ def cd_heatmaps(show_plots: bool = False) -> None:
     else:
         plt.clf()
 
+    add_units(rise).plot(
+        cmap=cmap("delta"),
+        cbar_kwargs={"label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]"},
+    )
+    plt.title("")
+    plt.savefig(FIGURE_PATH / "ts_cd_sensitivity.png")
+    plt.savefig(FIGURE_PATH / "ts_cd_sensitivity.pdf")
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
+
 
 def nummode_plots(show_plots: bool = False) -> None:
     """
