@@ -39,7 +39,7 @@ DATA_PATH = SRC_PATH / "data"
 
 # Wandb-summary file download:
 ORIG_WANDB_DATA = DATA_PATH / "results.csv"
-NEW_WANDB_DATA = DATA_PATH / "results21Jun.csv"
+NEW_WANDB_DATA = DATA_PATH / "results22Jun.csv"
 
 # Test DIREC
 TEST_DIREC = SRC_PATH / "test" / "test_direc"

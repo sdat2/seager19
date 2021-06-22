@@ -57,7 +57,7 @@ Scientific questions to be addressed include:
 Skills learnt
 =============
 
-This project will be a good opportunity to learn about numerical solutions to differential equations [3, 4]. From the rubric at https://ai4er-cdt.esc.cam.ac.uk this project would include the primary application areas of Weather, Climate and Air Quality, as well as touching on _Natural Hazards_ as this bias in CMIP will effect the frequency and intensity of tropical cyclones (and therefore their effects such as storm surges, as in my MSci thesis https://bit.ly/msci-report).  The methodology of this project will primarily be within 2. Environmental modelling.  The model used is quite low down in the hierarchy of models, and so it will be much easier to demonstrate simple ML tools upon it.
+This project will be a good opportunity to learn about numerical solutions to differential equations [3, 4]. From the rubric at https://ai4er-cdt.esc.cam.ac.uk this project would include the primary application areas of Weather, Climate and Air Quality, as well as touching on Natural Hazards as this bias in CMIP will effect the frequency and intensity of tropical cyclones (and therefore their effects such as storm surges, as in my MSci thesis https://bit.ly/msci-report).  The methodology of this project will primarily be within 2. Environmental modelling.  The model used is quite low down in the hierarchy of models, and so it will be much easier to demonstrate simple ML tools upon it.
 
 MRes Citations
 ==============

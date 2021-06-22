@@ -6,7 +6,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import wandb_summarizer.download
 from src.xr_utils import get_trend, sel
-from src.plot_utils import add_units, cmap, get_dim
+from src.plot_utils import add_units, cmap, get_dim, ps_defaults
 from src.models.poly import plot
 from src.constants import (
     SEL_DICT,
@@ -17,11 +17,14 @@ from src.constants import (
 )
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
+from src.utils import timeit
+
+ps_defaults(use_tex=False, dpi=200)
 
 
 def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Get stop data (and save it?).
+    Get wandb data (and save it?).
 
     Args:
         save_path (Optional[str], optional): Path to new csv file. Defaults to None.
@@ -37,6 +40,7 @@ def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     return df
 
 
+@timeit
 def cd_plots(show_plots: bool = False) -> None:
     """
     Generate the cd sensitivity plots.
@@ -78,6 +82,7 @@ def cd_plots(show_plots: bool = False) -> None:
             plt.clf()
 
 
+@timeit
 def cd_heatmaps(show_plots: bool = False) -> None:
     """
     Return the cd heatmaps
@@ -145,11 +150,15 @@ def cd_heatmaps(show_plots: bool = False) -> None:
     else:
         plt.clf()
 
-    rise, hatch_mask = get_trend(
-        clip(cd_ts_da), min_clim_f=False, t_var="$C_d$", make_hatch_mask=True
+    slope, hatch_mask = get_trend(
+        clip(cd_ts_da),
+        min_clim_f=False,
+        output="slope",
+        t_var="$C_d$",
+        make_hatch_mask=True,
     )
 
-    add_units(rise).plot(
+    add_units(slope).plot(
         cmap=cmap("delta"),
         cbar_kwargs={"label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]"},
     )
@@ -164,19 +173,21 @@ def cd_heatmaps(show_plots: bool = False) -> None:
     else:
         plt.clf()
 
-    add_units(rise).plot(
+    add_units(slope).plot(
         cmap=cmap("delta"),
         cbar_kwargs={"label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]"},
     )
     plt.title("")
     plt.savefig(FIGURE_PATH / "ts_cd_sensitivity.png")
     plt.savefig(FIGURE_PATH / "ts_cd_sensitivity.pdf")
+
     if show_plots:
         plt.show()
     else:
         plt.clf()
 
 
+@timeit
 def nummode_plots(show_plots: bool = False) -> None:
     """
     Make a plot of the number of modes vs. time taken to run the ocean section.
@@ -207,3 +218,10 @@ def nummode_plots(show_plots: bool = False) -> None:
         plt.show()
     else:
         plt.clf()
+
+
+if __name__ == "__main__":
+    # python src/visualisation/sensitivity.py
+    cd_plots()
+    cd_heatmaps()
+    nummode_plots()

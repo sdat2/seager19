@@ -1,7 +1,7 @@
 """Utilities around opening and processing netcdfs from this project."""
 import numpy as np
 import pathlib
-from typing import Union, Tuple, Optional
+from typing import Union, Tuple, Optional, Literal
 import xarray as xr
 from src.plot_utils import add_units
 from src.constants import SEL_DICT
@@ -352,11 +352,13 @@ def spatial_mean(da: xr.DataArray) -> xr.DataArray:
 def get_trend(
     da: xr.DataArray,
     min_clim_f: bool = False,
+    output: Literal["slope", "rise"] = "rise",
     t_var: str = "T",
     make_hatch_mask=False,
 ) -> Union[float, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
     """
-    Get the linear trend increase of a datarray over the full time period.
+    Returns either the linear trend rise, or the linear trend slope,
+    possibly with the array to hatch out where the trend is not significant.
 
     Uses `xr.polyfit` order 1.
 
@@ -364,9 +366,15 @@ def get_trend(
         da (xr.DataArray): the timeseries.
         min_clim_f (bool, optional): whether to calculate and remove the climateology.
             Defaults to false.
+        output (Literal[, optional): What to return. Defaults to "rise".
+        t_var (str, optional): The time variable name. Defaults to "T".
+            Could be changed to another variable that you want to fit along.
+        make_hatch_mask (bool, optional): Whether or not to also return a DataArray
+            of boolean values to indicate where is not significant. Defaults to False.
 
     Returns:
-        float: The rise over the time period.
+        Union[float, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
+            The rise/slope over the time period, possibly with the hatch array.
     """
 
     def length_time(da):
@@ -395,21 +403,29 @@ def get_trend(
         if isinstance(slope, np.ndarray):
             slope = slope[0]
 
-    run = length_time(da)
-    rise = slope * run
+    if output == "rise":
 
-    if isinstance(rise, xr.DataArray):
-        for pr_name in ["units", "long_name"]:
-            if pr_name in da.attrs:
-                rise.attrs[pr_name] = da.attrs[pr_name]
-        rise = add_units(rise).rename("rise")
+        run = length_time(da)
+        rise = slope * run
 
-    print("run", run, "slope", slope, "rise = slope * run", rise)
+        if isinstance(rise, xr.DataArray):
+            for pr_name in ["units", "long_name"]:
+                if pr_name in da.attrs:
+                    rise.attrs[pr_name] = da.attrs[pr_name]
+            rise = add_units(rise).rename("rise")
 
-    if make_hatch_mask and not isinstance(rise, float):
-        return rise, hatch_mask
-    else:
-        return rise
+        print("run", run, "slope", slope, "rise = slope * run", rise)
+
+        if make_hatch_mask and not isinstance(rise, float):
+            return rise, hatch_mask
+        else:
+            return rise
+
+    elif output == "slope":
+        if make_hatch_mask and not isinstance(slope, float):
+            return slope, hatch_mask
+        else:
+            return slope
 
 
 def get_clim(xr_da: xr.DataArray) -> xr.DataArray:
