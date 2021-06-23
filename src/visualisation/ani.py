@@ -20,14 +20,13 @@ from src.plot_utils import (
     time_title,
     cmap,
     add_units,
-    get_dim,
-    label_subplots,
-    axis_fomatter,
+    axis_formatter,
 )
 from src.utils import timeit
-from src.xr_utils import fix_calendar, open_dataarray, open_dataset, can_coords, sel
+from src.xr_utils import fix_calendar, open_dataarray, can_coords
 from src.constants import OCEAN_DATA_PATH, GIF_PATH
 from src.models.model_setup import ModelSetup
+from src.visualisation.convergence import coupling_frame
 
 
 @timeit
@@ -344,7 +343,7 @@ def animate_coupling(
     setup: ModelSetup, dpi: int = 200, pac: bool = False, mask_land: bool = False
 ) -> None:
     """
-    Animatie coupling.
+    Animate coupling.
 
     Args:
         setup (ModelSetup): setup object.
@@ -356,106 +355,9 @@ def animate_coupling(
     """
     ps_defaults(use_tex=False, dpi=dpi)  # set the plot settings sensibly.
 
-    mask = open_dataset(setup.om_mask()).mask
-
-    def clip(da: xr.DataArray):
-        if pac and not mask_land:
-            return sel(da)
-        elif pac and mask_land:
-            return sel(da).where(sel(mask) != 0.0)
-        elif not pac and mask_land:
-            return da.where(mask != 0.0)  # may not work if they have different grids.
-        else:
-            return da
-
-    def gen_frame_func() -> Callable:
-        """Create imageio frame function.
-
-        Returns:
-            Callable: make_frame function to create each frame.
-
-        """
-
-        def make_frame(index: int) -> np.array:
-            """Make an individual frame of the animation.
-
-            Args:
-                index (int): index.
-
-            Returns:
-                image (np.ndarray): np.frombuffer output that can be fed into imageio.
-
-            """
-            cbar_dict = {
-                "extend": "neither",  #  "both",
-                "extendfrac": 0.0,
-                "extendrect": True,
-            }
-            fig, axs = plt.subplots(
-                3, 2, figsize=get_dim(ratio=(5 ** 0.5 - 1) / 2 * 1.5)
-            )
-            plt.suptitle("Iteration: " + str(index))
-            clip(add_units(open_dataarray(setup.tau_y(it=index)).isel(T=600))).plot(
-                ax=axs[0, 0],
-                cmap=cmap("delta"),
-                vmin=-0.6,
-                vmax=0.6,
-                cbar_kwargs=cbar_dict,
-            )
-            axs[0, 0].set_title(r"$\tau_y$ [Pa]")
-            axs[0, 0].set_xlabel("")
-            clip(add_units(open_dataarray(setup.tau_x(it=index)).isel(T=600))).plot(
-                ax=axs[0, 1],
-                cmap=cmap("delta"),
-                vmin=-0.9,
-                vmax=0.9,
-                cbar_kwargs=cbar_dict,
-            )
-            axs[0, 1].set_title(r"$\tau_x$ [Pa]")
-            axs[0, 1].set_xlabel("")
-            axs[0, 1].set_ylabel("")
-            clip(add_units(open_dataarray(setup.dq_df(it=index)).isel(T=1))).plot(
-                ax=axs[1, 0],
-                cmap=cmap("sst"),
-                vmin=180,
-                vmax=450,
-                cbar_kwargs=cbar_dict,
-            )
-            axs[1, 0].set_title(r"$\frac{dQ}{df}$ [W m$^{-2}$]")
-            axs[1, 0].set_xlabel("")
-            clip(add_units(open_dataarray(setup.dq_dt(it=index)).isel(T=1))).plot(
-                ax=axs[1, 1], cmap=cmap("sst"), vmin=0, vmax=7.5, cbar_kwargs=cbar_dict
-            )
-            axs[1, 1].set_title(r"$\frac{dQ}{dT}$ [W m$^{-2}$ K$^{-1}$]")
-            axs[1, 1].set_xlabel("")
-            axs[1, 1].set_ylabel("")
-            clip(add_units(open_dataarray(setup.ts_clim(it=index)))).plot(
-                ax=axs[2, 0],
-                cmap=cmap("sst"),
-                vmin=270,
-                vmax=310,
-                cbar_kwargs=cbar_dict,
-            )
-            axs[2, 0].set_title(r"$\bar{T}_s$ [K]")
-            clip(add_units(open_dataarray(setup.ts_trend(it=index)))).plot(
-                ax=axs[2, 1], cmap=cmap("delta"), vmin=-5, vmax=5, cbar_kwargs=cbar_dict
-            )
-            axs[2, 1].set_title(r"$\Delta T_s$ [$\Delta$ K]")
-            axs[2, 1].set_ylabel("")
-            plt.tight_layout()
-            label_subplots(axs, y_pos=1.25, x_pos=-0.15)
-            fig.canvas.draw()
-            image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
-            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-            plt.close()
-
-            return image
-
-        return make_frame
-
     video_indices = list(range(setup.cfg.coup.iterations))
     video_path = setup.coupling_video(pac=pac, mask_land=mask_land)
-    make_frame = gen_frame_func()
+    make_frame = coupling_frame(setup, pac=pac, mask_land=mask_land)
     imageio.mimsave(
         video_path,
         [make_frame(index) for index in tqdm(video_indices, desc=video_path)],
