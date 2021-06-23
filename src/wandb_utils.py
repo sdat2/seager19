@@ -128,9 +128,7 @@ def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     return df
 
 
-def metric_conv_data(
-    metric_name: str = "mean_pac"
-) -> dict:
+def metric_conv_data(metric_name: str = "mean_pac") -> dict:
     """
     Generate the data for the convergence of a particular item.
 
@@ -148,7 +146,7 @@ def metric_conv_data(
     runs = api.runs("sdat2/seager19")
     metric_dict = {}
 
-    # pylint: disable=unecessary-comprehensions
+    # pylint: disable=unecessary-comprehension
     for rn in [x for x in runs][0:13]:
         print(rn)
         config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
