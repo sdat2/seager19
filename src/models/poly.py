@@ -196,7 +196,7 @@ def plot(
 
     if len(param) >= 3:
         plt.legend(
-            bbox_to_anchor=(-0.15, 1.02, 1, 0.102),
+            bbox_to_anchor=(-0.15, 1.02, 1.15, 0.102),
             loc="lower left",
             mode="expand",
         )
