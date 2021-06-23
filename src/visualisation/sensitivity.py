@@ -2,7 +2,6 @@
 import os
 import pandas as pd
 import xarray as xr
-import matplotlib
 import matplotlib.pyplot as plt
 from src.xr_utils import get_trend, sel
 from src.plot_utils import add_units, cmap, get_dim, ps_defaults, axis_fomatter

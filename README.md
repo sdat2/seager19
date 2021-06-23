@@ -66,13 +66,16 @@ alt='Deep Convection: Season 1 Episode 5' width='150' />
 
 Specifically the time period 33:00-44:30.
 
-## Code
+### Code
 
 The code and data were taken from a Columbia University website:
 
 <a href='http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.PublicationsData/.Seager_etal_NCC-2019/'>
 <img src='https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Columbia_University_shield.svg/1200px-Columbia_University_shield.svg.png', width='150'>
 </a>
+
+This website is blocked from some IP addresses, such as the Cambridge VPN (probably my fault),
+and so you may need to try a different connection method if it doesn't load.
 
 ## Setup
 
