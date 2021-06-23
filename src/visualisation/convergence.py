@@ -1,11 +1,17 @@
 """Look at the convergence of the coupling scheme."""
 import numpy as np
 import matplotlib.pyplot as plt
+from src.plot_utils import ps_defaults
 from src.wandb_utils import metric_conv_data
+from src.constants import FIGURE_PATH
+
+ps_defaults(use_tex=False, dpi=200)
 
 
 def metric_conv_plot(
-    metric_name: str = "mean_pac", long_name: str = "Mean Tropical Pacific (pac)"
+    metric_name: str = "mean_pac",
+    long_name: str = "Mean Tropical Pacific (pac)",
+    show_plots: bool = False,
 ):
     """
     Make the convergence plot for a particular metric.
@@ -31,7 +37,13 @@ def metric_conv_plot(
     )
     plt.xlabel("Step")
     plt.ylabel(long_name + r" [$^{\circ}$C]")
-    plt.show()
+    plt.savefig(FIGURE_PATH / str(metric_name + "_convergence.png"))
+    plt.savefig(FIGURE_PATH / str(metric_name + "_convergence.pdf"))
+
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
 
     for cd in metric_dict:
         plt.plot(
@@ -49,5 +61,16 @@ def metric_conv_plot(
         mode="expand",
         ncol=5,
     )
-    plt.savefig(f"")
-    plt.show()
+    plt.savefig(FIGURE_PATH / str(metric_name + "_convergence_log.png"))
+    plt.savefig(FIGURE_PATH / str(metric_name + "_convergence_log.pdf"))
+
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
+
+
+if __name__ == "__main__":
+    # python src/visualisation/convergence.py
+    metric_conv_plot()
+    metric_conv_plot(metric_name="trend_nino3.4", long_name="Trend nino3.4")

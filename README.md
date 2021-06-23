@@ -86,6 +86,7 @@ and so you may need to try a different connection method if it doesn't load.
     git clone https://github.com/sdat2/seager19.git
 
     cd seager19
+
 ```
 
 ### If you have root access and can install linux packages
@@ -140,7 +141,8 @@ and so you may need to try a different connection method if it doesn't load.
 
     make jupyter_pro
 
-    make report
+    make vscode_pro
+
 ```
 
 ### Examples of running the model
@@ -152,6 +154,7 @@ and so you may need to try a different connection method if it doesn't load.
     python src/main.py name=cd_2.0 coup.c_d=2.0e-3
 
     python src/main.py name=cd_1.0 coup.c_d=1.0e-3
+
 ```
 
 ### Moving old model runs
