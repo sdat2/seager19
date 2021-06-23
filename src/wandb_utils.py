@@ -1,6 +1,8 @@
 """Sets up the weights and biases script."""
 import os
 from typing import Optional
+import math
+import numpy as np
 import wandb_summarizer.download
 import pandas as pd
 import wandb
@@ -124,3 +126,43 @@ def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
         df.to_csv(save_path)
 
     return df
+
+
+def metric_conv_data(
+    metric_name: str = "mean_pac"
+) -> dict:
+    """
+    Generate the data for the convergence of a particular item.
+
+    Used in src.visualisation.convergence.metric_conv_plot
+
+    Args:
+        metric_name (str, optional): Which keyword to use. Defaults to "mean_pac".
+
+    Returns:
+        dict: A dictionary with the relevant metrics in.
+    """
+    api = wandb.Api()
+    # Project is specified by <entity/project-name>
+
+    runs = api.runs("sdat2/seager19")
+    metric_dict = {}
+
+    # pylint: disable=unecessary-comprehensions
+    for rn in [x for x in runs][0:13]:
+        print(rn)
+        config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
+        pair_list = []
+        for _, row in rn.history().iterrows():
+            step = row["_step"]
+            metric = row[metric_name]
+            if not math.isnan(metric):
+                # print(step, metric, type(metric))
+                pair_list.append([step, metric])
+
+        # enforce needing 6 iterations.
+        if len(pair_list) == 6:
+            # pylint: disable=eval-used
+            metric_dict[eval(config["coup"])["c_d"]] = np.array(pair_list)
+
+    return metric_dict
