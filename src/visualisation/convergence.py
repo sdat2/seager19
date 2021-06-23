@@ -202,6 +202,16 @@ def final_coup_plot() -> None:
     plt.savefig(FIGURE_PATH / "cd_2.25_coup.pdf")
     plt.savefig(FIGURE_PATH / "cd_2.25_coup.png")
     plt.clf()
+    make_frame = coupling_frame(
+        setup,
+        pac=True,
+        mask_land=True,
+        close_figure=False,
+    )
+    _ = make_frame(5)
+    plt.savefig(FIGURE_PATH / "cd_2.25_pac_mask_land_coup.pdf")
+    plt.savefig(FIGURE_PATH / "cd_2.25_pac_mask_land_coup.png")
+    plt.clf()
 
 
 if __name__ == "__main__":
