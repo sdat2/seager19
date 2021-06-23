@@ -146,7 +146,7 @@ def metric_conv_data(metric_name: str = "mean_pac") -> dict:
     runs = api.runs("sdat2/seager19")
     metric_dict = {}
 
-    # pylint: disable=unecessary-comprehension
+    # pylint: disable=unnecessary-comprehension
     for rn in [x for x in runs][0:13]:
         print(rn)
         config = {k: v for k, v in rn.config.items() if not k.startswith("_")}

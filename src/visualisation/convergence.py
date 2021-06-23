@@ -4,7 +4,7 @@ import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 from src.wandb_utils import metric_conv_data
-from src.constants import FIGURE_PATH
+from src.constants import FIGURE_PATH, CD_LOGS
 from src.xr_utils import open_dataarray, open_dataset, sel
 from src.plot_utils import (
     ps_defaults,
@@ -13,6 +13,7 @@ from src.plot_utils import (
     get_dim,
     label_subplots,
 )
+from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
 
 
@@ -48,6 +49,7 @@ def metric_conv_plot(
     )
     plt.xlabel("Step")
     plt.ylabel(long_name + r" [$^{\circ}$C]")
+    plt.tight_layout()
     plt.savefig(FIGURE_PATH / str(metric_name + "_convergence.png"))
     plt.savefig(FIGURE_PATH / str(metric_name + "_convergence.pdf"))
 
@@ -72,6 +74,7 @@ def metric_conv_plot(
         mode="expand",
         ncol=5,
     )
+    plt.tight_layout()
     plt.savefig(FIGURE_PATH / str(metric_name + "_convergence_log.png"))
     plt.savefig(FIGURE_PATH / str(metric_name + "_convergence_log.pdf"))
 
@@ -82,7 +85,10 @@ def metric_conv_plot(
 
 
 def coupling_frame(
-    setup: ModelSetup, pac: bool = False, mask_land: bool = False
+    setup: ModelSetup,
+    pac: bool = False,
+    mask_land: bool = False,
+    close_figure: bool = True,
 ) -> Callable:
     """Create imageio frame function.
 
@@ -93,7 +99,7 @@ def coupling_frame(
 
     mask = open_dataset(setup.om_mask()).mask
 
-    def clip(da: xr.DataArray):
+    def clip(da: xr.DataArray) -> xr.DataArray:
         if pac and not mask_land:
             return sel(da)
         elif pac and mask_land:
@@ -103,7 +109,7 @@ def coupling_frame(
         else:
             return da
 
-    def make_frame(index: int) -> np.array:
+    def make_frame(index: int) -> np.ndarray:
         """Make an individual frame of the animation.
 
         Args:
@@ -172,14 +178,34 @@ def coupling_frame(
         fig.canvas.draw()
         image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
         image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        plt.close()
+
+        if close_figure:
+            plt.close()
 
         return image
 
     return make_frame
 
 
+def final_coup_plot() -> None:
+    """
+    Final coup plot.
+    """
+    direc = CD_LOGS / "cd_2.25" / "wandb" / "latest-run" / "files"
+    cfg = load_config(test=False)
+    setup = ModelSetup(direc, cfg, make_move=False)
+    make_frame = coupling_frame(
+        setup,
+        close_figure=False,
+    )
+    _ = make_frame(5)
+    plt.savefig(FIGURE_PATH / "cd_2.25_coup.pdf")
+    plt.savefig(FIGURE_PATH / "cd_2.25_coup.png")
+    plt.clf()
+
+
 if __name__ == "__main__":
     # python src/visualisation/convergence.py
-    metric_conv_plot()
-    metric_conv_plot(metric_name="trend_nino3.4", long_name="Trend nino3.4")
+    # metric_conv_plot()
+    # metric_conv_plot(metric_name="trend_nino3.4", long_name="Trend nino3.4")
+    final_coup_plot()
