@@ -151,7 +151,11 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```bash
 
-    python src/main.py name=cd_1.7 coup.c_d=1.7e-3
+    # default run:
+
+    python src/main.py name=cd_2.25 coup.c_d=2.25e-3
+    
+    # Other runs:
 
     python src/main.py name=cd_2.0 coup.c_d=2.0e-3
 
@@ -159,10 +163,19 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```
 
+## Other handy commands
+
 ### Moving old model runs
 
 ```bash
 
     mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/cd_logs/
 
+```
+
+### Make a notebook with helpful magic functions for dark mode
+
+```bash
+
+    make notebook name=your-notebook-name
 ```

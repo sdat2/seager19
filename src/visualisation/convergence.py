@@ -92,6 +92,17 @@ def coupling_frame(
 ) -> Callable:
     """Create imageio frame function.
 
+    Args:
+        setup (ModelSetup): setup object with path to files.
+        dpi (int, optional): Dots per inch. Defaults to 200.
+        pac (bool, optional): Whether to only plot the Pacific.
+            Defaults to False.
+        mask_land (bool, optional): Whether to mask the land in green.
+            Defaults to False.
+        close_figure (bool, optional): Wheter to cloe the figure rather
+            than keep it open (only useful for individual plot).
+            Defaults to True.
+
     Returns:
         Callable: make_frame function to create each frame.
 

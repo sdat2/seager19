@@ -12,6 +12,14 @@ src.visualisation.ani module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.convergence module
+------------------------------------
+
+.. automodule:: src.visualisation.convergence
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.visualisation.sensitivity module
 ------------------------------------
 
