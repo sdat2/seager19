@@ -3,7 +3,6 @@ from typing import Callable
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
-from src.plot_utils import ps_defaults
 from src.wandb_utils import metric_conv_data
 from src.constants import FIGURE_PATH
 from src.xr_utils import open_dataarray, open_dataset, sel

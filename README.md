@@ -143,6 +143,8 @@ and so you may need to try a different connection method if it doesn't load.
 
     make vscode_pro
 
+    make jupyter_dark
+
 ```
 
 ### Examples of running the model
@@ -161,7 +163,7 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```bash
 
-    mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/logs/
+    mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/cd_logs/
 
-    mv -f so-fronts /gws/nopw/j04/ai4er/users/sdat2/
 ```
+s

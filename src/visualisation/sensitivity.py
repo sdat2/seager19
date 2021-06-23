@@ -11,7 +11,7 @@ from src.constants import (
     FIGURE_PATH,
     ORIG_WANDB_DATA,
     NEW_WANDB_DATA,
-    LOG_PATH,
+    CD_LOGS,
 )
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
@@ -74,10 +74,10 @@ def cd_heatmaps(show_plots: bool = False) -> None:
     """
     cfg = load_config(test=False)
     name_direc_l = []
-    names = os.listdir(LOG_PATH)
+    names = os.listdir(CD_LOGS)
     names.sort()
     for name in names:
-        direc = str(LOG_PATH / name / "wandb" / "latest-run" / "files")
+        direc = str(CD_LOGS / name / "wandb" / "latest-run" / "files")
         name_direc_l.append(
             (
                 name,
