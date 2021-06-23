@@ -22,6 +22,7 @@ from src.plot_utils import (
     add_units,
     get_dim,
     label_subplots,
+    axis_fomatter,
 )
 from src.utils import timeit
 from src.xr_utils import fix_calendar, open_dataarray, open_dataset, can_coords, sel
@@ -307,7 +308,7 @@ def animate_qflx_diff(
                     "extend": "neither",  #  "both",
                     "extendfrac": 0.0,
                     "extendrect": True,
-                    "format": "%0.1e",
+                    "format": axis_formatter(),
                 },
             )
 

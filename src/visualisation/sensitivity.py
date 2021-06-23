@@ -2,9 +2,10 @@
 import os
 import pandas as pd
 import xarray as xr
+import matplotlib
 import matplotlib.pyplot as plt
 from src.xr_utils import get_trend, sel
-from src.plot_utils import add_units, cmap, get_dim, ps_defaults
+from src.plot_utils import add_units, cmap, get_dim, ps_defaults, axis_fomatter
 from src.models.poly import plot
 from src.constants import (
     SEL_DICT,
@@ -123,6 +124,7 @@ def cd_heatmaps(show_plots: bool = False) -> None:
         },
         figsize=get_dim(ratio=1),
     )
+
     plt.savefig(FIGURE_PATH / "cd_facetplot.png")
     plt.savefig(FIGURE_PATH / "cd_facetplot.pdf")
 
@@ -139,9 +141,17 @@ def cd_heatmaps(show_plots: bool = False) -> None:
         make_hatch_mask=True,
     )
 
+    sens_heatmap_kwargs = dict(
+        {
+            "label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]",
+            # "aspect": 35,
+            "format": axis_fomatter(),
+        }
+    )
+
     add_units(slope).plot(
         cmap=cmap("delta"),
-        cbar_kwargs={"label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]"},
+        cbar_kwargs=sens_heatmap_kwargs.copy(),
         aspect=2,
         figsize=get_dim(ratio=0.5),
     )
@@ -161,7 +171,7 @@ def cd_heatmaps(show_plots: bool = False) -> None:
 
     add_units(slope).plot(
         cmap=cmap("delta"),
-        cbar_kwargs={"label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]"},
+        cbar_kwargs=sens_heatmap_kwargs.copy(),
         aspect=2,
         figsize=get_dim(ratio=0.5),
     )

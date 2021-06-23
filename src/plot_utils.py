@@ -239,6 +239,7 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
         "date.autoformatter.second": "%H:%M:%S",
         "date.autoformatter.microsecond": "%M:%S.%f",
         # Set the font for maths
+        "axes.formatter.use_mathtext": True,
         "mathtext.fontset": "cm",
         # "font.sans-serif": ["DejaVu Sans"],  # gets rid of error messages
         # "font.monospace": [],
@@ -456,3 +457,25 @@ def tex_uf(uf: ufloat, bracket: bool = False) -> str:
     else:
         fs = "${:." + str(dp) + "eL}$"
     return fs.format(uf)
+
+
+def axis_fomatter() -> matplotlib.ticker.ScalarFormatter:
+    """Returns axis formatter for scientific notation.
+
+    Returns an object that does the equivalent of:
+
+        >>> plt.gca().ticklabel_format(
+        >>>    axis=ax_format, style="sci", scilimits=(0, 0), useMathText=True
+        >>> )
+
+    Returns:
+        matplotlib.ticker.ScalarFormatter: An object to pass in to a
+            matplotlib operation.
+
+    """
+
+    fit_obj = matplotlib.ticker.ScalarFormatter(useMathText=True)
+    fit_obj.set_scientific(True)
+    fit_obj.set_powerlimits((0, 0))
+
+    return fit_obj
