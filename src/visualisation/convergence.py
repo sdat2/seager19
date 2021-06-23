@@ -3,9 +3,10 @@ from typing import Callable
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
+import cftime
 from src.wandb_utils import metric_conv_data
 from src.constants import FIGURE_PATH, CD_LOGS
-from src.xr_utils import open_dataarray, open_dataset, sel
+from src.xr_utils import open_dataarray, open_dataset, sel, fix_calendar
 from src.plot_utils import (
     ps_defaults,
     cmap,
@@ -90,7 +91,7 @@ def coupling_frame(
     mask_land: bool = False,
     close_figure: bool = True,
 ) -> Callable:
-    """Create imageio frame function.
+    """Create imageio frame function for the variables passed during model coupling.
 
     Args:
         setup (ModelSetup): setup object with path to files.
@@ -104,13 +105,19 @@ def coupling_frame(
             Defaults to True.
 
     Returns:
-        Callable: make_frame function to create each frame.
+        Callable: make_frame function to create each frame from the index.
 
     """
+
+    def datetime360_to_str(time: cftime.Datetime360Day) -> str:
+        print(time, type(time))
+        assert isinstance(time, cftime.Datetime360Day)
+        return time.strftime()[0:10]
 
     mask = open_dataset(setup.om_mask()).mask
 
     def clip(da: xr.DataArray) -> xr.DataArray:
+        da = fix_calendar(da.rename("unknown"))
         if pac and not mask_land:
             return sel(da)
         elif pac and mask_land:
@@ -124,7 +131,7 @@ def coupling_frame(
         """Make an individual frame of the animation.
 
         Args:
-            index (int): index.
+            index (int): index of the iteration.
 
         Returns:
             image (np.ndarray): np.frombuffer output that can be fed into imageio.
@@ -137,23 +144,27 @@ def coupling_frame(
         }
         fig, axs = plt.subplots(3, 2, figsize=get_dim(ratio=(5 ** 0.5 - 1) / 2 * 1.5))
         plt.suptitle("Iteration: " + str(index))
-        clip(add_units(open_dataarray(setup.tau_y(it=index)).isel(T=600))).plot(
+        da = clip(add_units(open_dataarray(setup.tau_y(it=index)).isel(T=600)))
+        da.plot(
             ax=axs[0, 0],
             cmap=cmap("delta"),
             vmin=-0.6,
             vmax=0.6,
             cbar_kwargs=cbar_dict,
         )
-        axs[0, 0].set_title(r"$\tau_y$ [Pa]")
+        date = datetime360_to_str(da.coords["T"].values)
+        axs[0, 0].set_title(date + r" $\tau_y$ [Pa]")
         axs[0, 0].set_xlabel("")
-        clip(add_units(open_dataarray(setup.tau_x(it=index)).isel(T=600))).plot(
+        da = clip(add_units(open_dataarray(setup.tau_x(it=index)).isel(T=600)))
+        da.plot(
             ax=axs[0, 1],
             cmap=cmap("delta"),
             vmin=-0.9,
             vmax=0.9,
             cbar_kwargs=cbar_dict,
         )
-        axs[0, 1].set_title(r"$\tau_x$ [Pa]")
+        date = datetime360_to_str(da.coords["T"].values)
+        axs[0, 1].set_title(date + r" $\tau_x$ [Pa]")
         axs[0, 1].set_xlabel("")
         axs[0, 1].set_ylabel("")
         clip(add_units(open_dataarray(setup.dq_df(it=index)).isel(T=1))).plot(
@@ -200,7 +211,10 @@ def coupling_frame(
 
 def final_coup_plot() -> None:
     """
-    Final coup plot.
+    Final coupling panel plot.
+
+    Shows how the final set of variables to be passed between the ocean and
+    atmospheric model.
     """
     direc = CD_LOGS / "cd_2.25" / "wandb" / "latest-run" / "files"
     cfg = load_config(test=False)
