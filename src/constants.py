@@ -52,11 +52,11 @@ FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / FIGURE_DATA_NAME
 SEL_DICT = {
     # [west, east] [south, north] boundaries
     # X in degrees east, Y in degrees north.
-    "pac": {"X": (100, 290), "Y": (-30, 30)},
-    "nino1+2": {"X": (270, 280), "Y": (-10, 0)},
-    "nino3": {"X": (210, 270), "Y": (-5, 5)},
-    "nino3.4": {"X": (190, 240), "Y": (-5, 5)},
-    "nino4": {"X": (160, 210), "Y": (-5, 5)},
+    "pac": {"X": (100, 290), "Y": (-30, 30), "color": "red"},
+    "nino1+2": {"X": (270, 280), "Y": (-10, 0), "color": "olive"},
+    "nino3": {"X": (210, 270), "Y": (-5, 5), "color": "salmon"},
+    "nino3.4": {"X": (190, 240), "Y": (-5, 5), "color": "#8e82fe"},
+    "nino4": {"X": (160, 210), "Y": (-5, 5), "color": "#5a7d9a"},
 }
 
 # NOAA DATA
