@@ -157,7 +157,7 @@ def plot_nino(ax: matplotlib.axes.Axes) -> None:
     ax.set_ylim(-32, 32)
 
     ax.legend(
-        bbox_to_anchor=(-0.1, 1.02, 1.15, 0.102),
+        bbox_to_anchor=(-0.02, 1.02, 1.15, 0.102),
         loc="lower left",
         mode="expand",
         ncol=5,
@@ -196,7 +196,9 @@ def get_nino_trend(
     nino_dict = dict()
 
     add_units(get_trend(sst_output, min_clim_f=True, output="rise")).plot(
-        ax=axs[0], cmap=cmap("delta"), cbar_kwargs={"label": r"Trend [$\Delta$K]"}
+        ax=axs[0],
+        cmap=cmap("delta"),
+        cbar_kwargs={"label": r"$\Delta T_s$ [$\Delta$K]"},
     )
     plot_nino(axs[0])
 
@@ -228,7 +230,7 @@ def get_nino_trend(
     plt.title("")
     axs[1].set_xlabel("")
     axs[2].set_xlabel("Month")
-    label_subplots(axs, x_pos=-0.1, y_pos=1)
+    label_subplots(axs, x_pos=-0.1, y_pos=1.19)
     axs[2].set_xlim(1, 12)
     axs[2].set_ylim(20, 30)
     plt.tight_layout()
@@ -264,6 +266,6 @@ if __name__ == "__main__":
     _, _ = calculate_nino3_4_from_noaa()
     get_nino_trend(
         str(NOAA_DATA_PATH),
-        str(FIGURE_PATH / "nino_noaa_trend.png"),
+        str(FIGURE_PATH / "nino_noaa_trend.pdf"),
         str(DATA_PATH / "noaa_trend.nc"),
     )
