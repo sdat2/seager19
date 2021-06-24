@@ -1,8 +1,17 @@
 """Different metrics to calculate."""
 from typing import Tuple
+import matplotlib.pyplot as plt
+import matplotlib
 import xarray as xr
-from src.constants import NOAA_DATA_PATH, NINO3_4_TEST_PATH, DATA_PATH, SEL_DICT
+from src.constants import (
+    NOAA_DATA_PATH,
+    NINO3_4_TEST_PATH,
+    DATA_PATH,
+    SEL_DICT,
+    FIGURE_PATH,
+)
 from src.xr_utils import (
+    open_dataarray,
     sel,
     can_coords,
     spatial_mean,
@@ -11,8 +20,13 @@ from src.xr_utils import (
     get_trend,
     min_clim,
 )
-from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots
-import matplotlib.pyplot as plt
+from src.plot_utils import (
+    add_units,
+    ps_defaults,
+    get_dim,
+    label_subplots,
+    cmap,
+)
 
 
 def nino_calculate(
@@ -81,6 +95,12 @@ def nino_calculate(
     return metric, climatology
 
 
+def load_noaa_data() -> xr.DataArray:
+    noaa_da = add_units(can_coords(xr.open_dataarray(NOAA_DATA_PATH)))
+    noaa_da.attrs["units"] = r"$^{\circ}$C"
+    return noaa_da
+
+
 def calculate_nino3_4_from_noaa() -> Tuple[xr.DataArray, xr.DataArray]:
     """
     Calculate the default nino3.4 region from noaa data.
@@ -88,11 +108,6 @@ def calculate_nino3_4_from_noaa() -> Tuple[xr.DataArray, xr.DataArray]:
     Returns:
         Tuple[xr.DataArray, xr.DataArray]: metric timeseries, climateology
     """
-
-    def load_noaa_data() -> xr.DataArray:
-        noaa_da = add_units(can_coords(xr.open_dataarray(NOAA_DATA_PATH)))
-        noaa_da.attrs["units"] = r"$^{\circ}$C"
-        return noaa_da
 
     return nino_calculate(load_noaa_data())
 
@@ -105,6 +120,43 @@ def replace_nino3_4_from_noaa() -> None:
     metric.to_netcdf(str(NINO3_4_TEST_PATH))
     print(NINO3_4_TEST_PATH)
     clim.to_netcdf(str(DATA_PATH / "nino3_4_noaa_clim.nc"))
+
+
+def plot_nino(ax: matplotlib.axes.Axes) -> None:
+    """
+    Plot nino.
+    """
+
+    def get_points(reg_dict: dict) -> Tuple[list]:
+        x, y = [], []
+        x.append(reg_dict["X"][0])
+        y.append(reg_dict["Y"][0])
+        x.append(reg_dict["X"][0])
+        y.append(reg_dict["Y"][1])
+        x.append(reg_dict["X"][1])
+        y.append(reg_dict["Y"][1])
+        x.append(reg_dict["X"][1])
+        y.append(reg_dict["Y"][0])
+        x.append(reg_dict["X"][0])
+        y.append(reg_dict["Y"][0])
+        return x, y
+
+    for reg in reversed(sorted(SEL_DICT)):
+
+        x, y = get_points(SEL_DICT[reg])
+        # if False: # reg == "nino3.4":
+        # metric
+        # plt.fill(x, y, label=reg, alpha=0.5,
+        # linewidth=1, color=SEL_DICT[reg]["color"])
+        # else:
+        ax.plot(x, y, label=reg, alpha=0.5, linewidth=1, color=SEL_DICT[reg]["color"])
+
+    plt.legend(
+        bbox_to_anchor=(-0.15, 1.02, 1.15, 0.102),
+        loc="lower left",
+        mode="expand",
+        ncol=5,
+    )
 
 
 def get_nino_trend(
@@ -125,25 +177,37 @@ def get_nino_trend(
     """
     plt.clf()
     ps_defaults(dpi=150)
-    sst_output = can_coords(open_dataset(path_of_run2f).SST_SST)
-    sst_output = sst_output.where(sst_output != 0.0)
+    if "NOAA" not in path_of_run2f:
+        sst_output = can_coords(open_dataset(path_of_run2f).SST_SST)
+        sst_output = sst_output.where(sst_output != 0.0)
+    else:
+        sst_output = add_units(can_coords(open_dataarray(path_of_run2f)))
 
-    _, axs = plt.subplots(2, 1, figsize=get_dim(ratio=1.2))
+    _, axs = plt.subplots(3, 1, figsize=get_dim(ratio=1.2))
 
     metric_l = list()
     clim_l = list()
     reg_l = list()
     nino_dict = dict()
 
+    add_units(get_trend(sst_output, min_clim_f=True, output="rise")).plot(
+        ax=axs[0], cmap=cmap("delta"), cbar_kwargs={"label": r"Trend [$\Delta$K]"}
+    )
+    plot_nino(axs[0])
+
+    plt.xlim(95, 295)
+    plt.ylim(-32, 32)
+
     for reg in SEL_DICT:
+
         metric, clim = nino_calculate(sst_output, reg=reg)
         metric.attrs["long_name"] = "3 month rolling average SST anomaly"
         clim.attrs["long_name"] = clim.attrs["long_name"][0:29]
         # metric.plot(label=metric.attrs["reg"])
-        metric.plot(ax=axs[0], label=metric.attrs["reg"])
-        axs[0].set_title("")
-        clim.plot(ax=axs[1], label=metric.attrs["reg"])
+        metric.plot(ax=axs[1], label=metric.attrs["reg"], color=SEL_DICT[reg]["color"])
         axs[1].set_title("")
+        clim.plot(ax=axs[2], label=metric.attrs["reg"], color=SEL_DICT[reg]["color"])
+        axs[2].set_title("")
         nino_dict["trend_" + reg] = get_trend(metric)
         nino_dict["mean_" + reg] = metric.attrs["mean_state"]
         metric_l.append(metric)
@@ -152,27 +216,36 @@ def get_nino_trend(
 
     plt.legend()
     plt.title("")
-    axs[0].set_xlabel("")
-    axs[1].set_xlabel("Month")
+    axs[1].set_xlabel("")
+    axs[2].set_xlabel("Month")
     label_subplots(axs, x_pos=-0.1, y_pos=1)
     plt.tight_layout()
     plt.savefig(graph_path)
     plt.clf()
 
     anom = (
-        xr.concat(metric_l, "reg")
-        .assign_coords(reg=reg_l)
-        .isel(Z=0)
-        .drop("Z")
+        xr.concat(metric_l, "reg").assign_coords(reg=reg_l)
+        # .isel(Z=0)
+        # .drop("Z")
         .to_dataset(name="anomaly")
     )
     clim = (
-        xr.concat(clim_l, "reg")
-        .assign_coords(reg=reg_l)
-        .isel(Z=0)
-        .drop("Z")
+        xr.concat(clim_l, "reg").assign_coords(reg=reg_l)
+        # .isel(Z=0)
+        # .drop("Z")
         .to_dataset(name="clim")
     )
     xr.merge([anom, clim]).to_netcdf(nc_path)
 
     return nino_dict
+
+
+if __name__ == "__main__":
+    # python src/metrics.py
+    print("main")
+    metric, clim = calculate_nino3_4_from_noaa()
+    get_nino_trend(
+        str(NOAA_DATA_PATH),
+        str(FIGURE_PATH / "nino_noaa_trend.png"),
+        str(DATA_PATH / "noaa_trend.nc"),
+    )
