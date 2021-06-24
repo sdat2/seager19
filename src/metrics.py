@@ -149,10 +149,15 @@ def plot_nino(ax: matplotlib.axes.Axes) -> None:
         # plt.fill(x, y, label=reg, alpha=0.5,
         # linewidth=1, color=SEL_DICT[reg]["color"])
         # else:
-        ax.plot(x, y, label=reg, alpha=0.5, linewidth=1, color=SEL_DICT[reg]["color"])
+        ax.plot(x, y, label=reg, alpha=0.5, linewidth=2, color=SEL_DICT[reg]["color"])
 
-    plt.legend(
-        bbox_to_anchor=(-0.15, 1.02, 1.15, 0.102),
+    ax.set_title("")
+
+    ax.set_xlim(95, 295)
+    ax.set_ylim(-32, 32)
+
+    ax.legend(
+        bbox_to_anchor=(-0.1, 1.02, 1.15, 0.102),
         loc="lower left",
         mode="expand",
         ncol=5,
@@ -204,46 +209,59 @@ def get_nino_trend(
         metric.attrs["long_name"] = "3 month rolling average SST anomaly"
         clim.attrs["long_name"] = clim.attrs["long_name"][0:29]
         # metric.plot(label=metric.attrs["reg"])
+
         metric.plot(ax=axs[1], label=metric.attrs["reg"], color=SEL_DICT[reg]["color"])
         axs[1].set_title("")
+
         clim.plot(ax=axs[2], label=metric.attrs["reg"], color=SEL_DICT[reg]["color"])
+
         axs[2].set_title("")
+
         nino_dict["trend_" + reg] = get_trend(metric)
         nino_dict["mean_" + reg] = metric.attrs["mean_state"]
         metric_l.append(metric)
         clim_l.append(clim)
         reg_l.append(reg)
 
-    plt.legend()
+    axs[1].set_xlim(metric.coords["T"].values[0], metric.coords["T"].values[-1])
+
     plt.title("")
     axs[1].set_xlabel("")
     axs[2].set_xlabel("Month")
     label_subplots(axs, x_pos=-0.1, y_pos=1)
+    axs[2].set_xlim(1, 12)
+    axs[2].set_ylim(20, 30)
     plt.tight_layout()
     plt.savefig(graph_path)
     plt.clf()
 
-    anom = (
-        xr.concat(metric_l, "reg").assign_coords(reg=reg_l)
-        # .isel(Z=0)
-        # .drop("Z")
-        .to_dataset(name="anomaly")
-    )
-    clim = (
-        xr.concat(clim_l, "reg").assign_coords(reg=reg_l)
-        # .isel(Z=0)
-        # .drop("Z")
-        .to_dataset(name="clim")
-    )
-    xr.merge([anom, clim]).to_netcdf(nc_path)
+    print(clim)
 
-    return nino_dict
+    if "NOAA" not in path_of_run2f:
+
+        anom = (
+            xr.concat(metric_l, "reg")
+            .assign_coords(reg=reg_l)
+            .isel(Z=0)
+            .drop("Z")
+            .to_dataset(name="anomaly")
+        )
+        clim = (
+            xr.concat(clim_l, "reg")
+            .assign_coords(reg=reg_l)
+            .isel(Z=0)
+            .drop("Z")
+            .to_dataset(name="clim")
+        )
+        xr.merge([anom, clim]).to_netcdf(nc_path)
+
+        return nino_dict
 
 
 if __name__ == "__main__":
     # python src/metrics.py
     print("main")
-    metric, clim = calculate_nino3_4_from_noaa()
+    _, _ = calculate_nino3_4_from_noaa()
     get_nino_trend(
         str(NOAA_DATA_PATH),
         str(FIGURE_PATH / "nino_noaa_trend.png"),
