@@ -9,6 +9,7 @@ from src.constants import (
     DATA_PATH,
     SEL_DICT,
     FIGURE_PATH,
+    CD_LOGS,
 )
 from src.xr_utils import (
     open_dataarray,
@@ -27,6 +28,8 @@ from src.plot_utils import (
     label_subplots,
     cmap,
 )
+from src.configs.load_config import load_config
+from src.models.model_setup import ModelSetup
 
 
 def nino_calculate(
@@ -213,10 +216,20 @@ def get_nino_trend(
         clim.attrs["long_name"] = clim.attrs["long_name"][0:29]
         # metric.plot(label=metric.attrs["reg"])
 
-        metric.plot(ax=axs[1], label=metric.attrs["reg"], color=SEL_DICT[reg]["color"])
+        metric.plot(
+            ax=axs[1],
+            label=metric.attrs["reg"],
+            color=SEL_DICT[reg]["color"],
+            linewidth=0.5,
+        )
         axs[1].set_title("")
 
-        clim.plot(ax=axs[2], label=metric.attrs["reg"], color=SEL_DICT[reg]["color"])
+        clim.plot(
+            ax=axs[2],
+            label=metric.attrs["reg"],
+            color=SEL_DICT[reg]["color"],
+            linewidth=0.5,
+        )
 
         axs[2].set_title("")
 
@@ -231,7 +244,7 @@ def get_nino_trend(
     plt.title("")
     axs[1].set_xlabel("")
     axs[2].set_xlabel("Month")
-    label_subplots(axs, x_pos=-0.05, y_pos=1.19)
+    label_subplots(axs, x_pos=-0.05, y_pos=1.24)
     axs[2].set_xlim(1, 12)
     axs[2].set_ylim(20, 30)
     plt.tight_layout()
@@ -263,7 +276,25 @@ def get_nino_trend(
 
 if __name__ == "__main__":
     # python src/metrics.py
-    print("main")
+    cfg = load_config()
+    setup = ModelSetup(
+        str(CD_LOGS / "cd_2.25" / "wandb" / "latest-run" / "files"),
+        cfg,
+        make_move=False,
+    )
+
+    get_nino_trend(
+        setup.om_run2f_nc(),
+        str(FIGURE_PATH / "nino_2.25_trend.png"),
+        str(DATA_PATH / "cd.nc"),
+    )
+    get_nino_trend(
+        setup.om_run2f_nc(),
+        str(FIGURE_PATH / "nino_2.25_trend.pdf"),
+        str(DATA_PATH / "cd.nc"),
+    )
+
+    # print("main")
     _, _ = calculate_nino3_4_from_noaa()
     get_nino_trend(
         str(NOAA_DATA_PATH),

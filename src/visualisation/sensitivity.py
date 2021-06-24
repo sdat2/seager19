@@ -212,6 +212,7 @@ def nummode_plots(show_plots: bool = False) -> None:
         y_label="Ocean model run time [s]",
         fig_path=str(FIGURE_PATH / "nummode_times.pdf"),
     )
+
     if show_plots:
         plt.show()
     else:
