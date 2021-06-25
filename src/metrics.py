@@ -21,13 +21,7 @@ from src.xr_utils import (
     get_trend,
     min_clim,
 )
-from src.plot_utils import (
-    add_units,
-    ps_defaults,
-    get_dim,
-    label_subplots,
-    cmap,
-)
+from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots, cmap, tex_uf
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
 
@@ -218,12 +212,24 @@ def get_nino_trend(
         clim.attrs["long_name"] = clim.attrs["long_name"][0:29]
         # metric.plot(label=metric.attrs["reg"])
 
-        nino_dict["trend_" + reg] = get_trend(metric)
+        rise = get_trend(metric, uncertainty=True)
+
+        nino_dict["trend_" + reg] = rise.n
         nino_dict["mean_" + reg] = metric.attrs["mean_state"]
+
+        label = str(
+            metric.attrs["reg"]
+            # + "\n"
+            + r" $\Delta T_s = $"
+            # + "\n"
+            "${:.2L}$".format(rise)
+            # + tex_uf(rise)
+            + r"$^{\circ}$C"
+        )
 
         metric.plot(
             ax=axs[1],
-            label=metric.attrs["reg"],
+            label=label,
             color=SEL_DICT[reg]["color"],
             linewidth=0.5,
         )
@@ -231,7 +237,7 @@ def get_nino_trend(
 
         clim.plot(
             ax=axs[2],
-            label=metric.attrs["reg"],
+            label=label,
             color=SEL_DICT[reg]["color"],
             linewidth=1.5,
         )
@@ -248,7 +254,7 @@ def get_nino_trend(
         bbox_to_anchor=(-0.02, 1.02, 1.0, 0.102),
         loc="lower left",
         mode="expand",
-        ncol=5,
+        ncol=2,
     )
 
     plt.title("")

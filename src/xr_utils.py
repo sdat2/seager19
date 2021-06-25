@@ -1,8 +1,9 @@
 """Utilities around opening and processing netcdfs from this project."""
 import numpy as np
 import pathlib
-from typing import Union, Tuple, Optional, Literal
+from typing import Union, Tuple, Optional, Literal, Sequence
 import xarray as xr
+from uncertainties import ufloat
 from src.plot_utils import add_units
 from src.constants import SEL_DICT
 
@@ -233,7 +234,10 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
     Returns:
         xr.DataArray: The formatted datarray.
     """
-    return fix_calendar(can_coords(xr.open_dataarray(str(path), decode_times=False)))
+    da = fix_calendar(can_coords(xr.open_dataarray(str(path), decode_times=False)))
+    if "variable" in da.dims:
+        da = da.isel(variable=0).drop("variable")
+    return da
 
 
 def cut_and_taper(
@@ -354,13 +358,14 @@ def get_trend(
     min_clim_f: bool = False,
     output: Literal["slope", "rise"] = "rise",
     t_var: str = "T",
-    make_hatch_mask=False,
-) -> Union[float, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
+    make_hatch_mask: bool = False,
+    uncertainty: bool = False,
+) -> Union[float, ufloat, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
     """
     Returns either the linear trend rise, or the linear trend slope,
     possibly with the array to hatch out where the trend is not significant.
 
-    Uses `xr.polyfit` order 1.
+    Uses `xr.polyfit` order 1 to do everything.
 
     Args:
         da (xr.DataArray): the timeseries.
@@ -373,7 +378,7 @@ def get_trend(
             of boolean values to indicate where is not significant. Defaults to False.
 
     Returns:
-        Union[float, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
+        Union[float, ufloat, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
             The rise/slope over the time period, possibly with the hatch array.
     """
 
@@ -385,6 +390,15 @@ def get_trend(
 
     if min_clim_f:
         da = min_clim(da)
+
+    def get_float(inp: Union[np.ndarray, list, float]):
+        try:
+            if hasattr(inp, "__iter__"):
+                inp = inp[0]
+        # pylint: disable=bare-except
+        except:
+            print(type(inp))
+        return float(inp)
 
     if "X" in da.dims or "Y" in da.dims:
 
@@ -399,9 +413,17 @@ def get_trend(
 
         slope = fit_da.polyfit_coefficients.sel(degree=1).drop("degree")
     else:
-        slope = da.polyfit(t_var, 1).polyfit_coefficients.values[0]
-        if isinstance(slope, np.ndarray):
-            slope = slope[0]
+        if uncertainty:
+            print("uncertainty running")
+            fit_da = da.polyfit(t_var, 1, cov=True)
+            error = np.sqrt(fit_da.polyfit_covariance.isel(cov_i=0, cov_j=0)).values
+            error = get_float(error)
+            slope = fit_da.polyfit_coefficients.values
+            slope = get_float(slope)
+            slope = ufloat(slope, error)
+        else:
+            slope = da.polyfit(t_var, 1).polyfit_coefficients.values
+            slope = get_float(slope)
 
     if output == "rise":
 
@@ -416,7 +438,7 @@ def get_trend(
 
         print("run", run, "slope", slope, "rise = slope * run", rise)
 
-        if make_hatch_mask and not isinstance(rise, float):
+        if make_hatch_mask and not isinstance(rise, float, ufloat):
             return rise, hatch_mask
         else:
             return rise
