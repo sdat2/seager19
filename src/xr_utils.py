@@ -1,7 +1,7 @@
 """Utilities around opening and processing netcdfs from this project."""
 import numpy as np
 import pathlib
-from typing import Union, Tuple, Optional, Literal, Sequence
+from typing import Union, Tuple, Optional, Literal
 import xarray as xr
 from uncertainties import ufloat
 from src.plot_utils import add_units
@@ -375,11 +375,15 @@ def get_trend(
         t_var (str, optional): The time variable name. Defaults to "T".
             Could be changed to another variable that you want to fit along.
         make_hatch_mask (bool, optional): Whether or not to also return a DataArray
-            of boolean values to indicate where is not significant. Defaults to False.
+            of boolean values to indicate where is not significant.
+            Defaults to False. Will only work if you're passing in an xarray object.
+        uncertainty (bool, optional): Whether to return a ufloat object
+            if doing linear regression on a single timeseries. Defaults to false.
 
     Returns:
         Union[float, ufloat, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
-            The rise/slope over the time period, possibly with the hatch array.
+            The rise/slope over the time period, possibly with the hatch array if
+            that opition is selected for a grid.
     """
 
     def length_time(da):
