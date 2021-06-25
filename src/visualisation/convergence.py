@@ -126,7 +126,7 @@ def coupling_frame(
                     return time[0].strftime()[0:10]
                 else:
                     return ""
-            # pylint: disable=broad-except
+            # pylint: disable=bare-except
             except:
                 return ""
         else:

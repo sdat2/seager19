@@ -131,6 +131,7 @@ def plot_nino(ax: matplotlib.axes.Axes) -> None:
     """
 
     def get_points(reg_dict: dict) -> Tuple[list]:
+        """Get the rectangle."""
         x, y = [], []
         x.append(reg_dict["X"][0])
         y.append(reg_dict["Y"][0])
@@ -276,7 +277,26 @@ def get_nino_trend(
 
 if __name__ == "__main__":
     # python src/metrics.py
+
     cfg = load_config()
+
+    setup = ModelSetup(
+        str("logs/it_1a"),
+        cfg,
+        make_move=False,
+    )
+
+    get_nino_trend(
+        setup.om_run2f_nc(),
+        str(FIGURE_PATH / "nino_it1_2.25_trend.png"),
+        str(DATA_PATH / "cd.nc"),
+    )
+    get_nino_trend(
+        setup.om_run2f_nc(),
+        str(FIGURE_PATH / "nino_it1_2.25_trend.pdf"),
+        str(DATA_PATH / "cd.nc"),
+    )
+
     setup = ModelSetup(
         str(CD_LOGS / "cd_2.25" / "wandb" / "latest-run" / "files"),
         cfg,
