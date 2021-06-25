@@ -145,6 +145,10 @@ and so you may need to try a different connection method if it doesn't load.
 
     make jupyter_dark
 
+    # and to reverse this
+
+    make jupyter_light
+
 ```
 
 ### Examples of running the model
@@ -166,7 +170,7 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```
 
-## Other handy commands
+## Other handy commands for development of repo
 
 ### Moving old model runs
 
@@ -191,7 +195,7 @@ and so you may need to try a different connection method if it doesn't load.
     make python name=src/to-new.py
 ```
 
-### Update autodocs
+### Update docs of the src directory
 
 ```bash
 

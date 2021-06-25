@@ -18,9 +18,6 @@ from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
 
 
-ps_defaults(use_tex=False, dpi=200)
-
-
 def metric_conv_plot(
     metric_name: str = "mean_pac",
     long_name: str = "Mean Tropical Pacific (pac)",
@@ -34,6 +31,7 @@ def metric_conv_plot(
         long_name (str, optional): The long name for the ylabel.
             Defaults to "Mean Tropical Pacific (pac)".
     """
+    ps_defaults(use_tex=False, dpi=200)
 
     metric_dict = metric_conv_data(metric_name=metric_name)
 
@@ -122,12 +120,13 @@ def coupling_frame(
         print(time, type(time))
         if isinstance(time, cftime.Datetime360Day):
             return time.strftime()[0:10]
-        if isinstance(time, np.array):
+        elif isinstance(time, np.ndarray):
             try:
                 if isinstance(time[0], cftime.Datetime360Day):
                     return time[0].strftime()[0:10]
                 else:
                     return ""
+            # pylint: disable=broad-except
             except:
                 return ""
         else:
