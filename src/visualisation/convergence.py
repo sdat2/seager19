@@ -110,9 +110,28 @@ def coupling_frame(
     """
 
     def datetime360_to_str(time: cftime.Datetime360Day) -> str:
+        """
+        Return the time string. sNow fails safely.
+
+        Args:
+            time (cftime.Datetime360Day): Hopefully you fed in the right time object.
+
+        Returns:
+            str: Time string, possibly empty.
+        """
         print(time, type(time))
-        assert isinstance(time, cftime.Datetime360Day)
-        return time.strftime()[0:10]
+        if isinstance(time, cftime.Datetime360Day):
+            return time.strftime()[0:10]
+        if isinstance(time, np.array):
+            try:
+                if isinstance(time[0], cftime.Datetime360Day):
+                    return time[0].strftime()[0:10]
+                else:
+                    return ""
+            except:
+                return ""
+        else:
+            return ""
 
     mask = open_dataset(setup.om_mask()).mask
 
