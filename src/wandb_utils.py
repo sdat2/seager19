@@ -1,5 +1,4 @@
 """Sets up the weights and biases script."""
-import os
 from typing import Optional
 import math
 import numpy as np

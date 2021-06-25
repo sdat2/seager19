@@ -328,21 +328,23 @@ class Coupling:
             animate_coupling(self.setup, pac=True)
             animate_coupling(self.setup, pac=True, mask_land=True)
             animate_coupling(self.setup, pac=False, mask_land=True)
-            wandb.log(
-                {
-                    "coupling_video_pac_mask_land": wandb.Video(
-                        self.setup.coupling_video(pac=True, mask_land=True),
-                        fps=1,
-                        format="gif",
-                    ),
-                    "coupling_video": wandb.Video(
-                        self.setup.coupling_video(pac=False, mask_land=False),
-                        fps=1,
-                        format="gif",
-                    ),
-                    "final_nino_graph": wandb.Image(
-                        self.setup.nino_png(it),
-                        caption="Final Nino region anomalies over the 58 year trends",
-                    ),
-                }
-            )
+            if self.cfg.wandb:
+                wandb.log(
+                    {
+                        "coupling_video_pac_mask_land": wandb.Video(
+                            self.setup.coupling_video(pac=True, mask_land=True),
+                            fps=1,
+                            format="gif",
+                        ),
+                        "coupling_video": wandb.Video(
+                            self.setup.coupling_video(pac=False, mask_land=False),
+                            fps=1,
+                            format="gif",
+                        ),
+                        "final_nino_graph": wandb.Image(
+                            self.setup.nino_png(it),
+                            caption=str("Final Nino region anomalies"
+                            + " over the 58 year trends"),
+                        ),
+                    }
+                )

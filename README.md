@@ -154,7 +154,10 @@ and so you may need to try a different connection method if it doesn't load.
     # default run:
 
     python src/main.py name=cd_2.25 coup.c_d=2.25e-3
-    
+
+    # uncoupled run without syncing:
+    python src/main.py name=it_1 coup.iterations=1 coup.c_d=2.25e-3 wandb=False
+
     # Other runs:
 
     python src/main.py name=cd_2.0 coup.c_d=2.0e-3
