@@ -181,4 +181,19 @@ and so you may need to try a different connection method if it doesn't load.
 ```bash
 
     make notebook name=your-notebook-name
+
+```
+
+### New python script
+
+```bash
+
+    make python name=src/to-new.py
+```
+
+### Update autodocs
+
+```bash
+
+    make autodoc
 ```

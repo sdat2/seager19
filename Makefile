@@ -93,6 +93,15 @@ notebook:
 	mv notebooks/exploratory/new.ipynb notebooks/exploratory/$(name).ipynb
 	git add notebooks/exploratory/$(name).ipynb
 
+## create a new python script with default calls:
+py:
+	cp .setup_scripts/default.py $(name)
+	git add ${name}
+
+## create a new python script with default calls:
+autodoc:
+	cd docs; sh ./get_src.sh; cd ..
+
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################

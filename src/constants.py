@@ -29,7 +29,6 @@ OCEAN_PATH = PROJECT_PATH / "ocean"
 OCEAN_DATA_PATH = OCEAN_PATH / "DATA"
 OCEAN_RUN_PATH = OCEAN_PATH / "RUN"
 OCEAN_SRC_PATH = OCEAN_PATH / "SRC"
-OCEAN_TS_PATH = OCEAN_PATH / "ts_nc"
 OCEAN_OUTPUT_PATH = OCEAN_PATH / "output"
 ATMOS_PATH = PROJECT_PATH / "atmos"
 ATMOS_DATA_PATH = ATMOS_PATH / "DATA"
@@ -38,6 +37,7 @@ GIF_PATH = PROJECT_PATH / "gifs"
 
 # General data from e.g. paper or cmip etc.
 DATA_PATH = SRC_PATH / "data"
+CMIP_TS_PATH = DATA_PATH / "ts_nc"
 
 # Wandb-summary file download:
 ORIG_WANDB_DATA = DATA_PATH / "results.csv"
@@ -80,10 +80,10 @@ CD_LOGS = GWS_DIR / "cd_logs"
 NEW_LOGS = PROJECT_PATH / "logs"
 
 # pylint: disable=using-constant-test
-if False:  # os.path.exists(GWS_DIR):
-    LOG_PATH = GWS_DIR / "logs"
-else:
-    LOG_PATH = PROJECT_PATH / "logs"
+# if False:  # os.path.exists(GWS_DIR):
+#    LOG_PATH = GWS_DIR / "logs"
+# else:
+LOG_PATH = PROJECT_PATH / "logs"
 
 if not os.path.exists(str(LOG_PATH)):
     os.mkdir(str(LOG_PATH))
