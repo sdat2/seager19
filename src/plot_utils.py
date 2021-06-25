@@ -459,7 +459,7 @@ def tex_uf(uf: ufloat, bracket: bool = False) -> str:
     return fs.format(uf)
 
 
-def axis_fomatter() -> matplotlib.ticker.ScalarFormatter:
+def axis_formatter() -> matplotlib.ticker.ScalarFormatter:
     """Returns axis formatter for scientific notation.
 
     Returns an object that does the equivalent of:

@@ -12,6 +12,8 @@ Example:
 # import os/pathlib to manipulate file names.
 import os
 import pathlib
+from omegaconf import DictConfig
+
 
 # Note: constants should be UPPER_CASE
 constants_path = pathlib.Path(os.path.realpath(__file__))
@@ -93,11 +95,21 @@ REPORT_WIDTH: float = 398.3386  # in pixels
 DATE_TITLE_FORMAT: str = "%Y.%m.%d"
 
 
-def run_path(cfg, unit_test=False):
+def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
+    """
+    Returns run path to store data in.
+
+    Args:
+        cfg (DictConfig): The config struct.
+        unit_test (bool, optional): Whether this is a unit test. Defaults to False.
+
+    Returns:
+        str: The path to the relevant directory that exists.
+    """
     if not unit_test:
         run_dir = os.path.join(LOG_PATH, cfg.name)
-        if not os.path.exists(run_dir):
-            os.makedirs(run_dir)
     else:
         run_dir = str(TEST_DIREC)
+    if not os.path.exists(run_dir):
+        os.makedirs(run_dir)
     return run_dir

@@ -12,7 +12,7 @@ import wandb
 import logging
 import hydra
 from omegaconf import DictConfig
-from src.constants import CONFIG_PATH, CONFIG_NAME, run_dir
+from src.constants import CONFIG_PATH, CONFIG_NAME, run_path
 from src.utils import timeit
 from src.models.coupling import Coupling
 from src.models.model_setup import ModelSetup
@@ -56,7 +56,7 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
     if cfg.wandb:
         start_wandb(cfg, unit_test=unit_test)
 
-    setup = ModelSetup(run_dir(), cfg)
+    setup = ModelSetup(run_path(cfg, unit_test=unit_test), cfg)
 
     couple = Coupling(cfg, setup)
     couple.run()

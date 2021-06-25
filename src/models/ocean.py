@@ -94,16 +94,16 @@ class Ocean:
                 "+NUMMODE              " + str(self.cfg.oc.nummode),
                 string_list,
             )
-            #string_list = replace_item(
+            # string_list = replace_item(
             #    "+Hcut " + str(5),
             #    "+Hcut " + str(self.cfg.oc.hcut),
             #    string_list,
-            #)
-            #string_list = replace_item(
+            # )
+            # string_list = replace_item(
             #    "+Tcut " + str(14.6),
             #    "+Tcut " + str(self.cfg.oc.tcut),
             #    string_list,
-            #)
+            # )
             string_list = replace_item(
                 "+f1prime        " + str(-0.006),
                 "+f1prime        " + str(self.cfg.oc.f1prime),
@@ -246,12 +246,9 @@ class Ocean:
             )
             dict_nino_trend["it"] = it
             dict_nino_trend["ocean_run"] = run_time
-            try:
+            if self.cfg.wandb:
                 # This will fail if wandb is not initialised
                 wandb.log(dict_nino_trend)
-                # pylint: disable=bare-except
-            except:
-                print("wandb not initiliased, not logging.")
 
     @timeit
     def animate_all(self) -> None:

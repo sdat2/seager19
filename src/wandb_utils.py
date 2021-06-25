@@ -8,7 +8,7 @@ import wandb
 import logging
 from omegaconf import DictConfig
 from subprocess import PIPE, run
-from src.constants import DATA_PATH, run_dir
+from src.constants import DATA_PATH, run_path
 
 
 log = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ def start_wandb(cfg: DictConfig, unit_test: bool = False) -> None:
         wandb.init(
             project=cfg.project,
             entity=cfg.user,
-            dir=run_dir(),
+            dir=run_path(cfg, unit_test=unit_test),
             save_code=True,
             name=cfg.name,
             notes=cfg.notes,
