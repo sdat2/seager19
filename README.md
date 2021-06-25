@@ -201,3 +201,10 @@ and so you may need to try a different connection method if it doesn't load.
 
     make autodoc
 ```
+
+### Check where a variable is referenced in the ocean model
+
+```bash
+
+   grep -R "f1prime" ocean/SRC
+```

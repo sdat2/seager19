@@ -54,11 +54,12 @@ FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / FIGURE_DATA_NAME
 SEL_DICT = {
     # [west, east] [south, north] boundaries
     # X in degrees east, Y in degrees north.
-    "pac": {"X": (100, 290), "Y": (-30, 30), "color": "red"},
-    "nino1+2": {"X": (270, 280), "Y": (-10, 0), "color": "olive"},
-    "nino3": {"X": (210, 270), "Y": (-5, 5), "color": "#ff9408"},
-    "nino3.4": {"X": (190, 240), "Y": (-5, 5), "color": "#8e82fe"},
-    "nino4": {"X": (160, 210), "Y": (-5, 5), "color": "#a75e09"},
+    # colors compatible with matplotlib.
+    "pac": {"X": (100, 290), "Y": (-30, 30), "color": "#411900"},
+    "nino1+2": {"X": (270, 280), "Y": (-10, 0), "color": "#0652ff"},
+    "nino3": {"X": (210, 270), "Y": (-5, 5), "color": "#01a049"},
+    "nino3.4": {"X": (190, 240), "Y": (-5, 5), "color": "#380282"},
+    "nino4": {"X": (160, 210), "Y": (-5, 5), "color": "#fe01b1"},
 }
 
 # NOAA DATA

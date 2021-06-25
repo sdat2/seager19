@@ -125,9 +125,9 @@ def replace_nino3_4_from_noaa() -> None:
     clim.to_netcdf(str(DATA_PATH / "nino3_4_noaa_clim.nc"))
 
 
-def plot_nino(ax: matplotlib.axes.Axes) -> None:
+def plot_nino(ax: matplotlib.axes.Axes, legend: bool = False) -> None:
     """
-    Plot nino.
+    Plot nino boxes.
     """
 
     def get_points(reg_dict: dict) -> Tuple[list]:
@@ -160,12 +160,13 @@ def plot_nino(ax: matplotlib.axes.Axes) -> None:
     ax.set_xlim(95, 295)
     ax.set_ylim(-32, 32)
 
-    ax.legend(
-        bbox_to_anchor=(-0.02, 1.02, 1.15, 0.102),
-        loc="lower left",
-        mode="expand",
-        ncol=5,
-    )
+    if legend:
+        ax.legend(
+            bbox_to_anchor=(-0.02, 1.02, 1.15, 0.102),
+            loc="lower left",
+            mode="expand",
+            ncol=5,
+        )
 
 
 def get_nino_trend(
@@ -217,6 +218,9 @@ def get_nino_trend(
         clim.attrs["long_name"] = clim.attrs["long_name"][0:29]
         # metric.plot(label=metric.attrs["reg"])
 
+        nino_dict["trend_" + reg] = get_trend(metric)
+        nino_dict["mean_" + reg] = metric.attrs["mean_state"]
+
         metric.plot(
             ax=axs[1],
             label=metric.attrs["reg"],
@@ -229,18 +233,23 @@ def get_nino_trend(
             ax=axs[2],
             label=metric.attrs["reg"],
             color=SEL_DICT[reg]["color"],
-            linewidth=0.5,
+            linewidth=1.5,
         )
 
         axs[2].set_title("")
 
-        nino_dict["trend_" + reg] = get_trend(metric)
-        nino_dict["mean_" + reg] = metric.attrs["mean_state"]
         metric_l.append(metric)
         clim_l.append(clim)
         reg_l.append(reg)
 
     axs[1].set_xlim(metric.coords["T"].values[0], metric.coords["T"].values[-1])
+
+    axs[2].legend(
+        bbox_to_anchor=(-0.02, 1.02, 1.0, 0.102),
+        loc="lower left",
+        mode="expand",
+        ncol=5,
+    )
 
     plt.title("")
     axs[1].set_xlabel("")
