@@ -9,7 +9,7 @@ import wandb
 import logging
 from omegaconf import DictConfig
 from subprocess import PIPE, run
-from src.constants import LOG_PATH, TEST_DIREC, DATA_PATH
+from src.constants import DATA_PATH, run_dir
 
 
 log = logging.getLogger(__name__)
@@ -47,19 +47,13 @@ def start_wandb(cfg: DictConfig, unit_test: bool = False) -> None:
             wandb, but will call related functions.
 
     """
-    if not unit_test:
-        run_dir = os.path.join(LOG_PATH, cfg.name)
-        if not os.path.exists(run_dir):
-            os.makedirs(run_dir)
-    else:
-        run_dir = str(TEST_DIREC)
 
     if not unit_test:
 
         wandb.init(
             project=cfg.project,
             entity=cfg.user,
-            dir=run_dir,
+            dir=run_dir(),
             save_code=True,
             name=cfg.name,
             notes=cfg.notes,

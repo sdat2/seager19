@@ -12,7 +12,7 @@ import wandb
 import logging
 import hydra
 from omegaconf import DictConfig
-from src.constants import CONFIG_PATH, CONFIG_NAME, TEST_DIREC
+from src.constants import CONFIG_PATH, CONFIG_NAME, run_dir
 from src.utils import timeit
 from src.models.coupling import Coupling
 from src.models.model_setup import ModelSetup
@@ -53,16 +53,16 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
 
     # print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
 
-    if unit_test:
-        setup = ModelSetup(str(TEST_DIREC), cfg)
-    else:
+    if cfg.wandb:
         start_wandb(cfg, unit_test=unit_test)
-        setup = ModelSetup(str(wandb.run.dir), cfg)
+
+    setup = ModelSetup(run_dir(), cfg)
 
     couple = Coupling(cfg, setup)
     couple.run()
 
-    wandb.finish()
+    if cfg.wandb:
+        wandb.finish()
 
 
 if __name__ == "__main__":

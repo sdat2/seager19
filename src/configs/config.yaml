@@ -8,6 +8,8 @@ notes: test
 run: true  # whether to run any of the ocean model.
 animate: true
 atmos: true
+wandb: true
+name: ???
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -117,6 +119,5 @@ atm:
   # make grids
   dx:  360 / ${atm.nx}  # delta degrees
   dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
-name: ???
 # python src/main.py --multirun oc.nummode=9,10
 # python src/main.py

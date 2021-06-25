@@ -91,3 +91,13 @@ REPORT_WIDTH: float = 398.3386  # in pixels
 
 # DATE FORMAT for plotting titles
 DATE_TITLE_FORMAT: str = "%Y.%m.%d"
+
+
+def run_path(cfg, unit_test=False):
+    if not unit_test:
+        run_dir = os.path.join(LOG_PATH, cfg.name)
+        if not os.path.exists(run_dir):
+            os.makedirs(run_dir)
+    else:
+        run_dir = str(TEST_DIREC)
+    return run_dir
