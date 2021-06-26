@@ -1,15 +1,16 @@
 ###################################################################################################
 # Config file for Hydra:
 # hopefully passes all the important parameters.
+# Usage example: python src/main.py --multirun oc.nummode=9,10 wandb=false
 project: seager19
 user: sdat2
-test: true # unimportant param for filtering later.
-notes: test 
+test: false # unimportant param for filtering later.
+notes: sensitivity analysis of eps_days
 run: true  # whether to run any of the ocean model.
-animate: true
-atmos: true
-wandb: true
-name: days_${atm.eps_days}
+animate: true # make animations after run.
+atmos: true # run the atmospheric model.
+wandb: true # whether or not to sync to weights and biases.
+name: days_${atm.eps_days} # name needs to be unique otherwise will overwrite.
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -28,7 +29,7 @@ oc:
   dq_df_file: dQdf-sample.nc
   sst_file: sst-ECMWF-clim.nc
   mask_file: om_mask.nc
-  # How long to run each part of the ocean model.
+  # How long to run each part of the ocean model.s
   time_test: 2 months # the time input to the tests.
   time_spin: 20 years # seems long - maybe check that this is the correct number to be quoting.
   time_diag: 2 years # This time period includes the period during which qflx is removed.
@@ -47,8 +48,6 @@ coup:
   # Initially when fully coupled the models blew up.
 atm:
   # begining TCAM
-  k_days: 10     # K: 1/10 days
-  e_frac: 2.0     # multiply epsu by efrac to get epsv
   prcp_land: 1   # use data precip trends over land
   r: 0.80  # humidity
   h_q: 1800  # Hq is a scale depth for moisture
@@ -74,16 +73,20 @@ atm:
   latent_heat_vap: 2.5e6  # latent heat # J kg-1
   cp_air: 1000  #  cp_air is the specific heat capacity of air.
   # J kg-1 K-1
-  b_coeff: ${atm.gravity} * ${atm.pi} / ${atm.nbsq} / ${atm.theta_00} / ${atm.height_tropopause}
-  eps_days: 0.75
+  # Newtonian cooling, K
+  k_days: 10     # K: 1/10 days
+  newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
+  # raleigh friction step.
+  e_frac: 2.0     # multiply epsu by efrac to get epsv
+  eps_days: 0.75 # this is the raleigh friction stuff.
   # Over 1958–2017, the CO2 changed from ~300 to ~400 ppm, which would be about 0.75 W m−2
+  eps_p: (${atm.pi} / ${atm.height_tropopause}) ** 2 / ${atm.nbsq} / ${atm.k_days} / ${atm.sec_in_day}
   # eps days might be the efficiency of entrainment.
   eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
   eps_u: ${atm.eps}  # 1/.75 d
-  eps_v: ${atm.e_frac} * ${atm.eps}  # e_frac=1/2 in paper
-  # Newtonian cooling, K
-  newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
-  eps_p: (${atm.pi} / ${atm.height_tropopause}) ** 2 / ${atm.nbsq} / ${atm.k_days} / ${atm.sec_in_day}
+  eps_v: ${atm.e_frac} * ${atm.eps}  
+  # e_frac=1/2 in paper
+  b_coeff: ${atm.gravity} * ${atm.pi} / ${atm.nbsq} / ${atm.theta_00} / ${atm.height_tropopause}
   beta: ${atm.omega_2} / ${atm.radius_earth}
   rho_air: 1.225  # kg m-3 - also called rho_00
   emmisivity: 0.97
@@ -119,5 +122,3 @@ atm:
   # make grids
   dx:  360 / ${atm.nx}  # delta degrees
   dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
-# python src/main.py --multirun oc.nummode=9,10
-# python src/main.py

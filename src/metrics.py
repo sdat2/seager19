@@ -21,7 +21,7 @@ from src.xr_utils import (
     get_trend,
     min_clim,
 )
-from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots, cmap, tex_uf
+from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots, cmap
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
 
