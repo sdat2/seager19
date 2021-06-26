@@ -134,12 +134,25 @@ def coupling_frame(
 
     mask = open_dataset(setup.om_mask()).mask
 
+    def rem_var(da1):
+        if "variable" in da1.dims:
+            da1 = da1.isel(variable=0).drop("variable")
+        return da1
+
+    mask = rem_var(mask)
+
     def clip(da: xr.DataArray) -> xr.DataArray:
         da = fix_calendar(da.rename("unknown"))
+        da = rem_var(da)
         if pac and not mask_land:
             return sel(da)
         elif pac and mask_land:
-            return sel(da).where(sel(mask) != 0.0)
+            try:
+                return sel(da).where(sel(mask) != 0.0)
+            # pylint: disable=bare-except
+            except:
+                print(da, type(da), mask)
+                return sel(da)
         elif not pac and mask_land:
             return da.where(mask != 0.0)  # may not work if they have different grids.
         else:
@@ -162,7 +175,7 @@ def coupling_frame(
         }
         fig, axs = plt.subplots(3, 2, figsize=get_dim(ratio=(5 ** 0.5 - 1) / 2 * 1.5))
         plt.suptitle("Iteration: " + str(index))
-        da = clip(add_units(open_dataarray(setup.tau_y(it=index)).isel(T=600)))
+        da = clip(add_units(open_dataset(setup.tau_y(it=index)).tauy.isel(T=600)))
         da.plot(
             ax=axs[0, 0],
             cmap=cmap("delta"),
@@ -173,7 +186,7 @@ def coupling_frame(
         date = datetime360_to_str(da.coords["T"].values)
         axs[0, 0].set_title(date + r" $\tau_y$ [Pa]")
         axs[0, 0].set_xlabel("")
-        da = clip(add_units(open_dataarray(setup.tau_x(it=index)).isel(T=600)))
+        da = clip(add_units(open_dataset(setup.tau_x(it=index)).taux.isel(T=600)))
         da.plot(
             ax=axs[0, 1],
             cmap=cmap("delta"),

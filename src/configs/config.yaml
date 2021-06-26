@@ -9,7 +9,7 @@ run: true  # whether to run any of the ocean model.
 animate: true
 atmos: true
 wandb: true
-name: ???
+name: days_${atm.eps_days}
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -109,7 +109,7 @@ atm:
   # Heat flux coefficients.
   # Find linearization of Q_LH (latent heating)
   qlh_coeff: ${atm.rho_air} * ${atm.c_e} * ${atm.latent_heat_vap}
-  # Find linearization of Q_LW (longwave)
+  # Find linearization of Q_LW (longwave)8
   qlw_coeff: ${atm.emmisivity} * ${atm.stefan_boltzman_const}
   # grid characteristics
   nx: 180  # number of x grid boxes

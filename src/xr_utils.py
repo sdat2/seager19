@@ -220,7 +220,7 @@ def open_dataset(
         can_coords(fix_calendar(xr.open_dataset(str(path), decode_times=False)))
 
 
-def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
+def open_dataarray(path: Union[str, pathlib.Path], rem_var=False) -> xr.DataArray:
     """
     Open an xarray dataarray and format it.
 
@@ -235,8 +235,9 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
         xr.DataArray: The formatted datarray.
     """
     da = fix_calendar(can_coords(xr.open_dataarray(str(path), decode_times=False)))
-    if "variable" in da.dims:
-        da = da.isel(variable=0).drop("variable")
+    if rem_var:
+        if "variable" in da.dims:
+            da = da.isel(variable=0).drop("variable")
     return da
 
 
