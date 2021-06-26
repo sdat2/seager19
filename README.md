@@ -31,11 +31,11 @@ A repository to contain, analyse, and expand upon the model from:
 
 - There is a west-east warm-to-cold contrast in the Pacific.
 
-- GCMs predict weakening contrast with GHG conc.
+- State of the art GCMs predict weakening contrast with GHG conc.
 
 - In observations it has increased.
 
-- Their simple linear model agrees with observations.
+- Their simple linear coupled model agrees with observations.
 
 ### Citation
 
@@ -139,13 +139,13 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```bash
 
-    make jupyter_pro
+    make jupyter_pro  # adds timing etc.
 
-    make vscode_pro
+    make vscode_pro  # sets up nice autodoc, pylint etc.
 
-    make jupyter_dark
+    make jupyter_dark  # dark mode for jupyter notebooks
 
-    # and to reverse this
+    # and to reverse this:
 
     make jupyter_light
 
@@ -159,7 +159,14 @@ and so you may need to try a different connection method if it doesn't load.
 
     python src/main.py name=cd_2.25 coup.c_d=2.25e-3
 
-    python src/main.py atm.eps_days=1.05,0.95,0.65,0.55 -m name=${atm.eps_days}_days
+    # Sweep through different levels of Raleigh friction
+
+    # values near the value in the paper
+    python src/main.py atm.eps_days=1.05,0.95,0.65,0.55 -m 
+
+    # values from other papers quoted in the introduction to Romps (2014) "Raleigh Damping in the Free Troposphere"
+    python src/main.py atm.eps_days=1.25,1.8,2,2.5,3,5,10 -m
+    # Seager91, Matsuno66, Yu97, Gill80, Chang82, Sugiyama09, Wu00
 
     # uncoupled run without syncing:
     python src/main.py name=it_1 coup.iterations=1 coup.c_d=2.25e-3 wandb=false
@@ -194,7 +201,7 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```bash
 
-    make python name=src/to-new.py
+    make py name=src/to-new.py
 ```
 
 ### Update docs of the src directory
