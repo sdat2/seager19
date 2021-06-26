@@ -220,7 +220,7 @@ def animate_xr_da(
             fps (int, optional): frames per second.
 
         """
-        video_indices = list(range(len(xr_da.coords["T"].values)))
+        video_indices = list(range(xr_da.sizes["T"]))
         make_frame = gen_frame_func(xr_da)
         imageio.mimsave(
             video_path,

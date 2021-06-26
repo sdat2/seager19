@@ -114,22 +114,37 @@ and so you may need to try a different connection method if it doesn't load.
 ### If you need to install the singularity environment
 
 ```bash
+    
+    # on jasmin you would need to make a new tmp directory in your home directory
+    # to be able to install the quite large singularity environment e.g:
+
+    mkdir /home/users/sithom/tmp
+
+    # and then call the command to create the singularity object
 
     TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:g4.8
+
+    # and then to launch the envirnonment
 
     singularity run seager19_g4.8.sif
 
 ```
 
-### Making the environment and testing it works
+### Making the environment and testing it works (either in singularity or not)
 
 ```bash
+
+    # in case conda isn't activated:
 
     conda init bash
 
     source ~/.bash_profile
 
+    # activate the environment
+
     conda activate ./env/
+
+    # test that the environment and package work before using:
 
     make test        # Also downloads the data if needed.
 

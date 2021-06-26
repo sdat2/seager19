@@ -419,7 +419,7 @@ def get_trend(
         slope = fit_da.polyfit_coefficients.sel(degree=1).drop("degree")
     else:
         if uncertainty:
-            print("uncertainty running")
+            # print("uncertainty running")
             fit_da = da.polyfit(t_var, 1, cov=True)
             error = np.sqrt(fit_da.polyfit_covariance.isel(cov_i=0, cov_j=0)).values
             error = get_float(error)
@@ -441,7 +441,7 @@ def get_trend(
                     rise.attrs[pr_name] = da.attrs[pr_name]
             rise = add_units(rise).rename("rise")
 
-        print("run", run, "slope", slope, "rise = slope * run", rise)
+        # print("run", run, "slope", slope, "rise = slope * run", rise)
 
         if make_hatch_mask and not isinstance(rise, float, ufloat):
             return rise, hatch_mask
