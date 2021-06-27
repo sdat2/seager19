@@ -25,7 +25,7 @@ c                    R. Seager, Blumenthal, M.B. and Kushnir, Y., 1995.
 c             "An advective atmospheric mixed layer model for ocean
 c	       modeling purposes: Global simulation of surface heat fluxes",
 c              J. Climate, 8, 1951-1964.
-
+c
 c                    R. Seager, Kushnir, Y. and Cane, M.A., 1995.
 c             "On heat flux boundary conditions for ocean models"
 c              J. Phys. Oceanogr., 25, 3219-3230.

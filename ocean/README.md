@@ -1,24 +1,70 @@
 # Ocean model
 
-The ocean model code is built on legacy Fortran 90 and C code.
+The ocean model code is built on legacy Fortran 77 and C code. The description from om_main.F is:
+
+```fortran77
+c     multimode linear equatorial ocean model, using the INC scheme
+c
+c        authors:     N. Henderson(Naik), with contributions from: 
+c                                   B. Blumenthal (multimode)
+c                                   R. Seager     (AML - advective mixed layer)
+c
+c        references:
+c                    M. Israeli, Naik, N. and Cane, M.A., 2000. 
+c             "An Unconditionally Stable Scheme for the Shallow Water Equations"
+c
+c                    M.B. Blumenthal and Cane, M., 1989. "Accounting for 
+c              parameter uncertainties in model verification: an illustration
+c              with tropical sea surface temperature," 
+c              J. Phys. Oceanogr.19, 815-830.
+c
+c                    R. Seager, Blumenthal, M.B. and Kushnir, Y., 1995.
+c             "An advective atmospheric mixed layer model for ocean
+c             modeling purposes: Global simulation of surface heat fluxes",
+c              J. Climate, 8, 1951-1964.
+c
+c                    R. Seager, Kushnir, Y. and Cane, M.A., 1995.
+c             "On heat flux boundary conditions for ocean models"
+c              J. Phys. Oceanogr., 25, 3219-3230.
+```
+
+## TDEEP / tdeep
 
 TDEEP / tdeep - temperature of deep water
 HTHERM / htherm - height of the thermocline?
-W1 / w1 - upwelling speed
+W1 / w1 - upwelling speed in surface layer
 
-To backup the data:
+SST W1 UDTDX VDTDY UP_FLUX QPRIME QFC QNET
+
+## Helpful background information
+
+Baroclinic Rossby waves:
+
+<https://www.youtube.com/watch?v=ycs2AbC44EU>
+
+Barotropic Rossby waves:
+
+<https://youtu.be/pwV54L-NXzM>
+
+Equatorial waves:
+
+<https://youtu.be/Tdi7lulinRg>
+
+## Comparison and analysis of model
+
+### To backup the data
 
 ```bash
 sh ./backup-data.sh
 ```
 
+### To compare the data between different folders
+
 ```bash
 sh ./comp-data.sh >> changes-mid-run.txt
 ```
 
-```bash
-sh ./comp-dat.sh
-```
+## Structure of Ocean model
 
 Compile the programs in `SRC`.
 
@@ -142,6 +188,8 @@ Ocean model file structure:
     om_test.log
 ```
 
+### Full current compiler details
+
 ```txt
 GNU Fortran (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
 Copyright (C) 2015 Free Software Foundation, Inc.
@@ -157,46 +205,4 @@ gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
 Copyright (C) 2015 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-```
-
-```yaml
-before_install:
-  - sudo apt-get install gfortran
-
-matrix:
-  include:
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
-          packages:
-            - GCC-4.8.5
-      env:
-        - MATRIX_EVAL="CC=gcc-4.8.5 && CXX=g++-4.8.5"
-```
-
-```yaml
-language: c
-sudo: required
-before_install:
-  - sudo apt-get install gfortran
-
-script:
-  - gfortran -fprofile-arcs -ftest-coverage -O0 hello.f90 -o hello
-  - ./hello
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-```
-
-```bash
-  sudo apt-get install python-software-properties
-  sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-  sudo apt-get update
-  sudo apt-get install gcc-4.8
-  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-  sudo apt-get install gfortran-4.8
 ```

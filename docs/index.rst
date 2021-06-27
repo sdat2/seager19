@@ -76,6 +76,7 @@ MRes Citations:
    self
    MAIN_README.md
    src
+   OCEAN_README.md
    current
    gallery.md
    paper-fig.ipynb
