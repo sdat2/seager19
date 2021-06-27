@@ -183,6 +183,8 @@ and so you may need to try a different connection method if it doesn't load.
     python src/main.py atm.eps_days=1.25,1.8,2,2.5,3,5,10 -m
 
     # Seager91, Matsuno66, Yu97, Gill80, Chang82, Sugiyama09, Wu00
+    # breaks at 5, 10: Sugiyama09, Wu00. Breaks through tau.
+    # looks pretty strange at 3: Chang82.
 
     # uncoupled run without syncing:
     python src/main.py name=it_1 coup.iterations=1 coup.c_d=2.25e-3 wandb=false
