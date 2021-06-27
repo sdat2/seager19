@@ -10,16 +10,17 @@ c     multimode linear equatorial ocean model, using the INC scheme
 c
 c        authors:     N. Henderson(Naik), with contributions from: 
 c                                   B. Blumenthal (multimode)
-c                                   R. Seager     (AML)
-c        references:        
-c                    M. Israeli, Naik, N. and Cane, M.A., 1998. 
-c             "The INC scheme for the shallow water equations"
-
+c                                   R. Seager     (AML - advective mixed layer)
+c
+c        references:
+c                    M. Israeli, Naik, N. and Cane, M.A., 2000. 
+c             "An Unconditionally Stable Scheme for the Shallow Water Equations"
+c
 c                    M.B. Blumenthal and Cane, M., 1989. "Accounting for 
 c              parameter uncertainties in model verification: an illustration
 c              with tropical sea surface temperature," 
 c              J. Phys. Oceanogr.19, 815-830.
-
+c
 c                    R. Seager, Blumenthal, M.B. and Kushnir, Y., 1995.
 c             "An advective atmospheric mixed layer model for ocean
 c	       modeling purposes: Global simulation of surface heat fluxes",
@@ -28,9 +29,9 @@ c              J. Climate, 8, 1951-1964.
 c                    R. Seager, Kushnir, Y. and Cane, M.A., 1995.
 c             "On heat flux boundary conditions for ocean models"
 c              J. Phys. Oceanogr., 25, 3219-3230.
-
-c        description:              
-c              
+c
+c        description:
+c             
 c-------------------------------------------------------------------------- 
       common /run/ nstart,nlaststart,nskip,nsteps,nergy,nskipo,nlast
       integer nstart,nlaststart,nskip,nsteps,nergy,nskipo,nlast,ioin

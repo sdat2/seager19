@@ -344,13 +344,13 @@ c--------------------------------------------------------------------------
 
          uw = (u1(im,j) + u1(i,j))/2.
          ue = (u1(ip,j) + u1(i,j))/2.
-         dudx = (ue - uw)/dxm
+         dudx = (ue - uw)/dxm           ! change in u velocity over spacial step in 
 
          vs = (v1(i,jm) + v1(i,j))/2.
          vn = (v1(i,jp) + v1(i,j))/2.
-         dvdy = (vn - vs)/dym
+         dvdy = (vn - vs)/dym           ! change in v velocity over spacial in y direction
     
-         w1(i,j) = HSFC*(dudx + dvdy)
+         w1(i,j) = HSFC*(dudx + dvdy)   ! depth of surface layer * the divergence of the velocity -> upwelling
       enddo
     
       return
