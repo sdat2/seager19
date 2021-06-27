@@ -2,6 +2,10 @@
 
 The ocean model code is built on legacy Fortran 90 and C code.
 
+TDEEP / tdeep - temperature of deep water
+HTHERM / htherm - height of the thermocline?
+W1 / w1 - upwelling speed
+
 To backup the data:
 
 ```bash
