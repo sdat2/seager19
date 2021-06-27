@@ -5,12 +5,12 @@
 project: seager19
 user: sdat2
 test: false # unimportant param for filtering later.
-notes: sensitivity analysis of eps_days
+notes: sensitivity analysis of k_days
 run: true  # whether to run any of the ocean model.
 animate: true # make animations after run.
 atmos: true # run the atmospheric model.
 wandb: true # whether or not to sync to weights and biases.
-name: days_${atm.eps_days} # name needs to be unique otherwise will overwrite.
+name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf

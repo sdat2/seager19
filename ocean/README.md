@@ -28,11 +28,11 @@ c             "On heat flux boundary conditions for ocean models"
 c              J. Phys. Oceanogr., 25, 3219-3230.
 ```
 
-## TDEEP / tdeep
+## Glossary of output fields
 
-TDEEP / tdeep - temperature of deep water
-HTHERM / htherm - height of the thermocline?
-W1 / w1 - upwelling speed in surface layer
+- TDEEP / tdeep - temperature of deep water
+- HTHERM / htherm - height of the thermocline?
+- W1 / w1 - upwelling speed in surface layer
 
 SST W1 UDTDX VDTDY UP_FLUX QPRIME QFC QNET
 

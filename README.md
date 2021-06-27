@@ -186,6 +186,8 @@ and so you may need to try a different connection method if it doesn't load.
     # breaks at 5, 10: Sugiyama09, Wu00. Breaks through tau.
     # looks pretty strange at 3: Chang82.
 
+    python src/main.py atm.k_days=7,8,9,10 -m
+
     # uncoupled run without syncing:
     python src/main.py name=it_1 coup.iterations=1 coup.c_d=2.25e-3 wandb=false
 
@@ -204,6 +206,8 @@ and so you may need to try a different connection method if it doesn't load.
 ```bash
 
     mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/cd_logs/
+        
+    mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/eps_days_logs/
 
 ```
 

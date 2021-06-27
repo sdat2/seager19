@@ -84,7 +84,8 @@ NEW_LOGS = PROJECT_PATH / "logs"
 # if False:  # os.path.exists(GWS_DIR):
 #    LOG_PATH = GWS_DIR / "logs"
 # else:
-LOG_PATH = PROJECT_PATH / "logs"
+# LOG_PATH = PROJECT_PATH / "logs"
+LOG_PATH = PROJECT_PATH / "k_days_logs"
 
 if not os.path.exists(str(LOG_PATH)):
     os.mkdir(str(LOG_PATH))
