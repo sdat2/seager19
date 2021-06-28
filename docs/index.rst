@@ -64,19 +64,12 @@ Scientific questions to be addressed include:
 - Can the sensitivity of the model to the parameters be understood from the physical processes underlying it?
 - How skillful are different emulation functions at fitting input/output of the model?
 
-Skills learnt:
-
-This project will be a good opportunity to learn about numerical solutions to differential equations [3, 4]. From the rubric at https://ai4er-cdt.esc.cam.ac.uk this project would include the primary application areas of Weather, Climate and Air Quality, as well as touching on Natural Hazards as this bias in CMIP will effect the frequency and intensity of tropical cyclones (and therefore their effects such as storm surges, as in my MSci thesis https://bit.ly/msci-report).  The methodology of this project will primarily be within 2. Environmental modelling.  The model used is quite low down in the hierarchy of models, and so it will be much easier to demonstrate simple ML tools upon it.
-
-MRes Citations:
+Citations:
 
 [1] Seager,  R. et  al.  Strengthening  tropical  Pacific  zonal  sea  surface  temperature  gradient  consistent  with rising  greenhouse  gases, July 2019. https://doi.org/10.1038/s41558-019-0505-x
 
 [2] Tian, B. & Dong, X. The Double-ITCZ Bias in CMIP3, CMIP5, and CMIP6 Models Based on Annual Mean Precipitation. Geophysical  Research  Letters 47, e2020GL087232. issn: 0094-8276. doi:10.1029/2020GL087232. https://onlinelibrary.wiley.com/doi/abs/10.1029/2020GL087232 (Apr. 2020).
 
-[3] Hinch,  E. J. Think  Before  You  Compute doi:10.1017/9781108855297. https://www.cambridge.org/core/books/think-before-you-compute/8CC661846951CE3F08F1CC739FBB341F (Cambridge University Press, Apr. 2020).
-
-[4] Iserles, A. Numerical  Solution  of  Differential  Equations Lent Term 2021 (Centre for Mathematical Sciences, University of Cambridge, 2021)
 
 
 .. toctree::

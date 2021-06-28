@@ -1,8 +1,12 @@
-"""Sets up the weights and biases script."""
-from typing import Optional
+"""Sets up the weights and biases script.
+
+no longer used:
+
+import wandb_summarizer.download
+"""
+from typing import Optional, List
 import math
 import numpy as np
-import wandb_summarizer.download
 import pandas as pd
 import wandb
 import logging
@@ -104,7 +108,7 @@ def get_full_csv() -> pd.DataFrame:
 
 def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Get wandb data (and save it?).
+    Get wandb data (and save it?) now doesn't redownload.
 
     Args:
         save_path (Optional[str], optional): Path to new csv file. Defaults to None.
@@ -113,15 +117,25 @@ def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The pandas dataframe of final results.
     """
-    run_info = wandb_summarizer.download.get_results("sdat2/seager19")
-    df = pd.DataFrame(run_info)
-    if save_path is not None:
-        df.to_csv(save_path)
+    # run_info = wandb_summarizer.download.get_results("sdat2/seager19")
+    # df = pd.DataFrame(run_info)
+    # if save_path is not None:
+    #    df.to_csv(save_path)
+
+    df = pd.read_csv(save_path)
 
     return df
 
 
-def metric_conv_data(metric_name: str = "mean_pac") -> dict:
+def metric_conv_data(
+    metric_name: str = "mean_pac",
+    prefix: str = "cd_",
+    ex_list: List[str] = [
+        "cd_norm",
+        "nummode",
+    ],
+    index_by: tuple = ("coup", "c_d"),
+) -> dict:
     """
     Generate the data for the convergence of a particular item.
 
@@ -140,20 +154,44 @@ def metric_conv_data(metric_name: str = "mean_pac") -> dict:
     metric_dict = {}
 
     # pylint: disable=unnecessary-comprehension
-    for rn in [x for x in runs][0:13]:
-        print(rn)
-        config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
-        pair_list = []
-        for _, row in rn.history().iterrows():
-            step = row["_step"]
-            metric = row[metric_name]
-            if not math.isnan(metric):
-                # print(step, metric, type(metric))
-                pair_list.append([step, metric])
+    for rn in runs:  # [x for x in runs][0:13]:
+        if prefix in rn.name and np.all([x not in rn.name for x in ex_list]):
+            print(rn.name)
+            config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
+            # print(rn, config["name"])
+            pair_list = []
+            for _, row in rn.history().iterrows():
+                step = row["_step"]
+                metric = row[metric_name]
+                if not math.isnan(metric):
+                    # print(step, metric, type(metric))
+                    pair_list.append([step, metric])
 
-        # enforce needing 6 iterations.
-        if len(pair_list) == 6:
-            # pylint: disable=eval-used
-            metric_dict[eval(config["coup"])["c_d"]] = np.array(pair_list)
+            # enforce needing 6 iterations.
+            if len(pair_list) == 6:
+                # pylint: disable=eval-used
+                metric_dict[eval(config[index_by[0]])[index_by[1]]] = np.array(
+                    pair_list
+                )
 
     return metric_dict
+
+
+if __name__ == "__main__":
+    # python src/wandb_utils.py
+    print(metric_conv_data())
+    print(
+        metric_conv_data(
+            metric_name="trend_nino3",
+            prefix="days_",
+            ex_list=["k_days_", "days_10", "days_5", "days_3"],
+            index_by=("atm", "eps_days"),
+        )
+    )
+    print(
+        metric_conv_data(
+            metric_name="trend_nino3.4",
+            prefix="k_days_",
+            index_by=("atm", "k_days"),
+        )
+    )

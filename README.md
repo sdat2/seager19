@@ -213,6 +213,8 @@ and so you may need to try a different connection method if it doesn't load.
         
     mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/eps_days_logs/
 
+    mv -f k_days_logs /gws/nopw/j04/ai4er/users/sdat2/
+
 ```
 
 ### Make a notebook with helpful magic functions for dark mode
