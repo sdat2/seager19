@@ -1,16 +1,24 @@
 """src.models.atmos.
 
+This model was initially written in python by Dr. Naomi Henderson (previously Naik).
+
+It was refactored by Simon Thomas into a class structure / to be pylint compatible.
+
+It includes both the tropical Atmospheric model (Matsumo-Gill) with a single mode,
+ and the surface fluxes calculated based on the Ocean model.
+
 pytest src/test/test_atmos.py
 python3 src/models/atmos.py
 
-Model solution method:
+
+Model solution method from Seager et al. 2019 Appendix:
 
 The atmosphere equations are solved by Fourier transforming in longitude,
 forming an equation for v for each zonal wavenumber that is finite
 differenced, and the resulting tri-diagonal system is solved by matrix
 inversion, transforming back into longitude. Finally, u and Φ are derived
 by back-substitution. The ocean equations are solved using the ‘INC’
-scheme31, integrating the model forward, after spin-up with
+scheme, integrating the model forward, after spin-up with
 climatological conditions, forced by the time-varying ECMWF wind stress
 and, for the case with CO2 forcing, changing 𝑓′1 in the net surface
 longwave radiation calculation. Change over 1958–2017 is computed by a
@@ -33,7 +41,7 @@ stress anomaly is only applied to the ocean model between 20 S and 20 N,
 and is linearly tapered to zero at 25 S and 2 N.
 
 Example:
-    Old code::
+    Old code to record the initial parameter settings::
 
         # ------------- constants -----------------------
         # begining TCAM
@@ -161,7 +169,7 @@ class Atmos:
         # Strange properties to plot different models etc.
         self.mem: str = "EEEf"  # string is iterated through
 
-        # the different model names in a dict? - used by key.
+        # the different model names in a dict? - used by key from self.mem.
         self.names: dict = {
             "E": "ECMWF",
             "F": "ECMWF-orig",
@@ -195,7 +203,7 @@ class Atmos:
         Returns:
             np.ndarray: Corriolis force coeff.
         """
-        return self.atm.omega_2 * y_axis * np.pi / 180 ## convert from degrees to rad.
+        return self.atm.omega_2 * y_axis * np.pi / 180  ## convert from degrees to rad.
 
     # --------------- fluxes -----------------------------
 

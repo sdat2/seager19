@@ -93,9 +93,13 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```bash
 
-    sudo apt-get install gfortran
+    # Enforcing these versions is necessary to be able to use 70s fortran.
+    # If you would rather not change your version, you might be better off
+    # Using the docker image instead.
 
-    sudo apt-get install gcc
+    sudo apt-get install gfortran-4.8
+
+    sudo apt-get install gcc-4.8
 
     sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev
 
