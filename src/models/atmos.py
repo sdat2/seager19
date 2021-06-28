@@ -7,6 +7,10 @@ It was refactored by Simon Thomas into a class structure / to be pylint compatib
 It includes both the tropical Atmospheric model (Matsumo-Gill) with a single mode,
  and the surface fluxes calculated based on the Ocean model.
 
+An intriduction to the Matsumo-Gill model:
+
+https://www.atmos.washington.edu/~dargan/591/591_8.pdf
+
 pytest src/test/test_atmos.py
 python3 src/models/atmos.py
 
@@ -193,7 +197,7 @@ class Atmos:
 
     @typechecked
     def f_cor(self, y_axis: np.ndarray) -> np.ndarray:
-        """Corriolis force coeff.
+        """Corriolis force coeff. Makes beta plane approximation.
 
         omega_2 = 2 * (2 * np.pi / sec_in_day) # 2 * rad per second
 

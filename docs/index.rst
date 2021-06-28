@@ -21,6 +21,16 @@ more interactive features such as gifs of the results.
 Therefore, I suggest that the web version is 
 probably a better read.
 
+Current state of code:
+
+.. code-block:: bash
+
+   $ cloc --report-file=docs/lang.txt --sum-one  $(git ls-files)
+
+
+.. include:: lang.txt
+   :literal:
+
 
 MRes Proposal:
 
@@ -77,7 +87,6 @@ MRes Citations:
    MAIN_README.md
    src
    OCEAN_README.md
-   current
    gallery.md
    paper-fig.ipynb
    dQ.ipynb

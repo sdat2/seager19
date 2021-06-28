@@ -39,7 +39,8 @@ ocean/output/
 atmos/DATA*/
 atmos/tmp/
 wandb/
-
+*logs/
+logs/
 # C extensions
 *.so
 
