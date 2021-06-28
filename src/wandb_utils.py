@@ -25,7 +25,7 @@ def get_v(inp: str) -> str:
         inp (str): input string. E.g. "gfortran -v".
 
     Returns:
-        str: selects the fortran version
+        str: selects the fortran version (or gcc version)
             part of the output.
     """
     # pylint: disable=subprocess-run-check
@@ -127,6 +127,7 @@ def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     return df
 
 
+# pylint: disable=dangerous-default-value
 def metric_conv_data(
     metric_name: str = "mean_pac",
     prefix: str = "cd_",

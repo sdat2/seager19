@@ -38,6 +38,9 @@ def nino_calculate(
 
     Can work on regions nino1+2, nino3, nino3.4, nino4 (or "pac").
 
+    "pac" is a region defined by me mainly for plotting that
+    includes most of the tropical pacific.
+
     Args:
         sst (xr.DataArray): Sea surface temperature datarray in standard format.
         reg (str, optional): The region to select form src.xr_utils.sel.

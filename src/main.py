@@ -1,6 +1,7 @@
-"""A file to run model runs from with wandb.
+"""A file to run model runs from with hydra/wandb.
 
-Basically a wrapper for bash commands.
+Basically a wrapper for bash commands that run the ocean model (fortran/C),
+and calls the atmospheric model.
 
 Example:
    Usage of script::
@@ -9,7 +10,6 @@ Example:
 
 """
 import wandb
-import logging
 import hydra
 from omegaconf import DictConfig
 from src.constants import CONFIG_PATH, CONFIG_NAME, run_path
@@ -19,8 +19,6 @@ from src.models.model_setup import ModelSetup
 from src.configs.config import format_config
 from src.wandb_utils import start_wandb
 from src.data_loading.download import get_data
-
-log = logging.getLogger(__name__)
 
 
 @timeit
@@ -68,9 +66,3 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     main()
-    # 2. Save model inputs and hyperparameters
-    # wandb.config
-    # config.learning_rate = 0.01
-    # 3. Log metrics over time to visualize performance
-    # wandb.log({"loss": loss})
-    # wandb.log(cfd)
