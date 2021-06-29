@@ -9,10 +9,11 @@ Example:
        python3 src/main.py name=test26
 
 """
+import shutil
 import wandb
 import hydra
 from omegaconf import DictConfig
-from src.constants import CONFIG_PATH, CONFIG_NAME, run_path
+from src.constants import CONFIG_PATH, CONFIG_NAME, FIN_LOG_PATH, run_path
 from src.utils import timeit
 from src.models.coupling import Coupling
 from src.models.model_setup import ModelSetup
@@ -55,12 +56,22 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
         start_wandb(cfg, unit_test=unit_test)
 
     setup = ModelSetup(run_path(cfg, unit_test=unit_test), cfg)
-
     couple = Coupling(cfg, setup)
     couple.run()
 
     if cfg.wandb:
         wandb.finish()
+
+    if cfg.archive:
+
+        @timeit
+        def archive():
+            shutil.move(
+                run_path(cfg, unit_test=unit_test),
+                FIN_LOG_PATH,
+            )
+
+        archive()
 
 
 if __name__ == "__main__":

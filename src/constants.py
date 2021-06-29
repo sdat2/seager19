@@ -77,15 +77,19 @@ NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
 
 OLD_LOGS = GWS_DIR / "logs"
-CD_LOGS = GWS_DIR / "cd_logs"
+CD_LOGS = GWS_DIR / "sensitivity" / "cd_logs"
 NEW_LOGS = PROJECT_PATH / "logs"
+K_LOGS = GWS_DIR / "sensitivity" / "k_days_logs"
+EPS_LOGS = GWS_DIR / "sensitivity"/ "eps_days_logs"
+
 
 # pylint: disable=using-constant-test
 # if False:  # os.path.exists(GWS_DIR):
 #    LOG_PATH = GWS_DIR / "logs"
 # else:
-# LOG_PATH = PROJECT_PATH / "logs"
-LOG_PATH = PROJECT_PATH / "k_days_logs"
+LOG_PATH = PROJECT_PATH / "logs"
+FIN_LOG_PATH = EPS_LOGS
+# LOG_PATH = PROJECT_PATH / "k_days_logs"
 
 if not os.path.exists(str(LOG_PATH)):
     os.mkdir(str(LOG_PATH))

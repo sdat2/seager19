@@ -7,10 +7,14 @@ user: sdat2
 notes: sensitivity analysis of k_days
 animate: true # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
-name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
+# name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
+name: eps_days_${atm.eps_days}
+# python src/main.py --multirun atm.eps_days=1.15,1.35,1.45
+# python src/main.py --multirun atm.eps_days=1.55,1.65
 test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
+archive: true # whether to move the run to the gws archive
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -23,6 +27,7 @@ oc:
   nummode: 2 # each aditional mode adds about 7 minutes to the run time of run2f.
   boundaries: Periodic # realistically this can't be changed.
   # these are the default start files.
+  # most of these are cahanged uring the run
   wind_clim_file: tau-ECMWF-clim
   wind_file: tau-ECMWF
   dq_dtemp_file: dQdT-sample.nc
