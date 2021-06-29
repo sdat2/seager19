@@ -1,8 +1,9 @@
 """src.models.atmos.
 
-This model was initially written in python by Dr. Naomi Henderson (previously Naik).
+This model was initially written in python by Dr. Naomi Henderson.
 
-It was refactored by Simon Thomas into a class structure / to be pylint compatible.
+It was refactored by Simon Thomas into a class structure / to be pylint compatible,
+and to take the cfg DictConfig struct as input.
 
 It includes both the tropical Atmospheric model (Matsumo-Gill) with a single mode,
  and the surface fluxes calculated based on the Ocean model.
@@ -711,6 +712,10 @@ class Atmos:
     def output_trends(self) -> None:
         """output trends ds.
 
+        Runs the Matsuno-Gill model with the trends in preipitation and
+        sea surface temperature half added and half subtracted to work out the
+        change in the other variables.
+
         𝜀𝑢 . 𝑢 − 𝑓 . 𝑣 + 𝜙 . 𝑥 =  0   (1)
 
         𝜀𝑣 . 𝑣 + 𝑓 . 𝑢 + 𝜙 . 𝑦 =  0   (2)
@@ -772,6 +777,7 @@ class Atmos:
 
         # TRENDS
         def get_trend():
+            # return interpolation functions of the original trends
             ds_trend = xr.open_dataset(self.setup.ts_trend(self.it))
             fts_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.ts, kind="linear")
             ds_trend = xr.open_dataset(
@@ -787,10 +793,12 @@ class Atmos:
 
         pr_trend = fpr_trend(self.x_axis, self.y_axis_u)
         pr_trend[abs(self.y_axis_u) > 25] = 0
+        # get rid of anything above 25 degrees north/south
         pr_trend[pr_trend > 5e-5] = 5e-5
         ds["prTrend"] = (["Yu", "X"], pr_trend)
         ds["prTrend"] = self.smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
+        # save a picture of the trend
         ds.prTrend.plot()
         plt.savefig(os.path.join(self.setup.atmos_path, "prTrend.png"))
         plt.clf()
@@ -809,17 +817,20 @@ class Atmos:
         w_end = wnsp_clim
         w_beg = wnsp_clim
 
+        # ts trend only appplied where not masked?
         ts_end = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
         ts_beg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
         pr_end = (ds.prClim + ds.prTrend / 2).values
         pr_beg = (ds.prClim - ds.prTrend / 2).values
+
+        # ts trend passed to q_th
         q_th_end = (
             self.atm.newtonian_cooling_coeff_k1 * (ts_end - 30) / self.atm.b_coeff
         )
         q_th_beg = (
             self.atm.newtonian_cooling_coeff_k1 * (ts_beg - 30) / self.atm.b_coeff
         )
-
+        # passed to qa_end
         qa_end = self.f_qa(ts_end, sp_clim)
         # qa_end = f_qa2(ts_end)
         e_end = self.f_evap(mask, qa_end, wnsp_clim)
@@ -834,70 +845,39 @@ class Atmos:
         pr_beg[pr_beg < 0] = 0
         # pr_beg[pr_beg>pr_max] = pr_max
 
-        q_th = q_th_end
-        pr = pr_end
-        e1 = e_end
-        qa1 = qa_end
+        def iterate(q_th, pr, e1, qa1) -> Tuple[np.ndarray]:
+            # Find total pr, u and v at end
+            for _ in range(0, self.atm.number_iterations):
+                # Start main calculation
+                q_c = (
+                    np.pi
+                    * self.atm.latent_heat_vap
+                    * pr
+                    / (
+                        2
+                        * self.atm.cp_air
+                        * self.atm.rho_00
+                        * self.atm.height_tropopause
+                    )
+                )  # heating from precip
+                # convective heating part, Qc
+                q1 = self.atm.b_coeff * (q_c + q_th)
+                # Q1 is a modified heating since the part
+                # involving θ is on the left-hand side
+                (u1, v1, phi1) = self.s91_solver(q1)
+                d_amc = xr.DataArray(self.f_mc(qa1, u1, v1), dims=["Yu", "X"])
+                mc1 = self.smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
+                if self.atm.prcp_land:
+                    pr = (1 - mask) * (mc1 + e1) + mask * pr_end
+                else:
+                    pr = (1 - mask) * (mc1 + e1)
+                pr[pr < 0] = 0
+                # pr[pr > pr_max] = pr_max
+            return mc1, u1, v1, phi1, pr
 
-        # Find total pr, u and v at end
-        for _ in range(0, self.atm.number_iterations):
-            # Start main calculation
-            q_c = (
-                np.pi
-                * self.atm.latent_heat_vap
-                * pr
-                / (2 * self.atm.cp_air * self.atm.rho_00 * self.atm.height_tropopause)
-            )  # heating from precip
-            # convective heating part, Qc
-            q1 = self.atm.b_coeff * (q_c + q_th)
-            # Q1 is a modified heating since the part
-            # involving θ is on the left-hand side
-            (u1, v1, phi1) = self.s91_solver(q1)
-            d_amc = xr.DataArray(self.f_mc(qa1, u1, v1), dims=["Yu", "X"])
-            mc1 = self.smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
-            if self.atm.prcp_land:
-                pr = (1 - mask) * (mc1 + e1) + mask * pr_end
-            else:
-                pr = (1 - mask) * (mc1 + e1)
-            pr[pr < 0] = 0
-            # pr[pr > pr_max] = pr_max
+        mc_end, u_end, v_end, phi_end, pr_beg = iterate(q_th_end, pr_end, e_end, qa_end)
 
-        mc_end = mc1
-        u_end = u1
-        v_end = v1
-        phi_end = phi1
-        pr_end = pr
-
-        q_th = q_th_beg
-        pr = pr_beg
-        e1 = e_beg
-        qa1 = qa_beg
-
-        # Find total pr, u and v at beginning
-        for _ in range(0, self.atm.number_iterations):
-            # Start main calculation
-            q_c = (
-                np.pi
-                * self.atm.latent_heat_vap
-                * pr
-                / (2 * self.atm.cp_air * self.atm.rho_00 * self.atm.height_tropopause)
-            )  # heating from precip
-            q1 = self.atm.b_coeff * (q_c + q_th)
-            (u1, v1, phi1) = self.s91_solver(q1)
-            d_amc = xr.DataArray(self.f_mc(qa1, u1, v1), dims=["Yu", "X"])
-            mc1 = self.smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
-            if self.atm.prcp_land:
-                pr = (1 - mask) * (mc1 + e1) + mask * pr_beg
-            else:
-                pr = (1 - mask) * (mc1 + e1)
-            pr[pr < 0] = 0
-            # pr[pr > pr_max] = pr_max
-
-        mc_beg = mc1
-        u_beg = u1
-        v_beg = v1
-        phi_beg = phi1
-        pr_beg = pr
+        mc_beg, u_beg, v_beg, phi_beg, pr_beg = iterate(q_th_beg, pr_beg, e_beg, qa_beg)
 
         # save and plot the trends
         ds["utrend"] = (["Yu", "X"], u_end - u_beg)
