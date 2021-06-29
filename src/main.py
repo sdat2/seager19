@@ -13,7 +13,13 @@ import shutil
 import wandb
 import hydra
 from omegaconf import DictConfig
-from src.constants import CONFIG_PATH, CONFIG_NAME, FIN_LOG_PATH, run_path
+from src.constants import (
+    CONFIG_PATH,
+    CONFIG_NAME,
+    FIN_LOG_PATH,
+    FILES_TO_DELETE,
+    run_path,
+)
 from src.utils import timeit
 from src.models.coupling import Coupling
 from src.models.model_setup import ModelSetup
@@ -51,11 +57,12 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
     """
 
     # print("OmegaConf.to_yaml(cfg)", OmegaConf.to_yaml(cfg))
+    run_p = run_path(cfg, unit_test=unit_test)
 
     if cfg.wandb:
         start_wandb(cfg, unit_test=unit_test)
 
-    setup = ModelSetup(run_path(cfg, unit_test=unit_test), cfg)
+    setup = ModelSetup(run_p, cfg)
     couple = Coupling(cfg, setup)
     couple.run()
 
@@ -65,11 +72,17 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
     if cfg.archive:
 
         @timeit
-        def archive():
-            shutil.move(
-                run_path(cfg, unit_test=unit_test),
-                FIN_LOG_PATH,
-            )
+        def archive() -> None:
+            try:
+                shutil.move(
+                    run_p,
+                    str(FIN_LOG_PATH),
+                )
+            # pylint: disable=bare-except
+            except:
+                print("files not deleted sucessfully.", "run:  rm " + run_p)
+                with open(FILES_TO_DELETE, "a") as f:
+                    f.write("rm " + run_p)
 
         archive()
 
