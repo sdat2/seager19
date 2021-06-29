@@ -189,10 +189,10 @@ if __name__ == "__main__":
             index_by=("atm", "eps_days"),
         )
     )
-    print(
-        metric_conv_data(
-            metric_name="trend_nino3.4",
-            prefix="k_days_",
-            index_by=("atm", "k_days"),
-        )
+    metric_d = metric_conv_data(
+        metric_name="trend_nino3.4",
+        prefix="k_days_",
+        index_by=("atm", "k_days"),
     )
+    for val in metric_d:
+        print(val, float(metric_d[val][5, 1]))

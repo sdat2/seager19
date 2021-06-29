@@ -1,10 +1,11 @@
 """Find the sensitivity of the coupled omodel."""
 import os
+import numpy as np
 import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
 from src.xr_utils import get_trend, sel
-from src.plot_utils import add_units, cmap, get_dim, ps_defaults, axis_fomatter
+from src.plot_utils import add_units, cmap, get_dim, ps_defaults, axis_formatter
 from src.models.poly import plot
 from src.constants import (
     SEL_DICT,
@@ -16,7 +17,7 @@ from src.constants import (
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
 from src.utils import timeit
-from src.wandb_utils import get_wandb_data
+from src.wandb_utils import get_wandb_data, metric_conv_data
 
 ps_defaults(use_tex=False, dpi=200)
 
@@ -55,6 +56,86 @@ def cd_plots(show_plots: bool = False) -> None:
             x_label="$C_d$ [dimensionless]",
             y_label=r"$\Delta T_s$ over " + reg + r" region [$\Delta$ K]",
             fig_path=str(FIGURE_PATH / str("cd_" + reg + ".pdf")),
+            ax_format="x",
+        )
+        if show_plots:
+            plt.show()
+        else:
+            plt.clf()
+
+
+@timeit
+def k_plots(show_plots: bool = False) -> None:
+    """
+    Generate the k sensitivity plots.
+    """
+
+    for reg in SEL_DICT:
+
+        metric_d = metric_conv_data(
+            metric_name="trend_" + reg,
+            prefix="k_days_",
+            index_by=("atm", "k_days"),
+        )
+
+        pair_list = []
+        for val in metric_d:
+            pair_list.append([1 / val, float(metric_d[val][5, 1])])
+
+        pair_npa = np.array(pair_list)
+
+        if reg == "nino1+2":
+            reg_type = "parab"
+        else:
+            reg_type = "lin"
+
+        plot(
+            pair_npa[:, 0],
+            pair_npa[:, 1],
+            reg_type=reg_type,
+            x_label="Newtonian cooling, $K$, [days]",
+            y_label=r"$\Delta T_s$ over " + reg + r" region [$\Delta$ K]",
+            fig_path=str(FIGURE_PATH / str("k_" + reg + ".png")),
+            ax_format="x",
+        )
+        if show_plots:
+            plt.show()
+        else:
+            plt.clf()
+
+
+def eps_plots(show_plots: bool = False) -> None:
+    """
+    Generate the k sensitivity plots.
+    """
+
+    for reg in SEL_DICT:
+
+        metric_d = metric_conv_data(
+            metric_name="trend_nino3",
+            prefix="days_",
+            ex_list=["k_days_", "days_10", "days_5", "days_3"],
+            index_by=("atm", "eps_days"),
+        )
+
+        pair_list = []
+        for val in metric_d:
+            pair_list.append([val, float(metric_d[val][5, 1])])
+
+        pair_npa = np.array(pair_list)
+
+        if reg in  ["nino1+2", "nino3.4"]:
+            reg_type = "parab"
+        else:
+            reg_type = "lin"
+
+        plot(
+            pair_npa[:, 0],
+            pair_npa[:, 1],
+            reg_type=reg_type,
+            x_label=r"Raleigh damping, $\epsilon$, [days]",
+            y_label=r"$\Delta T_s$ over " + reg + r" region [$\Delta$ K]",
+            fig_path=str(FIGURE_PATH / str("eps_" + reg + ".png")),
             ax_format="x",
         )
         if show_plots:
@@ -144,7 +225,7 @@ def cd_heatmaps(show_plots: bool = False) -> None:
         {
             "label": r"$\Delta T_s / \Delta C_d$ [$\Delta K$]",
             # "aspect": 35,
-            "format": axis_fomatter(),
+            "format": axis_formatter(),
         }
     )
 
@@ -221,6 +302,8 @@ def nummode_plots(show_plots: bool = False) -> None:
 
 if __name__ == "__main__":
     # python src/visualisation/sensitivity.py
-    cd_plots()
-    nummode_plots()
-    cd_heatmaps()
+    eps_plots()
+    # k_plots()
+    # cd_plots()
+    # nummode_plots()
+    # cd_heatmaps()

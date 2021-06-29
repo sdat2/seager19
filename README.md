@@ -103,7 +103,7 @@ and so you may need to try a different connection method if it doesn't load.
 
     sudo apt-get install --fix-missing libnetcdf-dev libnetcdff-dev
 
-    sudo apt-get install cloc
+    sudo apt-get install cloc  # brew install cloc for mac
 ```
 
 ### If you want to make the docker environment yourself
