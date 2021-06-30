@@ -1,29 +1,54 @@
 """search.py"""
 import os
 import numpy as np
+import hydra
 from hydra.experimental import initialize, compose
-from src.constants import CONFIG_PATH, CONFIG_NAME, SENS_NAME
+from omegaconf import DictConfig
+from src.constants import (
+    CONFIG_PATH,
+    CONFIG_NAME,
+    SENS_RANGES,
+    SENS_SETTINGS,
+    PROJECT_PATH,
+)
+from src.utils import timeit
 
 
 def rand(low: float, high: float) -> float:
     return float(np.random.uniform(low, high, 1))
 
 
-if __name__ == "__main__":
-    # python src/search.py
+@timeit
+@hydra.main(config_path=CONFIG_PATH, config_name=SENS_SETTINGS)
+def main(settings: DictConfig) -> None:
+    """The main function to run the model and animations.
 
-    rel_path = CONFIG_PATH.replace(os.getcwd() + "/src/", "")
+    Takes the src/configs/config.yaml file as input alongside any command line
+    arguments.
+
+    Args:
+        cfg (DictConfig): The hyrda dict config from the wrapper.
+
+    """
+    print(CONFIG_PATH)
+    print(PROJECT_PATH)
+    print(os.getcwd())
+    # rel_path = CONFIG_PATH.replace(os.getcwd() + "/src/", "")
+    rel_path = CONFIG_PATH.replace(str(PROJECT_PATH), "../../..")
+    print(rel_path)
+
+    print(settings)
 
     with initialize(config_path=rel_path):
         sens = compose(
-            config_name=SENS_NAME,
+            config_name=SENS_RANGES,
             # overrides=override_list,
         )
 
     print(sens)
     override_list = list()
 
-    for _ in range(30):
+    for _ in range(settings.runs):
 
         for i in sens:
             override_list.append(i + "={:.3e}".format(rand(sens[i][0], sens[i][1])))
@@ -38,3 +63,8 @@ if __name__ == "__main__":
 
         # print(cfg)
         print(cfg.name)
+
+
+if __name__ == "__main__":
+    # pylint: disable=no-value-for-parameter
+    main()

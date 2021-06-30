@@ -23,7 +23,9 @@ REPORT_PATH = pathlib.Path(os.path.join(PROJECT_PATH, "report"))
 FIGURE_PATH = pathlib.Path(os.path.join(REPORT_PATH, "figures"))
 CONFIG_PATH = os.path.join(SRC_PATH, "configs")
 CONFIG_NAME: str = "config"
-SENS_NAME: str = "sensitivity"
+SENS_RANGES: str = "sens_ranges"
+SENS_SETTINGS: str = "sens_settings"
+
 
 # PATHS to the models
 OCEAN_PATH = PROJECT_PATH / "ocean"
