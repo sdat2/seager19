@@ -181,7 +181,12 @@ and so you may need to try a different connection method if it doesn't load.
     # Sweep through different levels of Raleigh friction
 
     # values near the value in the paper
-    python src/main.py atm.eps_days=1.05,0.95,0.85,0.75,0.65,0.55 -m 
+    python src/main.py atm.eps_days=1.05,0.95,0.85,0.75,0.65,0.55 -m
+
+    python src/main.py atm.eps_days=1.7,1.8,1.85 -m 
+
+    python src/main.py atm.eps_days=0.7,0.8 -m 
+
 
     # values from other papers quoted in the introduction to Romps (2014) "Raleigh Damping in the Free Troposphere"
     python src/main.py atm.eps_days=1.25,1.8,2,2.5,3,5,10 -m

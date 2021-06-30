@@ -57,6 +57,7 @@ confidence=
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 disable=abstract-method,
+        consider-using-dict-items, # this is a rediculous complaint
         apply-builtin,
         arguments-differ,
         attribute-defined-outside-init,

@@ -13,6 +13,7 @@ from src.constants import (
     ORIG_WANDB_DATA,
     NEW_WANDB_DATA,
     CD_LOGS,
+    EPS_LOGS,
 )
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
@@ -108,6 +109,8 @@ def k_plots(show_plots: bool = False) -> None:
 def eps_plots(show_plots: bool = False) -> None:
     """
     Generate the k sensitivity plots.
+
+    Currently I'm cutting off all results with more than 2 days.
     """
 
     for reg in SEL_DICT:
@@ -122,7 +125,8 @@ def eps_plots(show_plots: bool = False) -> None:
         pair_list = []
         # pylint: disable=condider-using-dict-items
         for val in metric_d:
-            pair_list.append([val, float(metric_d[val][5, 1])])
+            if val <= 2:
+                pair_list.append([val, float(metric_d[val][5, 1])])
 
         pair_npa = np.array(pair_list)
 
@@ -135,7 +139,10 @@ def eps_plots(show_plots: bool = False) -> None:
             pair_npa[:, 0],
             pair_npa[:, 1],
             reg_type=reg_type,
-            x_label=r"Raleigh damping, $\epsilon$, [days]",
+            x_label=str(
+                r"Raleigh damping, $\frac{1}{\epsilon_u}$,"
+                + r" $\frac{2}{\epsilon_v}$, [days]"
+            ),
             y_label=r"$\Delta T_s$ over " + reg + r" region [$\Delta$ K]",
             fig_path=str(FIGURE_PATH / str("eps_" + reg + ".png")),
             ax_format="x",
@@ -144,6 +151,139 @@ def eps_plots(show_plots: bool = False) -> None:
             plt.show()
         else:
             plt.clf()
+
+
+@timeit
+def eps_heatmaps(show_plots: bool = False) -> None:
+    """
+    Return the cd heatmaps
+
+    Args:
+        show_plots (bool, optional): Whether or not to show plots or just clear them.
+            Defaults to False.
+    """
+    cfg = load_config(test=False)
+    name_direc_l = []
+    # names = os.listdir(CD_LOGS)
+
+    names = ["days_0.65", "days_0.75", "days_0.85"]
+    names.sort()
+    for name in names:
+        direc = str(EPS_LOGS / name)
+        name_direc_l.append(
+            (
+                name,
+                float(name[5:]),
+                direc,
+                ModelSetup(direc, cfg, make_move=False),
+            )
+        )
+
+    print(name_direc_l)
+
+    eps_and_file = list()
+
+    for i in range(len(name_direc_l)):
+        print(name_direc_l[i][1])
+        print(name_direc_l[i][3].ts_trend(5))
+        print(os.path.exists(name_direc_l[i][3].ts_trend(5)))
+        eps_and_file.append([name_direc_l[i][1], name_direc_l[i][3].ts_trend(5)])
+
+    da_list = [xr.open_dataarray(eps_and_file[x][1]) for x in range(len(eps_and_file))]
+
+    eps_ts_da = xr.concat(da_list, r"$\frac{1}{\epsilon_u}$").assign_coords(
+        {
+            r"$\frac{1}{\epsilon_u}$": [
+                eps_and_file[x][0] for x in range(len(eps_and_file))
+            ]
+        }
+    )
+    eps_ts_da.coords[r"$\frac{1}{\epsilon_u}$"].attrs["units"] = "days"
+
+    setup = ModelSetup(direc, cfg, make_move=False)
+    mask = xr.open_dataset(setup.om_mask()).mask
+
+    def clip(da: xr.DataArray):
+        return add_units(sel(da).where(sel(mask) != 0.0))
+
+    clip(eps_ts_da).plot(
+        col=r"$\frac{1}{\epsilon_u}$",
+        aspect=3,
+        col_wrap=2,
+        cmap=cmap("delta"),
+        cbar_kwargs={
+            "aspect": 20,
+            "label": str(
+                r"$\Delta T_s$, Change in sea surface"
+                + "\n"
+                + r" temperature over 58 years [$\Delta K$] "
+            ),
+        },
+        figsize=get_dim(ratio=0.5),
+    )
+
+    plt.savefig(FIGURE_PATH / "eps_facetplot.png")
+    plt.savefig(FIGURE_PATH / "eps_facetplot.pdf")
+
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
+
+    slope, hatch_mask = get_trend(
+        clip(eps_ts_da),
+        min_clim_f=False,
+        output="slope",
+        t_var=r"$\frac{1}{\epsilon_u}$",
+        make_hatch_mask=True,
+    )
+
+    sens_heatmap_kwargs = dict(
+        {
+            "label": str(
+                r"$\Delta T_s / \Delta \frac{1}{\epsilon_u}$ "
+                + r"[$\Delta K / \Delta $ day]"
+            ),
+            # "aspect": 35,
+            "format": axis_formatter(),
+        }
+    )
+
+    add_units(slope).plot(
+        cmap=cmap("delta"),
+        cbar_kwargs=sens_heatmap_kwargs.copy(),
+        aspect=2,
+        figsize=get_dim(ratio=0.5),
+    )
+    add_units(hatch_mask).where(hatch_mask != 0).plot(
+        add_colorbar=False,
+        cmap="Greys",
+        alpha=0.3,
+    )
+    plt.tight_layout()
+    plt.title("")
+    plt.savefig(FIGURE_PATH / "ts_eps_sensitivity_hatched.png")
+    plt.savefig(FIGURE_PATH / "ts_eps_sensitivity_hatched.pdf")
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
+
+    add_units(slope).plot(
+        cmap=cmap("delta"),
+        cbar_kwargs=sens_heatmap_kwargs.copy(),
+        aspect=2,
+        figsize=get_dim(ratio=0.5),
+    )
+    plt.title("")
+    plt.tight_layout()
+    plt.savefig(FIGURE_PATH / "ts_eps_sensitivity.png")
+    plt.savefig(FIGURE_PATH / "ts_eps_sensitivity.pdf")
+
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
 
 
 @timeit
@@ -304,8 +444,9 @@ def nummode_plots(show_plots: bool = False) -> None:
 
 if __name__ == "__main__":
     # python src/visualisation/sensitivity.py
-    eps_plots()
-    # k_plots()
+    # eps_plots()
+    # eps_heatmaps()
+    k_plots()
     # cd_plots()
     # nummode_plots()
     # cd_heatmaps()
