@@ -64,7 +64,7 @@ C		double precision eigenvalue/vector calculation, temperature
 C		coordinates, and new printout
 C	altered 15 AUG 1997 - Naomi- arbitrary output grid, vgrid
 
-      GRAV   = 9.78049
+      GRAV   = 9.78049   ! gravity has to be specificied several times, could there not be a constants file to set this?
       GRAINV = 1.0 / GRAV
       
 C DML is the mixed layer depth. disabled!!!!!!!!!!!!
@@ -141,7 +141,7 @@ C DESCRIPTION
 C	modepa is a subroutine to calculate mode scales from the information
 C	that vmodessub returns.
 C BUGS
-C	It has not been tested yet
+C	It has not been tested yet (apart from being published :p).
 C AUTHOR
 C       Benno provided the skeleton of this subroutine
 *----------------------------------------------------------------------
@@ -197,7 +197,7 @@ C       Benno provided the skeleton of this subroutine
       enddo
 
       do j = 1, ny
-         fcor(j) = CNST_F0 + CNST_BETA*ym(j)
+         fcor(j) = CNST_F0 + CNST_BETA*ym(j)  ! beta plane approximation
       enddo
 
       do mode = 1, nmodes
@@ -289,6 +289,9 @@ C	hvm		eigenfunction reset to 1.
 C	hvmsf		surface value eigenfunction reset to 1.
 C	ahmix0 		rescaled ahmix0
 C	ahmixp 		rescaled ahmixp for tdeep
+C Description:
+C     Special case of only one mode. There is a fair deal of duplication
+C     with MODEPA. TODO: These could become one function?
 *----------------------------------------------------------------------
 
       integer nx,ny
@@ -302,15 +305,15 @@ C	ahmixp 		rescaled ahmixp for tdeep
       integer mode, i, j, ipt
       common /constants/ xconv,yconv,rl
 
-      grav   = 9.780490
+      grav   = 9.780490      ! gravity, but a bit lower for an in ocean value?
       grainv = 1.0 / grav
-      r_earth = 6379000.
-      to_rad = atan(1.)/45.
-      conv = r_earth* to_rad
+      r_earth = 6379000.      ! 6379 km 
+      to_rad = atan(1.)/45.   ! pi/4 / 45 degrees = radians per degree
+      conv = r_earth* to_rad  ! km rad degree-1
 
       CNST_2OMEGA = 2.* 2.* (4.*atan(1.))/ (24.* 3600.)! 2*2*pi/day in 1/s
-      y_ave = (Y_MIN + Y_MAX)/2.0
-      PHI_0 = to_rad*y_ave
+      y_ave = (Y_MIN + Y_MAX)/2.0    ! average latitude in degrees.
+      PHI_0 = to_rad*y_ave           ! average latitude in radians
 
       CNST_BETA   = CNST_2OMEGA * cos(PHI_0)/R_EARTH
       CNST_F0     = CNST_2OMEGA * ( sin(PHI_0) - PHI_0 * cos(PHI_0) )
@@ -331,7 +334,7 @@ C	ahmixp 		rescaled ahmixp for tdeep
       enddo
 
       do j = 1, ny
-         fcor(j) = CNST_F0 + CNST_BETA*ym(j)
+         fcor(j) = CNST_F0 + CNST_BETA*ym(j)     ! beta plane approximation
       enddo
 
       if (time_mul.ne.0.) delt = time_mul*delx/phasev

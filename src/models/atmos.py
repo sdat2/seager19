@@ -495,7 +495,7 @@ class Atmos:
         """evaporation flux.
 
         Args:
-            mask (np.ndarray): land mask?
+            mask (np.ndarray): land mask
             q_a (np.ndarray): surface air humidity
             wnsp (np.ndarray): surface windspeed in m/s
 
@@ -747,6 +747,8 @@ class Atmos:
         # CLIMATOLOGIES
 
         def get_clim():
+            # the average condions from ECMWF
+            # Gets the windspeed, surface temperature, precipation, and surface pressure
             ds_clim = xr.open_dataset(
                 os.path.join(self.setup.atmos_data_path, "sfcWind-ECMWF-clim.nc")
             )
@@ -761,7 +763,7 @@ class Atmos:
                 os.path.join(self.setup.atmos_data_path, "ps-ECMWF-clim.nc")
             )
             fps = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ps, kind="linear")
-
+            # Return interpolation objects
             return fwnsp, fts, fpr, fps
 
         fwnsp, fts, fpr, fps = get_clim()
@@ -1032,6 +1034,7 @@ class Atmos:
             name = self.names[m]
             variable = self.var[i]
             if variable == "ts":
+                # the surface temperature can be an input from the ocean model.
                 file = self.setup.ts_clim60(self.it)
             else:
                 file = os.path.join(
@@ -1040,14 +1043,16 @@ class Atmos:
             print(name, variable, file)
             print(file)
             assert os.path.isfile(file)
-            files += [file]
+            files += [file]  # append to list.
 
         return xr.open_mfdataset(files, decode_times=False)
 
     @timeit
     @typechecked
     def get_dclim(self) -> any:
-        """Opens the files, and applies functions.
+        """Opens the files, and applies functions to get surface fluxes.
+
+        Get the surface fluxes, qd_df, dq_dT among other things.
 
         Returns:
             any: A list of outputs.
