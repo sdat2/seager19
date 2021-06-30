@@ -1,7 +1,12 @@
 """search.py"""
 import os
+import numpy as np
 from hydra.experimental import initialize, compose
 from src.constants import CONFIG_PATH, CONFIG_NAME, SENS_NAME
+
+
+def rand(low: float, high: float) -> float:
+    return float(np.random.uniform(low, high, 1))
 
 
 if __name__ == "__main__":
@@ -18,15 +23,18 @@ if __name__ == "__main__":
     print(sens)
     override_list = list()
 
-    for i in sens:
-        override_list.append(i + "={:.3e}".format((sens[i][0] + sens[i][1]) / 2))
-        print(override_list)
+    for _ in range(30):
 
-    with initialize(config_path=rel_path):
-        cfg = compose(
-            config_name=CONFIG_NAME,
-            overrides=override_list,
-        )
+        for i in sens:
+            override_list.append(i + "={:.3e}".format(rand(sens[i][0], sens[i][1])))
 
-    print(cfg)
-    print(cfg.name)
+            # print(override_list)
+
+        with initialize(config_path=rel_path):
+            cfg = compose(
+                config_name=CONFIG_NAME,
+                overrides=override_list,
+            )
+
+        # print(cfg)
+        print(cfg.name)
