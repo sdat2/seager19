@@ -1,11 +1,14 @@
 # src/configs/sensitivity.yaml
 # a file to contain the parameters to sweep through and their ranges
-cd:
- - 0.0
- - 3.5e-3
+c_d:
+ - 1.0e-3
+ - 3.0e-3
 eps_days:
- - 0.3
- - 2
+ - 0.4
+ - 1.4
+e_frac:
+ - 1.9
+ - 2.1
 k_days:
- - 0.5
- - 20
+ - 8
+ - 13
