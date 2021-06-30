@@ -84,13 +84,15 @@ atm:
   newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
   eps_p: (${atm.pi} / ${atm.height_tropopause}) ** 2 / ${atm.nbsq} / ${atm.k_days} / ${atm.sec_in_day}
   # raleigh friction step.
-  eps_days: 0.75 # this is the raleigh friction stuff.
+  eps_days: 0.75 # this is the inverse of the raleigh friction coefficient epsilon.
   # Over 1958–2017, the CO2 changed from ~300 to ~400 ppm, which would be about 0.75 W m−2
   # eps days might be the efficiency of entrainment.
+  # mult_or_div:  * 1 *
   eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
-  e_frac: 2.0     # multiply epsu by efrac to get epsv
-  eps_u: ${atm.eps}  # 1/.75 d
-  eps_v: ${atm.e_frac} * ${atm.eps}  
+  e_frac: 2   # multiply epsu by efrac to get epsv
+  # as this a bug?
+  eps_u: ${atm.eps}  # 1/.75 d in the paper
+  eps_v: ${atm.eps} * ${atm.e_frac}
   # e_frac=1/2 in paper
   b_coeff: ${atm.gravity} * ${atm.pi} / ${atm.nbsq} / ${atm.theta_00} / ${atm.height_tropopause}
   beta: ${atm.omega_2} / ${atm.radius_earth}

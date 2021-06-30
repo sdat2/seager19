@@ -16,6 +16,8 @@ import os
 
 # In[ ]:
 
+# TDMA solver doesn't need nx as an input.
+
 
 def TDMAsolver(nx, ny, a, b, c, d):
     nf = ny  # number of equations
@@ -39,8 +41,8 @@ def TDMAsolver(nx, ny, a, b, c, d):
 
 
 # Make changes here ----------
-eps_days = 0.75
-K_days = 10
+eps_days = 0.75  # inverse of eps
+K_days = 10  # inverse of K
 efrac = 2.0  # multiply epsu by efrac to get epsv
 Hq = 1800
 PrcpLand = 1  # use data precip trends over land
@@ -67,7 +69,7 @@ NumberIterations = 50
 gravity = 9.8
 ZT = 15000
 Th00 = 300
-NBSQ = 3.0e-4
+NBSQ = 3.0e-4  # stratification
 rEarth = 6.37e6
 omega2 = 2 * (2 * np.pi / 86400)
 L = 2.5e6
@@ -449,10 +451,10 @@ ds.PRtrend.attrs = [("units", "m/s")]
 ds.Qthtrend.attrs = [("units", "K/s")]
 
 print(outfile)
-dict = {
+d = {
     "K": {"dtype": "f4"},
     "epsu": {"dtype": "f4"},
     "epsv": {"dtype": "f4"},
     "Hq": {"dtype": "f4"},
 }
-ds.to_netcdf(outfile, encoding=dict)
+ds.to_netcdf(outfile, encoding=d)

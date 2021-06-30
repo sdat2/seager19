@@ -174,15 +174,15 @@ C       Benno provided the skeleton of this subroutine
       to_rad = atan(1.)/45.
       conv = r_earth* to_rad
 
-      CNST_2OMEGA = 2.* 2.* (4.*atan(1.))/ (24.* 3600.)! 2*2*pi/day in 1/s
+      CNST_2OMEGA = 2.* 2.* (4.*atan(1.))/ (24.* 3600.) ! 2*2*pi/day in 1/s
       y_ave = (Y_MIN + Y_MAX)/2.0
       PHI_0 = to_rad*y_ave
 
-      CNST_BETA   = CNST_2OMEGA * cos(PHI_0)/R_EARTH
+      CNST_BETA   = CNST_2OMEGA * cos(PHI_0)/R_EARTH ! df/dy | y=y0
       CNST_F0     = CNST_2OMEGA * ( sin(PHI_0) - PHI_0 * cos(PHI_0) )
 
-      yconv = conv
-      xconv = conv*cos(PHI_0)
+      yconv = conv ! metres per degree
+      xconv = conv*cos(PHI_0) ! metres per degree
 
       delx  = xconv*(X_MAX - X_MIN)/(nx - 1)   !  x spacing in meters
       dely  = yconv*(Y_MAX - Y_MIN)/(ny - 1)   !  y spacing in meters
