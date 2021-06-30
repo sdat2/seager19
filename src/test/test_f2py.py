@@ -18,7 +18,7 @@ def test_f2py():
     # os.system("cd "+ os.path.join(SRC_PATH, "test") +"\n" +
     #           "python -m numpy.f2py -c primes.f95 -m primes")
     # pylint: disable=import-outside-toplevel
-    import src.test.primes as primes
+    from src.test import primes
 
     print(primes.__doc__)
     print(primes.logical_to_integer.__doc__)

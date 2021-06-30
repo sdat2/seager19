@@ -79,6 +79,7 @@ def k_plots(show_plots: bool = False) -> None:
         )
 
         pair_list = []
+        # pylint: disable=condider-using-dict-items
         for val in metric_d:
             pair_list.append([1 / val, float(metric_d[val][5, 1])])
 
@@ -119,12 +120,13 @@ def eps_plots(show_plots: bool = False) -> None:
         )
 
         pair_list = []
+        # pylint: disable=condider-using-dict-items
         for val in metric_d:
             pair_list.append([val, float(metric_d[val][5, 1])])
 
         pair_npa = np.array(pair_list)
 
-        if reg in  ["nino1+2", "nino3.4"]:
+        if reg in ["nino1+2", "nino3.4"]:
             reg_type = "parab"
         else:
             reg_type = "lin"

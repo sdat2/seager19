@@ -57,6 +57,7 @@ def metric_conv_plot(
     else:
         plt.clf()
 
+    # pylint: disable=condider-using-dict-items
     for cd in metric_dict:
         plt.plot(
             np.abs(

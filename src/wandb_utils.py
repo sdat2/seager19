@@ -194,5 +194,6 @@ if __name__ == "__main__":
         prefix="k_days_",
         index_by=("atm", "k_days"),
     )
+    # pylint: disable=condider-using-dict-items
     for val in metric_d:
         print(val, float(metric_d[val][5, 1]))
