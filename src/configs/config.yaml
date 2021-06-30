@@ -8,7 +8,7 @@ notes: sensitivity analysis of k_days
 animate: true # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
 # name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
-name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_efrac_${atm.e_frac}_c_d_${atm.c_d}
+name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_efrac_${atm.e_frac}_c_d_${coup.c_d}
 # name: eps_days_${atm.eps_days}
 # python src/main.py --multirun atm.eps_days=1.35,1.45
 # python src/main.py --multirun atm.eps_days=0.35,0.45
@@ -17,7 +17,7 @@ test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
 archive: true # whether to move the run to the gws archive
-archive_dir: /gws/nopw/j04/ai4er/users/sdat2/sensitivity
+archive_dir: /gws/nopw/j04/ai4er/users/sdat2/sensitivity/all
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf

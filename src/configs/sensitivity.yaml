@@ -1,14 +1,14 @@
 # src/configs/sensitivity.yaml
 # a file to contain the parameters to sweep through and their ranges
-c_d:
+coup.c_d:
  - 1.0e-3
  - 3.0e-3
-eps_days:
+atm.eps_days:
  - 0.4
  - 1.4
-e_frac:
+atm.e_frac:
  - 1.9
  - 2.1
-k_days:
+atm.k_days:
  - 8
  - 13
