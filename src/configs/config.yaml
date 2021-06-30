@@ -7,8 +7,8 @@ user: sdat2
 notes: sensitivity analysis of k_days
 animate: true # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
-# name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
-name: eps_days_${atm.eps_days}
+name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
+# name: eps_days_${atm.eps_days}
 # python src/main.py --multirun atm.eps_days=1.35,1.45
 # python src/main.py --multirun atm.eps_days=0.35,0.45
 # python src/main.py --multirun atm.eps_days=1.65

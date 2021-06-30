@@ -197,6 +197,10 @@ and so you may need to try a different connection method if it doesn't load.
 
     python src/main.py atm.k_days=7,8,9,10 -m
 
+    python src/main.py atm.k_days=4,5,6 -m
+
+    python src/main.py atm.k_days=16,17,18 -m
+
     # uncoupled run without syncing:
     python src/main.py name=it_1 coup.iterations=1 coup.c_d=2.25e-3 wandb=false
 

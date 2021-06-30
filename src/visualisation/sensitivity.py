@@ -82,7 +82,8 @@ def k_plots(show_plots: bool = False) -> None:
         pair_list = []
         # pylint: disable=condider-using-dict-items
         for val in metric_d:
-            pair_list.append([1 / val, float(metric_d[val][5, 1])])
+            if 7 <= val <= 14:
+                pair_list.append([val, float(metric_d[val][5, 1])])
 
         pair_npa = np.array(pair_list)
 
@@ -95,7 +96,7 @@ def k_plots(show_plots: bool = False) -> None:
             pair_npa[:, 0],
             pair_npa[:, 1],
             reg_type=reg_type,
-            x_label="Newtonian cooling, $K$, [days]",
+            x_label=r"Newtonian cooling, $\frac{1}{K}$, [days]",
             y_label=r"$\Delta T_s$ over " + reg + r" region [$\Delta$ K]",
             fig_path=str(FIGURE_PATH / str("k_" + reg + ".png")),
             ax_format="x",
@@ -156,7 +157,7 @@ def eps_plots(show_plots: bool = False) -> None:
 @timeit
 def eps_heatmaps(show_plots: bool = False) -> None:
     """
-    Return the cd heatmaps
+    Return the eps heatmaps
 
     Args:
         show_plots (bool, optional): Whether or not to show plots or just clear them.
