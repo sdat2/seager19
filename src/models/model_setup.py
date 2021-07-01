@@ -34,6 +34,7 @@ class ModelSetup:
         self.gif_path = os.path.join(direc, "gifs")
         self.nino_data_path = os.path.join(direc, "nino_data")
         self.nino_plot_path = os.path.join(direc, "nino_plot")
+        self.plot_path = os.path.join(direc, "plots")
 
         # setup ocean paths
         self.ocean_path = os.path.join(direc, "ocean")
@@ -55,6 +56,7 @@ class ModelSetup:
                 self.gif_path,
                 self.nino_data_path,
                 self.nino_plot_path,
+                self.plot_path,
                 # make ocean paths
                 self.ocean_path,
                 self.ocean_run_path,
@@ -289,3 +291,6 @@ class ModelSetup:
         if mask_land:
             name += "_mask"
         return os.path.join(self.gif_path, name + ".gif")
+
+    def prcp_quiver_plot(self) -> str:
+        return os.path.join(self.plot_name, "prcp_quiver.png")

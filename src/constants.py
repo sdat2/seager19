@@ -85,7 +85,7 @@ CD_LOGS = GWS_DIR / "sensitivity" / "cd_logs"
 NEW_LOGS = PROJECT_PATH / "logs"
 K_LOGS = GWS_DIR / "sensitivity" / "k_days_logs"
 EPS_LOGS = GWS_DIR / "sensitivity" / "eps_days_logs"
-
+EPS_FRAC_LOGS = GWS_DIR / "sensitivity" / "eps_frac"
 
 # pylint: disable=using-constant-test
 # if False:  # os.path.exists(GWS_DIR):

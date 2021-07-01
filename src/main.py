@@ -76,7 +76,7 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
             try:
                 shutil.move(
                     run_p,
-                    str(FIN_LOG_PATH),
+                    str(cfg.archive_dir),
                 )
             # pylint: disable=bare-except
             except:

@@ -17,7 +17,7 @@ test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
 archive: true # whether to move the run to the gws archive
-archive_dir: /gws/nopw/j04/ai4er/users/sdat2/sensitivity/all
+archive_dir: /gws/nopw/j04/ai4er/users/sdat2/sensitivity/eps_frac
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf

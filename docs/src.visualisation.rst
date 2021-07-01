@@ -20,6 +20,14 @@ src.visualisation.convergence module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.quiver module
+-------------------------------
+
+.. automodule:: src.visualisation.quiver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.visualisation.sensitivity module
 ------------------------------------
 

@@ -4,6 +4,9 @@ import inspect
 import time
 from functools import wraps
 from sys import getsizeof
+from src.models.model_setup import ModelSetup
+from src.configs.load_config import load_config
+from src.constants import K_LOGS
 
 
 def hr_time(time_in: float) -> str:
@@ -166,3 +169,11 @@ def get_byte_size(obj: object) -> str:
     """
 
     return human_readable_size(calculate_byte_size_recursively(obj))
+
+
+def get_default_setup() -> ModelSetup:
+    """Return the default run setup to get the data."""
+    run_dir = str(K_LOGS / "k_days_10")
+    cfg = load_config(test=False)
+    setup = ModelSetup(run_dir, cfg, make_move=False)
+    return setup

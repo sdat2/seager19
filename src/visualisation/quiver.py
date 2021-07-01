@@ -2,20 +2,11 @@
 from scipy.interpolate import interp2d
 import xarray as xr
 import matplotlib.pyplot as plt
-from src.utils import timeit
+from src.utils import timeit, get_default_setup
 from src.models.model_setup import ModelSetup
 from src.xr_utils import can_coords, clip
 from src.plot_utils import cmap, add_units, get_dim, ps_defaults
-from src.configs.load_config import load_config
-from src.constants import K_LOGS, FIGURE_PATH
-
-
-def get_default_setup() -> ModelSetup:
-    """Return the default run setup to get the data."""
-    run_dir = str(K_LOGS / "k_days_10")
-    cfg = load_config(test=False)
-    setup = ModelSetup(run_dir, cfg, make_move=False)
-    return setup
+from src.constants import FIGURE_PATH
 
 
 @timeit
@@ -63,7 +54,7 @@ def prcp_quiver_plot(
         0.85,
         0.18,
         1,
-        r"  $1$ m s$^{-1}$" + "\n" + r" $\vec{u}$",
+        r"  $1$ m s$^{-1}$" + "\n" + r" $\Delta \vec{u}$",
         labelpos="S",
         coordinates="figure",
     )

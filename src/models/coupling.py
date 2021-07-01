@@ -17,6 +17,7 @@ from src.models.atmos import Atmos
 from src.models.ocean import Ocean
 from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
 from src.visualisation.ani import animate_coupling
+from src.visualisation.quiver import prcp_quiver_plot
 
 
 # pylint: disable=no-value-for-parameter
@@ -286,6 +287,8 @@ class Coupling:
     def run(self) -> None:
         """
         Run coupling.
+
+        TODO: is this the right way to couple?
         """
         print("setting up spin up run")
 
@@ -323,6 +326,7 @@ class Coupling:
 
         # set up.
         if self.cfg.animate:
+            prcp_quiver_plot(self.setup, save_path=self.setup.prcp_quiver_plot())
             self.ocean.animate_all()
             animate_coupling(self.setup)
             animate_coupling(self.setup, pac=True)
@@ -343,8 +347,17 @@ class Coupling:
                         ),
                         "final_nino_graph": wandb.Image(
                             self.setup.nino_png(it),
-                            caption=str("Final Nino region anomalies"
-                            + " over the 58 year trends"),
+                            caption=str(
+                                "Final Nino region anomalies"
+                                + " over the 58 year trends"
+                            ),
+                        ),
+                        "prcp_quiver_plot": wandb.Image(
+                            self.setup.prcp_quiver_plot(),
+                            caption=str(
+                                "Change in precipitation and surface wind"
+                                + " over the 58 years."
+                            ),
                         ),
                     }
                 )
