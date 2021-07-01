@@ -1,4 +1,4 @@
-# src/configs/sensitivity.yaml
+# src/configs/sens_ranges.yaml
 # a file to contain the parameters to sweep through and their ranges
 coup.c_d:
  - 1.0e-3

@@ -47,7 +47,7 @@ def main(cfg: DictConfig) -> None:
 
 def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
     """
-    Subsection of main to run from a unit test.
+    Subsection of main to run from a unit test or a sensitivity search.
 
     Args:
         cfg (DictConfig): The config from whichever method.

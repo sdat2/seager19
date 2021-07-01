@@ -109,24 +109,32 @@ def k_plots(show_plots: bool = False) -> None:
 
 def eps_plots(show_plots: bool = False) -> None:
     """
-    Generate the k sensitivity plots.
+    Generate the eps sensitivity plots.
 
-    Currently I'm cutting off all results with more than 2 days.
+    Currently I'm cutting off all results with more than 2.25 days.
     """
 
     for reg in SEL_DICT:
 
-        metric_d = metric_conv_data(
+        metric_d1 = metric_conv_data(
             metric_name="trend_nino3",
             prefix="days_",
-            ex_list=["k_days_", "days_10", "days_5", "days_3"],
+            ex_list=["eps_days", "k_days_", "days_10", "days_5", "days_3"],
             index_by=("atm", "eps_days"),
         )
+
+        metric_d2 = metric_conv_data(
+            metric_name="trend_nino3",
+            prefix="eps_days_",
+            ex_list=["days_3"],
+            index_by=("atm", "eps_days"),
+        )
+        metric_d = {**metric_d1, **metric_d2}
 
         pair_list = []
         # pylint: disable=condider-using-dict-items
         for val in metric_d:
-            if val <= 2:
+            if val <= 2.3:
                 pair_list.append([val, float(metric_d[val][5, 1])])
 
         pair_npa = np.array(pair_list)
@@ -445,9 +453,9 @@ def nummode_plots(show_plots: bool = False) -> None:
 
 if __name__ == "__main__":
     # python src/visualisation/sensitivity.py
-    # eps_plots()
+    eps_plots()
     # eps_heatmaps()
-    k_plots()
+    # k_plots()
     # cd_plots()
     # nummode_plots()
     # cd_heatmaps()

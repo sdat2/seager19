@@ -91,7 +91,7 @@ EPS_LOGS = GWS_DIR / "sensitivity" / "eps_days_logs"
 #    LOG_PATH = GWS_DIR / "logs"
 # else:
 LOG_PATH = PROJECT_PATH / "logs"
-FIN_LOG_PATH = K_LOGS  # EPS_LOGS
+FIN_LOG_PATH = EPS_LOGS #  K_LOGS  # EPS_LOGS
 # LOG_PATH = PROJECT_PATH / "k_days_logs"
 
 if not os.path.exists(str(LOG_PATH)):
