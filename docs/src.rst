@@ -48,6 +48,14 @@ src.plot\_utils module
    :undoc-members:
    :show-inheritance:
 
+src.search module
+-----------------
+
+.. automodule:: src.search
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.utils module
 ----------------
 
