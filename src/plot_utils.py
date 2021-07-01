@@ -383,8 +383,12 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
 
     # collate the variables into a smaller number
     map_d = {
-        "u": "v",
-        "v": "v",
+        "rain": "rain",
+        "ranom": "tarn",
+        "tarn": "tarn",
+        "u": "speed",
+        "v": "speed",
+        "speed": "speed",
         "sst": "sst",
         "salt": "sss",
         "sss": "haline",
@@ -394,9 +398,11 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
 
     # map to cmocean colormaps
     cmap_map_d = {
+        "rain": cmocean.cm.rain,
+        "tarn": cmocean.cm.tarn,
         "sst": cmocean.cm.thermal,
         "haline": cmocean.cm.haline,
-        "v": cmocean.cm.speed,
+        "speed": cmocean.cm.speed,
         "delta": cmocean.cm.balance,
     }
 

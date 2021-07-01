@@ -220,7 +220,7 @@ def clip(da: xr.DataArray, pac: bool = True, mask_land: bool = True) -> xr.DataA
     mask = open_dataset(MASK).mask
     mask = rem_var(mask)
     da = fix_calendar(da.rename("unknown"))
-    da = rem_var(da)
+    da = add_units(rem_var(da))
     if pac and not mask_land:
         return sel(da)
     elif pac and mask_land:
