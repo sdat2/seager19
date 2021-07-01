@@ -37,6 +37,7 @@ ATMOS_PATH = PROJECT_PATH / "atmos"
 ATMOS_DATA_PATH = ATMOS_PATH / "DATA"
 ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
 GIF_PATH = PROJECT_PATH / "gifs"
+MASK = OCEAN_DATA_PATH / "om_mask.nc"
 
 # General data from e.g. paper or cmip etc.
 DATA_PATH = SRC_PATH / "data"

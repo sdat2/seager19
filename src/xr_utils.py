@@ -5,7 +5,7 @@ from typing import Union, Tuple, Optional, Literal
 import xarray as xr
 from uncertainties import ufloat
 from src.plot_utils import add_units
-from src.constants import SEL_DICT
+from src.constants import SEL_DICT, MASK
 
 
 def fix_calendar(
@@ -44,7 +44,7 @@ def fix_calendar(
                 if ds[t_dim].attrs["calendar"] == "360":
                     ds[t_dim].attrs["calendar"] = "360_day"
 
-    # decode
+    # decode times into normal datetime
     ds = xr.decode_cf(ds)
 
     # transform back into original type
@@ -197,6 +197,45 @@ def sel(
     )
 
 
+def rem_var(da1: xr.DataArray) -> xr.DataArray:
+    """remove the 'variable' from a dataarray"""
+    if "variable" in da1.dims:
+        da1 = da1.isel(variable=0).drop("variable")
+    return da1
+
+
+def clip(da: xr.DataArray, pac: bool = True, mask_land: bool = True) -> xr.DataArray:
+    """
+    Clip a datarray to the pacific using sel, and mask the land.
+
+    Args:
+        da (xr.DataArray): The datarray to pass in.
+        pac (bool, optional): Whether to focus on pacific. Defaults to True.
+        mask_land (bool, optional): Whether to nan out land. Defaults to True.
+
+    Returns:
+        xr.DataArray: da with those operations applied to it.
+    """
+
+    mask = open_dataset(MASK).mask
+    mask = rem_var(mask)
+    da = fix_calendar(da.rename("unknown"))
+    da = rem_var(da)
+    if pac and not mask_land:
+        return sel(da)
+    elif pac and mask_land:
+        try:
+            return sel(da).where(sel(mask) != 0.0)
+            # pylint: disable=bare-except
+        except:
+            print(da, type(da), mask)
+            return sel(da)
+    elif not pac and mask_land:
+        return da.where(mask != 0.0)  # may not work if they have different grids.
+    else:
+        return da
+
+
 def open_dataset(
     path: Union[str, pathlib.Path], use_can_coords: bool = False
 ) -> xr.Dataset:
@@ -220,7 +259,7 @@ def open_dataset(
         can_coords(fix_calendar(xr.open_dataset(str(path), decode_times=False)))
 
 
-def open_dataarray(path: Union[str, pathlib.Path], rem_var=False) -> xr.DataArray:
+def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
     """
     Open an xarray dataarray and format it.
 
@@ -234,11 +273,7 @@ def open_dataarray(path: Union[str, pathlib.Path], rem_var=False) -> xr.DataArra
     Returns:
         xr.DataArray: The formatted datarray.
     """
-    da = fix_calendar(can_coords(xr.open_dataarray(str(path), decode_times=False)))
-    if rem_var:
-        if "variable" in da.dims:
-            da = da.isel(variable=0).drop("variable")
-    return da
+    return fix_calendar(can_coords(xr.open_dataarray(str(path), decode_times=False)))
 
 
 def cut_and_taper(
