@@ -212,6 +212,10 @@ and so you may need to try a different connection method if it doesn't load.
 
     python src/main.py name=cd_1.0 coup.c_d=1.0e-3
 
+    # testing a different set of param to replicate paper
+
+    python src/main.py archive_dir=/gws/nopw/j04/ai4er/users/sdat2/uc_logs name=pap_2 wandb=false coup.iterations=1 atm.e_frac=0.5 animate=false ocean.ingrid=false
+
 ```
 
 ## Other handy commands for development of repo
