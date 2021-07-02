@@ -135,6 +135,7 @@ def metric_conv_data(
         "cd_norm",
         "nummode",
     ],
+    control_variable_list=[(("atm", "k_days"), 10)],
     index_by: tuple = ("coup", "c_d"),
 ) -> dict:
     """
@@ -150,6 +151,17 @@ def metric_conv_data(
     """
     api = wandb.Api()
     # Project is specified by <entity/project-name>
+
+    def check_controls(config):
+        truth_list = []
+        for i in control_variable_list:
+            print(i)
+            print([i[0][0], i[0][1]])
+            # pylint: disable=eval-used
+            af = eval(config[i[0][0]])[i[0][1]]
+            print(af, i[1], af == i[1])
+            truth_list.append(af == i[1])
+        return np.all(truth_list)
 
     runs = api.runs("sdat2/seager19")
     metric_dict = {}
@@ -171,15 +183,17 @@ def metric_conv_data(
             # enforce needing 6 iterations.
             if len(pair_list) == 6:
                 # pylint: disable=eval-used
-                metric_dict[eval(config[index_by[0]])[index_by[1]]] = np.array(
-                    pair_list
-                )
+                if check_controls(config):
+                    metric_dict[eval(config[index_by[0]])[index_by[1]]] = np.array(
+                        pair_list
+                    )
 
     return metric_dict
 
 
 if __name__ == "__main__":
     # python src/wandb_utils.py
+    # add control variables
     print(metric_conv_data())
     print(
         metric_conv_data(
@@ -192,6 +206,7 @@ if __name__ == "__main__":
     metric_d = metric_conv_data(
         metric_name="trend_nino3.4",
         prefix="k_days_",
+        control_variable_list=[(("atm", "eps_days"), 0.75)],
         index_by=("atm", "k_days"),
     )
     # pylint: disable=condider-using-dict-items
