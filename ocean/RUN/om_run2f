@@ -17,6 +17,10 @@
  +Ekman_forc           1
  +f1prime        -0.006
 
+% +f1prime -0.0021
+% -0.0019407371673551303 # a=0.4
+% -0.0023332458079438085 # a=0.8
+
  +SST_file      'DATA/sst-ECMWF-clim.nc'
  +QFLX_file     'DATA/qflx.nc'
  +dQdT_file     'DATA/dQdT-sample.nc'

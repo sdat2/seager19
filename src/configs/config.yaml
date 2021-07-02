@@ -45,7 +45,7 @@ oc:
   # editing of hcut and tcut currently disabled just in case.
   hcut: 5
   tcut: 14.6
-  f1prime: -0.006
+  f1prime: -0.0021
 coup:
   c_d: 2.25e-3    # dimensionless?,  wind stress.
   # breaks ocean model by the time you get to 3.5e0, but probably before.
