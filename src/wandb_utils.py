@@ -135,7 +135,7 @@ def metric_conv_data(
         "cd_norm",
         "nummode",
     ],
-    control_variable_list=[(("atm", "k_days"), 10)],
+    control_variable_list=[(("atm", "k_days"), 10), (("atm", "e_frac"), 2)],
     index_by: tuple = ("coup", "c_d"),
 ) -> dict:
     """
@@ -200,14 +200,43 @@ if __name__ == "__main__":
             metric_name="trend_nino3",
             prefix="days_",
             ex_list=["k_days_", "days_10", "days_5", "days_3"],
+            control_variable_list=[
+            (("atm", "k_days"), 10),
+            (("coup", "c_d"), 2.25e-3),
+            (("atm", "e_frac"), 2),
+        ],
             index_by=("atm", "eps_days"),
         )
     )
     metric_d = metric_conv_data(
         metric_name="trend_nino3.4",
         prefix="k_days_",
-        control_variable_list=[(("atm", "eps_days"), 0.75)],
+        control_variable_list=[
+            (("atm", "eps_days"), 0.75),
+            (("atm", "e_frac"), 2),
+            (("coup", "c_d"), 2.25e-3),
+        ],
         index_by=("atm", "k_days"),
+    )
+    metric_d = metric_conv_data(
+        metric_name="trend_nino3.4",
+        prefix="cd_",
+        control_variable_list=[
+            (("atm", "k_days"), 10),
+            (("atm", "e_frac"), 2),
+            (("atm", "eps_days"), 0.75),
+        ],
+        index_by=("atm", "e_frac"),
+    )
+    metric_d = metric_conv_data(
+        metric_name="trend_nino3.4",
+        prefix="k_days_",
+        control_variable_list=[
+            (("atm", "k_days"), 10),
+            (("coup", "c_d"), 2.25e-3),
+            (("atm", "eps_days"), 0.75),
+        ],
+        index_by=("atm", "e_frac"),
     )
     # pylint: disable=condider-using-dict-items
     for val in metric_d:
