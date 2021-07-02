@@ -16,7 +16,6 @@ from omegaconf import DictConfig
 from src.constants import (
     CONFIG_PATH,
     CONFIG_NAME,
-    FIN_LOG_PATH,
     FILES_TO_DELETE,
     run_path,
 )
