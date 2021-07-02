@@ -640,6 +640,7 @@ class Atmos:
         )
         dk = -self.atm.eps_u * d_q + 1.0j * km[np.newaxis, :] * a_f_q
 
+        # find tdma using it
         vtk = self.tdma_solver(self.atm.ny - 2, ak, bk, ck, dk)
 
         z = np.zeros((1, self.atm.nx))
@@ -801,9 +802,11 @@ class Atmos:
         ds["prTrend"] = self.smooth121(ds.prTrend, ["Yu", "X"], perdims=["X"])
 
         # save a picture of the trend
-        ds.prTrend.plot()
-        plt.savefig(os.path.join(self.setup.atmos_path, "prTrend.png"))
-        plt.clf()
+        do_plot = False
+        if do_plot:
+            ds.prTrend.plot()
+            plt.savefig(os.path.join(self.setup.atmos_path, "prTrend.png"))
+            plt.clf()
 
         dsmask = xr.open_dataset(
             os.path.join(self.setup.atmos_data_path, "mask-360x180.nc")
@@ -820,8 +823,10 @@ class Atmos:
         w_beg = wnsp_clim
 
         # ts trend only appplied where not masked?
+        # this is the vital part where the differences are added/subracted
         ts_end = (ds.tsClim + (1 - mask) * ds.tsTrend / 2).values
         ts_beg = (ds.tsClim - (1 - mask) * ds.tsTrend / 2).values
+        # only used for land?
         pr_end = (ds.prClim + ds.prTrend / 2).values
         pr_beg = (ds.prClim - ds.prTrend / 2).values
 
@@ -836,25 +841,26 @@ class Atmos:
         qa_end = self.f_qa(ts_end, sp_clim)
         # qa_end = f_qa2(ts_end)
         e_end = self.f_evap(mask, qa_end, wnsp_clim)
-        pr_end = e_end
-        pr_end[pr_end < 0] = 0
+        pr_c_end = e_end
+        pr_c_end[pr_c_end < 0] = 0
         # pr_end[pr_end>pr_max] = pr_max
 
         qa_beg = self.f_qa(ts_beg, sp_clim)
         # qa_beg = f_qa2(ts_beg)
         e_beg = self.f_evap(mask, qa_beg, wnsp_clim)
-        pr_beg = e_beg
-        pr_beg[pr_beg < 0] = 0
+        # precipitation is initially the same as evaporation
+        pr_c_beg = e_beg  # precipation had already been defined.
+        pr_c_beg[pr_c_beg < 0] = 0
         # pr_beg[pr_beg>pr_max] = pr_max
 
-        def iterate(q_th, pr, e1, qa1) -> Tuple[np.ndarray]:
+        def iterate(q_th, pr_c, e1, qa1, pr) -> Tuple[np.ndarray]:
             # Find total pr, u and v at end
             for _ in range(0, self.atm.number_iterations):
                 # Start main calculation
                 q_c = (
                     np.pi
                     * self.atm.latent_heat_vap
-                    * pr
+                    * pr_c
                     / (
                         2
                         * self.atm.cp_air
@@ -870,30 +876,33 @@ class Atmos:
                 d_amc = xr.DataArray(self.f_mc(qa1, u1, v1), dims=["Yu", "X"])
                 mc1 = self.smooth121(d_amc, ["Yu", "X"], perdims=["X"]).values
                 if self.atm.prcp_land:
-                    pr = (1 - mask) * (mc1 + e1) + mask * pr_end
+                    pr_c = (1 - mask) * (mc1 + e1) + mask * pr
                 else:
-                    pr = (1 - mask) * (mc1 + e1)
-                pr[pr < 0] = 0
+                    pr_c = (1 - mask) * (mc1 + e1)
+                pr_c[pr_c < 0] = 0
                 # pr[pr > pr_max] = pr_max
-            return mc1, u1, v1, phi1, pr
+            return mc1, u1, v1, phi1, pr_c
 
-        mc_end, u_end, v_end, phi_end, pr_beg = iterate(q_th_end, pr_end, e_end, qa_end)
-
-        mc_beg, u_beg, v_beg, phi_beg, pr_beg = iterate(q_th_beg, pr_beg, e_beg, qa_beg)
+        mc_beg, u_beg, v_beg, phi_beg, pr_c_beg = iterate(
+            q_th_beg, pr_c_beg, e_beg, qa_beg, pr_beg
+        )
+        mc_end, u_end, v_end, phi_end, pr_c_end = iterate(
+            q_th_end, pr_c_end, e_end, qa_end, pr_end
+        )
 
         # save and plot the trends
         ds["utrend"] = (["Yu", "X"], u_end - u_beg)
         ds["vtrend"] = (["Yv", "X"], v_end - v_beg)
         ds["phitrend"] = (["Yu", "X"], phi_end - phi_beg)
         ds["tstrend"] = (["Yu", "X"], ts_end - ts_beg)
-        ds["PRtrend"] = (["Yu", "X"], pr_end - pr_beg)
+        ds["PRtrend"] = (["Yu", "X"], pr_c_end - pr_c_beg)
         ds["Qthtrend"] = (["Yu", "X"], q_th_end - q_th_beg)
         ds["uend"] = (["Yu", "X"], u_end)  # u at end
         ds["vend"] = (["Yv", "X"], v_end)  # v at end.
         ds["wend"] = (["Yu", "X"], w_end)
         ds["phiend"] = (["Yu", "X"], phi_end)
         ds["tsend"] = (["Yu", "X"], ts_end)
-        ds["PRend"] = (["Yu", "X"], pr_end)
+        ds["PRend"] = (["Yu", "X"], pr_c_end)
         ds["Qthend"] = (["Yu", "X"], q_th_end)
         ds["Eend"] = (["Yu", "X"], e_end)
         ds["MCend"] = (["Yu", "X"], mc_end)
@@ -903,7 +912,7 @@ class Atmos:
         ds["wbeg"] = (["Yu", "X"], w_beg)
         ds["phibeg"] = (["Yu", "X"], phi_beg)
         ds["tsbeg"] = (["Yu", "X"], ts_beg)
-        ds["PRbeg"] = (["Yu", "X"], pr_beg)
+        ds["PRbeg"] = (["Yu", "X"], pr_c_beg)
         ds["Qthbeg"] = (["Yu", "X"], q_th_beg)
         ds["Ebeg"] = (["Yu", "X"], e_beg)
         ds["MCbeg"] = (["Yu", "X"], mc_beg)
@@ -914,21 +923,25 @@ class Atmos:
             ds.phitrend, ["X"], number_smooths=1, perdims=["X"]
         )
 
-        # next ds
-        ds_subset = ds.sel(X=slice(120, 290), Yu=slice(-40, 40))
-        plt.figure(figsize=(8, 5))
-        plt.subplot(311)
-        ds_subset.utrend.plot(cmap="RdBu_r")
-        plt.subplot(312)
-        ds_subset.vtrend.plot(cmap="RdBu_r")
-        plt.subplot(313)
-        ds_subset.PRtrend.plot(cmap="RdBu_r")
-        plt.savefig(
-            os.path.join(self.setup.atmos_path, "S90-H2000-Stab.eps"),
-            format="eps",
-            dpi=1000,
-        )
-        plt.clf()
+        do_plot = False
+
+        if do_plot:
+
+            # next ds
+            ds_subset = ds.sel(X=slice(120, 290), Yu=slice(-40, 40))
+            plt.figure(figsize=(8, 5))
+            plt.subplot(311)
+            ds_subset.utrend.plot(cmap="RdBu_r")
+            plt.subplot(312)
+            ds_subset.vtrend.plot(cmap="RdBu_r")
+            plt.subplot(313)
+            ds_subset.PRtrend.plot(cmap="RdBu_r")
+            plt.savefig(
+                os.path.join(self.setup.atmos_path, "S90-H2000-Stab.eps"),
+                format="eps",
+                dpi=1000,
+            )
+            plt.clf()
 
         # adding units.
 

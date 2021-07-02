@@ -216,6 +216,8 @@ and so you may need to try a different connection method if it doesn't load.
 
     python src/main.py archive_dir=/gws/nopw/j04/ai4er/users/sdat2/uc_logs name=pap_2 wandb=false coup.iterations=1 atm.e_frac=0.5 animate=false ocean.ingrid=false
 
+    python src/main.py archive_dir=/gws/nopw/j04/ai4er/users/sdat2/uc_logs name=efrac2 wandb=false coup.iterations=1 atm.e_frac=2 animate=false ocean.ingrid=false
+
 ```
 
 ## Other handy commands for development of repo
