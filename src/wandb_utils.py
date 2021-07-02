@@ -201,10 +201,10 @@ if __name__ == "__main__":
             prefix="days_",
             ex_list=["k_days_", "days_10", "days_5", "days_3"],
             control_variable_list=[
-            (("atm", "k_days"), 10),
-            (("coup", "c_d"), 2.25e-3),
-            (("atm", "e_frac"), 2),
-        ],
+                (("atm", "k_days"), 10),
+                (("coup", "c_d"), 2.25e-3),
+                (("atm", "e_frac"), 2),
+            ],
             index_by=("atm", "eps_days"),
         )
     )
@@ -240,4 +240,4 @@ if __name__ == "__main__":
     )
     # pylint: disable=condider-using-dict-items
     for val in metric_d:
-        print(val, float(metric_d[val][5, 1]))
+        print(val, "\t", float(metric_d[val][5, 1]))
