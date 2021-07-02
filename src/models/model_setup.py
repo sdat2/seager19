@@ -293,4 +293,8 @@ class ModelSetup:
         return os.path.join(self.gif_path, name + ".gif")
 
     def prcp_quiver_plot(self) -> str:
-        return os.path.join(self.plot_name, "prcp_quiver.png")
+        return os.path.join(self.plot_path, "prcp_quiver.png")
+
+    def tuq_trend_plot(self) -> str:
+        return os.path.join(self.plot_path, "tuq_trends.png")
+

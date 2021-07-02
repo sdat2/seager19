@@ -18,6 +18,7 @@ from src.models.ocean import Ocean
 from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
 from src.visualisation.ani import animate_coupling
 from src.visualisation.quiver import prcp_quiver_plot
+from src.visualisation.trends import up_therm_qnet
 
 
 # pylint: disable=no-value-for-parameter
@@ -326,6 +327,7 @@ class Coupling:
 
         # set up.
         if self.cfg.animate:
+            up_therm_qnet(self.setup, save_path=self.setup.tuq_trend_plot())
             prcp_quiver_plot(self.setup, save_path=self.setup.prcp_quiver_plot())
             self.ocean.animate_all()
             animate_coupling(self.setup)
@@ -357,6 +359,12 @@ class Coupling:
                             caption=str(
                                 "Change in precipitation and surface wind"
                                 + " over the 58 years."
+                            ),
+                        ),
+                        "tuq_trend_plot": wandb.Image(
+                            self.setup.tuq_trend_plot(),
+                            caption=str(
+                                "Change in thermocline, upwelling and net heat flux."
                             ),
                         ),
                     }

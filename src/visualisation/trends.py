@@ -33,7 +33,7 @@ def up_therm_qnet(
     clip(get_trend(can_coords(ds.SST_QNET))).plot(ax=axs[2], cmap=cmap("delta"))
     axs[2].set_title(r"$\Delta$ Net surface heat flux over 58 years [W m$^{-2}$]")
     clip(get_trend(can_coords(ds.SST_W1))).plot(ax=axs[1], cmap=cmap("delta"))
-    axs[1].set_title("$\Delta$ Upwelling over 58 years [m s$^{-1}$]")
+    axs[1].set_title(r"$\Delta$ Upwelling over 58 years [m s$^{-1}$]")
     axs[1].set_xlabel("")
     label_subplots(axs, y_pos=1.25, x_pos=-0.15)
     plt.tight_layout()
