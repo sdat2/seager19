@@ -97,11 +97,10 @@ atm:
   eps_v: ${atm.eps} * ${atm.e_frac}
   # e_frac=1/2 in paper
   b_coeff: ${atm.gravity} * ${atm.pi} / ${atm.nbsq} / ${atm.theta_00} / ${atm.height_tropopause}
-  beta: ${atm.omega_2} / ${atm.radius_earth}
+  beta: ${atm.omega_2} / ${atm.radius_earth} # beta param for beta plane approx? scaled to really distance? not quite sure what the point of dividing by distance is.
   rho_air: 1.225  # kg m-3 - also called rho_00
   emmisivity: 0.97
-  p_s: 1000  # pressure at the surface?
-  # presumably in pascals
+  p_s: 1000  # pressure at the surface in pascals
   es_0: 6.11 # evaporation
   delta_temp: 1.0  # ΔT: 1 K
   f2: 0.05  # f2: 0.05
@@ -110,6 +109,10 @@ atm:
   # a_cloud_const[a_cloud_const<=28]: 80;
   # a_cloud_const: 0.01*a_cloud_const
   a_cloud_const: 0.6  # this isn't the option used in the paper.
+  vary_cloud_const: true # whether or not to use variable values instead.
+  dc_threshold_temp: 28 # above 28 degrees celsius we might get deep convection 
+  a_cloud_const_dc: 0.4   # this is for deep convection
+  a_cloud_const_norm: 0.8 # this is for nomral conditions
   # basic parameters
   f1_bar: 0.39  # f1 = 0.39
   # f'1  is the anomaly in f1—a parameter that can be adjusted

@@ -352,20 +352,44 @@ class Atmos:
             cloud_cover (Union[xr.DataArray, float]): the cloud cover, which could be
                 a constant or an array.
             f (float):
-            rh_loc (xr.DataArray): [description]
+            rh_loc (xr.DataArray): relative humidity?
 
         Returns:
             xr.DataArray: The first term of the long wave flux equation.
         """
         temp_a = self.f_temp_a(temperature)
+        if not self.atm.vary_cloud_const:
+            a_cloud_const = self.atm.a_cloud_const
+        else:
+            a_cloud_const = self.get_cloud_const(temp_a)
+
         return (
             self.atm.qlw_coeff
-            * (1 - self.atm.a_cloud_const * cloud_cover ** 2)
+            * (1 - a_cloud_const * cloud_cover ** 2)
             # bar(Ts)^4
             * temp_a ** 4
             * (f - self.atm.f2 * np.sqrt(self.f_ebar(temperature, rh_loc)))
             # f1'
         )
+
+    def get_cloud_const(self, temperature: xr.DataArray) -> xr.DataArray:
+        """
+        Function to produce variable cloud constant using temperature.
+
+        Args:
+            temperature (xr.DataArray): temperature in degrees celsius
+
+        Returns:
+            xr.DataArray: The a constant. Normally 0.5 or 0.8
+        """
+        cloud_const_da = temperature.copy()
+        cloud_const_da[
+            temperature >= self.atm.dc_threshold_temp
+        ] = self.atm.a_cloud_const_dc
+        cloud_const_da[
+            temperature < self.atm.dc_threshold_temp
+        ] = self.atm.a_cloud_const_norm
+        return cloud_const_da
 
     @typechecked
     def f_qlw2(self, temperature: xr.DataArray) -> xr.DataArray:
@@ -420,9 +444,13 @@ class Atmos:
         Returns:
             xr.DataArray: flux dqlw_df.
         """
+        if not self.atm.vary_cloud_const:
+            a_cloud_const = self.atm.a_cloud_const
+        else:
+            a_cloud_const = self.get_cloud_const(temperature)
         return (
             self.atm.qlw_coeff
-            * (1 - self.atm.a_cloud_const * cloud_cover ** 2)
+            * (1 - a_cloud_const * cloud_cover ** 2)
             * temperature ** 4
         )
 
@@ -451,8 +479,12 @@ class Atmos:
         # q_a is the surface-specific humidity
         # q_s(Ts) is the saturation-specific humidity at the SST
         dqs_dtemp = self.f_dqs_dtemp(temperature)
+        if not self.atm.vary_cloud_const:
+            a_cloud_const = self.atm.a_cloud_const
+        else:
+            a_cloud_const = self.get_cloud_const(temperature)
         return self.atm.qlw_coeff * (
-            (1 - self.atm.a_cloud_const * cloud_cover ** 2)
+            (1 - a_cloud_const * cloud_cover ** 2)
             * temperature ** 3
             * (
                 4 * f
@@ -474,7 +506,11 @@ class Atmos:
 
         """
         e_fac = 0.622
-        e_s = self.atm.es_0 * np.exp(17.67 * (t_s - 273.15) / ((t_s - 273.15) + 243.5))
+        e_s = self.atm.es_0 * np.exp(
+            17.67
+            * (t_s - self.atm.temp_0_c)
+            / ((t_s - self.atm.temp_0_c) + self.atm.temp_0_c)
+        )
         return e_fac * self.atm.relative_humidity * e_s / s_p
 
     @typechecked
@@ -488,7 +524,7 @@ class Atmos:
             np.ndarray: q_s, surface specific humidity.
 
         """
-        return 0.001 * (temp_surface - 273.15 - 11.0)
+        return 0.001 * (temp_surface - self.atm.temp_0_c - 11.0)
 
     @typechecked
     def f_evap(self, mask: np.ndarray, q_a: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
