@@ -81,7 +81,7 @@ Citations:
    src
    OCEAN_README.md
    gallery.md
-   paper-fig.ipynb
+   seager-rep.ipynb
    dQ.ipynb
    TCAM.ipynb
    about
