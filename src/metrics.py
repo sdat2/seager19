@@ -221,6 +221,8 @@ def get_nino_trend(
         rise = get_trend(metric, uncertainty=True)
 
         nino_dict["trend_" + reg] = rise.n
+        nino_dict["trend_" + reg + "_unc"] = rise.s
+
         nino_dict["mean_" + reg] = metric.attrs["mean_state"]
 
         label = str(
@@ -301,12 +303,10 @@ def get_other_trends(
     setup: ModelSetup,
 ) -> dict:
     """
-    Get nino trend, mean, plot the graph.
+    Get trends in nino regions for other variables other than sst.
 
     Args:
-        path_of_run2f (str): path to the main output netcdf.
-        graph_path (str): path to output plot.
-        nc_path (str): path to output netcdf
+        setup (ModelSetup): the filespace object to find things using.
 
     Returns:
         dict: nino dict.
@@ -334,6 +334,7 @@ def get_other_trends(
             rise = get_trend(metric, uncertainty=True)
 
             nino_dict["trend_" + field + "_" + reg] = rise.n
+            nino_dict["trend_" + field + "_" + reg + "_unc"] = rise.s
             nino_dict["mean_" + field + "_" + reg] = metric.attrs["mean_state"]
 
             label = str(
@@ -351,6 +352,14 @@ def get_other_trends(
             metric_l.append(metric)
             clim_l.append(clim)
             reg_l.append(reg)
+
+    for field in ["PRtrend", "utrend", "vtrend"]:
+
+        tcam_output = can_coords(open_dataset(setup.tcam_output())[field])
+        for reg in reversed(sorted(SEL_DICT)):
+            nino_dict["trend_" + field + "_" + reg] = float(spatial_mean(
+                sel(tcam_output, reg=reg)
+            ).values)
 
     return nino_dict
 

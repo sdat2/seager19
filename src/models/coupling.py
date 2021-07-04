@@ -15,6 +15,7 @@ import wandb
 from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
+from src.metrics import get_nino_trend, get_other_trends
 from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
 from src.visualisation.ani import animate_coupling
 from src.visualisation.quiver import prcp_quiver_plot
@@ -285,6 +286,26 @@ class Coupling:
         # xr.testing.assert_allclose(sst_mean_final, sst_mean_old, atol=10)
         sst_mean_final.to_netcdf(self.setup.ts_clim(it))
 
+    def log(self, it: int) -> None:
+        """
+        Log the important information about the run.
+
+        Args:
+            it (int): Which iteration are we on?
+        """
+        print("logging")
+        d1 = get_nino_trend(
+            self.setup.om_run2f_nc(),
+            self.setup.nino_png(it),
+            self.setup.nino_nc(it),
+        )
+        d2 = get_other_trends(self.setup)
+        d3 = {**d1, **d2}
+        d3["it"] = it
+        d3["ocean_run"] = self.ocean.run_time
+        if self.cfg.wandb:
+            wandb.log(d3)
+
     def run(self) -> None:
         """
         Run coupling.
@@ -306,6 +327,7 @@ class Coupling:
             self.atmos.run_all()
 
         self.ocean.copy_old_io(0)
+        self.log(0)
 
         for it in range(1, self.coup.iterations):
             print(
@@ -321,6 +343,9 @@ class Coupling:
             if self.cfg.run:
                 self.ocean.run_all(it=it)
                 self.atmos.run_all(it=it)
+
+            # log wandb information
+            self.log(it)
 
             # copy old io.
             self.ocean.copy_old_io(it)

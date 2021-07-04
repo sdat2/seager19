@@ -7,12 +7,10 @@ import xarray as xr
 import logging
 from omegaconf import DictConfig
 from typeguard import typechecked
-import wandb
 from src.visualisation.ani import animate_ds, animate_qflx_diff
 from src.utils import timeit, hr_time
 from src.data_loading.ingrid import linear_qflx_replacement
 from src.models.model_setup import ModelSetup
-from src.metrics import get_nino_trend
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +49,7 @@ class Ocean:
         """
         self.setup = setup
         self.cfg = cfg
+        self.run_time = 0
 
     def compile_all(self) -> None:
         """Compile the Fortran/C."""
@@ -235,20 +234,10 @@ class Ocean:
             run_time = self.run(
                 "../SRC/" + self.cfg.ocean.tcom_name + " -i om_run2f -t om_run2f.tios"
             )
+            self.run_time = run_time  # is later accessed by log in coupling.
 
             self.run("../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_run2f")
             self.run("rm -rf output/om_run2f.data output/om_run2f.indx")
-
-            dict_nino_trend = get_nino_trend(
-                self.setup.om_run2f_nc(),
-                self.setup.nino_png(it),
-                self.setup.nino_nc(it),
-            )
-            dict_nino_trend["it"] = it
-            dict_nino_trend["ocean_run"] = run_time
-            if self.cfg.wandb:
-                # This will fail if wandb is not initialised
-                wandb.log(dict_nino_trend)
 
     @timeit
     def animate_all(self) -> None:
