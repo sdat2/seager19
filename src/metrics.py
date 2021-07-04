@@ -357,9 +357,9 @@ def get_other_trends(
 
         tcam_output = can_coords(open_dataset(setup.tcam_output())[field])
         for reg in reversed(sorted(SEL_DICT)):
-            nino_dict["trend_" + field + "_" + reg] = float(spatial_mean(
-                sel(tcam_output, reg=reg)
-            ).values)
+            nino_dict["trend_" + field + "_" + reg] = float(
+                spatial_mean(sel(tcam_output, reg=reg)).values
+            )
 
     return nino_dict
 
