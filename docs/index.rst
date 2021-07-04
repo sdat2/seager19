@@ -55,7 +55,7 @@ Here, we carry out a parameter sensitivity analysis of the S19 model. Of particu
 
 .. image:: gifs/om_diag_SST_SST.gif
   :width: 500
-  :alt: SST in setup period
+  :alt: SST in diag period 1956-58
 
 Scientific questions to be addressed include:
 

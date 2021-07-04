@@ -4,11 +4,11 @@
 # Usage example: python src/main.py --multirun oc.nummode=9,10 wandb=false
 project: seager19
 user: sdat2
-notes: sensitivity analysis of k_days
+notes: sensitivity analysis of e_frac
 animate: true # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
 # name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
-name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_efrac_${atm.e_frac}_c_d_${coup.c_d}
+name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_ingrid_${ocean.ingrid}
 # name: eps_days_${atm.eps_days}
 # python src/main.py --multirun atm.eps_days=1.35,1.45
 # python src/main.py --multirun atm.eps_days=0.35,0.45
@@ -17,7 +17,7 @@ test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
 archive: true # whether to move the run to the gws archive
-archive_dir: /gws/nopw/j04/ai4er/users/sdat2/sensitivity/eps_frac
+archive_dir: /gws/nopw/j04/ai4er/users/sdat2/sensitivity/all
 ocean:
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -37,7 +37,7 @@ oc:
   dq_df_file: dQdf-sample.nc
   sst_file: sst-ECMWF-clim.nc
   mask_file: om_mask.nc
-  # How long to run each part of the ocean model.s
+  # How long to run each part of the ocean model.
   time_test: 2 months # the time input to the tests.
   time_spin: 20 years # seems long - maybe check that this is the correct number to be quoting.
   time_diag: 2 years # This time period includes the period during which qflx is removed.
