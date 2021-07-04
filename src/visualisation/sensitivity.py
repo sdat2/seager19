@@ -73,7 +73,7 @@ def k_plots(show_plots: bool = False) -> None:
 
     for reg in SEL_DICT:
 
-        metric_d = metric_conv_data(
+        metric_d, _ = metric_conv_data(
             metric_name="trend_" + reg,
             prefix="k_days_",
             index_by=("atm", "k_days"),
@@ -116,14 +116,14 @@ def eps_plots(show_plots: bool = False) -> None:
 
     for reg in SEL_DICT:
 
-        metric_d1 = metric_conv_data(
+        metric_d1, _ = metric_conv_data(
             metric_name="trend_nino3",
             prefix="days_",
             ex_list=["eps_days", "k_days_", "days_10", "days_5", "days_3"],
             index_by=("atm", "eps_days"),
         )
 
-        metric_d2 = metric_conv_data(
+        metric_d2, _ = metric_conv_data(
             metric_name="trend_nino3",
             prefix="eps_days_",
             ex_list=["days_3"],

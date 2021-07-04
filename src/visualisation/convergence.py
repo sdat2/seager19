@@ -33,7 +33,7 @@ def metric_conv_plot(
     """
     ps_defaults(use_tex=False, dpi=200)
 
-    metric_dict = metric_conv_data(metric_name=metric_name)
+    metric_dict, _ = metric_conv_data(metric_name=metric_name)
 
     for cd in sorted(metric_dict):
         plt.plot(

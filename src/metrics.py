@@ -10,6 +10,7 @@ from src.constants import (
     SEL_DICT,
     FIGURE_PATH,
     CD_LOGS,
+    EPS_FRAC_LOGS,
 )
 from src.xr_utils import (
     open_dataarray,
@@ -24,7 +25,7 @@ from src.xr_utils import (
 from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots, cmap
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
-
+from src.utils import timeit
 
 def nino_calculate(
     sst: xr.DataArray, reg: str = "nino3.4", roll_period: int = 3
@@ -292,10 +293,64 @@ def get_nino_trend(
 
         return nino_dict
 
+@timeit
+def get_other_trends(
+    setup: ModelSetup,
+) -> dict:
+    """
+    Get nino trend, mean, plot the graph.
 
-if __name__ == "__main__":
-    # python src/metrics.py
+    Args:
+        path_of_run2f (str): path to the main output netcdf.
+        graph_path (str): path to output plot.
+        nc_path (str): path to output netcdf
 
+    Returns:
+        dict: nino dict.
+    """
+    plt.clf()
+    nino_dict = dict()
+
+    for field in ["TDEEP_HMODEL", "SST_QNET", "SST_W1"]:
+
+        output = can_coords(open_dataset(setup.om_run2f_nc())[field])
+        output = output.where(output != 0.0)
+
+        metric_l = list()
+        clim_l = list()
+        reg_l = list()
+
+        for reg in reversed(sorted(SEL_DICT)):
+            print(reg, field)
+
+            metric, clim = nino_calculate(output, reg=reg)
+            metric.attrs["long_name"] = "3 month rolling average SST anomaly"
+            clim.attrs["long_name"] = clim.attrs["long_name"][0:29]
+            # metric.plot(label=metric.attrs["reg"])
+
+            rise = get_trend(metric, uncertainty=True)
+
+            nino_dict["trend_" + field + "_" + reg] = rise.n
+            nino_dict["mean_" + field + "_" + reg] = metric.attrs["mean_state"]
+
+            label = str(
+                metric.attrs["reg"] + " " + field
+                # + "\n"
+                + r" $\Delta = $"
+                # + "\n"
+                "${:.2L}$".format(rise)
+                # + tex_uf(rise)
+            )
+            print(label)
+
+            metric_l.append(metric)
+            clim_l.append(clim)
+            reg_l.append(reg)
+
+    return nino_dict
+
+
+def make_plots() -> None:
     cfg = load_config()
 
     setup = ModelSetup(
@@ -344,3 +399,17 @@ if __name__ == "__main__":
         str(FIGURE_PATH / "nino_noaa_trend.pdf"),
         str(DATA_PATH / "noaa_trend.nc"),
     )
+
+
+if __name__ == "__main__":
+    # python src/metrics.py
+    import os
+
+    print(os.listdir(EPS_FRAC_LOGS))
+    cfg = load_config()
+    stp = ModelSetup(
+        str(EPS_FRAC_LOGS / "k_days_10_eps_days_0.75_efrac_0.25_c_d_0.00225"),
+        cfg,
+        make_move=False,
+    )
+    print(get_other_trends(stp))
