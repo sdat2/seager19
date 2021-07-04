@@ -241,7 +241,7 @@ class Atmos:
         Returns:
             xr.DataArray: Flux q_s.
         """
-        return 0.622 * self.f_es(temperature) / self.atm.p_s
+        return self.atm.e_fac * self.f_es(temperature) / self.atm.p_s
 
     @typechecked
     def f_dqs_dtemp(self, temperature: xr.DataArray) -> xr.DataArray:
@@ -331,7 +331,7 @@ class Atmos:
         q_a = rh_loc * self.f_qs(temperature)
 
         # q_a is the surface-specific humidity
-        return q_a * self.atm.p_s / 0.622
+        return q_a * self.atm.p_s / self.atm.e_fac
 
     # ------------ heat flux functions:
 
@@ -507,13 +507,12 @@ class Atmos:
             np.ndarray: q_a, surface specific humidity.
 
         """
-        e_fac = 0.622
         e_s = self.atm.es_0 * np.exp(
             17.67
             * (t_s - self.atm.temp_0_c)
             / ((t_s - self.atm.temp_0_c) + self.atm.temp_0_c)
         )
-        return e_fac * self.atm.relative_humidity * e_s / s_p
+        return self.atm.e_fac * self.atm.relative_humidity * e_s / s_p
 
     @typechecked
     def f_qa2(self, temp_surface: np.ndarray) -> np.ndarray:
@@ -891,7 +890,20 @@ class Atmos:
         pr_c_beg[pr_c_beg < 0] = 0
         # pr_beg[pr_beg>pr_max] = pr_max
 
-        def iterate(q_th, pr_c, e1, qa1, pr) -> Tuple[np.ndarray]:
+        def iterate(pr, pr_c, q_th, e1, qa1) -> Tuple[np.ndarray]:
+            """
+            Iterate through.
+
+            Args:
+                pr ([type]): precipitation default.
+                pr_c ([type]): new precipation.
+                q_th ([type]): q th.
+                e1 ([type]): evaporation.
+                qa1 ([type]): heat flux.
+
+            Returns:
+                Tuple[np.ndarray]: pr_c, u1, v1, phi1, mc1
+            """
             # Find total pr, u and v at end
             for _ in range(0, self.atm.number_iterations):
                 # Start main calculation
@@ -919,13 +931,25 @@ class Atmos:
                     pr_c = (1 - mask) * (mc1 + e1)
                 pr_c[pr_c < 0] = 0
                 # pr[pr > pr_max] = pr_max
-            return mc1, u1, v1, phi1, pr_c
+            return pr_c, u1, v1, phi1, mc1
 
-        mc_beg, u_beg, v_beg, phi_beg, pr_c_beg = iterate(
-            q_th_beg, pr_c_beg, e_beg, qa_beg, pr_beg
+        # pr, pr_c, q_th, e1, qa1
+        # pr_c, u1, v1, phi1, mc1
+
+        pr_c_end, u_end, v_end, phi_end, mc_end = iterate(
+            pr_end,
+            pr_c_end,
+            q_th_end,
+            e_end,
+            qa_end,
         )
-        mc_end, u_end, v_end, phi_end, pr_c_end = iterate(
-            q_th_end, pr_c_end, e_end, qa_end, pr_end
+
+        pr_c_beg, u_beg, v_beg, phi_beg, mc_beg = iterate(
+            pr_beg,
+            pr_c_beg,
+            q_th_beg,
+            e_beg,
+            qa_beg,
         )
 
         # save and plot the trends
