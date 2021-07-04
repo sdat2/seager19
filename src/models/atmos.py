@@ -376,6 +376,8 @@ class Atmos:
         """
         Function to produce variable cloud constant using temperature.
 
+        TODO: currently blows up the model.
+
         Args:
             temperature (xr.DataArray): temperature in degrees celsius
 
