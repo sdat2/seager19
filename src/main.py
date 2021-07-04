@@ -9,6 +9,7 @@ Example:
        python3 src/main.py name=test26
 
 """
+import os
 import shutil
 import wandb
 import hydra
@@ -72,6 +73,8 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
 
         @timeit
         def archive() -> None:
+            if not os.path.exists(cfg.archive_dir):
+                os.mkdir(cfg.archive_dir)
             try:
                 shutil.move(
                     run_p,

@@ -1,4 +1,5 @@
 """Different metrics to calculate."""
+import os
 from typing import Tuple
 import matplotlib.pyplot as plt
 import matplotlib
@@ -26,6 +27,7 @@ from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots, cmap
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
 from src.utils import timeit
+
 
 def nino_calculate(
     sst: xr.DataArray, reg: str = "nino3.4", roll_period: int = 3
@@ -293,6 +295,7 @@ def get_nino_trend(
 
         return nino_dict
 
+
 @timeit
 def get_other_trends(
     setup: ModelSetup,
@@ -334,7 +337,9 @@ def get_other_trends(
             nino_dict["mean_" + field + "_" + reg] = metric.attrs["mean_state"]
 
             label = str(
-                metric.attrs["reg"] + " " + field
+                metric.attrs["reg"]
+                + " "
+                + field
                 # + "\n"
                 + r" $\Delta = $"
                 # + "\n"
@@ -351,6 +356,9 @@ def get_other_trends(
 
 
 def make_plots() -> None:
+    """
+    Make sample plots for nino3.4 to check its still working.
+    """
     cfg = load_config()
 
     setup = ModelSetup(
@@ -403,13 +411,11 @@ def make_plots() -> None:
 
 if __name__ == "__main__":
     # python src/metrics.py
-    import os
-
     print(os.listdir(EPS_FRAC_LOGS))
-    cfg = load_config()
+    config = load_config()
     stp = ModelSetup(
         str(EPS_FRAC_LOGS / "k_days_10_eps_days_0.75_efrac_0.25_c_d_0.00225"),
-        cfg,
+        config,
         make_move=False,
     )
     print(get_other_trends(stp))
