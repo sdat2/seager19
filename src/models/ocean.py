@@ -212,6 +212,7 @@ class Ocean:
     @timeit
     def run_all(self, it=0) -> None:
         """Run all the executables."""
+        print(it)
         # Run the test to see if it's working.
         self.run("../SRC/" + self.cfg.ocean.tcom_name + " -i om_test")
         if self.cfg.ocean.spin:
