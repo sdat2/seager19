@@ -4,16 +4,17 @@ no longer used:
 
 import wandb_summarizer.download
 """
-from typing import Optional, List
+import os
+from typing import Optional, List, Union, Tuple
 import math
 import numpy as np
 import pandas as pd
 import wandb
 import logging
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from subprocess import PIPE, run
 from src.constants import DATA_PATH, run_path
-
+from src.models.model_setup import ModelSetup
 
 log = logging.getLogger(__name__)
 
@@ -137,7 +138,7 @@ def metric_conv_data(
     ],
     control_variable_list=[(("atm", "k_days"), 10), (("atm", "e_frac"), 2)],
     index_by: tuple = ("coup", "c_d"),
-) -> dict:
+) -> Tuple[dict, dict]:
     """
     Generate the data for the convergence of a particular item.
 
@@ -151,44 +152,97 @@ def metric_conv_data(
     """
     api = wandb.Api()
     # Project is specified by <entity/project-name>
+    runs = api.runs("sdat2/seager19")
 
-    def check_controls(config):
+    def check_controls(config: DictConfig) -> bool:
         truth_list = []
         for i in control_variable_list:
-            print(i)
-            print([i[0][0], i[0][1]])
+            # print(i)
+            # print([i[0][0], i[0][1]])
             # pylint: disable=eval-used
-            af = eval(config[i[0][0]])[i[0][1]]
-            print(af, i[1], af == i[1])
+            af = config[i[0][0]][i[0][1]]
+            # print(af, i[1], af == i[1])
             truth_list.append(af == i[1])
         return np.all(truth_list)
 
-    runs = api.runs("sdat2/seager19")
     metric_dict = {}
+    setup_dict = {}
 
     # pylint: disable=unnecessary-comprehension
     for rn in runs:  # [x for x in runs][0:13]:
         if prefix in rn.name and np.all([x not in rn.name for x in ex_list]):
-            print(rn.name)
             config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
-            # print(rn, config["name"])
-            pair_list = []
-            for _, row in rn.history().iterrows():
-                step = row["_step"]
-                metric = row[metric_name]
-                if not math.isnan(metric):
-                    # print(step, metric, type(metric))
-                    pair_list.append([step, metric])
+            config["name"] = rn.name
+            cfg = fix_config(config)
+            if check_controls(cfg):
+                print(cfg.name)
+                # print(rn, config["name"])
+                pair_list = []
+                for _, row in rn.history().iterrows():
+                    step = row["_step"]
+                    metric = row[metric_name]
+                    if not math.isnan(metric):
+                        # print(step, metric, type(metric))
+                        pair_list.append([step, metric])
 
-            # enforce needing 6 iterations.
-            if len(pair_list) == 6:
+                # enforce needing 6 iterations.
+                if len(pair_list) == 6:
+                    metric_dict[cfg[index_by[0]][index_by[1]]] = np.array(pair_list)
+                    setup_dict[cfg[index_by[0]][index_by[1]]] = setup_from_config(cfg)
+
+    return metric_dict, setup_dict
+
+
+def fix_config(config: Union[dict, DictConfig]) -> DictConfig:
+    """
+    Turn the config dict back into a DictConfig object.
+
+    Args:
+        config (Union[dict, DictConfig]): config dictionary.
+
+    Returns:
+        DictConfig:
+    """
+    if isinstance(config, dict):
+        for i in config:
+            if "{" in config[i] or "[" in config[i]:
                 # pylint: disable=eval-used
-                if check_controls(config):
-                    metric_dict[eval(config[index_by[0]])[index_by[1]]] = np.array(
-                        pair_list
-                    )
+                config[i] = eval(config[i])
+        return OmegaConf.create(config)
+    else:
+        return config
 
-    return metric_dict
+
+def archive_dir_from_config(cfg: Union[DictConfig, dict]) -> str:
+    """
+    Get the archived folder from the names stored online.
+
+    Args:
+        cfg (Union[DictConfig, dict]): The cfg
+
+    Returns:
+        str: [description]
+    """
+    if "archive_dir" not in cfg:
+        cfg["archive_dir"] = "unknown"
+        print("no archive dir recorded for", cfg.name)
+    if isinstance(cfg, DictConfig):
+        return os.path.join(cfg.archive_dir, cfg.name)
+    elif isinstance(cfg, dict):
+        return os.path.join(cfg["archive_dir"], cfg["name"])
+
+
+def setup_from_config(cfg: Union[DictConfig]) -> ModelSetup:
+    """
+    Gets the setup object for the archived run from the config.
+
+    Args:
+        cfg (Union[DictConfig, dict]): Either the dictconfig or the dict.
+
+    Returns:
+        ModelSetup: The model setup object.
+    """
+    return ModelSetup(archive_dir_from_config(cfg), cfg, make_move=False)
 
 
 if __name__ == "__main__":
@@ -208,7 +262,7 @@ if __name__ == "__main__":
             index_by=("atm", "eps_days"),
         )
     )
-    metric_d = metric_conv_data(
+    metric_d, _ = metric_conv_data(
         metric_name="trend_nino3.4",
         prefix="k_days_",
         control_variable_list=[
@@ -218,7 +272,7 @@ if __name__ == "__main__":
         ],
         index_by=("atm", "k_days"),
     )
-    metric_d = metric_conv_data(
+    metric_d, _ = metric_conv_data(
         metric_name="trend_nino3.4",
         prefix="cd_",
         control_variable_list=[
@@ -228,7 +282,7 @@ if __name__ == "__main__":
         ],
         index_by=("atm", "e_frac"),
     )
-    metric_d = metric_conv_data(
+    metric_d, _ = metric_conv_data(
         metric_name="trend_nino3.4",
         prefix="k_days_",
         control_variable_list=[
