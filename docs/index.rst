@@ -59,10 +59,10 @@ Here, we carry out a parameter sensitivity analysis of the S19 model. Of particu
 
 Scientific questions to be addressed include:
 
-- Can we replicate the results displayed in S19?
-- How robust is the model to the parameters chosen?
-- Can the sensitivity of the model to the parameters be understood from the physical processes underlying it?
-- How skillful are different emulation functions at fitting input/output of the model?
+- Can we replicate the results displayed in S19? [partially]
+- How robust is the model to the parameters chosen? [fairly]
+- Can the sensitivity of the model to the parameters be understood from the physical processes underlying it? [partially]
+- How skillful are different emulation functions at fitting input/output of the model? [untested]
 
 Citations:
 
@@ -82,8 +82,6 @@ Citations:
    OCEAN_README.md
    gallery.md
    seager-rep.ipynb
-   dQ.ipynb
-   TCAM.ipynb
    about
 
 

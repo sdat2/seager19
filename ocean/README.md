@@ -34,7 +34,7 @@ c              J. Phys. Oceanogr., 25, 3219-3230.
 - HTHERM / htherm - height of the thermocline?
 - W1 / w1 - upwelling speed in surface layer
 
-SST W1 UDTDX VDTDY UP_FLUX QPRIME QFC QNET
+(other posibilites: SST W1 UDTDX VDTDY UP_FLUX QPRIME QFC QNET)s
 
 ## Helpful background information
 
@@ -49,20 +49,6 @@ Barotropic Rossby waves:
 Equatorial waves:
 
 <https://youtu.be/Tdi7lulinRg>
-
-## Comparison and analysis of model
-
-### To backup the data
-
-```bash
-sh ./backup-data.sh
-```
-
-### To compare the data between different folders
-
-```bash
-sh ./comp-data.sh >> changes-mid-run.txt
-```
 
 ## Structure of Ocean model
 
