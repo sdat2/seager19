@@ -5,8 +5,9 @@ This model was initially written in python by Dr. Naomi Henderson.
 It was refactored by Simon Thomas into a class structure / to be pylint compatible,
 and to take the cfg DictConfig struct as input.
 
-It includes both the tropical Atmospheric model (Matsumo-Gill) with a single mode,
- and the surface fluxes calculated based on the Ocean model.
+It includes both the tropical Atmospheric model
+(Matsumo-Gill) with a single baroclinic mode,
+and the surface fluxes calculated based on the Ocean model.
 
 An intriduction to the Matsumo-Gill model:
 
@@ -15,8 +16,7 @@ https://www.atmos.washington.edu/~dargan/591/591_8.pdf
 pytest src/test/test_atmos.py
 python3 src/models/atmos.py
 
-
-Model solution method from Seager et al. 2019 Appendix:
+Model Solution Method from Seager et al. 2019 Appendix:
 
 The atmosphere equations are solved by Fourier transforming in longitude,
 forming an equation for v for each zonal wavenumber that is finite
@@ -50,7 +50,8 @@ Example:
 
         # ------------- constants -----------------------
         # begining TCAM
-        self.pr_max: float = 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day.
+        self.pr_max: float = 20.0 / 3600 / 24
+        # 20 / seconds in hour / hours in day.
         self.relative_humidity: float = 0.80  # relative humidity uniformly 0.8
         self.number_iterations: int = 50  #  int
         self.radius_earth = 6.37e6  # metres
@@ -85,13 +86,14 @@ Example:
         self.f2 = 0.05  # f2 = 0.05
         # 'a_cloud_const' should decrease when deep convection happens above 28 degC
         # python main.py --multirun oc.nummode=6,7,8
-        #  a_cloud_const = Ts-temp_0_c;a_cloud_const[a_cloud_const>28] = 40;
+        # a_cloud_const = Ts-temp_0_c;
+        # a_cloud_const[a_cloud_const>28] = 40;
         # a_cloud_const[a_cloud_const<=28] = 80;
         # a_cloud_const = 0.01*a_cloud_const
         self.a_cloud_const = 0.6  # this isn't the option used in the paper.
         # basic parameters
         self.temp_0_c = 273.15  # zero degrees in kelvin
-        self.atm.f1_bar = 0.39  # f1 = 0.39
+        self.f1_bar = 0.39  # f1 = 0.39
         # f'1  is the anomaly in f1—a parameter that can be adjusted
         # to control the variation in surface longwave radiation due
         # to a_cloud_const change in CO2
@@ -171,9 +173,6 @@ class Atmos:
                 np.float64,
             )
 
-        # Strange properties to plot different models etc.
-        self.mem: str = "EEEf"  # string is iterated through
-
         # the different model names in a dict? - used by key from self.mem.
         self.names: dict = {
             "E": "ECMWF",
@@ -241,7 +240,7 @@ class Atmos:
         Returns:
             xr.DataArray: Flux q_s.
         """
-        return self.atm.e_fac * self.f_es(temperature) / self.atm.p_s
+        return self.atm.e_factor * self.f_es(temperature) / self.atm.p_s
 
     @typechecked
     def f_dqs_dtemp(self, temperature: xr.DataArray) -> xr.DataArray:
@@ -331,7 +330,7 @@ class Atmos:
         q_a = rh_loc * self.f_qs(temperature)
 
         # q_a is the surface-specific humidity
-        return q_a * self.atm.p_s / self.atm.e_fac
+        return q_a * self.atm.p_s / self.atm.e_factor
 
     # ------------ heat flux functions:
 
@@ -512,7 +511,7 @@ class Atmos:
             * (t_s - self.atm.temp_0_c)
             / ((t_s - self.atm.temp_0_c) + self.atm.temp_0_c)
         )
-        return self.atm.e_fac * self.atm.relative_humidity * e_s / s_p
+        return self.atm.e_factor * self.atm.relative_humidity * e_s / s_p
 
     @typechecked
     def f_qa2(self, temp_surface: np.ndarray) -> np.ndarray:
@@ -748,7 +747,7 @@ class Atmos:
     @timeit
     @typechecked
     def output_trends(self) -> None:
-        """output trends ds.
+        """Output trends ds.
 
         Runs the Matsuno-Gill model with the trends in preipitation and
         sea surface temperature half added and half subtracted to work out the
@@ -1100,12 +1099,12 @@ class Atmos:
         This is ok for the first iteration, but will need to be changed.
 
         Returns:
-            xr.Dataset: An mfdataset with "ts", "clt', "sfcWind.
+            xr.Dataset: An mfdataset with "ts", "clt", "sfcWind", "rh".
         """
 
         files = []
 
-        for i, m in enumerate(self.mem):
+        for i, m in enumerate(self.atm.mem):
             name = self.names[m]
             variable = self.var[i]
             if variable == "ts":

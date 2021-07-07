@@ -4,11 +4,11 @@
 # Usage example: python src/main.py --multirun oc.nummode=9,10 wandb=false
 project: seager19
 user: sdat2
-notes: sensitivity analysis of e_frac
+notes: changing inputs
 animate: true # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
 # name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
-name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_ingrid_${ocean.ingrid}
+name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_ingrid_${ocean.ingrid}_${atm.mem}
 # name: eps_days_${atm.eps_days}
 # python src/main.py --multirun atm.eps_days=1.35,1.45
 # python src/main.py --multirun atm.eps_days=0.35,0.45
@@ -57,14 +57,19 @@ coup:
 atm:
   # begining TCAM
   prcp_land: 1   # use data precip trends over land
-  r: 0.80  # humidity basic value
+  r: 0.80  # humidity basic value to multiply q_a by.
   h_q: 1800  # Hq is a scale depth for moisture
-  wnsp_min: 4 # m s-1 ?
-  rho_00: 0.3 # this si the value for rho_bar in the paper rather than rho_00
+  wnsp_min: 4 # m s-1
+  rho_00: 0.3 # this is the value for rho_bar in the paper rather than rho_00
   # this means the density at the surface.
   # this is actual rho_bar in the paper
   # 0.3 kg m-3
-  pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day.
+  # Strange properties to plot different models etc.
+  mem: "EEEf"  # string is iterated through
+  # ts, clt, sfwind, rh
+  # E: ECMWF
+  # f: fixed
+  pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day. 20 per hour?
   relative_humidity: 0.80  # relative humidity uniformly 0.8
   number_iterations: 50  #  int, the number of iterations.
   height_tropopause: 15e3  # metres. I.e 15 km.
@@ -91,8 +96,7 @@ atm:
   # eps days might be the efficiency of entrainment.
   # mult_or_div:  * 1 *
   eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
-  e_frac: 2   # multiply epsu by efrac to get epsv
-  # as this a bug?
+  e_frac: 0.5   # multiply epsu by efrac to get epsv
   eps_u: ${atm.eps}  # 1/.75 d in the paper
   eps_v: ${atm.eps} * ${atm.e_frac}
   # e_frac=1/2 in paper
@@ -102,7 +106,7 @@ atm:
   emmisivity: 0.97
   p_s: 1000  # pressure at the surface in pascals
   es_0: 6.11 # evaporation
-  efac: 0.622 # strange constant
+  e_factor: 0.622 # strange constant
   delta_temp: 1.0  # ΔT: 1 K
   f2: 0.05  # f2: 0.05
   # 'a_cloud_const' should decrease when deep convection happens above 28 degC
