@@ -384,12 +384,12 @@ class Atmos:
             xr.DataArray: The a constant. Normally 0.5 or 0.8
         """
         cloud_const_da = temperature.copy()
-        cloud_const_da.where(temperature >= self.atm.dc_threshold_temp).fillna(
-            self.atm.a_cloud_const_dc
-        )
-        cloud_const_da.where(temperature < self.atm.dc_threshold_temp).fillna(
-            self.atm.a_cloud_const_norm
-        )
+        cloud_const_da = cloud_const_da.where(
+            temperature >= self.atm.dc_threshold_temp
+        ).fillna(self.atm.a_cloud_const_dc)
+        cloud_const_da = cloud_const_da.where(
+            temperature < self.atm.dc_threshold_temp
+        ).fillna(self.atm.a_cloud_const_norm)
         return cloud_const_da
 
     @typechecked
