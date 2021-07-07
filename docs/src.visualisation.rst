@@ -36,6 +36,14 @@ src.visualisation.sensitivity module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.trends module
+-------------------------------
+
+.. automodule:: src.visualisation.trends
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

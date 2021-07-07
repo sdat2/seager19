@@ -1,4 +1,4 @@
-## How to create Sphinx docs
+# How to create Sphinx docs
 
 With the dev environment activated, and Sphinx installed you can create the html version by running the following command from this `docs` directory:
 
@@ -18,7 +18,7 @@ Note: this last command requires a latex installation, which Jasmin servers don'
 open _build/html/index.html 
 ```
 
-### Other important commands
+## Other important commands
 
 To update the module references in the rst files
 
@@ -30,7 +30,7 @@ sphinx-apidoc -f -o . ..
 sphinx-apidoc -f -o . ../ocean/SRC/
 ```
 
-### Symbolic links
+## Symbolic links
 
 `docs/README.md` and `docs/gifs/`
 

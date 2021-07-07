@@ -35,7 +35,10 @@ A repository to contain, analyse, and expand upon the model from:
 
 - In observations it has increased.
 
-- Their simple linear coupled model agrees with observations.
+- Their simple linear equatorial coupled model agrees with observations when forced with ECMWF reanalysis product.
+
+- When forced with CMIP5 ensemble relative humidity and wind speed their model can reproduce the bias, highlighting
+    these fields as the mechanism through which it is created.
 
 ### Citation
 

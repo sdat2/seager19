@@ -3,8 +3,10 @@
 
 - This section shows the initial structure of the code and
    data.
+
 - From inspection, files with the same names in different
   dircetories are identical.
+
 - How to couple the ocean and atmospheric model is not
    immediately apparent.
 
@@ -12,9 +14,10 @@
 
 ### Code Makeup
 
-The Python code for the atmosphere model is in a Juypter Notebook. The ocean model code is built on legacy Fortran 90 and C code.
+The Python code for the atmosphere model is in a Juypter Notebook.
+The ocean model code is built on legacy Fortran 90 and C code.
 
-If cloc doesn't exist
+If cloc does not exist
 
 ```bash
   sudo apt-get install cloc
