@@ -283,3 +283,9 @@ grep -R "rho" ocean/SRC # 1023 kg m-2
 
 f0=54.6746d+00,f1=-.603459d+00,f2=1.09987d-02,f3=-6.167d-05,
 ```
+
+### Get CMIP5 multimodel means
+
+<http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.dataset/.CMIP5/.MultiModelMeans/.MMM-v2.3/.historical/.Surface/data.cdf>
+
+<http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.dataset/.CMIP5/.MultiModelMeans/.MMM-v2.3/.rcp85/.Surface/data.cdf>

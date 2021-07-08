@@ -19,7 +19,7 @@ from src.constants import (
     FIGURE_DATA_NAME,
     NOAA_DATA_NAME,
     NINO3_4_TEST_NAME,
-    NINO3_4_TEST_CODE
+    NINO3_4_TEST_CODE,
 )
 
 
@@ -203,6 +203,24 @@ def get_member_data(force_refresh: bool = False) -> None:
     _get_data(lol, force_refresh=force_refresh)
 
 
+def get_mmm(force_refresh: bool = False) -> None:
+    """Downloads multimodel mean."""
+    # https://www.dropbox.com/s/r2k6qwaijq5a8qv/mmm-v2.3-full-rep.zip?dl=0
+    lol = [
+        [
+            str(DATA_PATH),
+            [
+                [
+                    PREFIX + "r2k6qwaijq5a8qv/mmm-v2.3-full-rep.zip" + SUFFIX,
+                    "mmm-v2.3-full-rep.zip",
+                ],
+            ],
+        ],
+    ]
+
+    _get_data(lol, force_refresh=force_refresh)
+
+
 def _get_data(lol: list, force_refresh: bool = False) -> None:
     """Gets the data using lol."""
     for item in lol:
@@ -230,4 +248,5 @@ if __name__ == "__main__":
     # get_data()
     # get_figure_data()
     # get_member_data()
-    get_original_models()
+    # get_original_models()
+    get_mmm()
