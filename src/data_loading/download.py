@@ -221,6 +221,23 @@ def get_mmm(force_refresh: bool = False) -> None:
     _get_data(lol, force_refresh=force_refresh)
 
 
+def get_uv(force_refresh: bool = False) -> None:
+    """Downloads uv mean."""
+    # https://www.dropbox.com/s/r2k6qwaijq5a8qv/mmm-v2.3-full-rep.zip?dl=0
+    lol = [
+        [
+            str(DATA_PATH),
+            [
+                [
+                    PREFIX + "r2k6qwaijq5a8qv/mmm-v2.3-full-rep.zip" + SUFFIX,
+                    "mmm-v2.3-full-rep.zip",
+                ],
+            ],
+        ],
+    ]
+
+    _get_data(lol, force_refresh=force_refresh)
+
 def _get_data(lol: list, force_refresh: bool = False) -> None:
     """Gets the data using lol."""
     for item in lol:
