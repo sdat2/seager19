@@ -75,7 +75,7 @@ def fit(
 
     Args:
         x_npa (Sequence[Union[float, int]]): The x values to fit.
-        y_npa (Sequence[Union[float, int]]): The y values to fit
+        y_npa (Sequence[Union[float, int]]): The y values to fit.
         reg_type (str, optional): Which regression to do. Defaults to "lin".
 
     Returns:

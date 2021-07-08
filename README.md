@@ -223,6 +223,8 @@ and so you may need to try a different connection method if it doesn't load.
 
     python src/main.py archive_dir=/gws/nopw/j04/ai4er/users/sdat2/uc_logs name=efrac0.5_fix wandb=false coup.iterations=1 atm.e_frac=0.5 animate=false ocean.ingrid=false
 
+    python src/main.py atm.mem=EEEE atm.vary_cloud_const=true
+
 ```
 
 ## Other handy commands for development of repo
