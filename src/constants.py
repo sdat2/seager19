@@ -47,6 +47,11 @@ CMIP_TS_PATH = DATA_PATH / "ts_nc"
 ORIG_WANDB_DATA = DATA_PATH / "results.csv"
 NEW_WANDB_DATA = DATA_PATH / "results22Jun.csv"
 
+# Multi model mean
+MMM_V23_PATH = DATA_PATH / "mmm-v2.3-full-rep"
+MMM_V23_HIST = MMM_V23_PATH / "cmip5-mmm-v2.3-historical.nc"
+MMM_V23_RCP85 = MMM_V23_PATH / "cmip5-mmm-v2.3-rcp85.nc"
+
 # Test DIREC
 TEST_DIREC = SRC_PATH / "test" / "test_direc"
 
