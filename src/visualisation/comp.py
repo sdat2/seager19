@@ -1,4 +1,5 @@
 """Program to automate testing output fields against the paper."""
+from typing import Union
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -42,7 +43,7 @@ def comp_plot(
     plt.tight_layout()
 
 
-def return_var_list(num: int) -> List[str]:
+def return_var_list(num: Union[int, str]) -> List[str]:
     """
     Get a list of the variables from each figure.
 

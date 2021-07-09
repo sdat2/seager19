@@ -15,6 +15,16 @@ from src.utils import timeit
 
 
 def rand(low: float, high: float) -> float:
+    """
+    Get a single random float from the range.
+
+    Args:
+        low (float): low end.
+        high (float): high end.
+
+    Returns:
+        float: random float.
+    """
     return float(np.random.uniform(low, high, 1))
 
 
