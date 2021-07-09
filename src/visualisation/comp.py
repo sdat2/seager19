@@ -43,7 +43,15 @@ def comp_plot(
 
 
 def return_var_list(num: int) -> List[str]:
-    """Get a list of the variables from each figure."""
+    """
+    Get a list of the variables from each figure.
+
+    Args:
+        num (int): The figure number.
+
+    Returns:
+        List[str]: A list of the variable names.
+    """
     var_list = []
     for var in xr.open_dataset(FIGURE_DATA_PATH):
         if "Fig_" + str(num) in var:
@@ -62,7 +70,7 @@ def comp_uc_oc(setup: ModelSetup, panel="d"):
     fig_data = xr.open_dataset(FIGURE_DATA_PATH)
     uc_oc = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
     uc_oc_dt = add_units(get_trend(clip(can_coords(uc_oc.SST_SST))).isel(Z=0).drop("Z"))
-    uc_oc_dt.attrs["units"] = "$\Delta$ K"
+    uc_oc_dt.attrs["units"] = r"$\Delta$ K"
     uc_oc_dt.attrs["long_name"] = r"$\Delta$ SST"
     ddata = add_units(
         sel(
@@ -70,7 +78,7 @@ def comp_uc_oc(setup: ModelSetup, panel="d"):
         )
     )
     ddata = ddata.where(ddata != 0.0).rename(r"$\Delta$ SST")
-    ddata.attrs["units"] = "$\Delta$ K"
+    ddata.attrs["units"] = r"$\Delta$ K"
     ddata.attrs["long_name"] = r"$\Delta$ SST"
     comp_plot(add_units(uc_oc_dt.interp_like(ddata)), ddata)
 
