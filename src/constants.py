@@ -49,8 +49,8 @@ NEW_WANDB_DATA = DATA_PATH / "results22Jun.csv"
 
 # Multi model mean u and v fields
 UV_PATH = DATA_PATH / "hist-winds-cmip5"
-U_HIST = UV_PATH / "ua"
-V_HIST = UV_PATH / "va"
+U_HIST = UV_PATH / "ua.nc"
+V_HIST = UV_PATH / "va.nc"
 
 # Multi model mean surface fields
 MMM_V23_PATH = DATA_PATH / "mmm-v2.3-full-rep"
