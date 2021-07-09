@@ -47,7 +47,12 @@ CMIP_TS_PATH = DATA_PATH / "ts_nc"
 ORIG_WANDB_DATA = DATA_PATH / "results.csv"
 NEW_WANDB_DATA = DATA_PATH / "results22Jun.csv"
 
-# Multi model mean
+# Multi model mean u and v fields
+UV_PATH = DATA_PATH / "hist-winds-cmip5"
+U_HIST = UV_PATH / "ua"
+V_HIST = UV_PATH / "va"
+
+# Multi model mean surface fields
 MMM_V23_PATH = DATA_PATH / "mmm-v2.3-full-rep"
 MMM_V23_HIST = MMM_V23_PATH / "cmip5-mmm-v2.3-historical.nc"
 MMM_V23_RCP85 = MMM_V23_PATH / "cmip5-mmm-v2.3-rcp85.nc"
@@ -98,7 +103,7 @@ UC_LOGS = GWS_DIR / "uc_logs"
 #    LOG_PATH = GWS_DIR / "logs"
 # else:
 LOG_PATH = PROJECT_PATH / "logs"
-FIN_LOG_PATH = EPS_LOGS #  K_LOGS  # EPS_LOGS
+FIN_LOG_PATH = EPS_LOGS  #  K_LOGS  # EPS_LOGS
 # LOG_PATH = PROJECT_PATH / "k_days_logs"
 
 if not os.path.exists(str(LOG_PATH)):

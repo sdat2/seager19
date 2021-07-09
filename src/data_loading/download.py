@@ -223,20 +223,21 @@ def get_mmm(force_refresh: bool = False) -> None:
 
 def get_uv(force_refresh: bool = False) -> None:
     """Downloads uv mean."""
-    # https://www.dropbox.com/s/r2k6qwaijq5a8qv/mmm-v2.3-full-rep.zip?dl=0
+    # https://www.dropbox.com/s/9zuxdyhapwr1eat/hist-winds-cmip5.zip?dl=0
     lol = [
         [
             str(DATA_PATH),
             [
                 [
-                    PREFIX + "r2k6qwaijq5a8qv/mmm-v2.3-full-rep.zip" + SUFFIX,
-                    "mmm-v2.3-full-rep.zip",
+                    PREFIX + "9zuxdyhapwr1eat/hist-winds-cmip5.zip" + SUFFIX,
+                    "hist-winds-cmip5.zip",
                 ],
             ],
         ],
     ]
 
     _get_data(lol, force_refresh=force_refresh)
+
 
 def _get_data(lol: list, force_refresh: bool = False) -> None:
     """Gets the data using lol."""
@@ -266,4 +267,5 @@ if __name__ == "__main__":
     # get_figure_data()
     # get_member_data()
     # get_original_models()
-    get_mmm()
+    # get_mmm()
+    get_uv()
