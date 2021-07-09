@@ -10,6 +10,7 @@ from src.utils import get_default_setup
 from src.configs.load_config import load_config
 from src.plot_utils import add_units, cmap, get_dim, label_subplots
 from src.constants import UC_LOGS, FIGURE_DATA_PATH
+from src.visualisation.quiver import pqp_part
 
 
 def comp_plot(
@@ -39,6 +40,26 @@ def comp_plot(
     (ours - papers).plot(ax=axs[2], cmap=cmap(diff_cmap), **kwargs)
     axs[2].set_xlabel("")
     np.abs((ours - papers) / papers).plot(ax=axs[3], vmin=0, vmax=1, cmap=cmap("sst"))
+    label_subplots(axs, y_pos=1.05, x_pos=-0.1)
+    plt.tight_layout()
+
+
+def comp_prcp_quiver_plot(ours: xr.Dataset, theirs: xr.Dataset) -> None:
+    """
+    Compare the precipitation and windspeeds.
+
+    Args:
+        ours (xr.Dataset): Our dataset.
+        theirs (xr.Dataset): Their dataset.
+    """
+    _, axs = plt.subplots(3, 1, figsize=get_dim(ratio=0.3 * 3), sharex=True)
+    pqp_part(axs[0], ours)
+    pqp_part(axs[1], theirs)
+    diff = ours.copy()
+    diff["utrend"] = ours["utrend"] - theirs["utrend"]
+    diff["vtrend"] = ours["vtrend"] - theirs["vtrend"]
+    diff["PRtrend"] = ours["PRtrend"] - theirs["utrend"]
+    pqp_part(axs[2], diff)
     label_subplots(axs, y_pos=1.05, x_pos=-0.1)
     plt.tight_layout()
 
@@ -111,21 +132,10 @@ def comp_uc_atm(setup: ModelSetup, panel="d"):
         setup (ModelSetup): The path object.
         panel (str, optional): Which panel to test against. Defaults to "d".
     """
-    fig_data = xr.open_dataset(FIGURE_DATA_PATH)
     uc_atm = open_dataset(setup.tcam_output())
-    prtrend_o = clip(can_coords(uc_atm.PRtrend))
-    prtrend_p = clip(
-        can_coords(fig_data["ForcedAtmosphereModel.Fig_2" + panel + ".nc.PRtrend"])
-    )
-    comp_plot(prtrend_o, prtrend_p, default_cmap="ranom")
-    vtrend_o = clip(can_coords(uc_atm.vtrend))
-    vtrend_p = clip(
-        can_coords(fig_data["ForcedAtmosphereModel.Fig_2" + panel + ".nc.vtrend"])
-    )
-    comp_plot(vtrend_o, vtrend_p)
-    utrend_o = clip(can_coords(uc_atm.utrend))
-    utrend_p = clip(can_coords(fig_data["ForcedAtmosphereModel.Fig_2d.nc.utrend"]))
-    comp_plot(utrend_o, utrend_p)
+    ads = return_figure_ds("2" + panel)
+    comp_prcp_quiver_plot(uc_atm, ads)
+    plt.savefig("example.png")
 
 
 if __name__ == "__main__":
@@ -135,4 +145,4 @@ if __name__ == "__main__":
     uncoup_setup = ModelSetup(uncoupled_run_dir, cfg, make_move=False)
     coup_setup = get_default_setup()
     comp_uc_atm(uncoup_setup)
-    comp_uc_oc(uncoup_setup)
+    # comp_uc_oc(uncoup_setup)
