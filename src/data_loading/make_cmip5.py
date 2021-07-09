@@ -1,21 +1,9 @@
-"""Program to do."""
-from typing import Tuple
+"""Make CMIP5 variables to put into the atmosphere model."""
 import numpy as np
 import xarray as xr
 from src.constants import MMM_V23_HIST, MMM_V23_RCP85, ATMOS_DATA_PATH, U_HIST, V_HIST
 from src.xr_utils import open_dataset, open_dataarray
 from src.utils import timeit
-
-
-@timeit
-def default() -> Tuple[np.array]:
-    """
-    Default function.
-
-    Returns:
-        Tuple[np.array]: Two random arrays.
-    """
-    return np.array([0, 0, 0]), np.array([0.5, 0.5, 0.5])
 
 
 @timeit

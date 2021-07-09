@@ -20,6 +20,14 @@ src.data\_loading.ingrid module
    :undoc-members:
    :show-inheritance:
 
+src.data\_loading.make\_cmip5 module
+------------------------------------
+
+.. automodule:: src.data_loading.make_cmip5
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.data\_loading.move\_old module
 ----------------------------------
 

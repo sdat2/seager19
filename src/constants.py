@@ -43,9 +43,14 @@ MASK = OCEAN_DATA_PATH / "om_mask.nc"
 DATA_PATH = SRC_PATH / "data"
 CMIP_TS_PATH = DATA_PATH / "ts_nc"
 
+# NINO34 trend from fig5e
+NINO34_TRENDS = DATA_PATH / "nino34-trends.csv"
+NINO34_TRENDS_CMIP5 = DATA_PATH / "nino34-trends-cmip5.csv"
+
 # Wandb-summary file download:
 ORIG_WANDB_DATA = DATA_PATH / "results.csv"
 NEW_WANDB_DATA = DATA_PATH / "results22Jun.csv"
+
 
 # Multi model mean u and v fields
 UV_PATH = DATA_PATH / "hist-winds-cmip5"
