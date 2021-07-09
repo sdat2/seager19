@@ -48,7 +48,8 @@ def return_var_list(num: Union[int, str]) -> List[str]:
     Get a list of the variables from each figure.
 
     Args:
-        num (int): The figure number.
+        num Union[int, str]: The figure number. Example: int(4) or
+            "2a".
 
     Returns:
         List[str]: A list of the variable names.
@@ -58,6 +59,24 @@ def return_var_list(num: Union[int, str]) -> List[str]:
         if "Fig_" + str(num) in var:
             var_list.append(var)
     return var_list
+
+
+def return_figure_ds(num: str) -> xr.Dataset:
+    """
+    Get the figure dataset.
+
+    Args:
+        num (str): The figure number e.g. "2c"
+
+    Returns:
+        xr.Dataset: the dataset with the standard names.
+    """
+    fig_data = xr.open_dataset(FIGURE_DATA_PATH)
+    r_dict = {}
+    for i in fig_data[return_var_list(num)]:
+        r_dict[i] = i.split(".")[-1]
+
+    return fig_data[return_var_list(num)].rename(r_dict)
 
 
 def comp_uc_oc(setup: ModelSetup, panel="d"):

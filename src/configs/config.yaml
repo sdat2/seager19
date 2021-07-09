@@ -93,7 +93,6 @@ atm:
   # raleigh friction step.
   eps_days: 0.75 # this is the inverse of the raleigh friction coefficient epsilon.
   # Over 1958–2017, the CO2 changed from ~300 to ~400 ppm, which would be about 0.75 W m−2
-  # eps days might be the efficiency of entrainment.
   # mult_or_div:  * 1 *
   eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
   e_frac: 0.5   # multiply epsu by efrac to get epsv
