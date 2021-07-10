@@ -277,11 +277,6 @@ and so you may need to try a different connection method if it doesn't load.
 
    grep -R "HSFC" ocean/SRC
 
-
-grep -R "rho" ocean/SRC # 1023 kg m-2
-
-
-f0=54.6746d+00,f1=-.603459d+00,f2=1.09987d-02,f3=-6.167d-05,
 ```
 
 ### Get CMIP5 multimodel means

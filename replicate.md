@@ -2,6 +2,17 @@
 
 ```bash
 
+
+python src/main.py name=std_uncoup coup.iterations=1 atm.mem=EEEf atm.vary_cloud_const=true archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false
+
+python src/main.py name=std_coup coup.iterations=6 atm.mem=EEEf atm.vary_cloud_const=true archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false
+
+
+python src/main.py name=CMIP5_coup coup.iterations=6 atm.mem=EECC atm.vary_cloud_const=true archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false
+
+
+python src/main.py name=CR_coup coup.iterations=6 atm.mem=EEEC atm.vary_cloud_const=true archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false
+
 # The effective relative humidity, r, is assumed to be spatially 
 # uniform at 0.80 in our standard model
 # In considering the cause of bias in CMIP5 models, we instead imposed 
