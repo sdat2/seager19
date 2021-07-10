@@ -351,7 +351,7 @@ class Atmos:
             cloud_cover (Union[xr.DataArray, float]): the cloud cover, which could be
                 a constant or an array.
             f (float):
-            rh_loc (xr.DataArray): relative humidity?
+            rh_loc (xr.DataArray): relative humidity
 
         Returns:
             xr.DataArray: The first term of the long wave flux equation.

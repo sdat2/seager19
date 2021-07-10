@@ -11,7 +11,7 @@ from src.visualisation.comp import return_figure_ds
 @timeit
 def qair2rh(qair: xr.DataArray, temp: xr.DataArray, pres: xr.DataArray) -> xr.DataArray:
     """
-    get the relative humdity from the specific humidity.
+    Get the relative humdity from the specific humidity.
 
     Args:
         qair (xr.DataArray): The specific humidity (dimensionless).
@@ -165,28 +165,3 @@ if __name__ == "__main__":
     print(xr.open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim.nc"))
     print(xr.open_dataarray(ATMOS_DATA_PATH / "rh-ECMWF-clim60.nc"))
 """
-
-
-# 1 - forced ocean
-# d - rising CO2, observed winds
-# e - rising CO2, fixed winds
-# f - fixed CO2, rising winds
-# 2 - forced atmosphere
-# c - no heating over land, ECMWF forcing
-# d - heating over land, ECMWF forcing
-# 3 - coupled atmosphere ocean model
-#     heating over land, ECMWF inputs
-# a - sst change
-# b - prcp, utrend, vtrend change
-# 4 - Trend in the thermocline
-# a - ORAS4 model
-# b - forced with ORAS4 winds
-# c - forced with atmosphere-ocean
-# 5 - coupled models
-# a - CM-ECMWF world
-# b - CM-ECMWF C-RH - change the relative humidity to CMIP5
-# c - CM-ECMWF C-RH W - chang the
-# d - CM-CMIP5 world qfluxed towards the CMIP5 mmm
-# f - unknown thermocline thing.
-# g - ECMWF graph
-# h - CMIP5 multimodel mean

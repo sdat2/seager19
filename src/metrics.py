@@ -52,7 +52,7 @@ def nino_calculate(
             the time axes. Defaults to 3.
 
     Returns:
-        Tuple[xr.DataArray, xr.DataArray]: metric timeseries, climateology
+        Tuple[xr.DataArray, xr.DataArray]: metric timeseries, climatology
     """
     can_coords(sst)
 
@@ -109,7 +109,7 @@ def calculate_nino3_4_from_noaa() -> Tuple[xr.DataArray, xr.DataArray]:
     Calculate the default nino3.4 region from noaa data.
 
     Returns:
-        Tuple[xr.DataArray, xr.DataArray]: metric timeseries, climateology
+        Tuple[xr.DataArray, xr.DataArray]: metric timeseries, climatology
     """
 
     return nino_calculate(load_noaa_data())

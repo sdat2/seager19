@@ -65,10 +65,13 @@ atm:
   # this is actual rho_bar in the paper
   # 0.3 kg m-3
   # Strange properties to plot different models etc.
-  mem: "EEEf"  # string is iterated through
-  # ts, clt, sfwind, rh
+  mem: "EEEf"  # string is iterated through - standard model uses fixed value for
+  # relative humidity.
+  # ts, clt, sfcwind, rh
+  # mem: "EECC" would be the option close to cmip world.
   # E: ECMWF
   # f: fixed
+  # C: CMIP5
   pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day. 20 per hour?
   relative_humidity: 0.80  # relative humidity uniformly 0.8
   number_iterations: 50  #  int, the number of iterations.

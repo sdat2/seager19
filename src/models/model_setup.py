@@ -298,3 +298,5 @@ class ModelSetup:
     def tuq_trend_plot(self) -> str:
         return os.path.join(self.plot_path, "tuq_trends.png")
 
+    def rep_plot(self, num: str, suffix: str = "") -> str:
+        return os.path.join(self.plot_path, "fig_" + str(num) + suffix + ".png")

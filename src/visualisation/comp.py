@@ -146,7 +146,7 @@ def comp_uc_atm(setup: ModelSetup, panel="d") -> None:
     plt.savefig("example.png")
 
 
-def comp_atm(setup: ModelSetup, num: str) -> None:
+def comp_atm_prwnd(setup: ModelSetup, num: str) -> None:
     """
     Test to see if atm is right.
 
@@ -158,10 +158,10 @@ def comp_atm(setup: ModelSetup, num: str) -> None:
     uc_atm = open_dataset(setup.tcam_output())
     ads = return_figure_ds(num)
     comp_prcp_quiver_plot(uc_atm, ads)
-    plt.savefig("example-atm.png")
+    plt.savefig(setup.rep_plot(num, "_prwnd"))
 
 
-def comp_oc(setup: ModelSetup, num: str) -> None:
+def comp_oc_sst(setup: ModelSetup, num: str) -> None:
     """
     Compare the sea surface temperature trend of the final model iteration.
 
@@ -180,16 +180,45 @@ def comp_oc(setup: ModelSetup, num: str) -> None:
     ddata.attrs["units"] = r"$\Delta$ K"
     ddata.attrs["long_name"] = r"$\Delta$ SST"
     comp_plot(add_units(oc_dt.interp_like(ddata)), ddata, vmin=-2, vmax=2)
-    plt.savefig("example-oc.png")
+    plt.savefig(setup.rep_plot(num, "_sst"))
+
+
+def comp_oc_htherm(setup: ModelSetup, num: str) -> None:
+    """
+    Compare the sea surface temperature trend of the final model iteration.
+
+    Args:
+        setup (ModelSetup): The setup.
+        num (str): The number e.g. "4b".
+    """
+    ps_defaults(use_tex=False, dpi=200)
+    uc_oc = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
+    oc_dt = add_units(
+        get_trend(clip(can_coords(uc_oc.TDEEP_HMODEL))).isel(Z=0).drop("Z")
+    )
+    oc_dt.attrs["units"] = r"$\Delta$ m"
+    oc_dt.attrs["long_name"] = r"$\Delta$ $H_T$"
+    ds = return_figure_ds(num)
+    ddata = add_units(sel(can_coords(ds["HTHERM"])))
+    ddata = ddata.where(ddata != 0.0)  # .rename(r"$\Delta$ SST")
+    ddata.attrs["units"] = r"$\Delta$ m"
+    ddata.attrs["long_name"] = r"$\Delta$ $H_T$"
+    comp_plot(add_units(oc_dt.interp_like(ddata)), ddata, vmin=-2, vmax=2)
+    comp_plot(oc_dt, ddata, vmin=-30, vmax=30)
+    plt.savefig(setup.rep_plot(num, "_htherm"))
 
 
 if __name__ == "__main__":
     # python src/visualisation/comp.py
+    import os
+
+    os.mkdir("/gws/nopw/j04/ai4er/users/sdat2/sensitivity/k_days_logs/k_days_10/plots")
     uncoupled_run_dir = str(UC_LOGS / "it_1")
     cfg = load_config(test=False)
     uncoup_setup = ModelSetup(uncoupled_run_dir, cfg, make_move=False)
     coup_setup = get_default_setup()
     # comp_uc_atm(uncoup_setup)
-    comp_oc(coup_setup, "3")
-    comp_atm(coup_setup, "3")
+    comp_oc_sst(coup_setup, "3")
+    comp_atm_prwnd(coup_setup, "3")
+    comp_oc_htherm(coup_setup, "4b")
     # comp_uc_oc(uncoup_setup)

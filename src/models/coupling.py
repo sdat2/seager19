@@ -1,6 +1,7 @@
 """Coupling between ocean and atmospheric models.
 
 Example:
+
     Import statement usage::
 
         from src.models.coupling import Coupling
