@@ -4,6 +4,8 @@ import xarray as xr
 from src.constants import MMM_V23_HIST, MMM_V23_RCP85, ATMOS_DATA_PATH, U_HIST, V_HIST
 from src.xr_utils import open_dataset, open_dataarray
 from src.utils import timeit
+from src.data_loading.download import get_uv, get_mmm
+from src.visualisation.comp import return_figure_ds
 
 
 @timeit
@@ -49,6 +51,7 @@ def make_rh() -> None:
     """
     Make the cmip5 relative humidity mean for 1956-2016.
     """
+    get_mmm()
     ps = xr.concat(
         [open_dataset(MMM_V23_HIST)["ps"], open_dataset(MMM_V23_RCP85)["ps"]], "T"
     )
@@ -80,6 +83,7 @@ def make_sfcwind() -> None:
     """
     Make the cmip5 surface wind mean.
     """
+    get_uv()
     us = (
         open_dataarray(U_HIST)
         .bfill("plev")
@@ -111,5 +115,37 @@ def make_sfcwind() -> None:
 
 if __name__ == "__main__":
     # python3 src/data_loading/make_cmip5.py
-    make_rh()
-    make_sfcwind()
+    print(return_figure_ds("3"))
+    print(return_figure_ds("5c"))
+    print(return_figure_ds("1d"))
+    print(return_figure_ds("1e"))
+    print(return_figure_ds("1f"))
+    print(return_figure_ds("4b"))
+    rh = return_figure_ds("5c")["rh"]
+    print(rh)
+    # make_rh()
+    # make_sfcwind()
+
+# 1 - forced ocean
+# d - rising CO2, observed winds
+# e - rising CO2, fixed winds
+# f - fixed CO2, rising winds
+# 2 - forced atmosphere
+# c - no heating over land, ECMWF forcing
+# d - heating over land, ECMWF forcing
+# 3 - coupled atmosphere ocean model
+#     heating over land, ECMWF inputs
+# a - sst change
+# b - prcp, utrend, vtrend change
+# 4 - Trend in the thermocline
+# a - ORAS4 model
+# b - forced with ORAS4 winds
+# c - forced with atmosphere-ocean
+# 5 - coupled models
+# a - CM-ECMWF world
+# b - CM-ECMWF C-RH - change the relative humidity to CMIP5
+# c - CM-ECMWF C-RH W - chang the
+# d - CM-CMIP5 world qfluxed towards the CMIP5 mmm
+# f - unknown thermocline thing.
+# g - ECMWF graph
+# h - CMIP5 multimodel mean
