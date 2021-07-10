@@ -1,6 +1,5 @@
 """Set up the model, copy the files, get the names."""
 import os
-import xarray as xr
 from omegaconf import DictConfig
 from src.constants import (
     OCEAN_RUN_PATH,
@@ -322,18 +321,17 @@ class ModelSetup:
     def rep_plot(self, num: str, suffix: str = "") -> str:
         return os.path.join(self.plot_path, "fig_" + str(num) + suffix + ".png")
 
-    def get_clim_name(self, var_num: int) -> str:
+    def _get_clim_name(self, var_num: int) -> str:
         return self.names[self.cfg.atm.mem[var_num]]
 
     def clim60_name(self, var_num: int) -> str:
         # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
-        name = self.get_clim_name(var_num)
+        name = self._get_clim_name(var_num)
         variable = self.var[var_num]
         return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim60.nc")
 
     def clim_name(self, var_num: int) -> str:
         # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
-        name = self.get_clim_name(var_num)
+        name = self._get_clim_name(var_num)
         variable = self.var[var_num]
         return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim.nc")
-
