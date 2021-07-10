@@ -8,7 +8,7 @@ from src.models.model_setup import ModelSetup
 from src.xr_utils import open_dataset, get_trend, clip, can_coords, sel
 from src.utils import get_default_setup
 from src.configs.load_config import load_config
-from src.plot_utils import add_units, cmap, get_dim, label_subplots
+from src.plot_utils import add_units, cmap, get_dim, label_subplots, ps_defaults
 from src.constants import UC_LOGS, FIGURE_DATA_PATH
 from src.visualisation.quiver import pqp_part
 
@@ -52,13 +52,14 @@ def comp_prcp_quiver_plot(ours: xr.Dataset, theirs: xr.Dataset) -> None:
         ours (xr.Dataset): Our dataset.
         theirs (xr.Dataset): Their dataset.
     """
+    ps_defaults(use_tex=False, dpi=200)
     _, axs = plt.subplots(3, 1, figsize=get_dim(ratio=0.3 * 3), sharex=True)
     pqp_part(axs[0], ours)
     pqp_part(axs[1], theirs)
     diff = ours.copy()
     diff["utrend"] = ours["utrend"] - theirs["utrend"]
     diff["vtrend"] = ours["vtrend"] - theirs["vtrend"]
-    diff["PRtrend"] = ours["PRtrend"] - theirs["utrend"]
+    diff["PRtrend"] = ours["PRtrend"] - theirs["PRtrend"]
     pqp_part(axs[2], diff)
     label_subplots(axs, y_pos=1.05, x_pos=-0.1)
     plt.tight_layout()

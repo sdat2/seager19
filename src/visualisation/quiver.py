@@ -46,7 +46,6 @@ def pqp_part(ax: matplotlib.axes.Axes, ads: xr.Dataset) -> None:
         ax (matplotlib.axes.Axes): axes to plot on.
         ads (xr.Dataset): Standard atmos dataset.
     """
-
     new_x = list(range(-100, 291, 5))
     new_y = list(range(-30, 31, 5))
     fvtrend = interp2d(ads.X, ads.Yv, ads.vtrend, kind="linear")
@@ -71,12 +70,13 @@ def pqp_part(ax: matplotlib.axes.Axes, ads: xr.Dataset) -> None:
     )  # , normalize=matplotlib.colors.Normalize(vmin=0.01, vmax=1))#, scale=30)
     _ = plt.quiverkey(
         quiver,
-        0.85,
-        0.18,
+        1.05,
+        -0.1,
         1,
-        r"  $1$ m s$^{-1}$" + "\n" + r" $\Delta \vec{u}$",
+        str(r"  $1$ m s$^{-1}$" + r" $\Delta \vec{u}$"),  # + "\n"
         labelpos="S",
-        coordinates="figure",
+        coordinates="axes"
+        # coordinates="figure",
     )
 
 
