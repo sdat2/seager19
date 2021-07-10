@@ -1,5 +1,6 @@
 """Set up the model, copy the files, get the names."""
 import os
+import xarray as xr
 from omegaconf import DictConfig
 from src.constants import (
     OCEAN_RUN_PATH,
@@ -48,6 +49,26 @@ class ModelSetup:
         self.atmos_path = os.path.join(direc, "atmos")
         self.atmos_data_path = os.path.join(self.atmos_path, "DATA")
         self.atmos_tmp_path = os.path.join(self.atmos_path, "tmp")
+
+        # the different model names in a dict? - used by key from self.mem.
+        self.names: dict = {
+            "E": "ECMWF",
+            "F": "ECMWF-orig",
+            "B": "CMIP5-39m",
+            "C": "CMIP5",
+            "D": "CMIP5-orig",
+            "H": "HadGEM2",
+            "f": "fixed",
+            "e": "fixed78",
+            "g": "fixed82",
+            "W": "WHOI",
+            "M": "MERRA",
+            "I": "ISCCP",
+        }
+
+        # dict of variables that are read in.
+        self.var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        # temperature of the surface, cloud area fraction, surface wind, rel humidity.
 
         if make_move:
 
@@ -300,3 +321,40 @@ class ModelSetup:
 
     def rep_plot(self, num: str, suffix: str = "") -> str:
         return os.path.join(self.plot_path, "fig_" + str(num) + suffix + ".png")
+
+    def get_clim_name(self, var_num: int) -> str:
+        return self.names[self.cfg.atm.mem[var_num]]
+
+    def clim60_name(self, var_num: int) -> str:
+        name = self.get_clim_name(var_num)
+        variable = self.var[var_num]
+        return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim60.nc")
+
+    def load_clim60(self) -> xr.Dataset:
+        """
+        Load the inputs to get_dclim before processing.
+
+        This is ok for the first iteration, but will need to be changed.
+
+        Returns:
+            xr.Dataset: An mfdataset with "ts", "clt", "sfcWind", "rh".
+        """
+
+        files = []
+
+        for i, m in enumerate(self.atm.mem):
+            name = self.names[m]
+            variable = self.var[i]
+            if variable == "ts":
+                # the surface temperature can be an input from the ocean model.
+                file = self.ts_clim60(self.it)
+            else:
+                file = os.path.join(
+                    self.atmos_data_path, variable + "-" + name + "-clim60.nc"
+                )
+            print(name, variable, file)
+            print(file)
+            assert os.path.isfile(file)
+            files += [file]  # append to list.
+
+        return xr.open_mfdataset(files, decode_times=False)
