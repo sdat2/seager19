@@ -156,7 +156,7 @@ def comp_uc_atm(setup: ModelSetup, panel="d", show_plots: bool = False) -> None:
         plt.clf()
 
 
-def comp_atm_prwnd(setup: ModelSetup, num: str, show_plots: bool = False) -> None:
+def comp_atm_prwnd(setup: ModelSetup, num: str, show_plots: bool = False) -> str:
     """
     Test to see if atm is right.
 
@@ -175,10 +175,12 @@ def comp_atm_prwnd(setup: ModelSetup, num: str, show_plots: bool = False) -> Non
     else:
         plt.clf()
 
+    return setup.rep_plot(num, "_prwnd")
+
 
 def comp_oc_sst(
     setup: ModelSetup, num: str, show_plots: bool = False, var="tstrend"
-) -> None:
+) -> str:
     """
     Compare the sea surface temperature trend of the final model iteration.
 
@@ -204,8 +206,10 @@ def comp_oc_sst(
     else:
         plt.clf()
 
+    return setup.rep_plot(num, "_sst")
 
-def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> None:
+
+def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> str:
     """
     Compare the sea surface temperature trend of the final model iteration.
 
@@ -232,6 +236,8 @@ def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> Non
         plt.show()
     else:
         plt.clf()
+
+    return setup.rep_plot(num, "_htherm")
 
 
 if __name__ == "__main__":
