@@ -117,16 +117,26 @@ def make_sfcwind() -> None:
 def get_sfcwind() -> None:
     """Get the CMIP5 surface wind from the figure data."""
     wsp = can_coords(return_figure_ds("5c")["wnspClim"])
+    swd_e60 = (
+        open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim60.nc")
+        .isel(variable=0)
+        .drop("variable")
+    )
     swd_e = (
         open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim.nc")
         .isel(variable=0)
         .drop("variable")
     )
     swd_e_ll = xr.open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim.nc")
+    swd_e_ll60 = xr.open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim60.nc")
     wsp_clim = wsp.interp_like(swd_e).bfill("X").ffill("X").bfill("Y").ffill("Y")
     wsp_new = swd_e_ll.copy()
     wsp_new[:, :] = wsp_clim[:, :]
     wsp_new.to_netcdf(ATMOS_DATA_PATH / "sfcWind-CMIP5-clim.nc")
+    wsp_clim60 = wsp.interp_like(swd_e60).bfill("X").ffill("X").bfill("Y").ffill("Y")
+    wsp_new60 = swd_e_ll60.copy()
+    wsp_new60[:, :] = wsp_clim60[:, :]
+    wsp_new60.to_netcdf(ATMOS_DATA_PATH / "sfcWind-CMIP5-clim60.nc")
 
 
 @timeit
