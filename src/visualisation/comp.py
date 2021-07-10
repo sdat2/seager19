@@ -54,14 +54,16 @@ def comp_prcp_quiver_plot(ours: xr.Dataset, theirs: xr.Dataset) -> None:
     """
     ps_defaults(use_tex=False, dpi=200)
     _, axs = plt.subplots(3, 1, figsize=get_dim(ratio=0.3 * 3), sharex=True)
-    pqp_part(axs[0], ours)
-    pqp_part(axs[1], theirs)
+    pqp_part(axs[0], ours, x_pos=0.75, y_pos=-0.15)
+    axs[0].set_xlabel("")
+    pqp_part(axs[1], theirs, x_pos=0.75, y_pos=-0.15)
+    axs[1].set_xlabel("")
     diff = ours.copy()
     diff["utrend"] = ours["utrend"] - theirs["utrend"]
     diff["vtrend"] = ours["vtrend"] - theirs["vtrend"]
     diff["PRtrend"] = ours["PRtrend"] - theirs["PRtrend"]
-    pqp_part(axs[2], diff)
-    label_subplots(axs, y_pos=1.05, x_pos=-0.1)
+    pqp_part(axs[2], diff, x_pos=0.75, y_pos=-0.3)
+    label_subplots(axs, y_pos=1.05, x_pos=-0.18)
     plt.tight_layout()
 
 
@@ -93,6 +95,7 @@ def return_figure_ds(num: str) -> xr.Dataset:
     Returns:
         xr.Dataset: the dataset with the standard names.
     """
+    ps_defaults(use_tex=False, dpi=200)
     fig_data = xr.open_dataset(FIGURE_DATA_PATH)
     r_dict = {}
     for i in fig_data[return_var_list(num)]:
@@ -101,7 +104,7 @@ def return_figure_ds(num: str) -> xr.Dataset:
     return fig_data[return_var_list(num)].rename(r_dict)
 
 
-def comp_uc_oc(setup: ModelSetup, panel="d"):
+def comp_uc_oc(setup: ModelSetup, panel="d") -> None:
     """
     Test to see if panel 1d is replicated.
 
@@ -109,6 +112,7 @@ def comp_uc_oc(setup: ModelSetup, panel="d"):
         setup (ModelSetup): The setup object.
         panel (str, optional): Which panel to test aginst. Defaults to "d".
     """
+    ps_defaults(use_tex=False, dpi=200)
     fig_data = xr.open_dataset(FIGURE_DATA_PATH)
     uc_oc = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
     uc_oc_dt = add_units(get_trend(clip(can_coords(uc_oc.SST_SST))).isel(Z=0).drop("Z"))
@@ -125,7 +129,7 @@ def comp_uc_oc(setup: ModelSetup, panel="d"):
     comp_plot(add_units(uc_oc_dt.interp_like(ddata)), ddata)
 
 
-def comp_uc_atm(setup: ModelSetup, panel="d"):
+def comp_uc_atm(setup: ModelSetup, panel="d") -> None:
     """
     Test to see if panel 2d is right.
 
@@ -133,10 +137,48 @@ def comp_uc_atm(setup: ModelSetup, panel="d"):
         setup (ModelSetup): The path object.
         panel (str, optional): Which panel to test against. Defaults to "d".
     """
+    ps_defaults(use_tex=False, dpi=200)
     uc_atm = open_dataset(setup.tcam_output())
     ads = return_figure_ds("2" + panel)
     comp_prcp_quiver_plot(uc_atm, ads)
     plt.savefig("example.png")
+
+
+def comp_atm(setup: ModelSetup, num: str) -> None:
+    """
+    Test to see if atm is right.
+
+    Args:
+        setup (ModelSetup): The path object.
+        panel (str): Which panel to test against. E.g. 2d.
+    """
+    ps_defaults(use_tex=False, dpi=200)
+    uc_atm = open_dataset(setup.tcam_output())
+    ads = return_figure_ds(num)
+    comp_prcp_quiver_plot(uc_atm, ads)
+    plt.savefig("example-atm.png")
+
+
+def comp_oc(setup: ModelSetup, num: str) -> None:
+    """
+    Compare the sea surface temperature trend of the final model iteration.
+
+    Args:
+        setup (ModelSetup): The setup.
+        num (str): The number e.g. "2b".
+    """
+    ps_defaults(use_tex=False, dpi=200)
+    uc_oc = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
+    oc_dt = add_units(get_trend(clip(can_coords(uc_oc.SST_SST))).isel(Z=0).drop("Z"))
+    oc_dt.attrs["units"] = r"$\Delta$ K"
+    oc_dt.attrs["long_name"] = r"$\Delta$ SST"
+    ds = return_figure_ds(num)
+    ddata = add_units(sel(can_coords(ds["tstrend"])))
+    ddata = ddata.where(ddata != 0.0).rename(r"$\Delta$ SST")
+    ddata.attrs["units"] = r"$\Delta$ K"
+    ddata.attrs["long_name"] = r"$\Delta$ SST"
+    comp_plot(add_units(oc_dt.interp_like(ddata)), ddata, vmin=-2, vmax=2)
+    plt.savefig("example-oc.png")
 
 
 if __name__ == "__main__":
@@ -145,5 +187,7 @@ if __name__ == "__main__":
     cfg = load_config(test=False)
     uncoup_setup = ModelSetup(uncoupled_run_dir, cfg, make_move=False)
     coup_setup = get_default_setup()
-    comp_uc_atm(uncoup_setup)
+    # comp_uc_atm(uncoup_setup)
+    comp_oc(coup_setup, "3")
+    comp_atm(coup_setup, "3")
     # comp_uc_oc(uncoup_setup)

@@ -38,7 +38,9 @@ def prcp_quiver_plot(
         plt.clf()
 
 
-def pqp_part(ax: matplotlib.axes.Axes, ads: xr.Dataset) -> None:
+def pqp_part(
+    ax: matplotlib.axes.Axes, ads: xr.Dataset, x_pos=0.65, y_pos=-0.15
+) -> None:
     """
     Plot a panel of pqp figure.
 
@@ -70,11 +72,12 @@ def pqp_part(ax: matplotlib.axes.Axes, ads: xr.Dataset) -> None:
     )  # , normalize=matplotlib.colors.Normalize(vmin=0.01, vmax=1))#, scale=30)
     _ = plt.quiverkey(
         quiver,
-        1.05,
-        -0.1,
+        # 1.08,
+        x_pos,
+        y_pos,  # 08,
         1,
-        str(r"  $1$ m s$^{-1}$" + r" $\Delta \vec{u}$"),  # + "\n"
-        labelpos="S",
+        str(r"$1$ m s$^{-1}$" + r" $\Delta \vec{u}$"),  # + "\n"
+        labelpos="E",
         coordinates="axes"
         # coordinates="figure",
     )
