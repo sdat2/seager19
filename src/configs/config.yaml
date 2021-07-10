@@ -14,7 +14,7 @@ name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${c
 # python src/main.py --multirun atm.eps_days=0.35,0.45
 # python src/main.py --multirun atm.eps_days=1.65
 comp:
-  htherm: 4b
+  htherm: 4c
   sst: 5a
   prwnd: 5a
 test: false # unimportant param for filtering later.
@@ -120,7 +120,7 @@ atm:
   # a_cloud_const[a_cloud_const<=28]: 80;
   # a_cloud_const: 0.01*a_cloud_const
   a_cloud_const: 0.6  # this isn't the option used in the paper, but this was in the original code.
-  vary_cloud_const: false # whether or not to use variable values instead.
+  vary_cloud_const: true # whether or not to use variable values instead.
   dc_threshold_temp: 28 # above 28 degrees celsius we might get deep convection 
   a_cloud_const_dc: 0.4   # this is for deep convection
   a_cloud_const_norm: 0.8   # this is for nomral conditions

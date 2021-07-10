@@ -3,15 +3,21 @@
 ```bash
 
 
-python src/main.py name=std_uncoup coup.iterations=1 atm.mem=EEEf atm.vary_cloud_const=true archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false
+python src/main.py name=std_uncoup coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d
 
-python src/main.py name=std_coup coup.iterations=6 atm.mem=EEEf atm.vary_cloud_const=true archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false
+python src/main.py name=std_uncoup coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2c
 
+python src/main.py name=ECMWF_uncoup atm.mem=EEEE coup.iterations=1 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d
 
-python src/main.py name=CMIP5_coup coup.iterations=6 atm.mem=EECC atm.vary_cloud_const=true archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false
+python src/main.py name=std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep
 
+python src/main.py name=ECMWF_coup atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
-python src/main.py name=CR_coup coup.iterations=6 atm.mem=EEEC atm.vary_cloud_const=true archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false
+python src/main.py name=CMIP5_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c
+
+python src/main.py name=RHC_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b
+
+python src/main.py name=WC_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
 # The effective relative humidity, r, is assumed to be spatially 
 # uniform at 0.80 in our standard model
@@ -33,7 +39,7 @@ python src/main.py name=CR_coup coup.iterations=6 atm.mem=EEEC atm.vary_cloud_co
 # 4 - Trend in the thermocline
 # a - ORAS4 model
 # b - forced with ORAS4 winds
-# c - forced with atmosphere-ocean
+# c - coupled atmosphere-ocean
 # 5 - coupled models
 # a - CM-ECMWF world
 # b - CM-ECMWF C-RH - change the relative humidity to CMIP5
