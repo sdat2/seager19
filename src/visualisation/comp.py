@@ -64,7 +64,7 @@ def comp_prcp_quiver_plot(
     diff["utrend"] = ours["utrend"] - theirs["utrend"]
     diff["vtrend"] = ours["vtrend"] - theirs["vtrend"]
     diff["PRtrend"] = ours["PRtrend"] - theirs["PRtrend"]
-    pqp_part(axs[2], diff, x_pos=x_pos, y_pos=-0.3, vmin=vmin, vmax=vmax)
+    pqp_part(axs[2], diff, x_pos=x_pos, y_pos=-0.35, vmin=vmin, vmax=vmax)
     label_subplots(axs, y_pos=1.05, x_pos=-0.18)
     plt.tight_layout()
 
@@ -176,7 +176,9 @@ def comp_atm_prwnd(setup: ModelSetup, num: str, show_plots: bool = False) -> Non
         plt.clf()
 
 
-def comp_oc_sst(setup: ModelSetup, num: str, show_plots: bool = False) -> None:
+def comp_oc_sst(
+    setup: ModelSetup, num: str, show_plots: bool = False, var="tstrend"
+) -> None:
     """
     Compare the sea surface temperature trend of the final model iteration.
 
@@ -190,7 +192,7 @@ def comp_oc_sst(setup: ModelSetup, num: str, show_plots: bool = False) -> None:
     oc_dt.attrs["units"] = r"$\Delta$ K"
     oc_dt.attrs["long_name"] = r"$\Delta$ SST"
     ds = return_figure_ds(num)
-    ddata = add_units(sel(can_coords(ds["tstrend"])))
+    ddata = add_units(sel(can_coords(ds[var])))
     ddata = ddata.where(ddata != 0.0).rename(r"$\Delta$ SST")
     ddata.attrs["units"] = r"$\Delta$ K"
     ddata.attrs["long_name"] = r"$\Delta$ SST"
@@ -223,8 +225,7 @@ def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> Non
     ddata = ddata.where(ddata != 0.0)  # .rename(r"$\Delta$ SST")
     ddata.attrs["units"] = r"$\Delta$ m"
     ddata.attrs["long_name"] = r"$\Delta$ $H_T$"
-    comp_plot(add_units(oc_dt.interp_like(ddata)), ddata, vmin=-2, vmax=2)
-    comp_plot(oc_dt, ddata, vmin=-30, vmax=30)
+    comp_plot(add_units(oc_dt.interp_like(ddata)), ddata, vmin=-30, vmax=30)
     plt.savefig(setup.rep_plot(num, "_htherm"))
 
     if show_plots:
