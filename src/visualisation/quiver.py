@@ -39,7 +39,7 @@ def prcp_quiver_plot(
 
 
 def pqp_part(
-    ax: matplotlib.axes.Axes, ads: xr.Dataset, x_pos=0.65, y_pos=-0.15
+    ax: matplotlib.axes.Axes, ads: xr.Dataset, x_pos=0.65, y_pos=-0.15, **kwargs
 ) -> None:
     """
     Plot a panel of pqp figure.
@@ -66,6 +66,7 @@ def pqp_part(
         ax=ax,
         cmap=cmap("ranom"),
         cbar_kwargs={"label": "Precipitation [m s$^{-1}$]"},
+        **kwargs
     )
     quiver = add_units(new_ds).plot.quiver(
         ax=ax, x="X", y="Y", u="utrend", v="vtrend"

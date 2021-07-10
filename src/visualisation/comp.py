@@ -44,7 +44,9 @@ def comp_plot(
     plt.tight_layout()
 
 
-def comp_prcp_quiver_plot(ours: xr.Dataset, theirs: xr.Dataset) -> None:
+def comp_prcp_quiver_plot(
+    ours: xr.Dataset, theirs: xr.Dataset, vmin=-5e-5, vmax=5e-5, x_pos=0.73, y_pos=-0.15
+) -> None:
     """
     Compare the precipitation and windspeeds.
 
@@ -54,15 +56,15 @@ def comp_prcp_quiver_plot(ours: xr.Dataset, theirs: xr.Dataset) -> None:
     """
     ps_defaults(use_tex=False, dpi=200)
     _, axs = plt.subplots(3, 1, figsize=get_dim(ratio=0.3 * 3), sharex=True)
-    pqp_part(axs[0], ours, x_pos=0.75, y_pos=-0.15)
+    pqp_part(axs[0], ours, x_pos=x_pos, y_pos=y_pos, vmin=vmin, vmax=vmax)
     axs[0].set_xlabel("")
-    pqp_part(axs[1], theirs, x_pos=0.75, y_pos=-0.15)
+    pqp_part(axs[1], theirs, x_pos=x_pos, y_pos=y_pos, vmin=vmin, vmax=vmax)
     axs[1].set_xlabel("")
     diff = ours.copy()
     diff["utrend"] = ours["utrend"] - theirs["utrend"]
     diff["vtrend"] = ours["vtrend"] - theirs["vtrend"]
     diff["PRtrend"] = ours["PRtrend"] - theirs["PRtrend"]
-    pqp_part(axs[2], diff, x_pos=0.75, y_pos=-0.3)
+    pqp_part(axs[2], diff, x_pos=x_pos, y_pos=-0.3, vmin=vmin, vmax=vmax)
     label_subplots(axs, y_pos=1.05, x_pos=-0.18)
     plt.tight_layout()
 
@@ -72,8 +74,8 @@ def return_var_list(num: Union[int, str]) -> List[str]:
     Get a list of the variables from each figure.
 
     Args:
-        num Union[int, str]: The figure number. Example: int(4) or
-            "2a".
+        num Union[int, str]: The figure number.
+            Example input: int(4) or "2a".
 
     Returns:
         List[str]: A list of the variable names.
