@@ -786,9 +786,8 @@ class Atmos:
         def get_clim():
             # the average condions from ECMWF
             # Gets the windspeed, surface temperature, precipation, and surface pressure
-            ds_clim = xr.open_dataset(
-                os.path.join(self.setup.atmos_data_path, "sfcWind-ECMWF-clim.nc")
-            ) # this needs to be replaced
+            ds_clim = xr.open_dataset(self.setup.clim_name(2))
+            # this needs to be replaced
             fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
             ds_clim = xr.open_dataset(self.setup.ts_clim(self.it))
             fts = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ts, kind="linear")

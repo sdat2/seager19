@@ -337,31 +337,3 @@ class ModelSetup:
         variable = self.var[var_num]
         return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim.nc")
 
-    def load_clim60(self) -> xr.Dataset:
-        """
-        Load the inputs to get_dclim before processing.
-
-        This is ok for the first iteration, but will need to be changed.
-
-        Returns:
-            xr.Dataset: An mfdataset with "ts", "clt", "sfcWind", "rh".
-        """
-
-        files = []
-
-        for i, m in enumerate(self.atm.mem):
-            name = self.names[m]
-            variable = self.var[i]
-            if variable == "ts":
-                # the surface temperature can be an input from the ocean model.
-                file = self.ts_clim60(self.it)
-            else:
-                file = os.path.join(
-                    self.atmos_data_path, variable + "-" + name + "-clim60.nc"
-                )
-            print(name, variable, file)
-            print(file)
-            assert os.path.isfile(file)
-            files += [file]  # append to list.
-
-        return xr.open_mfdataset(files, decode_times=False)
