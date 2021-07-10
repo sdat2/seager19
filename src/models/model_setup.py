@@ -326,9 +326,20 @@ class ModelSetup:
         return self.names[self.cfg.atm.mem[var_num]]
 
     def clim60_name(self, var_num: int) -> str:
+        # rh: 3
+        # wsp: 2
+        # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
         name = self.get_clim_name(var_num)
         variable = self.var[var_num]
         return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim60.nc")
+
+    def clim_name(self, var_num: int) -> str:
+        # rh: 3
+        # wsp: 2
+        # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        name = self.get_clim_name(var_num)
+        variable = self.var[var_num]
+        return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim.nc")
 
     def load_clim60(self) -> xr.Dataset:
         """
