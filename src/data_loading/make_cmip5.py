@@ -2,7 +2,7 @@
 import numpy as np
 import xarray as xr
 from src.constants import MMM_V23_HIST, MMM_V23_RCP85, ATMOS_DATA_PATH, U_HIST, V_HIST
-from src.xr_utils import open_dataset, open_dataarray
+from src.xr_utils import open_dataset, open_dataarray, can_coords
 from src.utils import timeit
 from src.data_loading.download import get_uv, get_mmm
 from src.visualisation.comp import return_figure_ds
@@ -120,9 +120,13 @@ if __name__ == "__main__":
     print(return_figure_ds("1d"))
     print(return_figure_ds("1e"))
     print(return_figure_ds("1f"))
-    print(return_figure_ds("4b"))
-    rh = return_figure_ds("5c")["rh"]
+    print(return_figure_ds("5c"))
+    wsp = can_coords(return_figure_ds("5c")["wnspClim"])
+    print(wsp)
+    rh = can_coords(return_figure_ds("5c")["rh"])
     print(rh)
+    print(xr.open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim.nc"))
+    print(xr.open_dataarray(ATMOS_DATA_PATH / "rh-ECMWF-clim60.nc"))
     # make_rh()
     # make_sfcwind()
 

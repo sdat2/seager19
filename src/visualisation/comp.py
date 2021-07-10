@@ -92,7 +92,7 @@ def return_figure_ds(num: str) -> xr.Dataset:
     Get the figure dataset.
 
     Args:
-        num (str): The figure number e.g. "2c"
+        num (str): The figure number e.g. "2c".
 
     Returns:
         xr.Dataset: the dataset with the standard names.
