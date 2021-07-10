@@ -245,6 +245,20 @@ def setup_from_config(cfg: Union[DictConfig]) -> ModelSetup:
     return ModelSetup(archive_dir_from_config(cfg), cfg, make_move=False)
 
 
+def setup_from_name(name: str) -> ModelSetup:
+    """Get the model setup from a name."""
+    api = wandb.Api()
+    # Project is specified by <entity/project-name>
+    runs = api.runs("sdat2/seager19")
+    for rn in runs:  # [x for x in runs][0:13]:
+        if name == rn.name:
+            config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
+            config["name"] = rn.name
+            cfg = fix_config(config)
+            setup = setup_from_config(cfg)
+    return setup
+
+
 if __name__ == "__main__":
     # python src/wandb_utils.py
     # add control variables
