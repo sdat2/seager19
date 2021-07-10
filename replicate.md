@@ -14,11 +14,16 @@ python src/main.py name=std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/us
 
 python src/main.py name=ECMWF_coup atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
-python src/main.py name=CRH_W_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c
+#
 
-python src/main.py name=CRH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b
+python src/main.py name=C_RH_W_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c
 
-python src/main.py name=CW_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
+# 
+
+python src/main.py name=C_RH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b
+#
+
+python src/main.py name=C_W_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
 # The effective relative humidity, r, is assumed to be spatially 
 # uniform at 0.80 in our standard model

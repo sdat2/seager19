@@ -352,13 +352,15 @@ class Coupling:
             # copy old io.
             self.ocean.copy_old_io(it)
 
+        print(self.cfg.comp.sst, self.cfg.comp.prwnd, self.cfg.comp.htherm)
+
         plot_names = {
-            self.cfg.comp.sst: comp_oc_sst(self.cfg.comp.sst),
-            self.cfg.comp.prwnd: comp_atm_prwnd(self.cfg.comp.prwnd),
-            self.cfg.comp.htherm: comp_oc_htherm(self.cfg.comp.htherm),
+            str(self.cfg.comp.sst): comp_oc_sst(str(self.cfg.comp.sst)),
+            str(self.cfg.comp.prwnd): comp_atm_prwnd(str(self.cfg.comp.prwnd)),
+            str(self.cfg.comp.htherm): comp_oc_htherm(str(self.cfg.comp.htherm)),
         }
 
-        # set up.
+        # set up.s
         if self.cfg.animate:
             up_therm_qnet(self.setup, save_path=self.setup.tuq_trend_plot())
             prcp_quiver_plot(self.setup, save_path=self.setup.prcp_quiver_plot())
