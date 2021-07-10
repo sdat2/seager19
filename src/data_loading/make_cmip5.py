@@ -113,8 +113,45 @@ def make_sfcwind() -> None:
     wsp_new.to_netcdf(ATMOS_DATA_PATH / "sfcWind-CMIP5-clim.nc")
 
 
+@timeit
+def get_sfcwind() -> None:
+    """Get the CMIP5 surface wind from the figure data."""
+    wsp = can_coords(return_figure_ds("5c")["wnspClim"])
+    swd_e = (
+        open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim.nc")
+        .isel(variable=0)
+        .drop("variable")
+    )
+    swd_e_ll = xr.open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim.nc")
+    wsp_clim = wsp.interp_like(swd_e).bfill("X").ffill("X").bfill("Y").ffill("Y")
+    wsp_new = swd_e_ll.copy()
+    wsp_new[:, :] = wsp_clim[:, :]
+    wsp_new.to_netcdf(ATMOS_DATA_PATH / "sfcWind-CMIP5-clim.nc")
+
+
+@timeit
+def get_rh() -> None:
+    """Get the CMIP5 relative humidity from the figure data."""
+    rh = can_coords(return_figure_ds("5c")["rh"])
+    rh_e = open_dataarray(ATMOS_DATA_PATH / "rh-ECMWF-clim60.nc")
+    rh_clim = rh.interp_like(rh_e).bfill("X").ffill("X").bfill("Y").ffill("Y")
+    rh_e_ll = xr.open_dataarray(ATMOS_DATA_PATH / "rh-ECMWF-clim60.nc")
+    rh_new = rh_e_ll.copy()
+    rh_new[:, :] = rh_clim[:, :]
+    rh_new.to_netcdf(ATMOS_DATA_PATH / "rh-CMIP5-clim60.nc")
+
+
 if __name__ == "__main__":
     # python3 src/data_loading/make_cmip5.py
+    # print(return_figure_ds("5f"))
+    # make_rh()
+    # make_sfcwind()
+    get_rh()  # get it from the figure data
+    get_sfcwind()  # get it from the figure data
+
+
+# pylint: disable=pointless-string-statement
+"""
     print(return_figure_ds("3"))
     print(return_figure_ds("5c"))
     print(return_figure_ds("1d"))
@@ -127,8 +164,8 @@ if __name__ == "__main__":
     print(rh)
     print(xr.open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim.nc"))
     print(xr.open_dataarray(ATMOS_DATA_PATH / "rh-ECMWF-clim60.nc"))
-    # make_rh()
-    # make_sfcwind()
+"""
+
 
 # 1 - forced ocean
 # d - rising CO2, observed winds
