@@ -106,7 +106,7 @@ def return_figure_ds(num: str) -> xr.Dataset:
     return fig_data[return_var_list(num)].rename(r_dict)
 
 
-def comp_uc_oc(setup: ModelSetup, panel="d") -> None:
+def comp_uc_oc(setup: ModelSetup, panel="d", show_plots: bool = False) -> None:
     """
     Test to see if panel 1d is replicated.
 
@@ -130,8 +130,13 @@ def comp_uc_oc(setup: ModelSetup, panel="d") -> None:
     ddata.attrs["long_name"] = r"$\Delta$ SST"
     comp_plot(add_units(uc_oc_dt.interp_like(ddata)), ddata)
 
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
 
-def comp_uc_atm(setup: ModelSetup, panel="d") -> None:
+
+def comp_uc_atm(setup: ModelSetup, panel="d", show_plots: bool = False) -> None:
     """
     Test to see if panel 2d is right.
 
@@ -145,8 +150,13 @@ def comp_uc_atm(setup: ModelSetup, panel="d") -> None:
     comp_prcp_quiver_plot(uc_atm, ads)
     plt.savefig("example.png")
 
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
 
-def comp_atm_prwnd(setup: ModelSetup, num: str) -> None:
+
+def comp_atm_prwnd(setup: ModelSetup, num: str, show_plots: bool = False) -> None:
     """
     Test to see if atm is right.
 
@@ -160,8 +170,13 @@ def comp_atm_prwnd(setup: ModelSetup, num: str) -> None:
     comp_prcp_quiver_plot(uc_atm, ads)
     plt.savefig(setup.rep_plot(num, "_prwnd"))
 
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
 
-def comp_oc_sst(setup: ModelSetup, num: str) -> None:
+
+def comp_oc_sst(setup: ModelSetup, num: str, show_plots: bool = False) -> None:
     """
     Compare the sea surface temperature trend of the final model iteration.
 
@@ -182,8 +197,13 @@ def comp_oc_sst(setup: ModelSetup, num: str) -> None:
     comp_plot(add_units(oc_dt.interp_like(ddata)), ddata, vmin=-2, vmax=2)
     plt.savefig(setup.rep_plot(num, "_sst"))
 
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
 
-def comp_oc_htherm(setup: ModelSetup, num: str) -> None:
+
+def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> None:
     """
     Compare the sea surface temperature trend of the final model iteration.
 
@@ -207,12 +227,21 @@ def comp_oc_htherm(setup: ModelSetup, num: str) -> None:
     comp_plot(oc_dt, ddata, vmin=-30, vmax=30)
     plt.savefig(setup.rep_plot(num, "_htherm"))
 
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
+
 
 if __name__ == "__main__":
     # python src/visualisation/comp.py
     import os
 
-    os.mkdir("/gws/nopw/j04/ai4er/users/sdat2/sensitivity/k_days_logs/k_days_10/plots")
+    plot_dir = "/gws/nopw/j04/ai4er/users/sdat2/sensitivity/k_days_logs/k_days_10/plots"
+
+    if not os.path.exists(plot_dir):
+        os.mkdir(plot_dir)
+
     uncoupled_run_dir = str(UC_LOGS / "it_1")
     cfg = load_config(test=False)
     uncoup_setup = ModelSetup(uncoupled_run_dir, cfg, make_move=False)
