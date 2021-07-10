@@ -353,9 +353,9 @@ class Coupling:
             self.ocean.copy_old_io(it)
 
         plot_names = {
-            self.comp.sst: comp_oc_sst(self.comp.sst),
-            self.comp.prwnd: comp_atm_prwnd(self.comp.prwnd),
-            self.comp.htherm: comp_oc_htherm(self.comp.htherm),
+            self.cfg.comp.sst: comp_oc_sst(self.cfg.comp.sst),
+            self.cfg.comp.prwnd: comp_atm_prwnd(self.cfg.comp.prwnd),
+            self.cfg.comp.htherm: comp_oc_htherm(self.cfg.comp.htherm),
         }
 
         # set up.
@@ -404,4 +404,5 @@ class Coupling:
                 for i in plot_names:
                     d_3[i] = wandb.Image(plot_names[i], caption=str(i))
 
-                wandb.log({**d_2, **d_3})
+                if self.cfg.wandb:
+                    wandb.log({**d_2, **d_3})

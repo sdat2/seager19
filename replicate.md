@@ -7,9 +7,10 @@ python src/main.py name=std_uncoup coup.iterations=1 atm.mem=EEEf archive_dir=/g
 
 python src/main.py name=uncoup_noheat coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false atm.prcp_land=0 comp.htherm=4b comp.sst=1d comp.prwnd=2c # set off
 
-python src/main.py name=ECMWF_uncoup atm.mem=EEEE coup.iterations=1 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d
+python src/main.py name=ECMWF_uncoup atm.mem=EEEE coup.iterations=1 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d # set off
 
 python src/main.py name=std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep
+# set off.
 
 python src/main.py name=ECMWF_coup atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
