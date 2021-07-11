@@ -188,6 +188,8 @@ def comp_oc_sst(
         setup (ModelSetup): The setup.
         num (str): The number e.g. "2b".
     """
+    if "1" in num:
+        var = "SST"
     ps_defaults(use_tex=False, dpi=200)
     uc_oc = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
     oc_dt = add_units(get_trend(clip(can_coords(uc_oc.SST_SST))).isel(Z=0).drop("Z"))
