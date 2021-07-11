@@ -2,6 +2,7 @@
 
 ```bash
 
+## replication of parameters in paper
 
 python src/main.py name=std_uncoup coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d # set off
 
@@ -25,6 +26,27 @@ python src/main.py name=C_RH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/
 
 python src/main.py name=C_W_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 # 
+
+# making the cloud constant constant  atm.vary_cloud_const=false
+
+
+python src/main.py name=A_std_uncoup coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d atm.vary_cloud_const=false
+
+python src/main.py name=A_uncoup_noheat coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false atm.prcp_land=0 comp.htherm=4b comp.sst=1d comp.prwnd=2c atm.vary_cloud_const=false
+
+python src/main.py name=A_ECMWF_uncoup atm.mem=EEEE coup.iterations=1 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d atm.vary_cloud_const=false
+
+python src/main.py name=A_std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep atm.vary_cloud_const=false
+
+python src/main.py name=A_ECMWF_coup atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a atm.vary_cloud_const=false
+
+python src/main.py name=A_C_RH_W_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c atm.vary_cloud_const=false
+
+python src/main.py name=A_C_RH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b atm.vary_cloud_const=false
+
+python src/main.py name=A_C_W_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a atm.vary_cloud_const=false
+ 
+
 
 # The effective relative humidity, r, is assumed to be spatially 
 # uniform at 0.80 in our standard model
