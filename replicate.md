@@ -47,6 +47,23 @@ python src/main.py name=A_C_RH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4e
 python src/main.py name=A_C_W_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a atm.vary_cloud_const=false
  
 
+# Change the epsilon fraction.
+
+python src/main.py name=E_std_uncoup coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d atm.e_frac=2
+
+python src/main.py name=E_uncoup_noheat coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false atm.prcp_land=0 comp.htherm=4b comp.sst=1d comp.prwnd=2c atm.e_frac=2
+
+python src/main.py name=E_ECMWF_uncoup atm.mem=EEEE coup.iterations=1 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d atm.e_frac=2
+
+python src/main.py name=E_std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep atm.e_frac=2
+
+python src/main.py name=E_ECMWF_coup atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a atm.e_frac=2
+
+python src/main.py name=E_C_RH_W_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c atm.e_frac=2
+
+python src/main.py name=E_C_RH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b atm.e_frac=2
+
+python src/main.py name=E_C_W_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a atm.e_frac=2
 
 # The effective relative humidity, r, is assumed to be spatially 
 # uniform at 0.80 in our standard model
