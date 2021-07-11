@@ -383,7 +383,7 @@ class Atmos:
         Returns:
             xr.DataArray: The a constant. Normally 0.5 or 0.8
         """
-        temperature = temperature - self.cfg.atm.temp_0_c
+        temperature = temperature - self.atm.temp_0_c
         cloud_const_da = temperature.copy()
         cloud_const_da = cloud_const_da.where(
             temperature >= self.atm.dc_threshold_temp
