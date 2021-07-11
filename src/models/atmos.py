@@ -375,13 +375,14 @@ class Atmos:
         """
         Function to produce variable cloud constant using temperature.
 
-        TODO: currently blows up the model.
+        Models an approximation to the effect of deep convection.
 
         Args:
-            temperature (xr.DataArray): temperature in kelvin.
+            temperature (xr.DataArray): temperature in Kelvin.
 
         Returns:
-            xr.DataArray: The a constant. Normally 0.5 or 0.8
+            xr.DataArray: The a constant. Normally 0.4 or 0.8. A standard value of
+                0.6 is applied if you disable deep convection.
         """
         temperature = temperature - self.atm.temp_0_c
         cloud_const_da = temperature.copy()
