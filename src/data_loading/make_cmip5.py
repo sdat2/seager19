@@ -4,7 +4,7 @@ import xarray as xr
 from src.constants import MMM_V23_HIST, MMM_V23_RCP85, ATMOS_DATA_PATH, U_HIST, V_HIST
 from src.xr_utils import open_dataset, open_dataarray, can_coords
 from src.utils import timeit
-from src.data_loading.download import get_uv, get_mmm
+from src.data_loading.download import get_uv, get_mmm, get_figure_data
 from src.visualisation.comp import return_figure_ds
 
 
@@ -116,7 +116,7 @@ def make_sfcwind() -> None:
 @timeit
 def get_sfcwind() -> None:
     """Get the CMIP5 surface wind from the figure data."""
-    wsp = can_coords(return_figure_ds("5c")["wnspClim"])
+    wsp = can_coords(return_figure_ds("5d")["wnspClim"])
     swd_e60 = (
         open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim60.nc")
         .isel(variable=0)
@@ -156,6 +156,7 @@ if __name__ == "__main__":
     # print(return_figure_ds("5f"))
     # make_rh()
     # make_sfcwind()
+    get_figure_data()
     get_rh()  # get it from the figure data
     get_sfcwind()  # get it from the figure data
 

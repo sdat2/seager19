@@ -269,14 +269,6 @@ and so you may need to try a different connection method if it doesn't load.
 
    grep -R "f1prime" ocean/SRC
 
-   grep -R "depth" ocean/SRC
-
-   grep -R "aml" ocean/SRC
-
-   grep -R "TDEEP" ocean/SRC
-
-   grep -R "HSFC" ocean/SRC
-
 ```
 
 ### Get CMIP5 multimodel means
