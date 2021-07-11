@@ -15,7 +15,7 @@ python src/main.py name=N_std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/
 python src/main.py name=N_ECMWF_coup atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
 
-python src/main.py name=N_C_RH_W_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c
+python src/main.py name=N_C_RH_W2_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c
 
 
 python src/main.py name=N_C_RH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b
@@ -37,11 +37,11 @@ python src/main.py name=A_std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/
 
 python src/main.py name=A_ECMWF_coup atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a atm.vary_cloud_const=false
 
-python src/main.py name=A_C_RH_W_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c atm.vary_cloud_const=false
+python src/main.py name=A_C_RH_W2_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c atm.vary_cloud_const=false
 
 python src/main.py name=A_C_RH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b atm.vary_cloud_const=false
 
-python src/main.py name=A_C_W_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a atm.vary_cloud_const=false
+python src/main.py name=A_C_W2_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a atm.vary_cloud_const=false
  
 
 # Change the epsilon fraction.
