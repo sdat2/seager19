@@ -355,11 +355,14 @@ class Coupling:
         print(self.cfg.comp.sst, self.cfg.comp.prwnd, self.cfg.comp.htherm)
 
         plot_names = {
-            str(self.cfg.comp.sst): comp_oc_sst(self.setup, str(self.cfg.comp.sst)),
-            str(self.cfg.comp.prwnd): comp_atm_prwnd(
+            "sst_"
+            + str(self.cfg.comp.sst): comp_oc_sst(self.setup, str(self.cfg.comp.sst)),
+            "prwnd_"
+            + str(self.cfg.comp.prwnd): comp_atm_prwnd(
                 self.setup, str(self.cfg.comp.prwnd)
             ),
-            str(self.cfg.comp.htherm): comp_oc_htherm(
+            "htherm_"
+            + str(self.cfg.comp.htherm): comp_oc_htherm(
                 self.setup, str(self.cfg.comp.htherm)
             ),
         }
