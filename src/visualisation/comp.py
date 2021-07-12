@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 from typing import List
 from src.models.model_setup import ModelSetup
 from src.xr_utils import open_dataset, get_trend, clip, can_coords, sel
+from src.wandb_utils import setup_from_name
 from src.utils import get_default_setup
 from src.configs.load_config import load_config
 from src.plot_utils import add_units, cmap, get_dim, label_subplots, ps_defaults
-from src.constants import UC_LOGS, FIGURE_DATA_PATH
+from src.constants import UC_LOGS, FIGURE_DATA_PATH, FIGURE_PATH
 from src.visualisation.quiver import pqp_part
 
 
@@ -260,3 +261,47 @@ if __name__ == "__main__":
     comp_atm_prwnd(coup_setup, "3")
     comp_oc_htherm(coup_setup, "4b")
     # comp_uc_oc(uncoup_setup)
+
+
+def field_plot() -> None:
+    """Plot fields."""
+    fig, axs = plt.subplots(4, 1, figsize=get_dim(ratio=0.3 * 4), sharex=True)
+    clip(
+        can_coords(xr.open_dataarray(setup_from_name("ECMWF_coup").clim60_name(3)))
+    ).plot(
+        ax=axs[0],
+        cmap=cmap("sst"),
+        vmin=30,
+        vmax=90,
+        cbar_kwargs={"label": r"ECMWF   $\bar{r}$  [%]"},
+    )
+    axs[0].set_xlabel("")
+    clip(
+        can_coords(xr.open_dataarray(setup_from_name("C_RH_coup").clim60_name(3)))
+    ).plot(
+        ax=axs[1],
+        cmap=cmap("sst"),
+        vmin=30,
+        vmax=90,
+        cbar_kwargs={"label": r"CMIP5   $\bar{r}$  [%]"},
+    )
+    axs[1].set_xlabel("")
+    clip(can_coords(return_figure_ds("5a")["wnspClim"])).plot(
+        ax=axs[2],
+        cmap=cmap("sst"),
+        vmin=4,
+        vmax=8,
+        cbar_kwargs={"label": r"ECMWF   $\bar{W}$  [m s$^{-1}$]"},
+    )
+    axs[2].set_xlabel("")
+    clip(can_coords(return_figure_ds("5d")["wnspClim"])).plot(
+        ax=axs[3],
+        cmap=cmap("sst"),
+        vmin=4,
+        vmax=8,
+        cbar_kwargs={"label": r"CMIP5   $\bar{W}$  [m s$^{-1}$]"},
+    )
+    label_subplots(axs, y_pos=1.05, x_pos=-0.1)
+    plt.tight_layout()
+    plt.savefig(str(FIGURE_PATH / "fields.pdf"))
+    plt.savefig(str(FIGURE_PATH / "fields.png"))
