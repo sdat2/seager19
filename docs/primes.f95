@@ -1,1 +1,0 @@
-../src/test/primes.f95
