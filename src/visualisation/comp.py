@@ -264,8 +264,8 @@ if __name__ == "__main__":
 
 
 def field_plot() -> None:
-    """Plot fields."""
-    fig, axs = plt.subplots(4, 1, figsize=get_dim(ratio=0.3 * 4), sharex=True)
+    """Plot the different input fields that are varied."""
+    _, axs = plt.subplots(4, 1, figsize=get_dim(ratio=0.3 * 4), sharex=True)
     clip(
         can_coords(xr.open_dataarray(setup_from_name("ECMWF_coup").clim60_name(3)))
     ).plot(
