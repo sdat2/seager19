@@ -32,7 +32,7 @@ Current state of code:
    :literal:
 
 
-MRes Proposal (See :download:`the final report <Report_without_documentation>`.):
+MRes Proposal (See :download:`the final report <Report_without_documentation.pdf>`.):
 
 Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble members have a positive NINO3.4 trend (towards El Nino) where as the observations show a more negative NINO3.4 trend (towards La Nina).
 
