@@ -49,6 +49,26 @@ class ModelSetup:
         self.atmos_data_path = os.path.join(self.atmos_path, "DATA")
         self.atmos_tmp_path = os.path.join(self.atmos_path, "tmp")
 
+        # the different model names in a dict? - used by key from self.mem.
+        self.names: dict = {
+            "E": "ECMWF",
+            "F": "ECMWF-orig",
+            "B": "CMIP5-39m",
+            "C": "CMIP5",
+            "D": "CMIP5-orig",
+            "H": "HadGEM2",
+            "f": "fixed",
+            "e": "fixed78",
+            "g": "fixed82",
+            "W": "WHOI",
+            "M": "MERRA",
+            "I": "ISCCP",
+        }
+
+        # dict of variables that are read in.
+        self.var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        # temperature of the surface, cloud area fraction, surface wind, rel humidity.
+
         if make_move:
 
             for i in [
@@ -298,3 +318,20 @@ class ModelSetup:
     def tuq_trend_plot(self) -> str:
         return os.path.join(self.plot_path, "tuq_trends.png")
 
+    def rep_plot(self, num: str, suffix: str = "") -> str:
+        return os.path.join(self.plot_path, "fig_" + str(num) + suffix + ".png")
+
+    def _get_clim_name(self, var_num: int) -> str:
+        return self.names[self.cfg.atm.mem[var_num]]
+
+    def clim60_name(self, var_num: int) -> str:
+        # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        name = self._get_clim_name(var_num)
+        variable = self.var[var_num]
+        return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim60.nc")
+
+    def clim_name(self, var_num: int) -> str:
+        # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        name = self._get_clim_name(var_num)
+        variable = self.var[var_num]
+        return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim.nc")

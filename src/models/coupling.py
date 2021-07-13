@@ -1,6 +1,7 @@
 """Coupling between ocean and atmospheric models.
 
 Example:
+
     Import statement usage::
 
         from src.models.coupling import Coupling
@@ -20,6 +21,7 @@ from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
 from src.visualisation.ani import animate_coupling
 from src.visualisation.quiver import prcp_quiver_plot
 from src.visualisation.trends import up_therm_qnet
+from src.visualisation.comp import comp_oc_sst, comp_atm_prwnd, comp_oc_htherm
 
 
 # pylint: disable=no-value-for-parameter
@@ -136,7 +138,7 @@ class Coupling:
             xr.Dataset: dataset with different different tau fields.
 
         """
-        sfcwind = xr.open_dataset(self.setup.ecmwf_sfcwind()).sfcWind
+        sfcwind = xr.open_dataset(self.setup.clim_name(2)).sfcWind
         ubeg = xr.open_dataset(self.setup.tcam_output()).ubeg
         vbeg = xr.open_dataset(self.setup.tcam_output()).vbeg
         utrend = xr.open_dataset(self.setup.tcam_output()).utrend
@@ -350,7 +352,22 @@ class Coupling:
             # copy old io.
             self.ocean.copy_old_io(it)
 
-        # set up.
+        print(self.cfg.comp.sst, self.cfg.comp.prwnd, self.cfg.comp.htherm)
+
+        plot_names = {
+            "sst_"
+            + str(self.cfg.comp.sst): comp_oc_sst(self.setup, str(self.cfg.comp.sst)),
+            "prwnd_"
+            + str(self.cfg.comp.prwnd): comp_atm_prwnd(
+                self.setup, str(self.cfg.comp.prwnd)
+            ),
+            "htherm_"
+            + str(self.cfg.comp.htherm): comp_oc_htherm(
+                self.setup, str(self.cfg.comp.htherm)
+            ),
+        }
+
+        # set up.s
         if self.cfg.animate:
             up_therm_qnet(self.setup, save_path=self.setup.tuq_trend_plot())
             prcp_quiver_plot(self.setup, save_path=self.setup.prcp_quiver_plot())
@@ -360,37 +377,41 @@ class Coupling:
             animate_coupling(self.setup, pac=True, mask_land=True)
             animate_coupling(self.setup, pac=False, mask_land=True)
             if self.cfg.wandb:
-                wandb.log(
-                    {
-                        "coupling_video_pac_mask_land": wandb.Video(
-                            self.setup.coupling_video(pac=True, mask_land=True),
-                            fps=1,
-                            format="gif",
+                d_2 = {
+                    "coupling_video_pac_mask_land": wandb.Video(
+                        self.setup.coupling_video(pac=True, mask_land=True),
+                        fps=1,
+                        format="gif",
+                    ),
+                    "coupling_video": wandb.Video(
+                        self.setup.coupling_video(pac=False, mask_land=False),
+                        fps=1,
+                        format="gif",
+                    ),
+                    "final_nino_graph": wandb.Image(
+                        self.setup.nino_png(it),
+                        caption=str(
+                            "Final Nino region anomalies" + " over the 58 year trends"
                         ),
-                        "coupling_video": wandb.Video(
-                            self.setup.coupling_video(pac=False, mask_land=False),
-                            fps=1,
-                            format="gif",
+                    ),
+                    "prcp_quiver_plot": wandb.Image(
+                        self.setup.prcp_quiver_plot(),
+                        caption=str(
+                            "Change in precipitation and surface wind"
+                            + " over the 58 years."
                         ),
-                        "final_nino_graph": wandb.Image(
-                            self.setup.nino_png(it),
-                            caption=str(
-                                "Final Nino region anomalies"
-                                + " over the 58 year trends"
-                            ),
+                    ),
+                    "tuq_trend_plot": wandb.Image(
+                        self.setup.tuq_trend_plot(),
+                        caption=str(
+                            "Change in thermocline, upwelling and net heat flux."
                         ),
-                        "prcp_quiver_plot": wandb.Image(
-                            self.setup.prcp_quiver_plot(),
-                            caption=str(
-                                "Change in precipitation and surface wind"
-                                + " over the 58 years."
-                            ),
-                        ),
-                        "tuq_trend_plot": wandb.Image(
-                            self.setup.tuq_trend_plot(),
-                            caption=str(
-                                "Change in thermocline, upwelling and net heat flux."
-                            ),
-                        ),
-                    }
-                )
+                    ),
+                }
+
+                d_3 = {}
+                for i in plot_names:
+                    d_3[i] = wandb.Image(plot_names[i], caption=str(i))
+
+                if self.cfg.wandb:
+                    wandb.log({**d_2, **d_3})

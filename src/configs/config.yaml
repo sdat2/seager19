@@ -13,6 +13,10 @@ name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${c
 # python src/main.py --multirun atm.eps_days=1.35,1.45
 # python src/main.py --multirun atm.eps_days=0.35,0.45
 # python src/main.py --multirun atm.eps_days=1.65
+comp:
+  htherm: 4c
+  sst: 5a
+  prwnd: 5a
 test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
@@ -65,10 +69,13 @@ atm:
   # this is actual rho_bar in the paper
   # 0.3 kg m-3
   # Strange properties to plot different models etc.
-  mem: "EEEf"  # string is iterated through
-  # ts, clt, sfwind, rh
+  mem: "EEEf"  # string is iterated through - standard model uses fixed value for
+  # relative humidity.
+  # ts, clt, sfcwind, rh
+  # mem: "EECC" would be the option close to cmip world.
   # E: ECMWF
   # f: fixed
+  # C: CMIP5
   pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day. 20 per hour?
   relative_humidity: 0.80  # relative humidity uniformly 0.8
   number_iterations: 50  #  int, the number of iterations.
@@ -93,7 +100,6 @@ atm:
   # raleigh friction step.
   eps_days: 0.75 # this is the inverse of the raleigh friction coefficient epsilon.
   # Over 1958–2017, the CO2 changed from ~300 to ~400 ppm, which would be about 0.75 W m−2
-  # eps days might be the efficiency of entrainment.
   # mult_or_div:  * 1 *
   eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
   e_frac: 0.5   # multiply epsu by efrac to get epsv
@@ -114,7 +120,7 @@ atm:
   # a_cloud_const[a_cloud_const<=28]: 80;
   # a_cloud_const: 0.01*a_cloud_const
   a_cloud_const: 0.6  # this isn't the option used in the paper, but this was in the original code.
-  vary_cloud_const: false # whether or not to use variable values instead.
+  vary_cloud_const: true # whether or not to use variable values instead.
   dc_threshold_temp: 28 # above 28 degrees celsius we might get deep convection 
   a_cloud_const_dc: 0.4   # this is for deep convection
   a_cloud_const_norm: 0.8   # this is for nomral conditions

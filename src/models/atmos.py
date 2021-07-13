@@ -293,7 +293,7 @@ class Atmos:
         """Flux dqlh_dtemp.
 
         Args:
-            temperature (xr.DataArray): temperature (in kelvin?).
+            temperature (xr.DataArray): temperature (in kelvin).
             u_sp (Union[xr.DataArray, float]): u speed.
             rh_loc (xr.DataArray): relative humidity.
 
@@ -309,7 +309,7 @@ class Atmos:
         Delta temp = 1 in paper.
 
         Args:
-            temperature (xr.DataArray): temp.
+            temperature (xr.DataArray): temperature in kelvin.
 
         Returns:
             xr.DataArray: temperature anomaly.
@@ -321,11 +321,11 @@ class Atmos:
         """Flux e_bar.
 
         Args:
-            temperature (xr.DataArray): [description]
-            rh_loc (xr.DataArray): [description]
+            temperature (xr.DataArray): temperature in kelvin.
+            rh_loc (xr.DataArray): Relative humidity (dimemsionless)
 
         Returns:
-            xr.DataArray: [description]
+            xr.DataArray: evaporation.
         """
         q_a = rh_loc * self.f_qs(temperature)
 
@@ -347,11 +347,11 @@ class Atmos:
         Qlw1 = epsilon sigma T^4 f' (1 - a_cloud_const C^2)
 
         Args:
-            temperature (xr.DataArray): temperature of the surface?
+            temperature (xr.DataArray): temperature of the surface in kelvin.
             cloud_cover (Union[xr.DataArray, float]): the cloud cover, which could be
                 a constant or an array.
             f (float):
-            rh_loc (xr.DataArray): relative humidity?
+            rh_loc (xr.DataArray): relative humidity
 
         Returns:
             xr.DataArray: The first term of the long wave flux equation.
@@ -360,7 +360,7 @@ class Atmos:
         if not self.atm.vary_cloud_const:
             a_cloud_const = self.atm.a_cloud_const
         else:
-            a_cloud_const = self.get_cloud_const(temp_a)
+            a_cloud_const = self.get_cloud_const(temperature)
 
         return (
             self.atm.qlw_coeff
@@ -375,14 +375,16 @@ class Atmos:
         """
         Function to produce variable cloud constant using temperature.
 
-        TODO: currently blows up the model.
+        Models an approximation to the effect of deep convection.
 
         Args:
-            temperature (xr.DataArray): temperature in degrees celsius
+            temperature (xr.DataArray): temperature in Kelvin.
 
         Returns:
-            xr.DataArray: The a constant. Normally 0.5 or 0.8
+            xr.DataArray: The a constant. Normally 0.4 or 0.8. A standard value of
+                0.6 is applied if you disable deep convection.
         """
+        temperature = temperature - self.atm.temp_0_c
         cloud_const_da = temperature.copy()
         cloud_const_da = cloud_const_da.where(
             temperature >= self.atm.dc_threshold_temp
@@ -439,7 +441,7 @@ class Atmos:
         """Flux dqlw_df.
 
         Args:
-            temperature (xr.DataArray): temp.
+            temperature (xr.DataArray): temperature in Kelvin.
             cloud_cover (Union[xr.DataArray, float]): constant.
 
         Returns:
@@ -466,7 +468,7 @@ class Atmos:
         """Flux dqlw_dtemp.
 
         Args:
-            temperature (xr.DataArray): Temperature dataarray.
+            temperature (xr.DataArray): Temperature dataarray in Kelvin.
             cloud_cover (Union[xr.DataArray, float]): Cloud cover.
             f (float): [description]
             rh_loc (xr.DataArray): the relative humidity.
@@ -786,9 +788,8 @@ class Atmos:
         def get_clim():
             # the average condions from ECMWF
             # Gets the windspeed, surface temperature, precipation, and surface pressure
-            ds_clim = xr.open_dataset(
-                os.path.join(self.setup.atmos_data_path, "sfcWind-ECMWF-clim.nc")
-            )
+            ds_clim = xr.open_dataset(self.setup.clim_name(2))
+            # this needs to be replaced
             fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
             ds_clim = xr.open_dataset(self.setup.ts_clim(self.it))
             fts = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ts, kind="linear")
@@ -1110,6 +1111,7 @@ class Atmos:
             if variable == "ts":
                 # the surface temperature can be an input from the ocean model.
                 file = self.setup.ts_clim60(self.it)
+                # temperature is in degrees kelvin!
             else:
                 file = os.path.join(
                     self.setup.atmos_data_path, variable + "-" + name + "-clim60.nc"
@@ -1148,7 +1150,7 @@ class Atmos:
         u_b_loc = tmp.unstack("z").T
         c_b_loc = dclim_loc.clt / 100.0
         rh_loc = dclim_loc.rh / 100.0
-        f1p = -0.003
+        f1p = -0.003  # f1prime
 
         alh0 = self.f_dqlh_dtemp(t_sb_loc, self.atm.u_bar, rh_loc)
         alw0 = self.f_dqlw_dtemp(t_sb_loc, self.atm.c_bar, self.atm.f1_bar, rh_loc)

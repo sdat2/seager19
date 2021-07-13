@@ -43,11 +43,21 @@ MASK = OCEAN_DATA_PATH / "om_mask.nc"
 DATA_PATH = SRC_PATH / "data"
 CMIP_TS_PATH = DATA_PATH / "ts_nc"
 
+# NINO34 trend from fig5e
+NINO34_TRENDS = DATA_PATH / "nino34-trends.csv"
+NINO34_TRENDS_CMIP5 = DATA_PATH / "nino34-trends-cmip5.csv"
+
 # Wandb-summary file download:
 ORIG_WANDB_DATA = DATA_PATH / "results.csv"
 NEW_WANDB_DATA = DATA_PATH / "results22Jun.csv"
 
-# Multi model mean
+
+# Multi model mean u and v fields
+UV_PATH = DATA_PATH / "hist-winds-cmip5"
+U_HIST = UV_PATH / "ua.nc"
+V_HIST = UV_PATH / "va.nc"
+
+# Multi model mean surface fields
 MMM_V23_PATH = DATA_PATH / "mmm-v2.3-full-rep"
 MMM_V23_HIST = MMM_V23_PATH / "cmip5-mmm-v2.3-historical.nc"
 MMM_V23_RCP85 = MMM_V23_PATH / "cmip5-mmm-v2.3-rcp85.nc"
@@ -98,7 +108,7 @@ UC_LOGS = GWS_DIR / "uc_logs"
 #    LOG_PATH = GWS_DIR / "logs"
 # else:
 LOG_PATH = PROJECT_PATH / "logs"
-FIN_LOG_PATH = EPS_LOGS #  K_LOGS  # EPS_LOGS
+FIN_LOG_PATH = EPS_LOGS  #  K_LOGS  # EPS_LOGS
 # LOG_PATH = PROJECT_PATH / "k_days_logs"
 
 if not os.path.exists(str(LOG_PATH)):

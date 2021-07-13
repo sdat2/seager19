@@ -215,31 +215,12 @@ and so you may need to try a different connection method if it doesn't load.
 
     python src/main.py name=cd_1.0 coup.c_d=1.0e-3
 
-    # testing a different set of param to replicate paper
-
-    python src/main.py archive_dir=/gws/nopw/j04/ai4er/users/sdat2/uc_logs name=pap_2 wandb=false coup.iterations=1 atm.e_frac=0.5 animate=false ocean.ingrid=false
-
-    python src/main.py archive_dir=/gws/nopw/j04/ai4er/users/sdat2/uc_logs name=efrac2 wandb=false coup.iterations=1 atm.e_frac=2 animate=false ocean.ingrid=false
-
-    python src/main.py archive_dir=/gws/nopw/j04/ai4er/users/sdat2/uc_logs name=efrac0.5_fix wandb=false coup.iterations=1 atm.e_frac=0.5 animate=false ocean.ingrid=false
-
-    python src/main.py atm.mem=EEEE atm.vary_cloud_const=true
-
 ```
+
+To look at the commands to relicate the paper figures, see `replicate.md`.
 
 ## Other handy commands for development of repo
 
-### Moving old model runs
-
-```bash
-
-    mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/cd_logs/
-        
-    mv -f logs/* /gws/nopw/j04/ai4er/users/sdat2/eps_days_logs/
-
-    mv -f k_days_logs /gws/nopw/j04/ai4er/users/sdat2/
-
-```
 
 ### Make a notebook with helpful magic functions for dark mode
 
@@ -269,19 +250,6 @@ and so you may need to try a different connection method if it doesn't load.
 
    grep -R "f1prime" ocean/SRC
 
-   grep -R "depth" ocean/SRC
-
-   grep -R "aml" ocean/SRC
-
-   grep -R "TDEEP" ocean/SRC
-
-   grep -R "HSFC" ocean/SRC
-
-
-grep -R "rho" ocean/SRC # 1023 kg m-2
-
-
-f0=54.6746d+00,f1=-.603459d+00,f2=1.09987d-02,f3=-6.167d-05,
 ```
 
 ### Get CMIP5 multimodel means

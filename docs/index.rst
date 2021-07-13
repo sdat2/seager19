@@ -9,8 +9,8 @@ Home - seager19 Documentation
 Welcome to the seager19 documentation!
 
 This webpage/document explores the code and data 
-used in the seager19 MRes project, and some of the 
-motivations for different choices made. The 
+from Seager et al. 2019 (S19), reeassembling their coupled 
+model of the tropical pacific. The 
 first section `seager19` contains the main
 `README.md` of the repository, so as to reduce duplication,
 and this should provide a reasonable introduction to the 

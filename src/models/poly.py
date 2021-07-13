@@ -206,6 +206,7 @@ def plot(
     plt.ylabel(y_label)
     plt.xlim(min_x_pred, max_x_pred)
     plt.tight_layout()
+
     if fig_path is not None:
         plt.savefig(fig_path)
 
