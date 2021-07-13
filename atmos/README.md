@@ -1,10 +1,12 @@
-# Python Atmosphere Model
+# Original python atmosphere model from Naomi Henderson
 
+There are two original notebooks and python scripts,
+that which are adaptations of one another. These
+were both refacotred into `src/models/atmos` so 
+that they could share a common input struct and 
+be called systematically as an object from 
+within a coupled model run.
 
-```
-python3 dQ.py 
-python3 TCAM.py 
-```
 
 File structure:
 
