@@ -221,6 +221,9 @@ def get_mmm(force_refresh: bool = False) -> None:
     _get_data(lol, force_refresh=force_refresh)
 
 
+# https://www.dropbox.com/s/18oca0kaft5tdy0/cmip6-mmm.zip?dl=0
+
+
 def get_uv(force_refresh: bool = False) -> None:
     """Downloads uv mean."""
     # https://www.dropbox.com/s/9zuxdyhapwr1eat/hist-winds-cmip5.zip?dl=0
@@ -231,6 +234,23 @@ def get_uv(force_refresh: bool = False) -> None:
                 [
                     PREFIX + "9zuxdyhapwr1eat/hist-winds-cmip5.zip" + SUFFIX,
                     "hist-winds-cmip5.zip",
+                ],
+            ],
+        ],
+    ]
+
+    _get_data(lol, force_refresh=force_refresh)
+
+
+def get_cmip6_mmm(force_refresh: bool = False) -> None:
+    """Downloads cmip6 means."""
+    lol = [
+        [
+            str(DATA_PATH),
+            [
+                [
+                    PREFIX + "18oca0kaft5tdy0/cmip6-mmm.zip" + SUFFIX,
+                    "cmip6-mmm.zip",
                 ],
             ],
         ],
@@ -263,9 +283,10 @@ def _get_data(lol: list, force_refresh: bool = False) -> None:
 
 if __name__ == "__main__":
     # python3 src/data_loading/download.py
-    # get_data()
+    get_data()
     # get_figure_data()
     # get_member_data()
     # get_original_models()
     # get_mmm()
-    get_uv()
+    # get_uv()
+    # get_cmip6_mmm()
