@@ -3,54 +3,77 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Home - seager19 Documentation
+Analysis of a Parsimonious Coupled Model of the Equatorial Pacific Surface Temperature Change
 ==============================
 
 Welcome to the seager19 documentation!
 
-This webpage/document explores the code and data 
-from Seager et al. 2019 (S19), reeassembling their coupled 
-model of the tropical pacific. The 
-first section `seager19` contains the main
-`README.md` of the repository, so as to reduce duplication,
-and this should provide a reasonable introduction to the 
-repository as a whole.
+This project reassembles a parsimonious coupled model of the equatorial Pacific, 
+from Seager et al. 2019 (S19), that was created to explain the cold 
+tongue bias in CMIP5 models. When forced with ECMWF reanalysis fields, it can reproduce
+the trend observed in ECMWF/ORAS4 reanalysis product that was forced with the same
+fields. It shows that the CMIP5 bias inthe trend in NINO3.4 from 1958-2017 could
+be due to a product of the CMIP5 bias in relative humidityand sea surface winds, 
+which is shown through exchanging ECMWF mean fields for CMIP5 multimodelmean fields.
+The replacements of mean relative humidity, mean wind speed, and both together, 
+lead toincreases in the NINO3.4 trend of 0.31±0.03 K, 0.054±0.005 K, and 0.47±0.04 K 
+respectively when testedwith a range of plausible inputs. This is congruent with the
+observed difference of 0.478 K between theECMWF/ORAS4 reanalysis product and the CMIP5 multimodel mean. I investigate how reliable the results from this model might be by varying
+the free parameters and findthat, as far as tested, the model is not overly sensitive to
+subjective inputs. It is therefore plausible thatobserved bias in the increase in sea
+surface temperature is caused by excess humidity, and insufficient windspeed over the cold
+tongue – are reinforced as credible, as the model is not overly sensitive to variation 
+of the free parameters.
 
-The online version of this documentation is able to include
-more interactive features such as gifs of the results.
-Therefore, I suggest that the web version is 
-probably a better read.
+The first section `seager19` contains the main `README.md` of the repository,
+so as to reduce duplication, and this should provide a reasonable introduction
+to the repository as a whole.
 
-Current state of code:
+Here is the current breakdown of the model code by language:
 
 .. code-block:: bash
 
-   $ cloc --report-file=docs/lang.txt --sum-one  $(git ls-files)
-
+   $ cloc --report-file=docs/lang.txt  $(git ls-files)
 
 .. include:: lang.txt
    :literal:
 
 
-MRes Proposal (See :download:`the final report <Report_without_documentation.pdf>`.):
+MRes Proposal (See :download:`the final report <Report_without_documentation.pdf>` for results.):
 
-Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble members have a positive NINO3.4 trend (towards El Nino) where as the observations show a more negative NINO3.4 trend (towards La Nina).
+Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble members have
+a positive NINO3.4 trend (towards El Nino) where as the observations show a more 
+negative NINO3.4 trend (towards La Nina).
 
 .. image:: gifs/trend_graph.png
   :width: 500
   :alt: trend graph
 
 Caption: observations = orange diamonds / blue crosses;
- models = blue / black. As you can see the CMIP ensemble members show little overlap with any of the renalysis products.
+models = blue / black. As you can see the CMIP ensemble 
+members show little overlap with any of the renalysis products.
 
 .. image:: gifs/trend_graphic.png
   :width: 500
   :alt: trend graphic
 
-Caption: this suggests an over all tendency to La Nina in observations rather than El Nino.
+Caption: This suggests an over all tendency to La Nina in observations rather than El Nino.
+
 
 They showed that the observed trend can be reproduced with a simple coupled physical model.
-Here, we carry out a parameter sensitivity analysis of the S19 model. Of particular interest might be the S19 model's sensitivity to the drag coefficient, as S19 note that they chose a much higher value than normal so as to replicate the amplitude of ENSO. This sensitivity analysis could first be achieved using a Gaussian Process (GP) with a radial basis function (RBF) kernel of a given smoothness, as the number of data points will initially be quite small (<10^{4}). S19 is computationally lightweight, allowing for a large number of parallel sensitivity experiments to be run at the same time in order to generate the training dataset for the GP model. The GP model will allow us to rapidly explore the parameter space in between our chosen parameter configurations, in terms of both the mean value and uncertainties. From this initial baseline, we could expand to more sophisticated sensitivity analyses, and/or more complicated model settings.
+Here, we carry out a parameter sensitivity analysis of the S19 model. 
+Of particular interest might be the S19 model's sensitivity to the drag coefficient, 
+as S19 note that they chose a much higher value than normal so as to replicate the
+amplitude of ENSO. This sensitivity analysis could first be achieved using a Gaussian
+Process (GP) with a radial basis function (RBF) kernel of a given smoothness,
+as the number of data points will initially be quite small (<10^{4}).
+S19 is computationally lightweight, allowing for a large number of parallel
+sensitivity experiments to be run at the same time in order to generate the
+training dataset for the GP model. The GP model will allow us to rapidly 
+explore the parameter space in between our chosen parameter configurations, 
+in terms of both the mean value and uncertainties. From this initial baseline, 
+we could expand to more sophisticated sensitivity analyses, and/or more complicated 
+model settings.
 
 
 .. image:: gifs/om_diag_SST_SST.gif
