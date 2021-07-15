@@ -179,7 +179,7 @@ def get_nino_trend(
     path_of_run2f: str,
     graph_path: str,
     nc_path: str,
-    show_plots: False,
+    show_plots: bool = False,
 ) -> dict:
     """
     Get nino trend, mean, plot the graph.
