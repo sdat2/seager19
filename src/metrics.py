@@ -99,6 +99,12 @@ def nino_calculate(
 
 
 def load_noaa_data() -> xr.DataArray:
+    """
+    Load the data from the noaa ERSSTv4.5 file.
+
+    Returns:
+        xr.DataArray: NOAA dataarray.
+    """
     noaa_da = add_units(can_coords(xr.open_dataarray(NOAA_DATA_PATH)))
     noaa_da.attrs["units"] = r"$^{\circ}$C"
     return noaa_da
@@ -173,6 +179,7 @@ def get_nino_trend(
     path_of_run2f: str,
     graph_path: str,
     nc_path: str,
+    show_plots: False,
 ) -> dict:
     """
     Get nino trend, mean, plot the graph.
@@ -187,9 +194,11 @@ def get_nino_trend(
     """
     plt.clf()
     ps_defaults(dpi=150)
-    if "NOAA" not in path_of_run2f:
+    if "NOAA" not in path_of_run2f and "ts" not in path_of_run2f:
         sst_output = can_coords(open_dataset(path_of_run2f).SST_SST)
         sst_output = sst_output.where(sst_output != 0.0)
+    elif "ts" in path_of_run2f:
+        sst_output = add_units(can_coords(open_dataarray(path_of_run2f))) - 273.15
     else:
         sst_output = add_units(can_coords(open_dataarray(path_of_run2f)))
 
@@ -222,7 +231,6 @@ def get_nino_trend(
 
         nino_dict["trend_" + reg] = rise.n
         nino_dict["trend_" + reg + "_unc"] = rise.s
-
         nino_dict["mean_" + reg] = metric.attrs["mean_state"]
 
         label = str(
@@ -273,25 +281,28 @@ def get_nino_trend(
     axs[2].set_ylim(20, 30)
     plt.tight_layout()
     plt.savefig(graph_path)
-    plt.clf()
+
+    if show_plots:
+        plt.show()
+
+    else:
+        plt.clf()
 
     print(clim)
 
+    def rem_z(da: xr.DataArray) -> xr.DataArray:
+        if "Z" in da.dims:
+            return da.isel(Z=0).drop("Z")
+        else:
+            return da
+
     if "NOAA" not in path_of_run2f:
 
-        anom = (
-            xr.concat(metric_l, "reg")
-            .assign_coords(reg=reg_l)
-            .isel(Z=0)
-            .drop("Z")
-            .to_dataset(name="anomaly")
+        anom = rem_z(xr.concat(metric_l, "reg").assign_coords(reg=reg_l)).to_dataset(
+            name="anomaly"
         )
-        clim = (
-            xr.concat(clim_l, "reg")
-            .assign_coords(reg=reg_l)
-            .isel(Z=0)
-            .drop("Z")
-            .to_dataset(name="clim")
+        clim = rem_z(xr.concat(clim_l, "reg").assign_coords(reg=reg_l)).to_dataset(
+            name="clim"
         )
         xr.merge([anom, clim]).to_netcdf(nc_path)
 
