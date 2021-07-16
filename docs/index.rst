@@ -12,18 +12,18 @@ This project reassembles a parsimonious coupled model of the equatorial Pacific,
 from Seager et al. 2019 (S19), that was created to explain the cold 
 tongue bias in CMIP5 models. When forced with ECMWF reanalysis fields, it can reproduce
 the trend observed in ECMWF/ORAS4 reanalysis product that was forced with the same
-fields. It shows that the CMIP5 bias inthe trend in NINO3.4 from 1958-2017 could
-be due to a product of the CMIP5 bias in relative humidityand sea surface winds, 
-which is shown through exchanging ECMWF mean fields for CMIP5 multimodelmean fields.
+fields. It shows that the CMIP5 bias in the trend in NINO3.4 from 1958-2017 could
+be due to a product of the CMIP5 bias in relative humidity and sea surface winds, 
+which is shown through exchanging ECMWF mean fields for CMIP5 multimodel mean fields.
 The replacements of mean relative humidity, mean wind speed, and both together, 
-lead toincreases in the NINO3.4 trend of 0.31±0.03 K, 0.054±0.005 K, and 0.47±0.04 K 
-respectively when testedwith a range of plausible inputs. This is congruent with the
-observed difference of 0.478 K between theECMWF/ORAS4 reanalysis product and the CMIP5 multimodel mean. I investigate how reliable the results from this model might be by varying
-the free parameters and findthat, as far as tested, the model is not overly sensitive to
-subjective inputs. It is therefore plausible thatobserved bias in the increase in sea
-surface temperature is caused by excess humidity, and insufficient windspeed over the cold
-tongue – are reinforced as credible, as the model is not overly sensitive to variation 
-of the free parameters.
+lead to increases in the NINO3.4 trend of 0.31±0.03 K, 0.054±0.005 K, and 0.47±0.04 K 
+respectively when tested with a range of plausible inputs. This is congruent with the
+observed difference of 0.478 K between the ECMWF/ORAS4 reanalysis product and the CMIP5
+multimodel mean. I investigate how reliable the results from this model might be by varying
+the free parameters and find that, as far as tested, the model is not overly sensitive to
+subjective inputs. It is therefore plausible that the observed bias in the increase in sea
+surface temperature in the nino3.4 region is caused by excess humidity, 
+and insufficient tropical windspeeds.
 
 The first section `seager19` contains the main `README.md` of the repository,
 so as to reduce duplication, and this should provide a reasonable introduction
