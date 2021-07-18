@@ -12,6 +12,14 @@ src.data\_loading.download module
    :undoc-members:
    :show-inheritance:
 
+src.data\_loading.get\_cmip6 module
+-----------------------------------
+
+.. automodule:: src.data_loading.get_cmip6
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.data\_loading.ingrid module
 -------------------------------
 

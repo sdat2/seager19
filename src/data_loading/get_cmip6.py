@@ -54,7 +54,9 @@ def preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArr
 
 
 class GetEnsemble:
-    """A class to get the ensemble of CMIP6 members for monthly surface variables."""
+    """A class to get the ensemble of CMIP6 members for monthly surface variables.
+
+    Regrids the data on to 1 degree grid with linear 2D interpolation."""
 
     def __init__(
         self, var: str = "ts", output_folder: str = "nc", regen_success_list=False
@@ -261,8 +263,13 @@ class GetEnsemble:
                 sub_da = sub_da.assign_coords(
                     {"institution": key_split[1], "model": key_split[2]}
                 )
+                if "height" in sub_da.dims:
+                    sub_da = sub_da.isel(height=0).drop("height")
                 da_list.append(sub_da)
-        da = xr.concat(da_list, "member")
+        if self.var in ["uas", "vas"]:
+            da = xr.concat(da_list, "member", coords="minimal")
+        else:
+            da = xr.concat(da_list, "member")
         da = da.assign_coords({"member": key_list})  # , "time": times})
 
         return da
