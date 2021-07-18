@@ -4,7 +4,6 @@ from typing import Union
 import numpy as np
 import pandas as pd
 import xarray as xr
-import matplotlib.pyplot as plt
 import dask
 from cmip6_preprocessing.preprocessing import (
     combined_preprocessing,
@@ -22,6 +21,8 @@ class GetEnsemble:
 
         Args:
             var (str, optional): Variable. Defaults to "ts".
+            output_folder (str, optional): Where to output the ensemble to.
+                Defaults to "nc".
 
         """
         if not os.path.exists(output_folder):
@@ -82,11 +83,9 @@ class GetEnsemble:
     @np.vectorize
     def standardise_time(
         self,
-        time: Union[
-            cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day, np.datetime64
-        ],
+        time: Union[cftime.datetime, np.datetime64],
         calendar="standard",  # "gregorian"
-    ) -> cftime._cftime.Datetime360Day:
+    ) -> cftime.datetime:
         """
         Standardise time.
 
@@ -107,7 +106,9 @@ class GetEnsemble:
             time.year, time.month, 15, calendar=calendar
         )  # "360_day")
 
-    def preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
+    def preproc(
+        self, ds: Union[xr.Dataset, xr.DataArray]
+    ) -> Union[xr.Dataset, xr.DataArray]:
         """
         Preprocess.
 
@@ -117,10 +118,10 @@ class GetEnsemble:
         Returns:
             Union[xr.Dataset, xr.DataArray]: The preprocessed xarray object.
         """
-        ds = ds.copy()
-        ds = combined_preprocessing(ds)
-        ds = ds.assign_coords(time=self.standardise_time(ds.time.values))
-        return ds
+        dsa = ds.copy()
+        dsa = combined_preprocessing(dsa)
+        dsa = dsa.assign_coords(time=self.standardise_time(dsa.time.values))
+        return dsa
 
     def change_t_axis(
         self,
@@ -138,8 +139,8 @@ class GetEnsemble:
             xr.Dataset: The dataset with the new time axis.
         """
         # ds = change_t_axis(ds, calendar="360_day")
-        ds = ds.copy()
-        return ds.assign_coords(
+        dsa = ds.copy()
+        return dsa.assign_coords(
             time=self.standardise_time(ds.time.values), calendar=calendar
         )
 
