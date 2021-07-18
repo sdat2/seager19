@@ -15,7 +15,9 @@ from intake import open_catalog
 class GetEnsemble:
     """A class to get the ensemble of CMIP6 members for monthly surface variables."""
 
-    def __init__(self, var: str = "ts", output_folder: str = "nc") -> None:
+    def __init__(
+        self, var: str = "ts", output_folder: str = "nc", regen_success_list=False
+    ) -> None:
         """
         Create the get ensemble instance and output the ensemble of netcdfs.
 
@@ -23,6 +25,8 @@ class GetEnsemble:
             var (str, optional): Variable. Defaults to "ts".
             output_folder (str, optional): Where to output the ensemble to.
                 Defaults to "nc".
+            regen_success_list (bool, optional): whether or not to regenerate
+                the success list. Defaults to False.
 
         """
         if not os.path.exists(output_folder):
@@ -36,8 +40,7 @@ class GetEnsemble:
             )
         )["climate"]["cmip6_gcs"]
         self.instit = self.cat.unique(["institution_id"])["institution_id"]["values"]
-        # success_list = self.get_sucess_list()
-        self.success_list = [
+        default_success_list = [
             "NCAR",
             "CAMS",
             "NOAA-GFDL",
@@ -58,6 +61,10 @@ class GetEnsemble:
             "CCCR-IITM",
             "THU",
         ]
+        if regen_success_list:
+            self.success_list = self.get_sucess_list()
+        else:
+            self.success_list = default_success_list
         self.da_hist = self.get_var(
             xlim=[0, 360],
             ylim=[-80, 80],
