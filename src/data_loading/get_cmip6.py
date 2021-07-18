@@ -267,11 +267,13 @@ class GetEnsemble:
                     sub_da = sub_da.isel(height=0).drop("height")
                 if "height" in [c for c in sub_da.coords]:
                     sub_da = sub_da.drop("height")
+                if "plev" in sub_da.dims:
+                    sub_da = sub_da.bfill("plev").isel(plev=0).drop("plev")
+                if "plev" in [c for c in sub_da.coords]:
+                    sub_da = sub_da.drop("plev")
                 da_list.append(sub_da)
-        if self.var in ["uas", "vas"]:
-            da = xr.concat(da_list, "member", coords="minimal")
-        else:
-            da = xr.concat(da_list, "member")
+
+        da = xr.concat(da_list, "member")
         da = da.assign_coords({"member": key_list})  # , "time": times})
 
         return da
