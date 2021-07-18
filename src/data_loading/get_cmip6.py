@@ -36,20 +36,6 @@ class GetEnsemble:
             )
         )["climate"]["cmip6_gcs"]
         self.instit = self.cat.unique(["institution_id"])["institution_id"]["values"]
-        self.da_hist = self.get_var(
-            xlim=[0, 360],
-            ylim=[-80, 80],
-            var=self.var,
-            year_begin="1948",
-        )
-        self.da_ssp585 = self.get_var(
-            experiment="ssp585",
-            year_begin="2014",
-            year_end="2027",
-            xlim=[0, 360],
-            ylim=[-80, 80],
-            var=self.var,
-        )
         # success_list = self.get_sucess_list()
         self.success_list = [
             "NCAR",
@@ -72,10 +58,21 @@ class GetEnsemble:
             "CCCR-IITM",
             "THU",
         ]
-
-        print("success list ", self.success_list)
-        # da_list =
-        for instit in self.ssuccess_list:
+        self.da_hist = self.get_var(
+            xlim=[0, 360],
+            ylim=[-80, 80],
+            var=self.var,
+            year_begin="1948",
+        )
+        self.da_ssp585 = self.get_var(
+            experiment="ssp585",
+            year_begin="2014",
+            year_end="2027",
+            xlim=[0, 360],
+            ylim=[-80, 80],
+            var=self.var,
+        )
+        for instit in self.success_list:
             self.comp_and_match(instit=instit)
         # comp_and_match(instit="NCAR")
         # print(da_list)
@@ -352,3 +349,8 @@ class GetEnsemble:
         # da = xr.concat(da_list, "member")
         # da = da.assign_coords({"member": key_list})
         # return da_list
+
+
+if __name__ == "__main__":
+    # from src/data_loading/get_cmip6 import GetEnsemble
+    GetEnsemble(var="ps", output_folder="nc_ps")
