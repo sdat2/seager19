@@ -101,7 +101,8 @@ class GetEnsemble:
         if isinstance(time, np.datetime64):
             time = pd.to_datetime(time)
         # put the new time in the middle of the given month
-        # return np.datetime64(str(str(time.year) +  '-' + str(time.month) + '-' + str(15) + "T00:00:00"))
+        # return np.datetime64(str(str(time.year) +
+        #  '-' + str(time.month) + '-' + str(15) + "T00:00:00"))
         return cftime.datetime(
             time.year, time.month, 15, calendar=calendar
         )  # "360_day")
@@ -126,7 +127,7 @@ class GetEnsemble:
     def change_t_axis(
         self,
         ds: xr.Dataset,
-        calendar="standard",  # "gregorian"
+        calendar: str = "standard",  # "gregorian"
     ) -> xr.Dataset:
         """
         Change the time axis.
@@ -180,7 +181,7 @@ class GetEnsemble:
                     success_list.append(i)
                     for j in dset_dict_proc:
                         time_d[i] = dset_dict_proc[j].time.values[0]
-
+            # pylint: disable=broad-except
             except Exception as e:
                 print(e)
                 print(i, "failed")
@@ -194,6 +195,7 @@ class GetEnsemble:
         year_begin="1958",
         year_end="2014",
         var="ts",
+        # pylint: disable=dangerous-default-value
         xlim=[100, 290],
         ylim=[-30, 30],
     ) -> xr.DataArray:
