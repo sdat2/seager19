@@ -70,6 +70,7 @@ class GetEnsemble:
                 the success list. Defaults to False.
 
         """
+        self.output_folder = output_folder
         if not os.path.exists(output_folder):
             os.mkdir(output_folder)
 
