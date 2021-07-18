@@ -265,8 +265,10 @@ class GetEnsemble:
                 )
                 if "height" in sub_da.dims:
                     sub_da = sub_da.isel(height=0).drop("height")
+                if "height" in [c for c in sub_da.coords]:
+                    sub_da = sub_da.drop("height")
                 da_list.append(sub_da)
-        if self.var in []:  # ["uas", "vas"]:
+        if self.var in ["uas", "vas"]:
             da = xr.concat(da_list, "member", coords="minimal")
         else:
             da = xr.concat(da_list, "member")
