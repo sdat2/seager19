@@ -1,4 +1,5 @@
 """Get CMIP6 variables on pangeo."""
+import os
 from typing import Union
 import numpy as np
 import pandas as pd
@@ -11,318 +12,340 @@ from cmip6_preprocessing.preprocessing import (
 import cftime
 from intake import open_catalog
 
-cat = open_catalog(
-    str(
-        "https://raw.githubusercontent.com/pangeo-data/"
-        + "pangeo-datastore/master/intake-catalogs/master.yaml"
-    )
-)["climate"]["cmip6_gcs"]
-instit = cat.unique(["institution_id"])["institution_id"]["values"]
 
+class GetEnsemble:
+    """A class to get the ensemble of CMIP6 members for monthly surface variables."""
 
-@np.vectorize
-def standardise_time(
-    time: Union[
-        cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day, np.datetime64
-    ],
-    calendar="standard",  # "gregorian"
-) -> cftime._cftime.Datetime360Day:
-    """
-    Standardise time.
+    def __init__(self, var: str = "ts", output_folder: str = "nc") -> None:
+        """
+        Create the get ensemble instance and output the ensemble of netcdfs.
 
-    Args:
-        time (Union[ cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day,
-                    np.datetime64 ]): Time array.
-        calendar (str, optional): Which cftime calendar to replace it with.
-            Defaults to "standard".
+        Args:
+            var (str, optional): Variable. Defaults to "ts".
 
-    Returns:
-        cftime._cftime.Datetime360Day: The new calendar.
-    """
-    if isinstance(time, np.datetime64):
-        time = pd.to_datetime(time)
-    # put the new time in the middle of the given month
-    # return np.datetime64(str(str(time.year) +  '-' + str(time.month) + '-' + str(15) + "T00:00:00"))
-    return cftime.datetime(time.year, time.month, 15, calendar=calendar)  # "360_day")
+        """
+        if not os.path.exists(output_folder):
+            os.mkdir(output_folder)
 
-
-def preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
-    """
-    Preprocess.
-
-    Args:
-        ds (Union[xr.Dataset, xr.DataArray]): The xarray object to preprocess.
-
-    Returns:
-        Union[xr.Dataset, xr.DataArray]: The preprocessed xarray object.
-    """
-    ds = ds.copy()
-    ds = combined_preprocessing(ds)
-    ds = ds.assign_coords(time=standardise_time(ds.time.values))
-    return ds
-
-
-def change_t_axis(
-    ds: xr.Dataset,
-    calendar="standard",  # "gregorian"
-) -> xr.Dataset:
-    """
-    Change the time axis.
-
-    Args:
-        ds (xr.Dataset): The dataset to change.
-        calendar (str, optional): [description]. Defaults to "standard".
-
-    Returns:
-        xr.Dataset: The dataset with the new time axis.
-    """
-    # ds = change_t_axis(ds, calendar="360_day")
-    ds = ds.copy()
-    return ds.assign_coords(time=standardise_time(ds.time.values), calendar=calendar)
-
-
-def get_sucess_list() -> list:
-    """
-    The only way to generate what will work seems to be trial and error.
-
-    Returns:
-        list: success_list of model centres that I can preprocess.
-    """
-    failed_list = []
-    empty_list = []
-    success_list = []
-    time_d = {}
-
-    for i in instit:
-        print(i)
-        query = dict(
-            variable_id=["ts"],
-            experiment_id=["historical"],  # , "ssp585"],
-            table_id=["Amon"],
-            institution_id=[i],
+        self.var = var
+        self.cat = open_catalog(
+            str(
+                "https://raw.githubusercontent.com/pangeo-data/"
+                + "pangeo-datastore/master/intake-catalogs/master.yaml"
+            )
+        )["climate"]["cmip6_gcs"]
+        self.instit = self.cat.unique(["institution_id"])["institution_id"]["values"]
+        self.da_hist = self.get_var(
+            xlim=[0, 360],
+            ylim=[-80, 80],
+            var=self.var,
+            year_begin="1948",
         )
-        subset = cat.search(**query)
-        z_kwargs = {"consolidated": True, "decode_times": True}
-        try:
-            with dask.config.set(**{"array.slicing.split_large_chunks": True}):
-                dset_dict_proc = subset.to_dataset_dict(
-                    zarr_kwargs=z_kwargs, preprocess=preproc
-                )
+        self.da_ssp585 = self.get_var(
+            experiment="ssp585",
+            year_begin="2014",
+            year_end="2027",
+            xlim=[0, 360],
+            ylim=[-80, 80],
+            var=self.var,
+        )
+        # success_list = self.get_sucess_list()
+        self.success_list = [
+            "NCAR",
+            "CAMS",
+            "NOAA-GFDL",
+            "AS-RCEC",
+            "UA",
+            "FIO-QLNM",
+            "INM",
+            "CMCC",
+            "CAS",
+            "CCCma",
+            "NIMS-KMA",
+            "NASA-GISS",
+            "E3SM-Project",
+            "MOHC",
+            "KIOST",
+            "BCC",
+            "SNU",
+            "CCCR-IITM",
+            "THU",
+        ]
 
-            # print(i, "suceeded")
-            if len(dset_dict_proc) == 0:
-                empty_list.append(i)
+        print("success list ", self.success_list)
+        # da_list =
+        for instit in self.ssuccess_list:
+            self.comp_and_match(instit=instit)
+        # comp_and_match(instit="NCAR")
+        # print(da_list)
 
-            else:
-                success_list.append(i)
-                for j in dset_dict_proc:
-                    time_d[i] = dset_dict_proc[j].time.values[0]
-
-        except Exception as e:
-            print(e)
-            print(i, "failed")
-            failed_list.append(i)
-
-    return success_list
-
-
-# success_list = get_sucess_list()
-success_list = [
-    "NCAR",
-    "CAMS",
-    "NOAA-GFDL",
-    "AS-RCEC",
-    "UA",
-    "FIO-QLNM",
-    "INM",
-    "CMCC",
-    "CAS",
-    "CCCma",
-    "NIMS-KMA",
-    "NASA-GISS",
-    "E3SM-Project",
-    "MOHC",
-    "KIOST",
-    "BCC",
-    "SNU",
-    "CCCR-IITM",
-    "THU",
-]
-
-print("success list ", success_list)
-
-
-def get_var(
-    experiment="historical",
-    year_begin="1958",
-    year_end="2014",
-    var="ts",
-    xlim=[100, 290],
-    ylim=[-30, 30],
-):
-    """
-    Get the variable from pangeo.
-
-    Args:
-        experiment (str, optional): Which experiment to read from.
-            Defaults to "historical".
-        year_begin (str, optional): [description]. Defaults to "1958".
-        year_end (str, optional): [description]. Defaults to "2014".
-        var (str, optional): [description]. Defaults to "ts".
-        xlim (list, optional): [description]. Defaults to [100, 290].
-        ylim (list, optional): [description]. Defaults to [-30, 30].
-
-    Returns:
-        [type]: [description]
-    """
-    query = dict(
-        variable_id=[var],
-        experiment_id=[experiment],  # , "ssp585"],
-        table_id=["Amon"],
-        institution_id=[
-            x for x in success_list if x not in ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma"]
+    @np.vectorize
+    def standardise_time(
+        self,
+        time: Union[
+            cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day, np.datetime64
         ],
-    )
-    subset = cat.search(**query)
+        calendar="standard",  # "gregorian"
+    ) -> cftime._cftime.Datetime360Day:
+        """
+        Standardise time.
 
-    z_kwargs = {"consolidated": True, "decode_times": True}
+        Args:
+            time (Union[ cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day,
+                        np.datetime64 ]): Time array.
+            calendar (str, optional): Which cftime calendar to replace it with.
+                Defaults to "standard".
 
-    # pass the preprocessing directly
-    with dask.config.set(**{"array.slicing.split_large_chunks": True}):
-        dset_dict_proc = subset.to_dataset_dict(
-            zarr_kwargs=z_kwargs, preprocess=preproc
+        Returns:
+            cftime._cftime.Datetime360Day: The new calendar.
+        """
+        if isinstance(time, np.datetime64):
+            time = pd.to_datetime(time)
+        # put the new time in the middle of the given month
+        # return np.datetime64(str(str(time.year) +  '-' + str(time.month) + '-' + str(15) + "T00:00:00"))
+        return cftime.datetime(
+            time.year, time.month, 15, calendar=calendar
+        )  # "360_day")
+
+    def preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
+        """
+        Preprocess.
+
+        Args:
+            ds (Union[xr.Dataset, xr.DataArray]): The xarray object to preprocess.
+
+        Returns:
+            Union[xr.Dataset, xr.DataArray]: The preprocessed xarray object.
+        """
+        ds = ds.copy()
+        ds = combined_preprocessing(ds)
+        ds = ds.assign_coords(time=self.standardise_time(ds.time.values))
+        return ds
+
+    def change_t_axis(
+        self,
+        ds: xr.Dataset,
+        calendar="standard",  # "gregorian"
+    ) -> xr.Dataset:
+        """
+        Change the time axis.
+
+        Args:
+            ds (xr.Dataset): The dataset to change.
+            calendar (str, optional): [description]. Defaults to "standard".
+
+        Returns:
+            xr.Dataset: The dataset with the new time axis.
+        """
+        # ds = change_t_axis(ds, calendar="360_day")
+        ds = ds.copy()
+        return ds.assign_coords(
+            time=self.standardise_time(ds.time.values), calendar=calendar
         )
 
-    da_list = []
-    key_list = []
+    def get_sucess_list(self) -> list:
+        """
+        The only way to generate what will work seems to be trial and error.
 
-    for key in dset_dict_proc:
-        print(key)
-        da = (
-            dset_dict_proc[key][var]
-            .sel(
-                x=slice(xlim[0] - 1, xlim[1] + 1),
-                y=slice(ylim[0] - 1, ylim[1] + 1),
-                time=slice(year_begin, year_end),
+        Returns:
+            list: success_list of model centres that I can preprocess.
+        """
+        failed_list = []
+        empty_list = []
+        success_list = []
+        time_d = {}
+
+        for i in self.instit:
+            print(i)
+            query = dict(
+                variable_id=[self.var],
+                experiment_id=["historical"],  # , "ssp585"],
+                table_id=["Amon"],
+                institution_id=[i],
             )
-            .interp(
-                x=list(range(xlim[0], xlim[1] + 1)), y=list(range(ylim[0], ylim[1] + 1))
-            )
+            subset = self.cat.search(**query)
+            z_kwargs = {"consolidated": True, "decode_times": True}
+            try:
+                with dask.config.set(**{"array.slicing.split_large_chunks": True}):
+                    dset_dict_proc = subset.to_dataset_dict(
+                        zarr_kwargs=z_kwargs, preprocess=self.preproc
+                    )
+
+                # print(i, "suceeded")
+                if len(dset_dict_proc) == 0:
+                    empty_list.append(i)
+
+                else:
+                    success_list.append(i)
+                    for j in dset_dict_proc:
+                        time_d[i] = dset_dict_proc[j].time.values[0]
+
+            except Exception as e:
+                print(e)
+                print(i, "failed")
+                failed_list.append(i)
+
+        return success_list
+
+    def get_var(
+        self,
+        experiment="historical",
+        year_begin="1958",
+        year_end="2014",
+        var="ts",
+        xlim=[100, 290],
+        ylim=[-30, 30],
+    ) -> xr.DataArray:
+        """
+        Get the variable from pangeo.
+
+        Args:
+            experiment (str, optional): Which experiment to read from.
+                Defaults to "historical".
+            year_begin (str, optional): The year to begin with. Defaults to "1958".
+            year_end (str, optional): The year to end at. Defaults to "2014".
+            var (str, optional): The variable to select. Defaults to "ts".
+            xlim (list, optional): The longitude limits. Defaults to [100, 290].
+            ylim (list, optional): The latitude limits. Defaults to [-30, 30].
+
+        Returns:
+            xr.DataArray: Monthly variables with all possible ensemble members.
+        """
+        query = dict(
+            variable_id=[var],
+            experiment_id=[experiment],  # , "ssp585"],
+            table_id=["Amon"],
+            institution_id=[
+                x
+                for x in self.success_list
+                if x not in ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma"]
+            ],
         )
+        subset = self.cat.search(**query)
 
-        for i in da.member_id.values:
-            key_list.append(key + "." + i)
-            sub_da = da.sel(member_id=i)
-            key_split = key.split(".")
-            sub_da = sub_da.assign_coords(
-                {"institution": key_split[1], "model": key_split[2]}
+        z_kwargs = {"consolidated": True, "decode_times": True}
+
+        # pass the preprocessing directly
+        with dask.config.set(**{"array.slicing.split_large_chunks": True}):
+            dset_dict_proc = subset.to_dataset_dict(
+                zarr_kwargs=z_kwargs, preprocess=self.preproc
             )
-            da_list.append(sub_da)
-    da = xr.concat(da_list, "member")
-    da = da.assign_coords({"member": key_list})  # , "time": times})
 
-    return da
+        da_list = []
+        key_list = []
 
-
-def get_ensemble(var: str = "ts") -> xr.DataArray:
-    """
-    Get ts.
-
-    Args:
-        var (str, optional): The variable. Defaults to "ts".
-
-    Returns:
-        xr.DataArray: Ensemble datarray full of different items.
-    """
-    da_hist = get_var(xlim=[0, 360], ylim=[-80, 80], var=var)
-    da_ssp585 = get_var(
-        experiment="ssp585",
-        year_begin="2014",
-        year_end="2017",
-        xlim=[0, 360],
-        ylim=[-80, 80],
-        var=var,
-    )
-    da_comb = xr.concat(
-        [da_hist.mean("model_center"), da_ssp585.mean("model_center")], "time"
-    )
-    da_comb.attrs["hist_list"] = str(da_hist["model_center"].values)
-    da_comb.attrs["ssp585_list"] = str(da_ssp585["model_center"].values)
-    return da_comb
-
-
-da_hist = get_var(
-    xlim=[0, 360],
-    ylim=[-80, 80],
-    var="ts",
-    year_begin="1948",
-)
-da_ssp585 = get_var(
-    experiment="ssp585",
-    year_begin="2014",
-    year_end="2027",
-    xlim=[0, 360],
-    ylim=[-80, 80],
-    var="ts",
-)
-
-
-def comp_and_match(instit: str = "NCAR") -> None:
-    """
-    Compare and match.
-
-    Args:
-        instit (str, optional): Which institute to go through. Defaults to "NCAR".
-    """
-    ssp585_instit = da_ssp585.where(da_ssp585.institution == instit, drop=True)
-    hist_instit = da_hist.where(da_hist.institution == instit, drop=True)
-    # print(ssp585_instit.member.values)
-    # print(hist_instit.member.values)
-    for model in ssp585_instit.model.values:
-        ssp585_model = ssp585_instit.where(ssp585_instit.model == model, drop=True)
-        hist_model = hist_instit.where(hist_instit.model == model, drop=True)
-        # print(ssp585_model.member.values)
-        # print(hist_model.member.values)
-        for member_id in ssp585_instit.member_id.values:
-            ssp585_member = ssp585_model.where(
-                ssp585_model.member_id == member_id, drop=True
+        for key in dset_dict_proc:
+            print(key)
+            da = (
+                dset_dict_proc[key][var]
+                .sel(
+                    x=slice(xlim[0] - 1, xlim[1] + 1),
+                    y=slice(ylim[0] - 1, ylim[1] + 1),
+                    time=slice(year_begin, year_end),
+                )
+                .interp(
+                    x=list(range(xlim[0], xlim[1] + 1)),
+                    y=list(range(ylim[0], ylim[1] + 1)),
+                )
             )
-            hist_member = hist_model.where(hist_model.member_id == member_id, drop=True)
-            if (
-                len(ssp585_member.member.values) != 0
-                and len(hist_member.member.values) != 0
-            ):
-                print(hist_member.member.values)
-                print(ssp585_member.member.values)
-                # if len(ssp585_member.member.values) !=0 and  len(hist_member.member.values) != 0:
-                # if len(da_list) <= 1:
-                ensemble_da = xr.concat(
-                    [
-                        hist_member.isel(member=0).drop("member"),
-                        ssp585_member.isel(member=0).drop("member"),
-                    ],
-                    "time",
-                )
-                # da_list.append(ensemble_da)
-                # key_list.append(ssp585_member.member.values[0])
-                ensemble_da.to_netcdf(
-                    "nc/ts."
-                    + str(instit)
-                    + "."
-                    + str(model)
-                    + "."
-                    + str(member_id)
-                    + ".80.nc"
-                )
-            else:
-                print("problem with " + model + " " + member_id)
-    # da = xr.concat(da_list, "member")
-    # da = da.assign_coords({"member": key_list})
-    # return da_list
 
+            for i in da.member_id.values:
+                key_list.append(key + "." + i)
+                sub_da = da.sel(member_id=i)
+                key_split = key.split(".")
+                sub_da = sub_da.assign_coords(
+                    {"institution": key_split[1], "model": key_split[2]}
+                )
+                da_list.append(sub_da)
+        da = xr.concat(da_list, "member")
+        da = da.assign_coords({"member": key_list})  # , "time": times})
 
-# da_list =
-for instit in success_list:
-    comp_and_match(instit=instit)
-# comp_and_match(instit="NCAR")
-# print(da_list)
+        return da
+
+    def get_ensemble(self, var: str = "ts") -> xr.DataArray:
+        """
+        Get ts.
+
+        Args:
+            var (str, optional): The variable. Defaults to "ts".
+
+        Returns:
+            xr.DataArray: Ensemble datarray full of different items.
+        """
+        da_hist = self.get_var(xlim=[0, 360], ylim=[-80, 80], var=var)
+        da_ssp585 = self.get_var(
+            experiment="ssp585",
+            year_begin="2014",
+            year_end="2017",
+            xlim=[0, 360],
+            ylim=[-80, 80],
+            var=var,
+        )
+        da_comb = xr.concat(
+            [da_hist.mean("model_center"), da_ssp585.mean("model_center")], "time"
+        )
+        da_comb.attrs["hist_list"] = str(da_hist["model_center"].values)
+        da_comb.attrs["ssp585_list"] = str(da_ssp585["model_center"].values)
+        return da_comb
+
+    def comp_and_match(self, instit: str = "NCAR") -> None:
+        """
+        Compare and match.
+
+        Args:
+            instit (str, optional): Which institute to go through. Defaults to "NCAR".
+        """
+        ssp585_instit = self.da_ssp585.where(
+            self.da_ssp585.institution == instit, drop=True
+        )
+        hist_instit = self.da_hist.where(self.da_hist.institution == instit, drop=True)
+        # print(ssp585_instit.member.values)
+        # print(hist_instit.member.values)
+        for model in ssp585_instit.model.values:
+            ssp585_model = ssp585_instit.where(ssp585_instit.model == model, drop=True)
+            hist_model = hist_instit.where(hist_instit.model == model, drop=True)
+            # print(ssp585_model.member.values)
+            # print(hist_model.member.values)
+            for member_id in ssp585_instit.member_id.values:
+                ssp585_member = ssp585_model.where(
+                    ssp585_model.member_id == member_id, drop=True
+                )
+                hist_member = hist_model.where(
+                    hist_model.member_id == member_id, drop=True
+                )
+                if (
+                    len(ssp585_member.member.values) != 0
+                    and len(hist_member.member.values) != 0
+                ):
+                    print(hist_member.member.values)
+                    print(ssp585_member.member.values)
+                    # if len(ssp585_member.member.values) !=0 and
+                    # len(hist_member.member.values) != 0:
+                    # if len(da_list) <= 1:
+                    ensemble_da = xr.concat(
+                        [
+                            hist_member.isel(member=0).drop("member"),
+                            ssp585_member.isel(member=0).drop("member"),
+                        ],
+                        "time",
+                    )
+                    # da_list.append(ensemble_da)
+                    # key_list.append(ssp585_member.member.values[0])
+                    ensemble_da.to_netcdf(
+                        os.path.join(
+                            self.output_folder,
+                            self.var
+                            + "."
+                            + str(instit)
+                            + "."
+                            + str(model)
+                            + "."
+                            + str(member_id)
+                            + ".80.nc",
+                        )
+                    )
+                else:
+                    print("problem with " + model + " " + member_id)
+        # da = xr.concat(da_list, "member")
+        # da = da.assign_coords({"member": key_list})
+        # return da_list
