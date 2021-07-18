@@ -12,6 +12,47 @@ import cftime
 from intake import open_catalog
 
 
+@np.vectorize
+def standardise_time(
+    time: Union[cftime.datetime, np.datetime64],
+    calendar="standard",  # "gregorian"
+) -> cftime.datetime:
+    """
+    Standardise time.
+
+    Args:
+        time (Union[ cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day,
+                    np.datetime64 ]): Time array.
+        calendar (str, optional): Which cftime calendar to replace it with.
+            Defaults to "standard".
+
+    Returns:
+        cftime._cftime.Datetime360Day: The new calendar.
+    """
+    if isinstance(time, np.datetime64):
+        time = pd.to_datetime(time)
+    # put the new time in the middle of the given month
+    # return np.datetime64(str(str(time.year) +
+    #  '-' + str(time.month) + '-' + str(15) + "T00:00:00"))
+    return cftime.datetime(time.year, time.month, 15, calendar=calendar)  # "360_day")
+
+
+def preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
+    """
+    Preprocess.
+
+    Args:
+        ds (Union[xr.Dataset, xr.DataArray]): The xarray object to preprocess.
+
+    Returns:
+        Union[xr.Dataset, xr.DataArray]: The preprocessed xarray object.
+    """
+    dsa = ds.copy()
+    dsa = combined_preprocessing(dsa)
+    dsa = dsa.assign_coords(time=standardise_time(dsa.time.values))
+    return dsa
+
+
 class GetEnsemble:
     """A class to get the ensemble of CMIP6 members for monthly surface variables."""
 
@@ -84,50 +125,6 @@ class GetEnsemble:
         # comp_and_match(instit="NCAR")
         # print(da_list)
 
-    @np.vectorize
-    def standardise_time(
-        self,
-        time: Union[cftime.datetime, np.datetime64],
-        calendar="standard",  # "gregorian"
-    ) -> cftime.datetime:
-        """
-        Standardise time.
-
-        Args:
-            time (Union[ cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day,
-                        np.datetime64 ]): Time array.
-            calendar (str, optional): Which cftime calendar to replace it with.
-                Defaults to "standard".
-
-        Returns:
-            cftime._cftime.Datetime360Day: The new calendar.
-        """
-        if isinstance(time, np.datetime64):
-            time = pd.to_datetime(time)
-        # put the new time in the middle of the given month
-        # return np.datetime64(str(str(time.year) +
-        #  '-' + str(time.month) + '-' + str(15) + "T00:00:00"))
-        return cftime.datetime(
-            time.year, time.month, 15, calendar=calendar
-        )  # "360_day")
-
-    def preproc(
-        self, ds: Union[xr.Dataset, xr.DataArray]
-    ) -> Union[xr.Dataset, xr.DataArray]:
-        """
-        Preprocess.
-
-        Args:
-            ds (Union[xr.Dataset, xr.DataArray]): The xarray object to preprocess.
-
-        Returns:
-            Union[xr.Dataset, xr.DataArray]: The preprocessed xarray object.
-        """
-        dsa = ds.copy()
-        dsa = combined_preprocessing(dsa)
-        dsa = dsa.assign_coords(time=self.standardise_time(dsa.time.values))
-        return dsa
-
     def change_t_axis(
         self,
         ds: xr.Dataset,
@@ -146,7 +143,7 @@ class GetEnsemble:
         # ds = change_t_axis(ds, calendar="360_day")
         dsa = ds.copy()
         return dsa.assign_coords(
-            time=self.standardise_time(ds.time.values), calendar=calendar
+            time=standardise_time(ds.time.values), calendar=calendar
         )
 
     def get_sucess_list(self) -> list:
@@ -174,7 +171,7 @@ class GetEnsemble:
             try:
                 with dask.config.set(**{"array.slicing.split_large_chunks": True}):
                     dset_dict_proc = subset.to_dataset_dict(
-                        zarr_kwargs=z_kwargs, preprocess=self.preproc
+                        zarr_kwargs=z_kwargs, preprocess=preproc
                     )
 
                 # print(i, "suceeded")
@@ -235,7 +232,7 @@ class GetEnsemble:
         # pass the preprocessing directly
         with dask.config.set(**{"array.slicing.split_large_chunks": True}):
             dset_dict_proc = subset.to_dataset_dict(
-                zarr_kwargs=z_kwargs, preprocess=self.preproc
+                zarr_kwargs=z_kwargs, preprocess=preproc
             )
 
         da_list = []
