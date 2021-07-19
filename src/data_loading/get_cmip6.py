@@ -37,7 +37,7 @@ def standardise_time(
     return cftime.datetime(time.year, time.month, 15, calendar=calendar)  # "360_day")
 
 
-def preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
+def _preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
     """
     Preprocess.
 
@@ -171,16 +171,14 @@ class GetEnsemble:
             )
             subset = self.cat.search(**query)
             z_kwargs = {"consolidated": True, "decode_times": True}
+
             try:
                 with dask.config.set(**{"array.slicing.split_large_chunks": True}):
                     dset_dict_proc = subset.to_dataset_dict(
-                        zarr_kwargs=z_kwargs, preprocess=preproc
+                        zarr_kwargs=z_kwargs, preprocess=_preproc
                     )
-
-                # print(i, "suceeded")
                 if len(dset_dict_proc) == 0:
                     empty_list.append(i)
-
                 else:
                     success_list.append(i)
                     for j in dset_dict_proc:
@@ -398,7 +396,7 @@ def mean_wsp() -> None:
     Make mean windspeed.
     """
 
-    def preproc(ds):
+    def preproc(ds: xr.Dataset) -> xr.Dataset:
         dsa = ds.copy()
         dsa = dsa.expand_dims("member")
         dsa = dsa["__xarray_dataarray_variable__"].rename("wsp").to_dataset()
@@ -429,7 +427,7 @@ def mean_pr() -> None:
     """
     var = "pr"
 
-    def preproc(ds):
+    def preproc(ds: xr.Dataset) -> xr.Dataset:
         dsa = ds.copy()
         dsa = dsa.expand_dims("member")
         if "__xarray_dataarray_variable__" in dsa:
@@ -467,7 +465,7 @@ def mean_clt() -> None:
     Mean cloud.
     """
 
-    def preproc(ds):
+    def preproc(ds: xr.Dataset) -> xr.Dataset:
         dsa = ds.copy()
         dsa = dsa.expand_dims("member")
         if "__xarray_dataarray_variable__" in dsa:
@@ -503,14 +501,11 @@ def mean_rh() -> None:
     Mean relative humidity.
     """
 
-    def preproc(ds):
-        # ds = ds.assign({'stime': (['time'], ds.time)}).drop('time').rename({'time': 'ntime'})
+    def preproc(ds: xr.Dataset) -> xr.Dataset:
         dsa = ds.copy()
         dsa = dsa.expand_dims("member")
         if "__xarray_dataarray_variable__" in dsa:
             dsa = dsa["__xarray_dataarray_variable__"].rename("hur").to_dataset()
-        # dsa = dsa.assign_coords(dict(member=dsa))
-        # we might need to tweak this a bit further, depending on the actual data layout
         dsa = dsa.assign_coords(
             {
                 "member": [
@@ -529,7 +524,6 @@ def mean_rh() -> None:
         .drop("lon")
         .drop("lat")
     )
-    print(rh_da)
     rh_mean = rh_da.sel(time=slice("1958", "2017")).mean("member").mean("time")
     rh_mean.hur.attrs["units"] = "dimensionless"
     rh_mean.hur.attrs["long_name"] = "Relative humidity"
@@ -540,15 +534,12 @@ def mean_rh() -> None:
 def mean_ts() -> None:
     """Mean surface temperature"""
 
-    def preproc(ds):
-        # ds = ds.assign({'stime': (['time'], ds.time)}).drop('time').rename({'time': 'ntime'})
+    def preproc(ds: xr.Dataset) -> xr.Dataset:
         dsa = ds.copy()
         dsa = dsa.expand_dims("member")
         if "__xarray_dataarray_variable__" in dsa:
             dsa = dsa["__xarray_dataarray_variable__"].rename("ts").to_dataset()
-        # dsa = dsa.assign_coords(dict(member=dsa))
-        # we might need to tweak this a bit further, depending on the actual data layout
-        dsa = dsa.assign_coords(
+        return dsa.assign_coords(
             {
                 "member": [
                     str(dsa.institution.values)
@@ -559,14 +550,12 @@ def mean_ts() -> None:
                 ]
             }
         )
-        return dsa
 
     da = (
         xr.open_mfdataset("nc/*.nc", concat_dim="member", preprocess=preproc)
         .drop("lon")
         .drop("lat")
     )
-    print(da)
     mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
     mean.ts.attrs["units"] = "dimensionless"
     mean.ts.attrs["long_name"] = "Surface temperature"
@@ -576,6 +565,7 @@ def mean_ts() -> None:
 
 if __name__ == "__main__":
     # from src/data_loading/get_cmip6 import GetEnsemble
+    # python src/main.py
     GetEnsemble(var="ps", output_folder="nc_ps")
     GetEnsemble(var="pr", output_folder="nc_pr")
     GetEnsemble(var="vas", output_folder="nc_vas")
