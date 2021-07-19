@@ -265,10 +265,12 @@ class GetEnsemble:
                 )
                 if "height" in sub_da.dims:
                     sub_da = sub_da.isel(height=0).drop("height")
+                # pylint: disable=unnecessary-comprehension
                 if "height" in [c for c in sub_da.coords]:
                     sub_da = sub_da.drop("height")
                 if "plev" in sub_da.dims:
                     sub_da = sub_da.bfill("plev").isel(plev=0).drop("plev")
+                # pylint: disable=unnecessary-comprehension
                 if "plev" in [c for c in sub_da.coords]:
                     sub_da = sub_da.drop("plev")
                 da_list.append(sub_da)
