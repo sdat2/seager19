@@ -369,6 +369,221 @@ class GetEnsemble:
         # return da_list
 
 
+def make_wsp() -> None:
+    """
+    Make wsp from uas and vas.
+    """
+    if not os.path.exists("nc_wsp"):
+        os.mkdir("nc_wsp")
+    for u, v in [
+        (sorted(os.listdir("nc_uas"))[i], sorted(os.listdir("nc_vas"))[i])
+        for i in range(len(os.listdir("nc_uas")))
+    ]:
+        print(os.path.join("nc_uas", u), os.path.join("nc_vas", v))
+        wsp = np.sqrt(
+            np.square(
+                xr.open_dataarray(os.path.join("nc_uas", u)).drop("lon").drop("lat")
+            )
+            + np.square(
+                xr.open_dataarray(os.path.join("nc_vas", v)).drop("lon").drop("lat")
+            )
+        ).ffill("x")
+        wsp.attrs["long_name"] = "Mean wind speed at near surface"
+        w = "wsp." + u.strip("uas.")
+        wsp.rename("wsp").to_netcdf(os.path.join("nc_wsp", w))
+
+
+def mean_wsp() -> None:
+    """
+    Make mean windspeed.
+    """
+
+    def preproc(ds):
+        dsa = ds.copy()
+        dsa = dsa.expand_dims("member")
+        dsa = dsa["__xarray_dataarray_variable__"].rename("wsp").to_dataset()
+        dsa = dsa.assign_coords(
+            {
+                "member": [
+                    str(dsa.institution.values)
+                    + "."
+                    + str(dsa.model.values)
+                    + "."
+                    + str(dsa.member_id.values)
+                ]
+            }
+        )
+        return dsa
+
+    wsp_da = xr.open_mfdataset("nc_wsp/*.nc", concat_dim="member", preprocess=preproc)
+    wsp_mean = wsp_da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    wsp_mean.wsp.attrs["units"] = "m s-1"
+    wsp_mean.wsp.attrs["long_name"] = "Mean wind speed"
+    wsp_mean.wsp.attrs["description"] = "Wind speed at near surface (normally 10m)"
+    wsp_mean.to_netcdf(os.path.join("nc_mean", "wsp.nc"))
+
+
+def mean_pr() -> None:
+    """
+    Mean precipitation
+    """
+    var = "pr"
+
+    def preproc(ds):
+        dsa = ds.copy()
+        dsa = dsa.expand_dims("member")
+        if "__xarray_dataarray_variable__" in dsa:
+            dsa = dsa["__xarray_dataarray_variable__"].rename(var).to_dataset()
+        dsa = dsa.assign_coords(
+            {
+                "member": [
+                    str(dsa.institution.values)
+                    + "."
+                    + str(dsa.model.values)
+                    + "."
+                    + str(dsa.member_id.values)
+                ]
+            }
+        )
+        return dsa
+
+    da = (
+        xr.open_mfdataset(
+            "nc_" + var + "/*.nc", concat_dim="member", preprocess=preproc
+        )
+        .drop("lon")
+        .drop("lat")
+    )
+    print(da)
+    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    mean[var].attrs["units"] = "m s-1"
+    mean[var].attrs["long_name"] = "Precipitation"
+    mean[var].attrs["description"] = "Precipitation mean"
+    mean.to_netcdf(os.path.join("nc_mean", var + ".nc"))
+
+
+def mean_clt() -> None:
+    """
+    Mean cloud.
+    """
+
+    def preproc(ds):
+        dsa = ds.copy()
+        dsa = dsa.expand_dims("member")
+        if "__xarray_dataarray_variable__" in dsa:
+            dsa = dsa["__xarray_dataarray_variable__"].rename("clt").to_dataset()
+        dsa = dsa.assign_coords(
+            {
+                "member": [
+                    str(dsa.institution.values)
+                    + "."
+                    + str(dsa.model.values)
+                    + "."
+                    + str(dsa.member_id.values)
+                ]
+            }
+        )
+        return dsa
+
+    da = (
+        xr.open_mfdataset("nc_clt/*.nc", concat_dim="member", preprocess=preproc)
+        .drop("lon")
+        .drop("lat")
+    )
+    print(da)
+    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    mean.clt.attrs["units"] = "dimensionless"
+    mean.clt.attrs["long_name"] = "Cloud cover"
+    mean.clt.attrs["description"] = "Mean cloud cover"
+    mean.to_netcdf(os.path.join("nc_mean", "clt.nc"))
+
+
+def mean_rh() -> None:
+    """
+    Mean relative humidity.
+    """
+
+    def preproc(ds):
+        # ds = ds.assign({'stime': (['time'], ds.time)}).drop('time').rename({'time': 'ntime'})
+        dsa = ds.copy()
+        dsa = dsa.expand_dims("member")
+        if "__xarray_dataarray_variable__" in dsa:
+            dsa = dsa["__xarray_dataarray_variable__"].rename("hur").to_dataset()
+        # dsa = dsa.assign_coords(dict(member=dsa))
+        # we might need to tweak this a bit further, depending on the actual data layout
+        dsa = dsa.assign_coords(
+            {
+                "member": [
+                    str(dsa.institution.values)
+                    + "."
+                    + str(dsa.model.values)
+                    + "."
+                    + str(dsa.member_id.values)
+                ]
+            }
+        )
+        return dsa
+
+    rh_da = (
+        xr.open_mfdataset("nc_hur/*.nc", concat_dim="member", preprocess=preproc)
+        .drop("lon")
+        .drop("lat")
+    )
+    print(rh_da)
+    rh_mean = rh_da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    rh_mean.hur.attrs["units"] = "dimensionless"
+    rh_mean.hur.attrs["long_name"] = "Relative humidity"
+    rh_mean.hur.attrs["description"] = "Mean relative humidity at the surface"
+    rh_mean.to_netcdf(os.path.join("nc_mean", "hur.nc"))
+
+
+def mean_ts() -> None:
+    """Mean surface temperature"""
+
+    def preproc(ds):
+        # ds = ds.assign({'stime': (['time'], ds.time)}).drop('time').rename({'time': 'ntime'})
+        dsa = ds.copy()
+        dsa = dsa.expand_dims("member")
+        if "__xarray_dataarray_variable__" in dsa:
+            dsa = dsa["__xarray_dataarray_variable__"].rename("ts").to_dataset()
+        # dsa = dsa.assign_coords(dict(member=dsa))
+        # we might need to tweak this a bit further, depending on the actual data layout
+        dsa = dsa.assign_coords(
+            {
+                "member": [
+                    str(dsa.institution.values)
+                    + "."
+                    + str(dsa.model.values)
+                    + "."
+                    + str(dsa.member_id.values)
+                ]
+            }
+        )
+        return dsa
+
+    da = (
+        xr.open_mfdataset("nc/*.nc", concat_dim="member", preprocess=preproc)
+        .drop("lon")
+        .drop("lat")
+    )
+    print(da)
+    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    mean.ts.attrs["units"] = "dimensionless"
+    mean.ts.attrs["long_name"] = "Surface temperature"
+    mean.ts.attrs["description"] = "Mean surface temperature"
+    mean.to_netcdf(os.path.join("nc_mean", "ts.nc"))
+
+
 if __name__ == "__main__":
     # from src/data_loading/get_cmip6 import GetEnsemble
     GetEnsemble(var="ps", output_folder="nc_ps")
+    GetEnsemble(var="pr", output_folder="nc_pr")
+    GetEnsemble(var="vas", output_folder="nc_vas")
+    GetEnsemble(var="uas", output_folder="nc_uas")
+    make_wsp()
+    GetEnsemble(var="ts", output_folder="nc_ts")
+    GetEnsemble(var="hur", output_folder="nc_hur")
+    mean_wsp()
+    mean_clt()
+    mean_rh()
+    mean_ts()
