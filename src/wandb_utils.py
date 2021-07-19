@@ -128,6 +128,20 @@ def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     return df
 
 
+def finished_names() -> List[str]:
+    """
+    Return all the finished run names.
+
+    Returns:
+        List[str]: list of run names.
+    """
+    api = wandb.Api()
+    # Project is specified by <entity/project-name>
+    runs = api.runs("sdat2/seager19")
+    name_list = [rn.name for rn in runs if rn.state == "finished"]
+    return name_list
+
+
 # pylint: disable=dangerous-default-value
 def metric_conv_data(
     metric_name: str = "mean_pac",
@@ -262,6 +276,7 @@ def setup_from_name(name: str) -> ModelSetup:
 if __name__ == "__main__":
     # python src/wandb_utils.py
     # add control variables
+    """
     print(metric_conv_data())
     print(
         metric_conv_data(
@@ -309,3 +324,4 @@ if __name__ == "__main__":
     # pylint: disable=condider-using-dict-items
     for val in metric_d:
         print(val, "\t", float(metric_d[val][5, 1]))
+    """
