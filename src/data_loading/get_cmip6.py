@@ -5,9 +5,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 import dask
-from cmip6_preprocessing.preprocessing import (
-    combined_preprocessing,
-)
+from cmip6_preprocessing.preprocessing import combined_preprocessing
 import cftime
 from intake import open_catalog
 
