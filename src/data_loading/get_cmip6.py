@@ -233,7 +233,7 @@ class GetEnsemble:
         # pass the preprocessing directly
         with dask.config.set(**{"array.slicing.split_large_chunks": True}):
             dset_dict_proc = subset.to_dataset_dict(
-                zarr_kwargs=z_kwargs, preprocess=preproc
+                zarr_kwargs=z_kwargs, preprocess=_preproc
             )
 
         da_list = []
