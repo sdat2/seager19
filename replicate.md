@@ -2,13 +2,23 @@
 
 ```bash
 
+# explore cd sensitivity:
+
+python src/main.py -m coup.c_d=1.5e-3,1.25e-3,3e-3,1e-3 atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5c comp.prwnd=5c
+
+python src/main.py -m coup.c_d=1.5e-3,1.25e-3,3e-3,1e-3 atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5b comp.prwnd=5b
+
+python src/main.py -m coup.c_d=1.5e-3,1.25e-3,3e-3,1e-3 atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
+
+python src/main.py -m coup.c_d=1.5e-3,1.25e-3,3e-3,1e-3 atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
+
 ## replication of parameters in paper
 
 python src/main.py name=N_std_uncoup coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d
 
 python src/main.py name=N_uncoup_noheat coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false atm.prcp_land=0 comp.htherm=4b comp.sst=1d comp.prwnd=2c
 
-python src/main.py name=N_ECMWF_uncoup atm.mem=EEEE coup.iterations=1 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d 
+python src/main.py name=N_ECMWF_uncoup atm.mem=EEEE coup.iterations=1 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d
 
 python src/main.py name=N_std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep
 

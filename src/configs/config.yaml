@@ -8,7 +8,7 @@ notes: changing inputs
 animate: true # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
 # name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
-name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_ingrid_${ocean.ingrid}_${atm.mem}
+name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_${atm.mem}
 # name: eps_days_${atm.eps_days}
 # python src/main.py --multirun atm.eps_days=1.35,1.45
 # python src/main.py --multirun atm.eps_days=0.35,0.45
@@ -69,7 +69,7 @@ atm:
   # this is actual rho_bar in the paper
   # 0.3 kg m-3
   # Strange properties to plot different models etc.
-  mem: "EEEf"  # string is iterated through - standard model uses fixed value for
+  mem: "EEEE"  # string is iterated through - standard model uses fixed value for
   # relative humidity.
   # ts, clt, sfcwind, rh
   # mem: "EECC" would be the option close to cmip world.

@@ -208,13 +208,6 @@ and so you may need to try a different connection method if it doesn't load.
 
     # uncoupled run without syncing:
     python src/main.py name=it_1 coup.iterations=1 coup.c_d=2.25e-3 wandb=false
-
-    # Other runs:
-
-    python src/main.py name=cd_2.0 coup.c_d=2.0e-3
-
-    python src/main.py name=cd_1.0 coup.c_d=1.0e-3
-
 ```
 
 To look at the commands to relicate the paper figures, see `replicate.md`.
