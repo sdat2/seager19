@@ -26,6 +26,7 @@ from src.models.model_setup import ModelSetup
 from src.configs.config import format_config
 from src.wandb_utils import start_wandb
 from src.data_loading.download import get_data
+from src.clear import clear
 
 
 @timeit
@@ -66,9 +67,6 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
     couple = Coupling(cfg, setup)
     couple.run()
 
-    if cfg.wandb:
-        wandb.finish()
-
     if cfg.archive:
 
         @timeit
@@ -88,6 +86,12 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
                     f.close()
 
         archive()
+        if cfg.wandb:
+            wandb.finish()
+        clear()
+    else:
+        if cfg.wandb:
+            wandb.finish()
 
 
 if __name__ == "__main__":

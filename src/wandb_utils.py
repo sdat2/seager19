@@ -276,7 +276,6 @@ def setup_from_name(name: str) -> ModelSetup:
 if __name__ == "__main__":
     # python src/wandb_utils.py
     # add control variables
-    """
     print(metric_conv_data())
     print(
         metric_conv_data(
@@ -324,4 +323,3 @@ if __name__ == "__main__":
     # pylint: disable=condider-using-dict-items
     for val in metric_d:
         print(val, "\t", float(metric_d[val][5, 1]))
-    """
