@@ -107,7 +107,8 @@ atm:
   eps_v: ${atm.eps} * ${atm.e_frac}
   # e_frac=1/2 in paper
   b_coeff: ${atm.gravity} * ${atm.pi} / ${atm.nbsq} / ${atm.theta_00} / ${atm.height_tropopause}
-  beta: ${atm.omega_2} / ${atm.radius_earth} # beta param for beta plane approx? scaled to really distance? not quite sure what the point of dividing by distance is.
+  beta: ${atm.omega_2} / ${atm.radius_earth} 
+  # beta param for beta plane approx? scaled to real distance? not quite sure what the point of dividing by distance is.
   rho_air: 1.225  # kg m-3 - also called rho_00
   emmisivity: 0.97
   p_s: 1000  # pressure at the surface in pascals

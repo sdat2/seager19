@@ -4,13 +4,13 @@
 
 # explore cd sensitivity:
 
-python src/main.py -m coup.c_d=2.75e-3,0.75e-3 atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5c comp.prwnd=5c
+python src/main.py -m coup.c_d=0,0.25e-3,0.5e-3,0.75e-3,1e-3,1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EECC atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5c comp.prwnd=5c
 
-python src/main.py -m coup.c_d=2.75e-3,0.75e-3 atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5b comp.prwnd=5b
+python src/main.py -m coup.c_d=0,0.25e-3,0.5e-3,0.75e-3,1e-3,1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EEEC atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5b comp.prwnd=5b
 
-python src/main.py -m coup.c_d=2.75e-3,0.75e-3 atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
+python src/main.py -m coup.c_d=0,0.25e-3,0.5e-3,0.75e-3,1e-3,1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EECE atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
 
-python src/main.py -m coup.c_d=2.75e-3,0.75e-3 atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
+python src/main.py -m coup.c_d=0,0.25e-3,0.5e-3,0.75e-3,1e-3,1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EEEE atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
 
 ## replication of parameters in paper
 
@@ -24,18 +24,14 @@ python src/main.py name=N_std_coup atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/
 
 python src/main.py name=N_ECMWF_coup atm.mem=EEEE archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
-
 python src/main.py name=N_C_RH_W2_coup atm.mem=EECC archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c
 
-
 python src/main.py name=N_C_RH_coup atm.mem=EEEC  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b
-
 
 python src/main.py name=N_C_W_coup atm.mem=EECE  archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
 
 # making the cloud constant constant  atm.vary_cloud_const=false
-
 
 python src/main.py name=A_std_uncoup coup.iterations=1 atm.mem=EEEf archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep wandb=false comp.htherm=4b comp.sst=1d comp.prwnd=2d atm.vary_cloud_const=false
 
