@@ -510,9 +510,9 @@ def plot_arrow_plot(save_path: Optional[str] = None, show_plots: bool = False) -
     plt.xticks(
         [1, 2, 3],
         [
-            "W\n" + r"$+0.054 \pm 0.005$ K ",
-            "RH\n " + r"$+0.31\pm0.03$ K",
-            "RH+W\n " + r"$+0.47\pm0.04$ K",
+            "W\n" + r"$+ 0.054 \pm 0.005$ K ",
+            "RH\n " + r"$+ 0.31 \pm 0.03$ K",
+            "RH+W\n " + r"$+ 0.47 \pm 0.04$ K",
         ],
     )
 

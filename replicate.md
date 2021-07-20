@@ -4,13 +4,13 @@
 
 # explore cd sensitivity:
 
-python src/main.py -m coup.c_d=0,0.25e-3,0.5e-3,0.75e-3,1e-3,1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EECC atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5c comp.prwnd=5c
+python src/main.py -m coup.c_d=1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EECC atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5c comp.prwnd=5c
 
-python src/main.py -m coup.c_d=0,0.25e-3,0.5e-3,0.75e-3,1e-3,1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EEEC atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5b comp.prwnd=5b
+python src/main.py -m coup.c_d=1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EEEC atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5b comp.prwnd=5b
 
-python src/main.py -m coup.c_d=0,0.25e-3,0.5e-3,0.75e-3,1e-3,1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EECE atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
+python src/main.py -m coup.c_d=1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EECE atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
 
-python src/main.py -m coup.c_d=0,0.25e-3,0.5e-3,0.75e-3,1e-3,1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EEEE atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
+python src/main.py -m coup.c_d=1.25e-3,1.5e-3,1.75e-3,2e-3,2.25e-3,2.5e-3,2.75e-3,3e-3 atm.mem=EEEE atm.e_frac=2 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/all comp.sst=5a comp.prwnd=5a
 
 ## add more runs.
 
