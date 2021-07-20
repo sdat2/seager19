@@ -171,12 +171,15 @@ def metric_conv_data(
     def check_controls(config: DictConfig) -> bool:
         truth_list = []
         for i in control_variable_list:
-            # print(i)
-            # print([i[0][0], i[0][1]])
-            # pylint: disable=eval-used
-            af = config[i[0][0]][i[0][1]]
-            # print(af, i[1], af == i[1])
-            truth_list.append(af == i[1])
+            if i[0][1] in config[i[0][0]]:
+                # print(i)
+                # print([i[0][0], i[0][1]])
+                # pylint: disable=eval-used
+                af = config[i[0][0]][i[0][1]]
+                # print(af, i[1], af == i[1])
+                truth_list.append(af == i[1])
+            else:
+                truth_list.append(False)
         return np.all(truth_list)
 
     metric_dict = {}
@@ -273,23 +276,8 @@ def setup_from_name(name: str) -> ModelSetup:
     return setup
 
 
-if __name__ == "__main__":
-    # python src/wandb_utils.py
-    # add control variables
-    print(metric_conv_data())
-    print(
-        metric_conv_data(
-            metric_name="trend_nino3",
-            prefix="days_",
-            ex_list=["k_days_", "days_10", "days_5", "days_3"],
-            control_variable_list=[
-                (("atm", "k_days"), 10),
-                (("coup", "c_d"), 2.25e-3),
-                (("atm", "e_frac"), 2),
-            ],
-            index_by=("atm", "eps_days"),
-        )
-    )
+def _other_tests():
+    """Private function to store test."""
     metric_d, _ = metric_conv_data(
         metric_name="trend_nino3.4",
         prefix="k_days_",
@@ -320,6 +308,42 @@ if __name__ == "__main__":
         ],
         index_by=("atm", "e_frac"),
     )
-    # pylint: disable=condider-using-dict-items
-    for val in metric_d:
-        print(val, "\t", float(metric_d[val][5, 1]))
+    print(metric_d)
+
+
+def cd_variation_comp():
+    """
+    Vary drag coefficient and get the final metric.
+    """
+    mem_dict = {}
+    for mem in ["EEEE", "EECE", "EEEC", "EECC"]:
+        print(mem)
+        metric_d, _ = metric_conv_data(
+            metric_name="trend_nino3.4",
+            prefix="",
+            ex_list=[],
+            control_variable_list=[
+                (("atm", "k_days"), 10),
+                # (("coup", "c_d"), 2.25e-3),
+                (("atm", "e_frac"), 0.5),
+                (("atm", "eps_days"), 0.75),
+                (("atm", "mem"), mem),
+                (("atm", "vary_cloud_const"), True),
+            ],
+            index_by=("coup", "c_d"),
+        )
+        # pylint: disable=condider-using-dict-items
+        mem_dict[mem] = [[], []]
+        for val in metric_d:
+            print(val, "\t", float(metric_d[val][5, 1]))
+            mem_dict[mem][0].append(float(val))
+            mem_dict[mem][1].append(float(metric_d[val][5, 1]))
+
+    print(mem_dict)
+
+
+if __name__ == "__main__":
+    # python src/wandb_utils.py
+    # add control variables
+    # print(metric_conv_data())
+    cd_variation_comp()
