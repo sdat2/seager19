@@ -37,7 +37,7 @@ def main(settings: DictConfig) -> None:
     arguments.
 
     Args:
-        cfg (DictConfig): The hyrda dict config from the wrapper.
+        settings (DictConfig): The hyrda dict config from the wrapper.
 
     """
     print(CONFIG_PATH)

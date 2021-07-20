@@ -26,7 +26,6 @@ CONFIG_NAME: str = "config"
 SENS_RANGES: str = "sens_ranges"
 SENS_SETTINGS: str = "sens_settings"
 
-
 # PATHS to the models
 OCEAN_PATH = PROJECT_PATH / "ocean"
 OCEAN_DATA_PATH = OCEAN_PATH / "DATA"
@@ -43,6 +42,7 @@ MASK = OCEAN_DATA_PATH / "om_mask.nc"
 DATA_PATH = SRC_PATH / "data"
 CMIP_TS_PATH = DATA_PATH / "ts_nc"
 CMIP6_TS_PATH = DATA_PATH / "nc80"
+CMIP6_CLIM60_PATH = DATA_PATH / "nc_mean"
 
 # NINO34 trend from fig5e
 NINO34_TRENDS = DATA_PATH / "nino34-trends.csv"
