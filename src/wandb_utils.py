@@ -436,7 +436,7 @@ def plot_comp_cd(
 
 def plot_arrow_plot(save_path: Optional[str] = None, show_plots: bool = False) -> None:
     """
-    Plot drag coefficient for different inputs.
+    Plot the arrow plot to show that I have reproduced the paper.
 
     Args:
         save_path (Optional[str], optional): Where to save the plot to.
@@ -452,7 +452,7 @@ def plot_arrow_plot(save_path: Optional[str] = None, show_plots: bool = False) -
         "EECC": "red",
     }
 
-    def plot_error(x, y, yerr, mem):
+    def plot_error(x: float, y: float, yerr: float, mem: str) -> None:
         plt.fill_between(
             [x - 0.2, x + 0.2],
             [y + yerr, y + yerr],
@@ -517,7 +517,7 @@ def plot_arrow_plot(save_path: Optional[str] = None, show_plots: bool = False) -
     )
 
     plt.xlim(xlim)
-    plt.ylabel("1958-2017, Trend in Nino3.4 [K]")
+    plt.ylabel("1958-2017, Trend in nino3.4 [K]")
 
     plt.legend(
         bbox_to_anchor=(0.0, 1.02, 1, 0.102),
@@ -539,7 +539,6 @@ if __name__ == "__main__":
     # python src/wandb_utils.py
     # add control variables
     # print(metric_conv_data())
-    """
     plot_comp_cd(
         cd_variation_comp(), save_path=os.path.join(FIGURE_PATH, "mech_sens_0.5.png")
     )
@@ -547,5 +546,5 @@ if __name__ == "__main__":
         cd_variation_comp(e_frac=2),
         save_path=os.path.join(FIGURE_PATH, "mech_sens_2.png"),
     )
-    """
+
     plot_arrow_plot(save_path=os.path.join(FIGURE_PATH, "mech_arrow.png"))
