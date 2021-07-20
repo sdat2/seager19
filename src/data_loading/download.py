@@ -260,6 +260,21 @@ def get_cmip6_mmm(force_refresh: bool = False) -> None:
 
 
 # https://www.dropbox.com/s/4fsdixia0dl9gt4/nc80.zip?dl=0
+def get_cmip6_mmm_clim60(force_refresh: bool = False) -> None:
+    """Downloads cmip6 means."""
+    lol = [
+        [
+            str(DATA_PATH),
+            [
+                [
+                    PREFIX + "c22xgus4wk6jzlv/nc_mean.zip" + SUFFIX,
+                    "nc_mean.zip",
+                ],
+            ],
+        ],
+    ]
+
+    _get_data(lol, force_refresh=force_refresh)
 
 
 def get_ts_ensemble(force_refresh: bool = False) -> None:
@@ -303,7 +318,7 @@ def _get_data(lol: list, force_refresh: bool = False) -> None:
 
 if __name__ == "__main__":
     # python3 src/data_loading/download.py
-    get_ts_ensemble()
+    # get_ts_ensemble()
     # get_data()
     # get_figure_data()
     # get_member_data()
@@ -311,3 +326,4 @@ if __name__ == "__main__":
     # get_mmm()
     # get_uv()
     # get_cmip6_mmm()
+    get_cmip6_mmm_clim60()
