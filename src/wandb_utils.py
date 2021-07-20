@@ -12,9 +12,14 @@ import pandas as pd
 import wandb
 import logging
 from omegaconf import DictConfig, OmegaConf
+import matplotlib.pyplot as plt
 from subprocess import PIPE, run
-from src.constants import DATA_PATH, run_path
+from uncertainties import unumpy as unp
+from src.constants import DATA_PATH, run_path, FIGURE_PATH
+from src.plot_utils import ps_defaults
 from src.models.model_setup import ModelSetup
+from src.models.poly import fit
+
 
 log = logging.getLogger(__name__)
 
@@ -311,7 +316,7 @@ def _other_tests():
     print(metric_d)
 
 
-def cd_variation_comp():
+def cd_variation_comp(e_frac=0.5) -> dict:
     """
     Vary drag coefficient and get the final metric.
     """
@@ -320,12 +325,12 @@ def cd_variation_comp():
         print(mem)
         metric_d, _ = metric_conv_data(
             metric_name="trend_nino3.4",
-            prefix="",
-            ex_list=[],
+            prefix="k_days_10_eps_days",
+            ex_list=["ingrid_True"],
             control_variable_list=[
                 (("atm", "k_days"), 10),
                 # (("coup", "c_d"), 2.25e-3),
-                (("atm", "e_frac"), 0.5),
+                (("atm", "e_frac"), e_frac),
                 (("atm", "eps_days"), 0.75),
                 (("atm", "mem"), mem),
                 (("atm", "vary_cloud_const"), True),
@@ -340,10 +345,101 @@ def cd_variation_comp():
             mem_dict[mem][1].append(float(metric_d[val][5, 1]))
 
     print(mem_dict)
+    return mem_dict
+
+
+def plot_comp_cd(
+    mem_d: dict, save_path: Optional[str] = None, show_plots: bool = False
+) -> None:
+    """
+    Plot drag coefficient for different inputs.
+
+    Args:
+        mem_d (dict): dict with different inputs as keys.
+        save_path (Optional[str], optional): Where to save the plot to.
+            Defaults to None. If None will not save.
+        show_plots (bool, optional): Whether to show plots. Defaults to False.
+    """
+    ps_defaults(use_tex=False)
+
+    color_d = {
+        "EEEE": "blue",
+        "EECE": "green",
+        "EEEC": "orange",
+        "EECC": "red",
+    }
+
+    name_d = {
+        "EEEE": "ECMWF",
+        "EECE": "W",
+        "EEEC": "RH",
+        "EECC": "RH+W",
+    }
+    min_x = np.inf
+    max_x = -np.inf
+
+    for mem in name_d:
+        if min(mem_d[mem][0]) < min_x:
+            min_x = min(mem_d[mem][0])
+        if max(mem_d[mem][0]) > max_x:
+            max_x = max(mem_d[mem][0])
+
+    ext = 0.05
+    min_x_pred = min_x - (max_x - min_x) * ext
+    max_x_pred = max_x + (max_x - min_x) * ext
+    x_pred = np.linspace(min_x_pred, max_x_pred, num=50)
+
+    for mem in name_d:
+        param, func = fit(mem_d[mem][0], mem_d[mem][1], reg_type="lin")
+        print("param", mem, param)
+        y_pred = func(x_pred)
+        y_pred_n = unp.nominal_values(y_pred)
+        y_pred_s = unp.std_devs(y_pred)
+        plt.fill_between(
+            x_pred,
+            y_pred_n + y_pred_s,
+            y_pred_n - y_pred_s,
+            alpha=0.25,
+            color=color_d[mem],
+        )
+        plt.plot(x_pred, y_pred_n, color=color_d[mem], alpha=0.5)
+        plt.scatter(
+            mem_d[mem][0],
+            mem_d[mem][1],
+            marker="x",
+            label=name_d[mem],
+            c=color_d[mem],
+        )
+
+    plt.xlabel("Drag Coefficient, $C_d$")
+    plt.ylabel("1958-2017 Nino3.4 trend [K]")
+    plt.legend(
+        bbox_to_anchor=(0.0, 1.02, 1, 0.102),
+        loc="lower left",
+        mode="expand",
+        ncol=4,
+    )
+    plt.gca().ticklabel_format(
+        axis="x", style="sci", scilimits=(0, 0), useMathText=True
+    )
+
+    plt.xlim(min_x_pred, max_x_pred)
+    if save_path is not None:
+        plt.savefig(save_path)
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
 
 
 if __name__ == "__main__":
     # python src/wandb_utils.py
     # add control variables
     # print(metric_conv_data())
-    cd_variation_comp()
+    plot_comp_cd(
+        cd_variation_comp(), save_path=os.path.join(FIGURE_PATH, "mech_sens_0.5.png")
+    )
+    plot_comp_cd(
+        cd_variation_comp(e_frac=2),
+        save_path=os.path.join(FIGURE_PATH, "mech_sens_2.png"),
+    )
