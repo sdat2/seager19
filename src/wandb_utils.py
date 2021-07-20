@@ -411,8 +411,8 @@ def plot_comp_cd(
             c=color_d[mem],
         )
 
-    plt.xlabel("Drag Coefficient, $C_d$")
-    plt.ylabel("1958-2017 Nino3.4 trend [K]")
+    plt.xlabel("Drag coefficient, $C_d$, [dimesionless]")
+    plt.ylabel("1958-2017 nino3.4 trend [K]")
     plt.legend(
         bbox_to_anchor=(0.0, 1.02, 1, 0.102),
         loc="lower left",
@@ -424,6 +424,109 @@ def plot_comp_cd(
     )
 
     plt.xlim(min_x_pred, max_x_pred)
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path)
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
+
+
+def plot_arrow_plot(save_path: Optional[str] = None, show_plots: bool = False) -> None:
+    """
+    Plot drag coefficient for different inputs.
+
+    Args:
+        save_path (Optional[str], optional): Where to save the plot to.
+            Defaults to None. If None will not save.
+        show_plots (bool, optional): Whether to show plots. Defaults to False.
+    """
+    ps_defaults(use_tex=False)
+
+    color_d = {
+        "EEEE": "blue",
+        "EECE": "green",
+        "EEEC": "orange",
+        "EECC": "red",
+    }
+
+    def plot_error(x, y, yerr, mem):
+        plt.fill_between(
+            [x - 0.2, x + 0.2],
+            [y + yerr, y + yerr],
+            [y - yerr, y - yerr],
+            color=color_d[mem],
+            alpha=0.5,
+        )
+        plt.plot([x - 0.2, x + 0.2], [y, y], "black", linewidth=1)
+
+    xlim = [0.5, 3.5]
+    head_length = 0.02
+    decrease_arrow = 0.01
+    ax = plt.axes()
+    ecmwf = 0.411
+    # ax.arrow(0, 0, 0, 1, head_width=0.02, head_length=0.02, fc='k', ec='k')
+    ax.arrow(
+        1,
+        ecmwf,
+        0,
+        0.054 - head_length - decrease_arrow,
+        head_width=0.02,
+        head_length=head_length,
+        fc="k",
+        ec="k",
+    )
+    plot_error(1, ecmwf + 0.054, 0.005, "EECE")
+    ax.arrow(
+        2,
+        ecmwf,
+        0,
+        0.31 - head_length - decrease_arrow,
+        head_width=0.02,
+        head_length=head_length,
+        fc="k",
+        ec="k",
+    )
+    plot_error(2, ecmwf + 0.31, 0.03, "EEEC")
+    ax.arrow(
+        3,
+        ecmwf,
+        0,
+        0.47 - head_length - decrease_arrow,
+        head_width=0.02,
+        head_length=head_length,
+        fc="k",
+        ec="k",
+    )
+    plot_error(3, ecmwf + 0.47, 0.04, "EECC")
+    plt.plot(xlim, [ecmwf, ecmwf], color="blue", label="ECMWF/ORAS4 $= 0.411$ K ")
+    plt.plot(
+        xlim, [ecmwf + 0.478, ecmwf + 0.478], color="red", label="CMIP5 MMM $= 0.889$ K"
+    )
+
+    # plt.xticks([0, 1, 2, 3], ["ECMWF", "W", "RH", "RH+W"])
+    plt.xticks(
+        [1, 2, 3],
+        [
+            "W\n" + r"$+0.054 \pm 0.005$ K ",
+            "RH\n " + r"$+0.31\pm0.03$ K",
+            "RH+W\n " + r"$+0.47\pm0.04$ K",
+        ],
+    )
+
+    plt.xlim(xlim)
+    plt.ylabel("1958-2017, Trend in Nino3.4 [K]")
+
+    plt.legend(
+        bbox_to_anchor=(0.0, 1.02, 1, 0.102),
+        loc="lower left",
+        mode="expand",
+        ncol=2,
+    )
+    plt.tight_layout()
+
     if save_path is not None:
         plt.savefig(save_path)
     if show_plots:
@@ -436,6 +539,7 @@ if __name__ == "__main__":
     # python src/wandb_utils.py
     # add control variables
     # print(metric_conv_data())
+    """
     plot_comp_cd(
         cd_variation_comp(), save_path=os.path.join(FIGURE_PATH, "mech_sens_0.5.png")
     )
@@ -443,3 +547,5 @@ if __name__ == "__main__":
         cd_variation_comp(e_frac=2),
         save_path=os.path.join(FIGURE_PATH, "mech_sens_2.png"),
     )
+    """
+    plot_arrow_plot(save_path=os.path.join(FIGURE_PATH, "mech_arrow.png"))
