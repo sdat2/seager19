@@ -25,6 +25,16 @@ sensitive to subjective inputs. It is therefore plausible that the observed bias
 the increase in sea surface temperature in the nino3.4 region is caused by excess 
 humidity, and insufficient tropical windspeeds.
 
+.. figure:: gifs/mech_arrow.png
+  :width: 500
+  :alt: trend graph
+  :align: center
+  
+  Replacing the climatological wind (W) and relative humidity (RH) 
+  with CMIP5 mean explains the bias in CMIP5 nino3.4 trend.
+  The error is the difference between things.
+
+
 The first section `seager19` contains the main `README.md` of the repository,
 so as to reduce duplication, and this should provide a reasonable introduction
 to the repository as a whole.
@@ -45,19 +55,21 @@ Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble member
 a positive NINO3.4 trend (towards El Nino) where as the observations show a more 
 negative NINO3.4 trend (towards La Nina).
 
-.. image:: gifs/trend_graph.png
+.. figure:: gifs/trend_graph.png
   :width: 500
   :alt: trend graph
+  :align: center
 
-Caption: observations = orange diamonds / blue crosses;
-models = blue / black. As you can see the CMIP ensemble 
-members show little overlap with any of the renalysis products.
+   The observations (reanalysis products) are marked as orange diamonds / blue crosses / red star;
+   the models are marked as blue / black dots, with multi model mean as corresponding diamonds. 
+   The CMIP ensemble members show little overlap with any of the renalysis products.
 
-.. image:: gifs/trend_graphic.png
+.. figure:: gifs/trend_graphic.png
   :width: 500
   :alt: trend graphic
-
-Caption: This suggests an over all tendency to La Nina in observations rather than El Nino.
+  :align: center
+  
+  This suggests an over all tendency to La Nina in observations rather than El Nino.
 
 
 They showed that the observed trend can be reproduced with a simple coupled 

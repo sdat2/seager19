@@ -540,11 +540,11 @@ if __name__ == "__main__":
     # add control variables
     # print(metric_conv_data())
     plot_comp_cd(
-        cd_variation_comp(), save_path=os.path.join(FIGURE_PATH, "mech_sens_0.5.png")
+        cd_variation_comp(), save_path=os.path.join(FIGURE_PATH, "mech_sens_0.5.pdf")
     )
     plot_comp_cd(
         cd_variation_comp(e_frac=2),
-        save_path=os.path.join(FIGURE_PATH, "mech_sens_2.png"),
+        save_path=os.path.join(FIGURE_PATH, "mech_sens_2.pdf"),
     )
 
-    plot_arrow_plot(save_path=os.path.join(FIGURE_PATH, "mech_arrow.png"))
+    plot_arrow_plot(save_path=os.path.join(FIGURE_PATH, "mech_arrow.pdf"))
