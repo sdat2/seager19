@@ -245,7 +245,9 @@ class Atmos:
 
     @typechecked
     def f_dqs_dtemp(self, temperature: xr.DataArray) -> xr.DataArray:
-        """Flux dqs.
+        """Flux dqs dtemp.
+
+        change in saturation humdity of the suface by temperature.
 
         Args:
             temperature (xr.DataArray): temp.
@@ -1131,6 +1133,42 @@ class Atmos:
 
         Get the surface fluxes, qd_df, dq_dT among other things.
 
+        Example:
+            Logic behind calculating the flux parameters::
+
+                dq_dt = self.f_dqlh_dtemp(t_sb, u_b, rh_b)
+                        + self.f_dqlw_dtemp(t_sb, c_b, self.atm.f1_bar, rh)
+
+                dq_df = self.f_dqlw_df(t_sb, c_b)
+
+                dq_dt = (self.atm.qlh_coeff * u_sp
+                            * (self.atm.e_factor * self.atm.es_0
+                            * np.exp(17.67
+                                * (temperature - self.atm.temp_0_c)
+                                / (temperature - self.atm.temp_0_c + 243.5)
+                            ) / self.atm.p_s
+                            * (17.67 * 243.5)
+                            / (temperature - self.atm.temp_0_c + 243.5) ** 2
+                        ) * (1 - rh)
+                        + self.atm.qlw_coeff * (
+                            (1 - a_cloud_const * cloud_cover ** 2)
+                            * temperature ** 3
+                            * (
+                                4 * f
+                                - self.atm.f2 * np.sqrt(e_bar)
+                                * (4 + temperature * dqs_dtemp / 2 / q_s)
+                            )
+                            + 12 * temperature ** 2 * self.atm.delta_temp
+                            )
+                        )
+
+                dq_df = (
+                            self.atm.qlw_coeff
+                            * (1 - a_cloud_const * cloud_cover ** 2)
+                            * temperature ** 4
+                        )
+
+
         Returns:
             any: A list of outputs.
                 dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
@@ -1146,9 +1184,10 @@ class Atmos:
         dclim_loc = self.load_clim60()
 
         t_sb_loc = 1.0 * dclim_loc.ts
+        # process the climatological windspeed
         tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
         tmp[tmp < self.atm.wnsp_min] = self.atm.wnsp_min
-        u_b_loc = tmp.unstack("z").T
+        u_b_loc = tmp.unstack("z").T  # climatological windspeed.
         c_b_loc = dclim_loc.clt / 100.0
         rh_loc = dclim_loc.rh / 100.0
         f1p = -0.003  # f1prime
@@ -1195,6 +1234,42 @@ class Atmos:
             c_b_loc,
             t_sb_loc,
         )
+
+    @typechecked
+    def output_dq(self) -> None:
+        """Outputs "dQ.nc"."""
+
+        dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = self.get_dclim()
+
+        # Now, save the dq_df and dq_dt terms for using in TCOM:
+        dq_dt = alh + alw
+        dq_df = blw
+
+        # Define the new Dataset
+        dq = xr.Dataset(
+            {
+                "lon": ("lon", dclim.lon),
+                "lat": ("lat", dclim.lat),
+                "dq_dt": (["lat", "lon"], dq_dt),
+                "dq_df": (["lat", "lon"], dq_df),
+            }
+        )
+
+        dq.lon.attrs = dclim.lon.attrs
+        dq.lat.attrs = dclim.lat.attrs
+        dq.dq_dt.attrs = [("units", "W/m^2/K")]
+        dq.dq_df.attrs = [("units", "W/m^2")]
+
+        dq["ALH"] = alh
+        dq["ALW"] = alw
+        dq["BLW"] = blw
+        dq["dTse"] = dtemp_se
+        dq["rh"] = rh
+        dq["Ub"] = u_b
+        dq["Cb"] = c_b
+        dq["Tsb"] = t_sb
+
+        dq.to_netcdf(self.setup.dq_output())
 
     @typechecked
     def make_figure(
@@ -1268,42 +1343,6 @@ class Atmos:
         plt.savefig(
             os.path.join(self.setup.atmos_path, "Tsp4.eps"), format="eps", dpi=1000
         )
-
-    @typechecked
-    def output_dq(self) -> None:
-        """Outputs "dQ.nc"."""
-
-        dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb = self.get_dclim()
-
-        # Now, save the dq_df and dq_dt terms for using in TCOM:
-        dq_dt = alh + alw
-        dq_df = blw
-
-        # Define the new Dataset
-        dq = xr.Dataset(
-            {
-                "lon": ("lon", dclim.lon),
-                "lat": ("lat", dclim.lat),
-                "dq_dt": (["lat", "lon"], dq_dt),
-                "dq_df": (["lat", "lon"], dq_df),
-            }
-        )
-
-        dq.lon.attrs = dclim.lon.attrs
-        dq.lat.attrs = dclim.lat.attrs
-        dq.dq_dt.attrs = [("units", "W/m^2/K")]
-        dq.dq_df.attrs = [("units", "W/m^2")]
-
-        dq["ALH"] = alh
-        dq["ALW"] = alw
-        dq["BLW"] = blw
-        dq["dTse"] = dtemp_se
-        dq["rh"] = rh
-        dq["Ub"] = u_b
-        dq["Cb"] = c_b
-        dq["Tsb"] = t_sb
-
-        dq.to_netcdf(self.setup.dq_output())
 
     def run_all(self, it: int = 0) -> None:
         self.it = it

@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Analysis of a Parsimonious Coupled Model of the Equatorial Pacific Surface Temperature Change
-==============================
+=============================================================================================
 
 Welcome to the seager19 documentation!
 
