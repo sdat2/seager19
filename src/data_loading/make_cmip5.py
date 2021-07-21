@@ -124,6 +124,7 @@ def make_sfcwind() -> None:
 @timeit
 def get_sfcwind() -> None:
     """Get the CMIP5 surface wind from the figure data."""
+    get_figure_data()
     wsp = can_coords(return_figure_ds("5d")["wnspClim"])
     swd_e60 = (
         open_dataarray(ATMOS_DATA_PATH / "sfcWind-ECMWF-clim60.nc")
@@ -184,6 +185,7 @@ def get_sfcwind_6() -> None:
 @timeit
 def get_rh() -> None:
     """Get the CMIP5 relative humidity from the figure data."""
+    get_figure_data()
     rh = can_coords(return_figure_ds("5c")["rh"])
     rh_e = open_dataarray(ATMOS_DATA_PATH / "rh-ECMWF-clim60.nc")
     rh_clim = rh.interp_like(rh_e).bfill("X").ffill("X").bfill("Y").ffill("Y")
@@ -198,6 +200,7 @@ def get_rh_6() -> None:
     """Get the CMIP6 relative humidity from the figure data."""
     rh = can_coords(xr.open_dataarray(os.path.join(CMIP6_CLIM60_PATH, "hur.nc")))
     rh = rh.where(rh < 100).fillna(100)
+    rh = rh.where(rh > 20).fillna(20)
     print(rh.min())
     print(rh.max())
     rh_e = open_dataarray(ATMOS_DATA_PATH / "rh-ECMWF-clim60.nc")

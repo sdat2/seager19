@@ -25,15 +25,17 @@ sensitive to subjective inputs. It is therefore plausible that the observed bias
 the increase in sea surface temperature in the nino3.4 region is caused by excess 
 humidity, and insufficient tropical windspeeds.
 
-.. figure:: gifs/mech_arrow.png
+.. figure:: images/mech_arrow.png
   :width: 500
   :alt: trend graph
   :align: center
   
   Replacing the climatological wind (W) and relative humidity (RH) 
   with CMIP5 mean explains the bias in CMIP5 nino3.4 trend.
-  The error is the difference between things.
+  The error is the range from the possible parameter settings
+  from either the paper or the original version of uncoupled code.
 
+See :download:`the final report <Report_without_documentation.pdf>` for more details and tests.
 
 The first section `seager19` contains the main `README.md` of the repository,
 so as to reduce duplication, and this should provide a reasonable introduction
@@ -49,20 +51,24 @@ Here is the current breakdown of the model code by language:
    :literal:
 
 
-MRes Proposal (See :download:`the final report <Report_without_documentation.pdf>` for results.):
-
-Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble members have
-a positive NINO3.4 trend (towards El Nino) where as the observations show a more 
-negative NINO3.4 trend (towards La Nina).
+MRes Proposal:
 
 .. figure:: gifs/trend_graph.png
   :width: 500
   :alt: trend graph
   :align: center
 
-   The observations (reanalysis products) are marked as orange diamonds / blue crosses / red star;
-   the models are marked as blue / black dots, with multi model mean as corresponding diamonds. 
-   The CMIP ensemble members show little overlap with any of the renalysis products.
+  The observations (reanalysis products) are marked as orange diamonds / blue crosses / red star;
+  the models are marked as blue / black dots, with multi model mean as corresponding diamonds. 
+  The CMIP ensemble members show little overlap with any of the renalysis products.
+  This suggests that the data is very unlikely given the model, which may suggest a systematic
+  bias in the CMIP5/LENS models.
+
+
+Seager et al. 2019 [1, hereafter S19] showed that although CMIP5 ensemble members have
+a positive NINO3.4 trend (towards El Nino) where as the observations show a more 
+negative NINO3.4 trend (towards La Nina).
+
 
 .. figure:: gifs/trend_graphic.png
   :width: 500
@@ -88,9 +94,12 @@ expand to more sophisticated sensitivity analyses, and/or more complicated
 model settings.
 
 
-.. image:: gifs/om_diag_SST_SST.gif
+.. figure:: gifs/om_diag_SST_SST.gif
   :width: 500
   :alt: SST in diag period 1956-58
+
+  Sea surface temperature for the whole model region between 1956-58.
+  This is in the diagnostic period and it takes climatological inputs.
 
 Scientific questions to be addressed include:
 
