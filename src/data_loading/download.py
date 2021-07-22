@@ -267,7 +267,7 @@ def get_cmip6_mmm_clim60(force_refresh: bool = False) -> None:
             str(DATA_PATH),
             [
                 [
-                    PREFIX + "c22xgus4wk6jzlv/nc_mean.zip" + SUFFIX,
+                    PREFIX + "9tj08i0o5cntv8t/nc_mean.zip" + SUFFIX,
                     "nc_mean.zip",
                 ],
             ],

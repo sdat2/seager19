@@ -1141,7 +1141,7 @@ class Atmos:
 
                 dq_df = self.f_dqlw_df(t_sb, c_b)
 
-                dq_dt = (self.atm.qlh_coeff * u_sp
+                dq_dt = (${atm.rho_air} * ${atm.c_e} * ${atm.latent_heat_vap}* u_sp
                             * (self.atm.e_factor * self.atm.es_0
                             * np.exp(17.67
                                 * (temperature - self.atm.temp_0_c)
@@ -1150,7 +1150,7 @@ class Atmos:
                             * (17.67 * 243.5)
                             / (temperature - self.atm.temp_0_c + 243.5) ** 2
                         ) * (1 - rh)
-                        + self.atm.qlw_coeff * (
+                        + ${atm.emmisivity} * ${atm.stefan_boltzman_const} * (
                             (1 - a_cloud_const * cloud_cover ** 2)
                             * temperature ** 3
                             * (
@@ -1163,7 +1163,7 @@ class Atmos:
                         )
 
                 dq_df = (
-                            self.atm.qlw_coeff
+                            ${atm.emmisivity} * ${atm.stefan_boltzman_const}
                             * (1 - a_cloud_const * cloud_cover ** 2)
                             * temperature ** 4
                         )
