@@ -37,6 +37,29 @@ humidity, and insufficient tropical windspeeds.
 
 See :download:`the final report <Report_without_documentation.pdf>` for more details and tests.
 
+CMIP6 seems to have a smaller bias (at least from the 51
+ensemble member that I collected from Pangeo).
+However, it seems that this bias is not as small as
+our model would predict. The relative humidity and
+wind speed seems to have improved more between
+the two models than the trend in nino3.4.
+
+.. figure:: images/mech_arrow_cmip6.png
+  :width: 500
+  :alt: trend graph
+  :align: center
+  
+  Replacing the climatological wind (W) 
+  and relative humidity (RH)
+  with CMIP6 mean explains only the majority of 
+  the bias in CMIP6 nino3.4 trend.
+  The errors are calculated as in the above plot.
+  This could either suggest that other mechanisms are 
+  becoming important in CMIP6, or that this simplified
+  models paramters have been tuned only to explain the
+  CMIP5 bias rather than CMIP6.
+
+
 The first section `seager19` contains the main `README.md` of the repository,
 so as to reduce duplication, and this should provide a reasonable introduction
 to the repository as a whole.
