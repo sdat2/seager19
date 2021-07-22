@@ -59,6 +59,30 @@ the two models than the trend in nino3.4.
   models paramters have been tuned only to explain the
   CMIP5 bias rather than CMIP6.
 
+.. figure:: images/trend.png
+  :width: 500
+  :alt: trend graph
+  :align: center
+  
+  The trend, defined as the change that would be
+  calculated that a linear 
+  regression fitted on the time series would predict over 
+  the that period, is calculated over 60 years.
+  This is done so that higher frequency changes are damped out to
+  some extent. The end year of the trend is
+  varied to test that the bias is robust to
+  the  placement of El Nino / La Nina events.
+  CMIP6-MMM seems to be robustly lower than
+  CMIP5-MMM, suggesting that the models have
+  improved somewhat. The observational reanalysis
+  products (dashed lines) show a lower trend than 
+  the models, particularly for the last few years plotted.
+  The members of the CMIP6 ensemble could be taken to describe
+  the probability of any trend given the models. Based on this
+  the later years of the trend in the observational data would be
+  very unlikely given the models, and this would suggest that the 
+  models probably have some significant bias.
+  
 
 The first section `seager19` contains the main `README.md` of the repository,
 so as to reduce duplication, and this should provide a reasonable introduction
