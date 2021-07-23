@@ -10,7 +10,7 @@ Welcome to the seager19 documentation!
 
 This project reassembles a parsimonious coupled model of the equatorial Pacific, 
 from `Seager et al. 2019 (S19)`_, that was created to explain the
-bias in the trend_graph in NINO3.4 temperature in  CMIP5 models. 
+bias in the trend in NINO3.4 temperature in  CMIP5 models. 
 When forced with ECMWF reanalysis fields, it can reproduce
 the trend observed in ECMWF/ORAS4 reanalysis product that was forced with the same
 fields. It shows that the CMIP5 bias in the trend in NINO3.4 from 1958-2017 could
@@ -187,12 +187,9 @@ Scientific questions to be addressed include:
 
 Citations:
 
-[1] Seager, R. et al. Strengthening tropical Pacific zonal sea surface temperature gradient
- consistent with rising greenhouse gases, July 2019. https://doi.org/10.1038/s41558-019-0505-x
+[1] Seager, R. et al. Strengthening tropical Pacific zonal sea surface temperature gradient consistent with rising greenhouse gases, https://doi.org/10.1038/s41558-019-0505-x (July 2019.)
 
-[2] Tian, B. & Dong, X. The Double-ITCZ Bias in CMIP3, CMIP5, and CMIP6 Models Based on Annual 
-  Mean Precipitation. Geophysical Research Letters 47, e2020GL087232. issn: 0094-8276. 
-  doi:10.1029/2020GL087232. https://onlinelibrary.wiley.com/doi/abs/10.1029/2020GL087232 (Apr. 2020).
+[2] Tian, B. & Dong, X. The Double-ITCZ Bias in CMIP3, CMIP5, and CMIP6 Models Based on Annual Mean Precipitation. Geophysical Research Letters 47, e2020GL087232. issn: 0094-8276. doi:10.1029/2020GL087232. https://onlinelibrary.wiley.com/doi/abs/10.1029/2020GL087232 (Apr. 2020).
 
 .. toctree::
    :maxdepth: 3

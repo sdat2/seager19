@@ -34,7 +34,7 @@ c              J. Phys. Oceanogr., 25, 3219-3230.
 - HTHERM / htherm - height of the thermocline?
 - W1 / w1 - upwelling speed in surface layer
 
-(other posibilites: SST W1 UDTDX VDTDY UP_FLUX QPRIME QFC QNET)s
+(other posibilites: SST W1 UDTDX VDTDY UP_FLUX QPRIME QFC QNET)
 
 ## Helpful background information
 
