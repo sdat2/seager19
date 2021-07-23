@@ -1,5 +1,7 @@
 # seager19
 
+<a href="https://mybinder.org/v2/gh/sdat2/seager19/HEAD?filepath=notebooks%2Fpangeo%2Fbinder%2Fanalyse_results.ipynb">
+<img alt="Binder" src="https://mybinder.org/badge_logo.svg"/></a>
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src=https://img.shields.io/badge/License-MIT-blue.svg></a>
  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
  <a href=https://www.python.org/downloads/release/python-388/><img src='https://img.shields.io/badge/python-3.8-blue.svg' alt='Python 3.8' /></a>
@@ -250,3 +252,7 @@ To look at the commands to relicate the paper figures, see `replicate.md`.
 <http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.dataset/.CMIP5/.MultiModelMeans/.MMM-v2.3/.historical/.Surface/data.cdf>
 
 <http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.dataset/.CMIP5/.MultiModelMeans/.MMM-v2.3/.rcp85/.Surface/data.cdf>
+
+### CMIP6/CMIP5 bias mechanisms data
+
+<https://docs.google.com/spreadsheets/d/1QrCLil7uHMRJECOoSL18uk2mvBwMLxqesXbZpUWh3ko/edit?usp=sharing>
