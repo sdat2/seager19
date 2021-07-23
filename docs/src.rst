@@ -16,6 +16,14 @@ Subpackages
 Submodules
 ----------
 
+src.clear module
+----------------
+
+.. automodule:: src.clear
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.constants module
 --------------------
 

@@ -660,7 +660,6 @@ if __name__ == "__main__":
     # python src/wandb_utils.py
     # add control variables
     # print(metric_conv_data())
-    """
     plot_comp_cd(
         cd_variation_comp(), save_path=os.path.join(FIGURE_PATH, "mech_sens_0.5.pdf")
     )
@@ -668,7 +667,5 @@ if __name__ == "__main__":
         cd_variation_comp(e_frac=2),
         save_path=os.path.join(FIGURE_PATH, "mech_sens_2.pdf"),
     )
-    """
-
     plot_arrow_plot_6(save_path=os.path.join(FIGURE_PATH, "mech_arrow_cmip6.pdf"))
     plot_arrow_plot_6(save_path=os.path.join(FIGURE_PATH, "mech_arrow_cmip6.png"))

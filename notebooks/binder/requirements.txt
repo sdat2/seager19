@@ -1,0 +1,20 @@
+uncertainties
+scipy
+numpy
+xarray
+wandb
+omegaconf
+hydra
+jupyter
+ipython
+jupyterlab          # jupyter notebooks
+jupyter
+ipython
+jupyterthemes       # change the color of jupyter-notebooks etc
+matplotlib
+seaborn
+cmocean
+hydra-core
+tqdm 
+
+-e ../.
