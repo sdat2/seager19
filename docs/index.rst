@@ -3,14 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Analysis of a Parsimonious Coupled Model of the Equatorial Pacific Surface Temperature Change
+A Parsimonious Coupled Model of the Equatorial Pacific Surface Temperature Change
 =============================================================================================
 
 Welcome to the seager19 documentation!
 
 This project reassembles a parsimonious coupled model of the equatorial Pacific, 
-from `Seager et al. 2019 (S19)`_, that was created to explain the cold tongue bias
-in CMIP5 models. When forced with ECMWF reanalysis fields, it can reproduce
+from `Seager et al. 2019 (S19)`_, that was created to explain the
+bias in the trend_graph in NINO3.4 temperature in  CMIP5 models. 
+When forced with ECMWF reanalysis fields, it can reproduce
 the trend observed in ECMWF/ORAS4 reanalysis product that was forced with the same
 fields. It shows that the CMIP5 bias in the trend in NINO3.4 from 1958-2017 could
 be due to a product of the CMIP5 bias in relative humidity and sea surface winds, 
@@ -21,9 +22,28 @@ respectively when tested with a range of plausible inputs. This is congruent wit
 observed difference of 0.478 K between the ECMWF/ORAS4 reanalysis product and the CMIP5
 multimodel mean. I investigate how reliable the results from this model might be by 
 varying the free parameters and find that, as far as tested, the model is not overly
-sensitive to subjective inputs. It is therefore plausible that the observed bias in 
-the increase in sea surface temperature in the nino3.4 region is caused by excess 
-humidity, and insufficient tropical windspeeds.
+sensitive to subjective inputs. 
+
+It is therefore plausible that the observed bias in the increase in sea surface
+temperature in the nino3.4 region is caused by excess humidity, and insufficient
+tropical windspeeds in the mean state. The mechanism by which this appears 
+to be produced through more humidity and less wind reducing the sensitivity 
+of the latent heat flux to increased temperature. Therefore, the bias from
+the mean state of the surface atmosphere makes the central and east equatorial 
+Pacific seem to be easier to warm than it is in reality.
+This model does not explain why these biases occure in the first place;
+for that we would need to consider the much more complicated processes that are
+important in the tropical atmosphere, that are broadly connected to the
+"Double ITCZ Cold tongue bias" that has been seen in each subsequent generation
+of complicated climate models. 
+
+The effect of this bias would likely to be to introduce a nonstationary bias
+into all the different hazards where their is a teleconnnection to the El Nino 
+Southern Oscillation. For example, there are more tropical cyclones that form 
+in the North Atlantic when there is a La Nina event, due to reduced shear 
+(e.g. `Camargo, Emanuel and Sobel 2007 (C7)`_). Therefore, this bias in would 
+lead to an underprediction in the apparent risk from tropical cylones for the 
+North American East coast in the future.
 
 .. figure:: images/mech_arrow.png
   :width: 500
@@ -149,8 +169,12 @@ model settings.
   :alt: SST in diag period 1956-58
   :align: center
   
-  Sea surface temperature (SST) for the whole model region between 1956-58.
-  This is in the diagnostic period and it takes climatological inputs.
+  The sea surface temperature (SST) for the whole model region between 1956-58.
+  The output of this step of the model is the heat flux correction factor that
+  feeds into the rest of the model. The resolution of the model is 1 degree,
+  and the grid rectilinear. The model is makes the beta plane approximation 
+  evaluated at the equator, and so the results are would only be realistic near the equator.
+  It takes climatological inputs for sea surface temperature and wind stress from ECMWF.
 
 Scientific questions to be addressed include:
 
@@ -169,8 +193,6 @@ Citations:
 [2] Tian, B. & Dong, X. The Double-ITCZ Bias in CMIP3, CMIP5, and CMIP6 Models Based on Annual 
   Mean Precipitation. Geophysical Research Letters 47, e2020GL087232. issn: 0094-8276. 
   doi:10.1029/2020GL087232. https://onlinelibrary.wiley.com/doi/abs/10.1029/2020GL087232 (Apr. 2020).
-
-
 
 .. toctree::
    :maxdepth: 3
@@ -193,3 +215,4 @@ Indices and tables
 * :ref:`search`
 
 .. _Seager et al. 2019 (S19): https://doi.org/10.1038/s41558-019-0505-x
+.. _Camargo, Emanuel and Sobel 2007 (C7): https://www.ldeo.columbia.edu/~suzana/papers/camargo_emanuel_sobel_jclim07.pdf
