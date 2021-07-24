@@ -1,5 +1,4 @@
-.. src documentation master file, created by
-   sphinx-quickstart on Thu Mar 18 17:37:46 2021.
+.. src documentation master file.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -9,41 +8,44 @@ A Parsimonious Coupled Model of the Equatorial Pacific Surface Temperature Chang
 Welcome to the seager19 documentation!
 
 This project reassembles a parsimonious coupled model of the equatorial Pacific, 
-from `Seager et al. 2019 (S19)`_, that was created to explain the
-bias in the trend in NINO3.4 temperature in  CMIP5 models. 
+from `Seager et al. 2019 (S19)`_, which they created to explain the
+bias in the trend in NINO3.4 temperature in CMIP5 models. 
 When forced with ECMWF reanalysis fields, it can reproduce
-the trend observed in ECMWF/ORAS4 reanalysis product that was forced with the same
+the trend observed in ECMWF/ORAS4 that was forced with the same
 fields. It shows that the CMIP5 bias in the trend in NINO3.4 from 1958-2017 could
-be due to a product of the CMIP5 bias in relative humidity and sea surface winds, 
-which is shown through exchanging ECMWF mean fields for CMIP5 multimodel mean fields.
+be due to a product of the CMIP5 bias in relative humidity and sea surface winds. 
+This is shown through exchanging ECMWF mean fields for CMIP5 multimodel mean fields.
 The replacements of mean relative humidity, mean wind speed, and both together, 
-lead to increases in the NINO3.4 trend of 0.31±0.03 K, 0.054±0.005 K, and 0.47±0.04 K
-respectively when tested with a range of plausible inputs. This is congruent with the
+lead to increases in the NINO3.4 trend of 0.31±0.03 K, 0.054±0.005 K, and 0.47±0.04 K,
+respectively. The error bars are from tests with a range of plausible inputs. This is congruent with the
 observed difference of 0.478 K between the ECMWF/ORAS4 reanalysis product and the CMIP5
-multimodel mean. I investigate how reliable the results from this model might be by 
+multimodel mean. I investigate how reliable the results from this model might be by
 varying the free parameters and find that, as far as tested, the model is not overly
 sensitive to subjective inputs. 
 
 It is therefore plausible that the observed bias in the increase in sea surface
 temperature in the nino3.4 region is caused by excess humidity, and insufficient
-tropical windspeeds in the mean state. The mechanism by which this appears 
-to be produced through more humidity and less wind reducing the sensitivity 
-of the latent heat flux to increased temperature. Therefore, the bias from
-the mean state of the surface atmosphere makes the central and east equatorial 
-Pacific seem to be easier to warm than it is in reality.
-This model does not explain why these biases occure in the first place;
-for that we would need to consider the much more complicated processes that are
-important in the tropical atmosphere, that are broadly connected to the
-"Double ITCZ Cold tongue bias" that has been seen in each subsequent generation
-of complicated climate models. 
+tropical windspeeds in the mean climatological state. This appears
+to be largely produced through more humidity and less wind reducing the sensitivity
+of the surface latent heat flux to increased temperature. Therefore, the relative
+humidity and windspeed bias from the mean state of the surface atmosphere makes
+the central and east equatorial Pacific seem to be easier to warm than it is.
 
-The effect of this bias would likely to be to introduce a nonstationary bias
-into all the different hazards where their is a teleconnnection to the El Nino 
-Southern Oscillation. For example, there are more tropical cyclones that form 
-in the North Atlantic when there is a La Nina event, due to reduced shear 
-(e.g. `Camargo, Emanuel and Sobel 2007 (C7)`_). Therefore, this bias in would 
-lead to an underprediction in the apparent risk from tropical cylones for the 
-North American East coast in the future.
+This model does not explain why these surface atmosphere biases occur in the first place.
+For that, we would need to consider the much more complicated processes that are
+important in the tropical atmosphere, that are connected to the
+"Double ITCZ Cold Tongue Bias" which has been observed in each subsequent generation
+of complicated climate models. The model explains that a bias in the mean state of 
+CMIP5/6 propagates into a bias in the sensitivity of CMIP5/6 to forcing, not why
+this bias in the mean state exists.
+
+The nino3.4 trend bias would probably introduce a nonstationary bias in the
+various hazards in CMIP5/6 that have a teleconnection
+to El Nino Southern Oscillation. For example, more tropical cyclones form
+in the North Atlantic when there is La Nina, due to reduced shear 
+(e.g. `Camargo, Emanuel and Sobel 2007`_). Therefore, the nino3.4 trend bias would
+lead to an underprediction in the apparent risk from tropical cyclones for the
+North American East coast in the future projections from CMIP5/6.
 
 .. figure:: images/mech_arrow.png
   :width: 500
@@ -51,9 +53,10 @@ North American East coast in the future.
   :align: center
   
   Replacing the climatological wind (W) and relative humidity (RH) 
-  with CMIP5 mean explains the bias in CMIP5 nino3.4 trend.
-  The error is the range from the possible parameter settings
-  from either the paper or the original version of uncoupled code.
+  with CMIP5 multimodel mean explains the bias in CMIP5 nino3.4 trend.
+  The error envelope plotted is the range calculated from the possible parameter settings
+  from either the paper, the figure data, or the original version of uncoupled code.
+  The raw data is provided in this `spread sheet`_.
 
 See :download:`the final report <Report_without_documentation.pdf>` 
 for more details and tests.
@@ -61,8 +64,8 @@ for more details and tests.
 CMIP6 seems to have a smaller bias (at least from the 51
 ensemble member that I collected from Pangeo).
 However, it seems that this bias is not as small as
-our model would predict. The relative humidity and
-wind speed seems to have improved more between
+our model would predict. The mean relative humidity and
+wind speed fields seem to have improved more between
 the two models than the trend in nino3.4.
 
 .. figure:: images/mech_arrow_cmip6.png
@@ -72,12 +75,12 @@ the two models than the trend in nino3.4.
   
   Replacing the climatological wind (W) 
   and relative humidity (RH)
-  with CMIP6 mean explains only the majority of 
+  with CMIP6 mean explains only the majority of
   the bias in CMIP6 nino3.4 trend.
-  The errors are calculated as in the above plot.
+  The errors are calculated as in the previous plot.
   This could either suggest that other mechanisms are 
   becoming important in CMIP6, or that this simplified
-  models paramters have been tuned only to explain the
+  model's parameters were tuned to explain the
   CMIP5 bias rather than CMIP6.
 
 .. figure:: images/trend.png
@@ -129,8 +132,8 @@ MRes Proposal:
   Figure 1e from S19.
   The observations (reanalysis products) are marked as orange diamonds / blue crosses / red star;
   the models are marked as blue / black dots, with multi model mean as corresponding diamonds. 
-  The CMIP ensemble members show little overlap with any of the renalysis products.
-  This suggests that the data is very unlikely given the model, which may suggest a systematic
+  The CMIP ensemble members show little overlap with any of the reanalysis products.
+  This suggests that the data is very unlikely given the model, and therefore a systematic
   bias in the CMIP5/LENS models.
 
 
@@ -180,9 +183,9 @@ Scientific questions to be addressed include:
 
 - Can we replicate the results displayed in S19? [mostly]
 - How robust is the model to the parameters chosen? [fairly]
-- Can the sensitivity of the model to the parameters be understood 
+- Can the sensitivity of the model to the parameters be understood
   from the physical processes underlying it? [partially]
-- How skillful are different emulation functions at 
+- How skillful are different emulation functions at
   fitting input/output of the model? [untested]
 
 Citations:
@@ -212,4 +215,5 @@ Indices and tables
 * :ref:`search`
 
 .. _Seager et al. 2019 (S19): https://doi.org/10.1038/s41558-019-0505-x
-.. _Camargo, Emanuel and Sobel 2007 (C7): https://www.ldeo.columbia.edu/~suzana/papers/camargo_emanuel_sobel_jclim07.pdf
+.. _Camargo, Emanuel and Sobel 2007: https://www.ldeo.columbia.edu/~suzana/papers/camargo_emanuel_sobel_jclim07.pdf
+.. _spread sheet: https://docs.google.com/spreadsheets/d/1QrCLil7uHMRJECOoSL18uk2mvBwMLxqesXbZpUWh3ko/edit?usp=sharing
