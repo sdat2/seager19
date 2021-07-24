@@ -1,6 +1,6 @@
 # Ocean model
 
-The ocean model code is built on legacy Fortran 77 and C code. The description from om_main.F is:
+The ocean model was built using legacy Fortran 77 and C code. The description from om_main.F is:
 
 ```fortran77
 c     multimode linear equatorial ocean model, using the INC scheme
@@ -10,22 +10,71 @@ c                                   B. Blumenthal (multimode)
 c                                   R. Seager     (AML - advective mixed layer)
 c
 c        references:
+c
 c                    M. Israeli, Naik, N. and Cane, M.A., 2000. 
-c             "An Unconditionally Stable Scheme for the Shallow Water Equations"
+c              "An Unconditionally Stable Scheme for the Shallow Water Equations"
+c              https://doi.org/10.1175/1520-0493(2000)128<0810:AUSSFT>2.0.CO;2
 c
 c                    M.B. Blumenthal and Cane, M., 1989. "Accounting for 
 c              parameter uncertainties in model verification: an illustration
 c              with tropical sea surface temperature," 
 c              J. Phys. Oceanogr.19, 815-830.
+c              https://doi.org/10.1175/1520-0485(1989)019<0815:AFPUIM>2.0.CO;2
 c
 c                    R. Seager, Blumenthal, M.B. and Kushnir, Y., 1995.
-c             "An advective atmospheric mixed layer model for ocean
-c             modeling purposes: Global simulation of surface heat fluxes",
+c              "An advective atmospheric mixed layer model for ocean
+c              modeling purposes: Global simulation of surface heat fluxes",
 c              J. Climate, 8, 1951-1964.
+c              https://www.jstor.org/stable/26200030
 c
 c                    R. Seager, Kushnir, Y. and Cane, M.A., 1995.
-c             "On heat flux boundary conditions for ocean models"
+c              "On heat flux boundary conditions for ocean models"
 c              J. Phys. Oceanogr., 25, 3219-3230.
+c              https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2
+```
+
+```bibtex
+
+@article{israeli2000unconditionally,
+  title={An unconditionally stable scheme for the shallow water equations},
+  author={Israeli, Moshe and Naik, Naomi H and Cane, Mark A},
+  journal={Monthly weather review},
+  volume={128},
+  number={3},
+  pages={810--823},
+  year={2000}
+}
+
+@article{blumenthal1989accounting,
+  title={Accounting for parameter uncertainties in model verification: An illustration with tropical sea surface temperature},
+  author={Blumenthal, M Benno and Cane, Mark A},
+  journal={Journal of physical oceanography},
+  volume={19},
+  number={6},
+  pages={815--830},
+  url={https://doi.org/10.1175/1520-0485(1989)019<0815:AFPUIM>2.0.CO;2}
+  year={1989}
+}
+
+@article{seager1995advective,
+  title={An advective atmospheric mixed layer model for ocean modeling purposes: Global simulation of surface heat fluxes},
+  author={Seager, Richard and Blumenthal, M Benno and Kushnir, Yochanan},
+  journal={Journal of Climate},
+  volume={8},
+  number={8},
+  pages={1951--1964},
+  year={1995}
+}
+
+@article{seager1995heat,
+  title={On heat flux boundary conditions for ocean models},
+  author={Seager, Richard and Kushnir, Yochanan and Cane, Mark A},
+  journal={Journal of physical oceanography},
+  volume={25},
+  number={12},
+  pages={3219--3230},
+  year={1995}
+}
 ```
 
 ## Glossary of output fields
