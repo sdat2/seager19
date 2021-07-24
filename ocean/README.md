@@ -3,7 +3,7 @@
 The ocean model was built using legacy Fortran 77 and C code. The description from om_main.F is:
 
 ```fortran77
-c     multimode linear equatorial ocean model, using the INC scheme
+c     Multimode linear equatorial ocean model, using the INC integration scheme
 c
 c        authors:     N. Henderson(Naik), with contributions from: 
 c                                   B. Blumenthal (multimode)
