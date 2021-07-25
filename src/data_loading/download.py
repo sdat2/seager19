@@ -65,9 +65,8 @@ SUFFIX = "?raw=1"
 
 
 @timeit
-def get_data() -> None:
+def get_data(force_refresh: bool = True) -> None:
     """Download the relevant dataset from a Dropbox link and extract it."""
-
     lol = [
         [
             str(ATMOS_PATH),
@@ -93,7 +92,7 @@ def get_data() -> None:
             ],
         ],
     ]
-    _get_data(lol)
+    _get_data(lol, force_refresh=force_refresh)
 
 
 def get_figure_data(force_refresh: bool = False) -> None:
@@ -319,11 +318,11 @@ def _get_data(lol: list, force_refresh: bool = False) -> None:
 if __name__ == "__main__":
     # python3 src/data_loading/download.py
     # get_ts_ensemble()
-    # get_data()
+    get_data()
     # get_figure_data()
     # get_member_data()
     # get_original_models()
     # get_mmm()
     # get_uv()
     # get_cmip6_mmm()
-    get_cmip6_mmm_clim60()
+    # get_cmip6_mmm_clim60()

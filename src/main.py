@@ -17,7 +17,6 @@ from omegaconf import DictConfig
 from src.constants import (
     CONFIG_PATH,
     CONFIG_NAME,
-    FILES_TO_DELETE,
     run_path,
 )
 from src.utils import timeit
@@ -81,9 +80,6 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
             # pylint: disable=bare-except
             except:
                 print("files not deleted sucessfully.", "run:  rm  -rf " + run_p)
-                with open(FILES_TO_DELETE, "a") as f:
-                    f.write("rm -rf" + run_p)
-                    f.close()
 
         archive()
         if cfg.wandb:

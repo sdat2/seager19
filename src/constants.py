@@ -120,10 +120,6 @@ REPORT_WIDTH: float = 398.3386  # in pixels
 # DATE FORMAT for plotting titles
 DATE_TITLE_FORMAT: str = "%Y.%m.%d"
 
-# This file records all the things that need to be deleted, but haven't yet
-FILES_TO_DELETE = "files_to_delete.sh"
-
-
 def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
     """
     Returns run path to store data in.
