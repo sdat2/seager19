@@ -1,9 +1,10 @@
 # Ocean model
 
-The ocean model was built using legacy Fortran 77 and C code. The description from om_main.F is:
+Dr. Henderson built the ocean model using Fortran 77 and C code.
+The description from om_main.F is:
 
 ```fortran77
-c     Multimode linear equatorial ocean model, using the INC integration scheme
+c     Multimode linear equatorial ocean model, using the INC integration scheme.
 c
 c        authors:     N. Henderson(Naik), with contributions from: 
 c                                   B. Blumenthal (multimode)
@@ -34,7 +35,6 @@ c              https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2
 ```
 
 ```bibtex
-
 @article{israeli2000unconditionally,
   title={An unconditionally stable scheme for the shallow water equations},
   author={Israeli, Moshe and Naik, Naomi H and Cane, Mark A},
