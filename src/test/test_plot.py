@@ -1,7 +1,6 @@
 """Test the plot settings in `src.plot_settings`."""
 import os
 import numpy as np
-import xarray as xr
 import matplotlib.pyplot as plt
 from src.plot_utils import (
     ps_defaults,

@@ -43,7 +43,6 @@ from sys import platform
 import itertools
 from distutils.spawn import find_executable
 import matplotlib
-import matplotlib.pyplot as plt
 import pandas as pd
 import xarray as xr
 from uncertainties import ufloat
