@@ -10,12 +10,8 @@ from src.plot_utils import (
     STD_CLR_LIST,
     BRICK_RED,
     OX_BLUE,
-    map_setup,
-    time_title,
-    default_projection,
 )
 from src.constants import PROJECT_PATH
-from src.xr_utils import can_coords
 
 
 def test_plot() -> None:
@@ -42,69 +38,3 @@ def test_plot() -> None:
 
         plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "example.png")), dpi=800)
         plt.clf()
-
-
-def test_map_plot() -> None:
-    """Tests `src.plot_settings.map_setup`.
-
-    Test takes a long time.
-
-    452.55s call     src/test/test_plot.py::test_map_plot
-
-    Example:
-        More elongated example for facets:
-            plt.tight_layout()
-            plt.savefig(str(os.path.join(PROJECT_PATH, "gifs", "map_example.png")))
-            plt.clf()
-
-            _, axes = plt.subplots(2, 1,
-                subplot_kw={"projection": default_projection()}
-            )
-
-            for ax in axes.ravel():
-                ax = map_setup(ax=ax)
-                da.plot.imshow(
-                    ax=ax, transform=default_projection(), cbar_kwargs={"shrink": 0.5}
-                )
-                time_title(ax, da.time.values)
-
-            plt.tight_layout()
-            plt.savefig(
-                str(os.path.join(PROJECT_PATH, "gifs", "multi_map_example.png"))
-            )
-            plt.clf()
-
-            p = (
-                xr.tutorial.open_dataset("rasm")
-                .load()
-                .Tair.isel(time=[0, 2])
-                .plot(
-                    transform=ccrs.PlateCarree(),
-                    col="time",
-                    subplot_kws={"projection": default_projection()},
-                )
-            )
-
-            for ax in p.axes.flat:
-                ax = map_setup(ax=ax)
-
-            plt.tight_layout()
-            plt.savefig(
-                str(os.path.join(PROJECT_PATH, "gifs", "facet_map_example.png")),
-                bbox_inches="tight",
-            )
-            plt.clf()
-
-    """
-
-    ps_defaults(use_tex=False)
-    ax = map_setup()
-
-    da = xr.tutorial.open_dataset("rasm").load().Tair.isel(time=0)
-    da = can_coords(da)
-    da.plot.imshow(
-        ax=ax,
-        transform=default_projection(),
-        cbar_kwargs={"shrink": 0.5},
-    )
-    time_title(ax, da.time.values)

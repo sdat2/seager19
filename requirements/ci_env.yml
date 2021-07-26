@@ -8,7 +8,6 @@ dependencies:
   - numpy
   - pytest
   - matplotlib
-  - cartopy=0.18
   - ffmpeg
   - tqdm
   - pip:

@@ -48,11 +48,9 @@ import pandas as pd
 import xarray as xr
 from uncertainties import ufloat
 import seaborn as sns
-import cartopy.crs as ccrs
 import cftime
 import cmocean
 from src.constants import REPORT_WIDTH, DATE_TITLE_FORMAT
-from src.utils import timeit
 
 
 def label_subplots(
@@ -283,46 +281,6 @@ PALETTE = itertools.cycle(_paper_colors)
 CAM_BLUE = "#a3c1ad"
 OX_BLUE = "#002147"
 BRICK_RED = "#CB4154"
-
-
-def default_projection() -> ccrs.CRS:
-    """
-    Returns default projection.
-
-    Returns:
-        ccrs.CRS: Map projection.
-    """
-    return ccrs.Mollweide(central_longitude=180)
-
-
-@timeit
-def map_setup(ax: matplotlib.axes.Axes = None) -> matplotlib.axes.Axes:
-    """Apply default map (Robinson centred on the Pacific).
-
-    Args:
-        ax (matplotlib.axes.Axes): the axes to format. Defaults to None.
-
-    Returns:
-        matplotlib.axes.Axes: axes object in Robinson config.
-
-    Example:
-        When using multiple subplots::
-
-            from src.plot_utils import map_setup
-            fig, axes = plt.subplots(
-               2, 2, subplot_kw={"projection": default_projection()}
-            )
-            for ax in axes.ravel():
-                ax = map_setup(ax=ax)
-
-    """
-
-    if ax is None:
-        ax = plt.axes(projection=default_projection())
-
-    ax.set_global()
-    ax.coastlines()
-    return ax
 
 
 def time_title(

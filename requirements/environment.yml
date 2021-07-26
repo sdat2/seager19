@@ -4,7 +4,6 @@ channels:
   - conda-forge
 dependencies:
   - python=3.8
-  - cartopy=0.18
   - pip
   - pip:
     - -r file:dev-requirements.txt
