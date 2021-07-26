@@ -1,6 +1,6 @@
 # seager19
 
-<a href="https://mybinder.org/v2/gh/sdat2/seager19/HEAD?filepath=notebooks%2Fpangeo%2Fbinder%2Fanalyse_results.ipynb">
+<a href="https://mybinder.org/v2/gh/sdat2/seager19/HEAD?filepath=notebooks%2Fbinder%2Fanalyse_results.ipynb">
 <img alt="Binder" src="https://mybinder.org/badge_logo.svg"/></a>
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src=https://img.shields.io/badge/License-MIT-blue.svg></a>
  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
