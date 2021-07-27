@@ -2,6 +2,8 @@ uncertainties
 scipy
 numpy
 xarray
+cftime
+nc-time-axis
 wandb
 omegaconf
 hydra
@@ -15,6 +17,6 @@ matplotlib
 seaborn
 cmocean
 hydra-core
-tqdm 
+tqdm
 
 -e ../.
