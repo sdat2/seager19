@@ -12,6 +12,14 @@ src.visualisation.ani module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.arrow module
+------------------------------
+
+.. automodule:: src.visualisation.arrow
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.visualisation.comp module
 -----------------------------
 

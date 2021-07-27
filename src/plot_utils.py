@@ -1,4 +1,4 @@
-"""Sets a consistent plotting settings across the project.
+"""Consistent plotting settings across the project.
 
 Example:
     Usage with simple plots::
