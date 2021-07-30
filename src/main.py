@@ -1,6 +1,7 @@
 """A file to run model runs from with hydra/wandb.
 
-Basically a wrapper for bash commands that run the ocean model (fortran/C),
+Basically a wrapper for bash commands
+that run the ocean model (fortran/C),
 and calls the atmospheric model.
 
 Example:

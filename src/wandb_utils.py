@@ -9,7 +9,7 @@ import wandb
 import logging
 from omegaconf import DictConfig, OmegaConf
 from subprocess import PIPE, run
-from src.constants import DATA_PATH, run_path,
+from src.constants import DATA_PATH, run_path
 from src.models.model_setup import ModelSetup
 
 
