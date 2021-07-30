@@ -28,6 +28,14 @@ src.visualisation.comp module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.comp\_cd module
+---------------------------------
+
+.. automodule:: src.visualisation.comp_cd
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.visualisation.convergence module
 ------------------------------------
 
