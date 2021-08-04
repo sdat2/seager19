@@ -247,11 +247,11 @@ To look at the commands to relicate the paper figures, see `replicate.md`.
 
 ```
 
-### Get CMIP5 multimodel means
+### Get CMIP5 multimodel means from Columbia
 
-<http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.dataset/.CMIP5/.MultiModelMeans/.MMM-v2.3/.historical/.Surface/data.cdf>
+<http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.MultiModelMeans/.MMM-v2.3/.historical/.Surface/data.cdf>
 
-<http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.dataset/.CMIP5/.MultiModelMeans/.MMM-v2.3/.rcp85/.Surface/data.cdf>
+<http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.MultiModelMeans/.MMM-v2.3/.rcp85/.Surface/data.cdf>
 
 ### CMIP6/CMIP5 bias mechanisms data
 
