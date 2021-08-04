@@ -14,6 +14,8 @@
 <a href='https://coveralls.io/github/sdat2/seager19?branch=main'><img src='https://coveralls.io/repos/github/sdat2/seager19/badge.svg?branch=main' alt='Coverage Status' /></a>
 <a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/python.yml/badge.svg' alt='python' /></a>
 <a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/fort-c.yml/badge.svg' alt='fort-c' /></a>
+<a href="https://zenodo.org/badge/latestdoi/309507184"><img src="https://zenodo.org/badge/309507184.svg" alt="DOI"></a>
+
 
 Model run results: <https://wandb.ai/sdat2/seager19>
 
@@ -204,10 +206,6 @@ and so you may need to try a different connection method if it doesn't load.
 
     python src/main.py atm.k_days=7,8,9,10 -m
 
-    python src/main.py atm.k_days=4,5,6 -m
-
-    python src/main.py atm.k_days=16,17,18 -m
-
     # uncoupled run without syncing:
     python src/main.py name=it_1 coup.iterations=1 coup.c_d=2.25e-3 wandb=false
 ```
@@ -253,6 +251,6 @@ To look at the commands to relicate the paper figures, see `replicate.md`.
 
 <http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.IPCC/.CMIP5/.MultiModelMeans/.MMM-v2.3/.rcp85/.Surface/data.cdf>
 
-### CMIP6/CMIP5 bias mechanisms data
+### CMIP6/CMIP5 bias mechanism data
 
 <https://docs.google.com/spreadsheets/d/1QrCLil7uHMRJECOoSL18uk2mvBwMLxqesXbZpUWh3ko/edit?usp=sharing>
