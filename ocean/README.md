@@ -34,6 +34,8 @@ c              J. Phys. Oceanogr., 25, 3219-3230.
 c              https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2
 ```
 
+## Bibtex citation
+
 ```bibtex
 @article{israeli2000unconditionally,
   title={An unconditionally stable scheme for the shallow water equations},
@@ -42,7 +44,8 @@ c              https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2
   volume={128},
   number={3},
   pages={810--823},
-  year={2000}
+  year={2000},
+  url={https://doi.org/10.1175/1520-0493(2000)128<0810:AUSSFT>2.0.CO;2}
 }
 
 @article{blumenthal1989accounting,
@@ -52,7 +55,7 @@ c              https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2
   volume={19},
   number={6},
   pages={815--830},
-  url={https://doi.org/10.1175/1520-0485(1989)019<0815:AFPUIM>2.0.CO;2}
+  url={https://doi.org/10.1175/1520-0485(1989)019<0815:AFPUIM>2.0.CO;2},
   year={1989}
 }
 
@@ -63,7 +66,8 @@ c              https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2
   volume={8},
   number={8},
   pages={1951--1964},
-  year={1995}
+  year={1995},
+  url={https://www.jstor.org/stable/26200030}
 }
 
 @article{seager1995heat,
@@ -73,7 +77,8 @@ c              https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2
   volume={25},
   number={12},
   pages={3219--3230},
-  year={1995}
+  year={1995},
+  url={https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2}
 }
 ```
 
