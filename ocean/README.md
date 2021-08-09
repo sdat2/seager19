@@ -4,6 +4,7 @@ Dr. Henderson built the ocean model using Fortran 77 and C code.
 The description from om_main.F is:
 
 ```fortran77
+c
 c     Multimode linear equatorial ocean model, using the INC integration scheme.
 c
 c        authors:     N. Henderson(Naik), with contributions from: 
@@ -32,6 +33,7 @@ c                    R. Seager, Kushnir, Y. and Cane, M.A., 1995.
 c              "On heat flux boundary conditions for ocean models"
 c              J. Phys. Oceanogr., 25, 3219-3230.
 c              https://doi.org/10.1175/1520-0485(1995)025<3219:OHFBCF>2.0.CO;2
+c
 ```
 
 ## Bibtex citation
@@ -122,48 +124,13 @@ Ocean model file structure:
     om_diag.log
     om_run2f
     qflx.ing
-    output
-      om_spin.20y.restart
-      om_run2f.nc
-      om_spin.nc
-      om_spin.save
-      om_run2f.save
-      om_diag.2y.restart
-      om_diag.nc
-      om_diag.save
-      om_diag.data
-      om_diag.indx
+    output/ -s
     month.tios
     spin.tios
     om_diag
     om_spin
-    DATA
-      rzk.pro
-      spline_ECMWF.txt
-      dQdf-sample.nc
-      om_mask.nc
-      qflx.nc
-      tau-ECMWF.y
-      sst-ECMWF-clim.nc
-      tau-ECMWF.x
-      dQdT-sample.nc
-      qflx-0.nc
-      tau-ECMWF-clim.x
-      tau-ECMWF-clim.y
+    DATA/ -s
     om_diag.tr
-  DATA
-    rzk.pro
-    spline_ECMWF.txt
-    dQdf-sample.nc
-    om_mask.nc
-    qflx.nc
-    tau-ECMWF.y
-    sst-ECMWF-clim.nc
-    tau-ECMWF.x
-    dQdT-sample.nc
-    qflx-0.nc
-    tau-ECMWF-clim.x
-    tau-ECMWF-clim.y
   SRC
     om_mem.F
     wrap-mod.F
@@ -178,15 +145,7 @@ Ocean model file structure:
     sst-mod.F
     netcdf.inc
     qflx.ing
-    output
-      om_spin.20y.restart
-      om_diag.nc
-      om_test.indx
-      om_diag.save
-      om_diag.data
-      om_test.data
-      om_test.save
-      om_diag.indx
+    output/ -s 
     cuf.h
     om_main.F
     om_core.F
@@ -209,23 +168,33 @@ Ocean model file structure:
     om_diag
     data-mod.F
     om_para.h
-    DATA
-      rzk.pro
-      spline_ECMWF.txt
-      dQdf-sample.nc
-      om_mask.nc
-      qflx.nc
-      tau-ECMWF.y
-      sst-ECMWF-clim.nc
-      tau-ECMWF.x
-      dQdT-sample.nc
-      qflx-0.nc
-      tau-ECMWF-clim.x
-      tau-ECMWF-clim.y
+    DATA/ -s
     tios.h
     om_diag.tr
     daio.c
     om_test.log
+  DATA
+    rzk.pro
+    spline_ECMWF.txt
+    dQdf-sample.nc
+    om_mask.nc
+    qflx.nc
+    tau-ECMWF.y
+    sst-ECMWF-clim.nc
+    tau-ECMWF.x
+    dQdT-sample.nc
+    qflx-0.nc
+    tau-ECMWF-clim.x
+    tau-ECMWF-clim.y
+  output
+    om_spin.20y.restart
+    om_diag.nc
+    om_test.indx
+    om_diag.save
+    om_diag.data
+    om_test.data
+    om_test.save
+    om_diag.indx  
 ```
 
 ### Full current compiler details
