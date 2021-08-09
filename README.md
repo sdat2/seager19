@@ -78,7 +78,7 @@ Specifically the time period 33:00-44:30.
 The code and data were taken from a Columbia University website:
 
 <a href='http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.PublicationsData/.Seager_etal_NCC-2019/'>
-<img src='https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Columbia_University_shield.svg/1200px-Columbia_University_shield.svg.png', width='150'>
+<img src='https://worldsummit.ai/wp-content/uploads/sites/4/2020/06/columbia-university-logo-png-columbia-university-crown.jpg', width='150'>
 </a>
 
 This website is blocked from some IP addresses, such as the Cambridge VPN (probably my fault),
