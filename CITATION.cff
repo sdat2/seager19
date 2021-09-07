@@ -2,7 +2,7 @@ cff-version: 1.1.0
 message: "If you use this software, please cite it as below."
 authors:
   - family-names: Thomas
-    given-names: Simon
+    given-names: Simon Donald Alistair
     orcid: https://orcid.org/0000-0001-7911-1659
 title: Initial replication of Seager et al 2019 for CMIP5 and CMIP6-- Cold tongue bias in CMIP6 spuriously causes mean state to move towards El Niño in response to global warming over historical period
 version: v1.0
