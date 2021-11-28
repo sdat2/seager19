@@ -75,11 +75,32 @@ SEL_DICT = {
     # X in degrees east, Y in degrees north.
     # colors compatible with matplotlib.
     "pac": {"X": (100, 290), "Y": (-30, 30), "color": "#411900"},
+    "nino1": {"X": (270, 280), "Y": (-10, -5), "color": "black"},
+    "nino2": {"X": (270, 280), "Y": (-5, 0), "color": "black"},
     "nino1+2": {"X": (270, 280), "Y": (-10, 0), "color": "#0652ff"},
     "nino3": {"X": (210, 270), "Y": (-5, 5), "color": "#01a049"},
     "nino3.4": {"X": (190, 240), "Y": (-5, 5), "color": "#380282"},
     "nino4": {"X": (160, 210), "Y": (-5, 5), "color": "#fe01b1"},
+    "nino5": {"X": (120, 140), "Y": (-5, 5), "color": "black"},
+    "nino6": {"X": (140, 160), "Y": (8, 16), "color": "black"},
 }
+
+r"""
+Nino5 and 6 definitions taken from:
+
+@article{wang1999western,
+  title={Western Pacific interannual variability
+   associated with the El Ni{\~n}o-Southern Oscillation},
+  author={Wang, Chunzai and Weisberg, Robert H and Virmani, Jyotika I},
+  journal={Journal of Geophysical Research: Oceans},
+  volume={104},
+  number={C3},
+  pages={5131--5149},
+  year={1999},
+  publisher={Wiley Online Library}
+}
+"""
+
 
 # NOAA DATA
 NOAA_DATA_NAME: str = "NOAA_NCDC_ERSST_v3b_SST.nc"
@@ -119,6 +140,7 @@ REPORT_WIDTH: float = 398.3386  # in pixels
 
 # DATE FORMAT for plotting titles
 DATE_TITLE_FORMAT: str = "%Y.%m.%d"
+
 
 def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
     """
