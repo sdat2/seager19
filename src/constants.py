@@ -169,6 +169,8 @@ SEL_DICT = {
     Normalize the smoothed TNI by its standard deviation over the climatological
     period.
 
+    https://psl.noaa.gov/data/climateindices/list/
+
     https://psl.noaa.gov/data/correlation/tni.data
 
     # [west, east] [south, north] boundaries
