@@ -65,7 +65,7 @@ SUFFIX = "?raw=1"
 
 
 @timeit
-def get_data(force_refresh: bool = True) -> None:
+def get_data(force_refresh: bool = False) -> None:
     """Download the relevant dataset from a Dropbox link and extract it."""
     lol = [
         [

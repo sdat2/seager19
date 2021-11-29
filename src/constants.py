@@ -8,12 +8,10 @@ Example:
         from src.constants import PROJECT_PATH, FIGURE_PATH, GWS_DIR
 
 """
-
 # import os/pathlib to manipulate file names.
 import os
 import pathlib
 from omegaconf import DictConfig
-
 
 # Note: constants should be UPPER_CASE
 constants_path = pathlib.Path(os.path.realpath(__file__))
@@ -69,38 +67,6 @@ TEST_DIREC = SRC_PATH / "test" / "test_direc"
 FIGURE_DATA_NAME: str = "Seager_etal_NCC-2019_datasetdatafiles.nc"
 FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / FIGURE_DATA_NAME
 
-# region selection dictionary
-SEL_DICT = {
-    # [west, east] [south, north] boundaries
-    # X in degrees east, Y in degrees north.
-    # colors compatible with matplotlib.
-    r"""
-    Nino5 and 6 definitions taken from:
-
-    @article{wang1999western,
-    title={Western Pacific interannual variability
-    associated with the El Ni{\~n}o-Southern Oscillation},
-    author={Wang, Chunzai and Weisberg, Robert H and Virmani, Jyotika I},
-    journal={Journal of Geophysical Research: Oceans},
-    volume={104},
-    number={C3},
-    pages={5131--5149},
-    year={1999},
-    publisher={Wiley Online Library}
-    }
-    """
-    "pac": {"X": (100, 290), "Y": (-30, 30), "color": "#411900"},
-    "nino1": {"X": (270, 280), "Y": (-10, -5), "color": "black"},
-    "nino2": {"X": (270, 280), "Y": (-5, 0), "color": "black"},
-    "nino1+2": {"X": (270, 280), "Y": (-10, 0), "color": "#0652ff"},
-    "nino3": {"X": (210, 270), "Y": (-5, 5), "color": "#01a049"},
-    "nino3.4": {"X": (190, 240), "Y": (-5, 5), "color": "#380282"},
-    "nino4": {"X": (160, 210), "Y": (-5, 5), "color": "#fe01b1"},
-    "nino5": {"X": (120, 140), "Y": (-5, 5), "color": "black"},
-    "nino6": {"X": (140, 160), "Y": (8, 16), "color": "black"},
-}
-
-
 # NOAA DATA
 NOAA_DATA_NAME: str = "NOAA_NCDC_ERSST_v3b_SST.nc"
 NOAA_DATA_PATH: pathlib.Path = DATA_PATH / NOAA_DATA_NAME
@@ -110,7 +76,6 @@ NOAA_DATA_PATH: pathlib.Path = DATA_PATH / NOAA_DATA_NAME
 NINO3_4_TEST_CODE: str = "8j698fap5iq2v9y/"
 NINO3_4_TEST_NAME: str = "noaa_nino3_4.nc"
 NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
-
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
@@ -159,3 +124,35 @@ def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
     if not os.path.exists(run_dir):
         os.makedirs(run_dir)
     return run_dir
+
+
+# region selection dictionary
+SEL_DICT = {
+    # [west, east] [south, north] boundaries
+    # X in degrees east, Y in degrees north.
+    # colors compatible with matplotlib.
+    r"""
+    Nino5 and Nino6 definitions taken from:
+
+    @article{wang1999western,
+    title={Western Pacific interannual variability
+    associated with the El Ni{\~n}o-Southern Oscillation},
+    author={Wang, Chunzai and Weisberg, Robert H and Virmani, Jyotika I},
+    journal={Journal of Geophysical Research: Oceans},
+    volume={104},
+    number={C3},
+    pages={5131--5149},
+    year={1999},
+    publisher={Wiley Online Library}
+    }
+    """
+    "pac": {"X": (100, 290), "Y": (-30, 30), "color": "#411900"},
+    "nino1": {"X": (270, 280), "Y": (-10, -5), "color": "black"},
+    "nino2": {"X": (270, 280), "Y": (-5, 0), "color": "black"},
+    "nino1+2": {"X": (270, 280), "Y": (-10, 0), "color": "#0652ff"},
+    "nino3": {"X": (210, 270), "Y": (-5, 5), "color": "#01a049"},
+    "nino3.4": {"X": (190, 240), "Y": (-5, 5), "color": "#380282"},
+    "nino4": {"X": (160, 210), "Y": (-5, 5), "color": "#fe01b1"},
+    "nino5": {"X": (120, 140), "Y": (-5, 5), "color": "black"},
+    "nino6": {"X": (140, 160), "Y": (8, 16), "color": "black"},
+}
