@@ -128,10 +128,15 @@ def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
 
 # region selection dictionary
 SEL_DICT = {
-    # [west, east] [south, north] boundaries
-    # X in degrees east, Y in degrees north.
-    # colors compatible with matplotlib.
     r"""
+    Nino1-4 definitions are taken from:
+
+    Trenberth, Kevin & National Center for Atmospheric Research Staff (Eds).
+    Last modified 21 Jan 2020. "The Climate Data Guide: Nino SST Indices
+    (Nino 1+2, 3, 3.4, 4; ONI and TNI)."
+    Retrieved from
+    https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni.
+
     Nino5 and Nino6 definitions taken from:
 
     @article{wang1999western,
@@ -145,6 +150,30 @@ SEL_DICT = {
     year={1999},
     publisher={Wiley Online Library}
     }
+
+    Nino X Index computation: (a) Compute area averaged total SST from Niño X
+    region; (b) Compute monthly climatology (e.g., 1950-1979) for area averaged
+    total SST from Niño X region, and subtract climatology from area averaged
+    total SST time series to obtain anomalies; (c) Smooth the anomalies with a
+    5-month running mean; (d) Normalize the smoothed values by its standard
+    deviation over the climatological period.
+
+    TNI computation: (a) Compute area averaged total SST from Niño 1+2 region;
+    (b) Compute area averaged total SST from Niño 4 region; (c) Compute monthly
+    climatologies (e.g., 1950-1979) for area averaged total SST from Niño 1+2
+    region, and Niño 4 region, and subtract climatologies from area averaged
+    total SST time series to obtain anomalies; (d) Normalize each time series of
+    anomalies by their respective standard deviations over the climatological
+    period; (e) Define the raw TNI as Niño 1+2 normalized anomalies minus Niño 4
+    normalized anomalies; (f) Smooth the raw TNI with a 5-month running mean; (g)
+    Normalize the smoothed TNI by its standard deviation over the climatological
+    period.
+
+    https://psl.noaa.gov/data/correlation/tni.data
+
+    # [west, east] [south, north] boundaries
+    # X in degrees east, Y in degrees north.
+    # colors compatible with matplotlib.
     """
     "pac": {"X": (100, 290), "Y": (-30, 30), "color": "#411900"},
     "nino1": {"X": (270, 280), "Y": (-10, -5), "color": "black"},

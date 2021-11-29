@@ -16,16 +16,15 @@
 <a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/fort-c.yml/badge.svg' alt='fort-c' /></a>
 <a href="https://zenodo.org/badge/latestdoi/309507184"><img src="https://zenodo.org/badge/309507184.svg" alt="DOI"></a>
 
-
 Model run results: <https://wandb.ai/sdat2/seager19>
 
 Docker image for gfortran/gcc/cdf/conda: <https://hub.docker.com/repository/docker/sdat2/seager19>
 
-![Coupling over iterations with c_d=2.25e-3 over tha Pacific with the land masked out in green](gifs/coupling_pac_mask.gif)
+![Coupling over iterations with c_d=2.25e-3 over the Pacific with the land masked out in green](gifs/coupling_pac_mask.gif)
 
 ## Purpose
 
-A repository to contain, analyse, and expand upon the model from:
+A repository to contain, analyze, and expand upon the model from:
 
 ### Seager et al. 2019, Nature Climate Change, Strengthening Tropical Pacific Zonal Sea Surface Temperature Gradient Consistent with Rising Greenhouse Gases
 
@@ -35,13 +34,15 @@ A repository to contain, analyse, and expand upon the model from:
 
 - There is a west-east warm-to-cold contrast in the Pacific.
 
-- State of the art GCMs predict weakening contrast with GHG conc.
+- State-of-the-art GCMs predict weakening contrast with GHG concentration.
 
-- In observations it has increased.
+- In observations, it has increased.
 
-- Their simple linear equatorial coupled model agrees with observations when forced with ECMWF reanalysis product.
+- Their simple linear equatorial coupled model agrees
+    with observations when forced with ECMWF reanalysis product.
 
-- When forced with CMIP5 ensemble relative humidity and wind speed their model can reproduce the bias, highlighting
+- When forced with CMIP5 ensemble relative humidity and
+    windspeed their model can reproduce the bias, highlighting
     these fields as the mechanism through which it is created.
 
 ### Citation
@@ -86,7 +87,7 @@ and so you may need to try a different connection method if it doesn't load.
 
 ## Setup
 
-### Get the github repository
+### Get the Github repository
 
 ```bash
 
@@ -96,7 +97,7 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```
 
-### If you have root access and can install linux packages
+### If you have root access and can install Linux packages
 
 ```bash
 
