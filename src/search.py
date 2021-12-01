@@ -18,6 +18,11 @@ def rand(low: float, high: float) -> float:
     """
     Get a single random float from the range.
 
+    A wrapper round `np.random.uniform`, so that I can quickly change this
+    if need be from here. Could replace this with a latin hypercube search,
+    or equivalently Sobel indices etc.
+    These alternatives that they would more fairly sample the space.
+
     Args:
         low (float): low end.
         high (float): high end.
