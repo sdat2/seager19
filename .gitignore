@@ -9,6 +9,7 @@ __pycache__/
 .secret*
 
 # DATA
+.zip
 .coveralls.yml
 .idea/
 .vscode/
