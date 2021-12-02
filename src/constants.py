@@ -71,6 +71,10 @@ FIGURE_DATA_PATH: pathlib.Path = DATA_PATH / FIGURE_DATA_NAME
 NOAA_DATA_NAME: str = "NOAA_NCDC_ERSST_v3b_SST.nc"
 NOAA_DATA_PATH: pathlib.Path = DATA_PATH / NOAA_DATA_NAME
 
+# PSL DATA:
+PSL_INDICES_NAME: str = "PSL_INDICES.nc"
+PSL_INDICES_PATH: pathlib.Path = DATA_PATH / PSL_INDICES_NAME
+
 # Nino3.4 test results from the noaa data.
 # get_test_nino_data
 NINO3_4_TEST_CODE: str = "8j698fap5iq2v9y/"
@@ -80,6 +84,7 @@ NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
 
+# Subdirectories in GWS
 OLD_LOGS = GWS_DIR / "logs"
 CD_LOGS = GWS_DIR / "sensitivity" / "cd_logs"
 NEW_LOGS = PROJECT_PATH / "logs"
