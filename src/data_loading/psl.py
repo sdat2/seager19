@@ -118,17 +118,18 @@ def get_ersstv5(reload: bool = False) -> xr.DataArray:
     Get ERSSTV5 datarray.
 
     Args:
-        reload (bool, optional): [description]. Defaults to False.
+        reload (bool, optional): Whether to prefer redownloading. Defaults to False.
 
     Returns:
         xr.DataArray: Straight from website.
     """
     if os.path.exists(ERSSTV5_PATH) and not reload:
-        ds = xr.open_dataarray(ERSSTV5_PATH)
+        da = xr.open_dataset(ERSSTV5_PATH).sst
     else:
         url = "https://downloads.psl.noaa.gov/Datasets/noaa.ersst.v5/sst.mnmean.nc"
         name = "sst.mnmean.nc"
         urllib.request.urlretrieve(url, name)
         shutil.move(name, ERSSTV5_PATH)
+        da = xr.open_dataset(ERSSTV5_PATH).sst
 
-    return ds
+    return da

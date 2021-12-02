@@ -46,7 +46,7 @@ def nino_calculate(
 
     Args:
         sst (xr.DataArray): Sea surface temperature datarray in standard format.
-        reg (str, optional): The region to select form src.xr_utils.sel.
+        reg (str, optional): The region to select for src.xr_utils.sel.
             Defaults to "nino3.4".
         roll_period (int, optional): The rolling period defined with respect to
             the time axes. Defaults to 3.

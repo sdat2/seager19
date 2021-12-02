@@ -56,6 +56,26 @@ def fix_calendar(
     return xr_out
 
 
+def _mon_increase(
+    xr_obj: Union[xr.Dataset, xr.DataArray]
+) -> Union[xr.Dataset, xr.DataArray]:
+    """Make sure that an xarray axes has monotonically increasing values"""
+
+    def PositiveMonotonic(A):
+        return all(A[i] <= A[i + 1] for i in range(len(A) - 1))
+
+    def NegativeMonotonic(A):
+        return all(A[i] >= A[i + 1] for i in range(len(A) - 1))
+
+    for var in ["X", "Y"]:
+        if NegativeMonotonic(xr_obj.coords[var].values):
+            xr_obj = xr_obj.reindex(**{var: xr_obj.coords[var][::-1]})
+        elif not PositiveMonotonic(xr_obj.coords[var].values):
+            assert False
+
+    return xr_obj
+
+
 def can_coords(
     xr_obj: Union[xr.Dataset, xr.DataArray]
 ) -> Union[xr.Dataset, xr.DataArray]:
@@ -143,6 +163,8 @@ def can_coords(
     for dim in dims:
         assert isinstance(dim, str)
         xr_obj = upgr(xr_obj, dim, dims)
+
+    xr_obj = _mon_increase(xr_obj)
 
     return xr_obj
 
