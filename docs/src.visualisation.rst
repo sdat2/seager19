@@ -44,6 +44,14 @@ src.visualisation.convergence module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.pairplot module
+---------------------------------
+
+.. automodule:: src.visualisation.pairplot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.visualisation.quiver module
 -------------------------------
 
