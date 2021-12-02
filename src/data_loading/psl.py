@@ -42,7 +42,7 @@ def index_da(var: str = "tni") -> xr.DataArray:
     Returns:
         xr.DataArray: A standard xarray 1D datarray with the index values,
             and a datetime axis.
-            Assumes that the value corresponds to the 15th of the month,
+            Assumes that the value corresponds to the 1st of the month,
             and nans out missing values.
     """
     url = url_d[var]
@@ -64,7 +64,7 @@ def index_da(var: str = "tni") -> xr.DataArray:
             stage = 1
         elif stage == 1:
             year = int(list_line.pop(0))
-            date_line = [datetime.datetime(year, i, 15, 0, 0, 0) for i in range(1, 13)]
+            date_line = [datetime.datetime(year, i, 1, 0, 0, 0) for i in range(1, 13)]
             index_list.extend(list_line)
             date_list.extend(date_line)
             if year == last_year:
