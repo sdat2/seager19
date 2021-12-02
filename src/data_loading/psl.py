@@ -62,7 +62,6 @@ def index_da(var: str = "tni") -> xr.DataArray:
         decoded_line = line.decode("utf-8")
         list_line = parse_line(decoded_line)
         if stage == 0:
-            first_year = int(list_line[0])
             last_year = int(list_line[1])
             stage = 1
         elif stage == 1:
@@ -87,7 +86,7 @@ def index_da(var: str = "tni") -> xr.DataArray:
         attrs=dict(
             name=var,
             long_name=var.upper(),
-            units="dimensionless",
+            units="dimensionless",  # TODO: This is wrong for most metrics.
             description=description,
             missing_value=missing_value,
         ),
@@ -141,7 +140,7 @@ def get_ersstv5(reload: bool = False) -> xr.DataArray:
 
 def psl_metric_test() -> None:
     """Test to see if the psl and I agree on the metrics given the
-        ERSSTv5 SST data (i.e. to debug metrics etc.)"""
+    ERSSTv5 SST data (i.e. to debug metrics etc.)"""
     ds = get_psl_indices()
     ersstv5 = get_ersstv5()
     ersstv5_slim = ersstv5.sel(time=slice("1948", "2021"))
