@@ -5,10 +5,11 @@ You can find all of these indices indexed here:
 <https://psl.noaa.gov/data/climateindices/list/>"""
 import os
 import datetime
+import shutil
 import urllib
 import numpy as np
 import xarray as xr
-from src.constants import PSL_INDICES_PATH
+from src.constants import PSL_INDICES_PATH, ERSSTV5_PATH
 
 
 # All the indices which I think are related to ENSO.
@@ -108,5 +109,26 @@ def get_psl_indices(reload: bool = False) -> xr.Dataset:
     else:
         ds = xr.merge([index_da(var) for var in url_d], join="outer")
         ds.to_netcdf(PSL_INDICES_PATH)
+
+    return ds
+
+
+def get_ersstv5(reload: bool = False) -> xr.DataArray:
+    """
+    Get ERSSTV5 datarray.
+
+    Args:
+        reload (bool, optional): [description]. Defaults to False.
+
+    Returns:
+        xr.DataArray: Straight from website.
+    """
+    if os.path.exists(ERSSTV5_PATH) and not reload:
+        ds = xr.open_dataarray(ERSSTV5_PATH)
+    else:
+        url = "https://downloads.psl.noaa.gov/Datasets/noaa.ersst.v5/sst.mnmean.nc"
+        name = "sst.mnmean.nc"
+        urllib.request.urlretrieve(url, name)
+        shutil.move(name, ERSSTV5_PATH)
 
     return ds

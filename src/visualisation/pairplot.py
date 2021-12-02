@@ -1,4 +1,4 @@
-import numpy as np
+"""A module to contain my pairplot function."""
 import numpy.ma as ma
 import pandas as pd
 from scipy.stats import pearsonr

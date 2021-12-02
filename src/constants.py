@@ -75,6 +75,10 @@ NOAA_DATA_PATH: pathlib.Path = DATA_PATH / NOAA_DATA_NAME
 PSL_INDICES_NAME: str = "PSL_INDICES.nc"
 PSL_INDICES_PATH: pathlib.Path = DATA_PATH / PSL_INDICES_NAME
 
+# ERASSTv5
+ERSSTV5_NAME: str = "ERSSTv5.sst.nc"
+ERSSTV5_PATH: pathlib.Path = DATA_PATH / ERSSTV5_NAME
+
 # Nino3.4 test results from the noaa data.
 # get_test_nino_data
 NINO3_4_TEST_CODE: str = "8j698fap5iq2v9y/"
