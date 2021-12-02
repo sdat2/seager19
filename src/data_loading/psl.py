@@ -13,10 +13,11 @@ from src.constants import PSL_INDICES_PATH, ERSSTV5_PATH
 
 
 # All the indices which I think are related to ENSO.
+# perhaps this should be used to `src.constants`.
 url_d = {
     "nino1+2": "https://psl.noaa.gov/data/correlation/nina1.anom.data",
     "nino3": "https://psl.noaa.gov/data/correlation/nina3.anom.data",
-    "nino34": "https://psl.noaa.gov/data/correlation/nina34.anom.data",
+    "nino3.4": "https://psl.noaa.gov/data/correlation/nina34.anom.data",
     "nino4": "https://psl.noaa.gov/data/correlation/nina4.anom.data",
     "oni": "https://psl.noaa.gov/data/correlation/oni.data",
     "tni": "https://psl.noaa.gov/data/correlation/tni.data",
@@ -133,3 +134,9 @@ def get_ersstv5(reload: bool = False) -> xr.DataArray:
         da = xr.open_dataset(ERSSTV5_PATH).sst
 
     return da
+
+
+if __name__ == "__main__":
+    # python src/data_loading/psl.py
+    # get_ersstv5(reload=True)
+    get_psl_indices(reload=True)

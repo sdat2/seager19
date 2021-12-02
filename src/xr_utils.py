@@ -61,16 +61,16 @@ def _mon_increase(
 ) -> Union[xr.Dataset, xr.DataArray]:
     """Make sure that an xarray axes has monotonically increasing values"""
 
-    def PositiveMonotonic(A):
+    def positive_monotonic(A):
         return all(A[i] <= A[i + 1] for i in range(len(A) - 1))
 
-    def NegativeMonotonic(A):
+    def negative_monotonic(A):
         return all(A[i] >= A[i + 1] for i in range(len(A) - 1))
 
     for var in ["X", "Y"]:
-        if NegativeMonotonic(xr_obj.coords[var].values):
+        if negative_monotonic(xr_obj.coords[var].values):
             xr_obj = xr_obj.reindex(**{var: xr_obj.coords[var][::-1]})
-        elif not PositiveMonotonic(xr_obj.coords[var].values):
+        elif not positive_monotonic(xr_obj.coords[var].values):
             assert False
 
     return xr_obj

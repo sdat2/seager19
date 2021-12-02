@@ -26,6 +26,7 @@ from src.xr_utils import (
 from src.plot_utils import add_units, ps_defaults, get_dim, label_subplots, cmap
 from src.configs.load_config import load_config
 from src.models.model_setup import ModelSetup
+from src.visualisation.nino import plot_nino
 from src.utils import timeit
 
 
@@ -129,50 +130,6 @@ def replace_nino3_4_from_noaa() -> None:
     metric.to_netcdf(str(NINO3_4_TEST_PATH))
     print(NINO3_4_TEST_PATH)
     clim.to_netcdf(str(DATA_PATH / "nino3_4_noaa_clim.nc"))
-
-
-def plot_nino(ax: matplotlib.axes.Axes, legend: bool = False) -> None:
-    """
-    Plot nino boxes.
-    """
-
-    def get_points(reg_dict: dict) -> Tuple[list]:
-        """Get the rectangle."""
-        x, y = [], []
-        x.append(reg_dict["X"][0])
-        y.append(reg_dict["Y"][0])
-        x.append(reg_dict["X"][0])
-        y.append(reg_dict["Y"][1])
-        x.append(reg_dict["X"][1])
-        y.append(reg_dict["Y"][1])
-        x.append(reg_dict["X"][1])
-        y.append(reg_dict["Y"][0])
-        x.append(reg_dict["X"][0])
-        y.append(reg_dict["Y"][0])
-        return x, y
-
-    for reg in reversed(sorted(SEL_DICT)):
-
-        x, y = get_points(SEL_DICT[reg])
-        # if False: # reg == "nino3.4":
-        # metric
-        # plt.fill(x, y, label=reg, alpha=0.5,
-        # linewidth=1, color=SEL_DICT[reg]["color"])
-        # else:
-        ax.plot(x, y, label=reg, alpha=0.5, linewidth=2, color=SEL_DICT[reg]["color"])
-
-    ax.set_title("")
-
-    ax.set_xlim(95, 295)
-    ax.set_ylim(-32, 32)
-
-    if legend:
-        ax.legend(
-            bbox_to_anchor=(-0.02, 1.02, 1.15, 0.102),
-            loc="lower left",
-            mode="expand",
-            ncol=5,
-        )
 
 
 def get_nino_trend(
