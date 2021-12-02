@@ -4,16 +4,19 @@ You can find all of these indices indexed here:
 
 <https://psl.noaa.gov/data/climateindices/list/>"""
 import os
+import numpy.ma as ma
 import datetime
 import shutil
 import urllib
 import numpy as np
 import xarray as xr
 from src.constants import PSL_INDICES_PATH, ERSSTV5_PATH
-
+from src.xr_utils import can_coords, fix_calendar
+from src.metrics import nino_calculate
 
 # All the indices which I think are related to ENSO.
 # perhaps this should be used to `src.constants`.
+# and also replaced with dict comprehension.
 url_d = {
     "nino1+2": "https://psl.noaa.gov/data/correlation/nina1.anom.data",
     "nino3": "https://psl.noaa.gov/data/correlation/nina3.anom.data",
@@ -134,6 +137,20 @@ def get_ersstv5(reload: bool = False) -> xr.DataArray:
         da = xr.open_dataset(ERSSTV5_PATH).sst
 
     return da
+
+
+def psl_metric_test() -> None:
+    """Test to see if the psl and I agree on the metrics given the
+        ERSSTv5 SST data (i.e. to debug metrics etc.)"""
+    ds = get_psl_indices()
+    ersstv5 = get_ersstv5()
+    ersstv5_slim = ersstv5.sel(time=slice("1948", "2021"))
+    ersstv5_can = fix_calendar(can_coords(ersstv5_slim)).isel(variable=0)
+    for x, y in [("nino34", "nino3.4"), ("nino4", "nino4"), ("nino1+2", "nino1+2")]:
+        m, _ = nino_calculate(ersstv5_can, reg=y)
+        my_nino = m.values
+        psl_nino = ds[x].sel(time=slice("1948", "2021-10")).values
+        print(ma.corrcoef(ma.masked_invalid(my_nino), ma.masked_invalid(psl_nino)))
 
 
 if __name__ == "__main__":
