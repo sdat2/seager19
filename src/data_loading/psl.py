@@ -100,7 +100,8 @@ def get_psl_indices(reload: bool = False) -> xr.Dataset:
              Defaults to False.
 
     Returns:
-        xr.Dataset: Dataset with indices from the PSL over all available datapoints. Missing values are marked as nan.
+        xr.Dataset: Dataset with indices from the PSL over
+            all available datapoints. Missing values are marked as nan.
     """
     if os.path.exists(PSL_INDICES_PATH) and not reload:
         ds = xr.open_dataset(PSL_INDICES_PATH)
