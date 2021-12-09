@@ -232,3 +232,15 @@ if __name__ == "__main__":
     # python src/visualisation.arrow()
     plot_arrow_plot_6(save_path=os.path.join(FIGURE_PATH, "mech_arrow_cmip6.pdf"))
     plot_arrow_plot_6(save_path=os.path.join(FIGURE_PATH, "mech_arrow_cmip6.png"))
+
+
+# Key Format: ${ts}${clt}${sfcwind}${rh}
+RESULTS = {
+    "EEEE": [0.436, 0.377, 0.461, 0.401],
+    "EECE": [0.492, 0.428, 0.522, 0.452],
+    "EEEC": [0.783, 0.646, 0.828, 0.686],
+    "EECC": [0.948, 0.78, 1.002, 0.827],
+    "EE6E": [0.509, 0.436, 0.538, 0.462],
+    "EEE6": [0.601, 0.508, 0.638, 0.543],
+    "EE66": [0.756, 0.627, 0.797, 0.664],
+}

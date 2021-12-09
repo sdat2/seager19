@@ -71,11 +71,12 @@ atm:
   # Strange properties to plot different models etc.
   mem: "EEEE"  # string is iterated through - standard model uses fixed value for
   # relative humidity.
-  # ts, clt, sfcwind, rh
+  # Format: ${ts}${clt}${sfcwind}${rh}
   # mem: "EECC" would be the option close to cmip world.
   # E: ECMWF
   # f: fixed
   # C: CMIP5
+  # 6: CMIP6
   pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day. 20 per hour?
   relative_humidity: 0.80  # relative humidity uniformly 0.8
   number_iterations: 50  #  int, the number of iterations.
@@ -94,7 +95,7 @@ atm:
   cp_air: 1000  #  cp_air is the specific heat capacity of air.
   # J kg-1 K-1
   # Newtonian cooling, K
-  k_days: 10     # K: 1/10 days
+  k_days: 10     # K: 1/10 days, k_days is the recipriocal, and has the units of days.
   newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
   eps_p: (${atm.pi} / ${atm.height_tropopause}) ** 2 / ${atm.nbsq} / ${atm.k_days} / ${atm.sec_in_day}
   # raleigh friction step.
