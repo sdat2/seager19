@@ -247,6 +247,8 @@ CMIP5_MMM = 0.889
 CMIP6_MMM = 0.772
 ECMWF = 0.411
 
+VAR_LIST = [str(i + 1) for i in range(4)]  # ["N", "A", "B", "C"]
+
 
 def make_results_xr() -> xr.DataArray:
     """
@@ -260,12 +262,11 @@ def make_results_xr() -> xr.DataArray:
     for key in RESULTS:
         key_list.append(key)
         data_list.append(RESULTS[key])
-    var_list = ["N", "A", "B", "C"]
 
     return xr.DataArray(
         data=np.array(data_list),
         dims=["mem", "var"],
-        coords=dict(mem=(["mem"], key_list), var=(["var"], var_list)),
+        coords=dict(mem=(["mem"], key_list), var=(["var"], VAR_LIST)),
         attrs=dict(
             description="NINO3.4 trend 1958-2017",
             units=r"$\Delta$K",
@@ -286,7 +287,7 @@ def plot_results_xr() -> None:
     pairs = [("EEEE", "EEEE"), ("EECE", "EE6E"), ("EEEC", "EEE6"), ("EECC", "EE66")]
     label_matches = {
         "EEEE": "ECMWF inputs",
-        "EECE": "CMIP wind speed swapped in",
+        "EECE": "CMIP windspeed swapped in",
         "EEEC": "CMIP relative humidity swapped in",
         "EECC": "CMIP relative humidity and windspeed swapped in",
     }
@@ -305,7 +306,7 @@ def plot_results_xr() -> None:
         for i in [0, 1]:
             for count, letter in enumerate(RESULTS_XR.coords["var"].values):
                 print(str(letter), type(str(letter)))
-                if str(letter) == "N" and i == 0:
+                if str(letter) == VAR_LIST[0] and i == 0:
                     label_dict = {"label": label_matches[pair[0]]}
                 else:
                     label_dict = {}
@@ -313,7 +314,7 @@ def plot_results_xr() -> None:
                     RESULTS_XR.sel(var=str(letter), mem=pair[i]).values,
                     1 - i + points[count],
                     color=colors[pair_number],
-                    marker=r"$" + letter + r"$",
+                    marker=r"$\mathrm{" + letter + r"}$",
                     **label_dict
                 )
 
@@ -322,15 +323,15 @@ def plot_results_xr() -> None:
     plt.plot([CMIP6_MMM, CMIP6_MMM], [0, 1], ":", color=colors[3], label="CMIP6 MMM")
     plt.plot([ECMWF, CMIP5_MMM], [2, 2], "--", color="grey")
     plt.plot([ECMWF, max(CMIP5_MMM, CMIP6_MMM)], [1, 1], "--", color="grey")
-    plt.plot([ECMWF, CMIP5_MMM], [0, 0], "--", color="grey")
+    plt.plot([ECMWF, CMIP6_MMM], [0, 0], "--", color="grey")
     plt.text(0.35, 1.85, "(a)", color="black")
     plt.text(0.35, 0.85, "(b)", color="black")
     plt.xlim([0.3, 1.1])
-    plt.ylim([-1.1, 2.5])
+    plt.ylim([-0.5, 2.5])
     plt.yticks([])
     plt.xlabel(r"NINO3.4 trend 1958-2017 [$\Delta$K]")
-    plt.legend(loc="lower center", ncol=2)
-    plt.savefig("result_1.png")
+    plt.legend(loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.6))  # , extend=True)
+    plt.savefig("result_1.png", bbox_inches="tight")
     plt.clf()
 
     # plot 2 - the difference in the trends created by each intervention
@@ -357,7 +358,7 @@ def plot_results_xr() -> None:
             if pair_number != 0:
                 for count, letter in enumerate(RESULTS_XR.coords["var"].values):
                     print(str(letter), type(str(letter)))
-                    if str(letter) == "N" and i == 0:
+                    if str(letter) == VAR_LIST[0] and i == 0:
                         label_dict = {"label": label_matches[pair[0]]}
                     else:
                         label_dict = {}
@@ -365,7 +366,7 @@ def plot_results_xr() -> None:
                         0,
                         1 - i + points_a[count] + points_b[pair_number - 1],
                         RESULTS_XR.sel(var=str(letter), mem=pair[i]).values
-                        - ECMWF
+                        - RESULTS_XR.sel(var=str(letter), mem=pairs[0][i]).values
                         - head_length,
                         0,
                         color=colors[pair_number],
@@ -388,26 +389,29 @@ def plot_results_xr() -> None:
         [1, 2],
         "--",
         color=colors[3],
-        label="CMIP5 MMM - ECMWF",
+        label="CMIP5 MMM",
     )
     plt.plot(
         [CMIP6_MMM - ECMWF, CMIP6_MMM - ECMWF],
         [0, 1],
         ":",
         color=colors[3],
-        label="CMIP6 MMM - ECMWF",
+        label="CMIP6 MMM",
     )
-    plt.plot([0, CMIP5_MMM], [2, 2], "--", color="grey")
+    plt.plot([0, CMIP5_MMM - ECMWF], [2, 2], "--", color="grey")
     plt.plot([0, max(CMIP5_MMM - ECMWF, CMIP6_MMM - ECMWF)], [1, 1], "--", color="grey")
-    plt.plot([0, CMIP5_MMM - ECMWF], [0, 0], "--", color="grey")
+    plt.plot([0, CMIP6_MMM - ECMWF], [0, 0], "--", color="grey")
     plt.text(-0.05, 1.85, "(a)", color="black")
     plt.text(-0.05, 0.85, "(b)", color="black")
-    plt.xlim([-0.1, 0.6])
-    plt.ylim([-1.1, 2.5])
+    plt.xlim([-0.1, 0.65])
+    plt.ylim([-0.5, 2.5])
     plt.yticks([])
-    plt.xlabel(r"NINO3.4 change from ECMWF [$\Delta$K]")
-    plt.legend(loc="lower center", ncol=2)
-    plt.savefig("result_2.png")
+    plt.xlabel(r"NINO3.4 trend change from ECMWF/ORAS4 [$\Delta$K]")
+    plt.legend(loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.5))  # , extend=True)
+    # fig = plt.gca()
+    # fig.subplots_adjust(bottom=0.25)
+    plt.savefig("result_2.png", bbox_inches="tight")
+    plt.clf()
 
 
 if __name__ == "__main__":
