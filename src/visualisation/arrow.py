@@ -289,16 +289,27 @@ def plot_results_xr() -> None:
         0.5 + 3 * delta / 2,
     ]
     pairs = [("EEEE", "EEEE"), ("EECE", "EE6E"), ("EEEC", "EEE6"), ("EECC", "EE66")]
+    label_matches = {
+        "EEEE": "ECMWF inputs",
+        "EECE": "CMIP wind speed swapped in",
+        "EEEC": "CMIP relative humidity swapped in",
+        "EECC": "CMIP relative humidity and windspeed swapped in",
+    }
     colors = ["blue", "green", "orange", "red"]
     for pair_number, pair in enumerate(pairs):
         for i in [0, 1]:
             for count, letter in enumerate(RESULTS_XR.coords["var"].values):
                 print(str(letter), type(str(letter)))
+                if str(letter) == "N" and i == 0:
+                    label_dict = {"label": label_matches[pair[0]]}
+                else:
+                    label_dict = {}
                 plt.plot(
                     RESULTS_XR.sel(var=str(letter), mem=pair[i]).values,
                     1 - i + points[count],
                     color=colors[pair_number],
                     marker=r"$" + letter + r"$",
+                    **label_dict
                 )
 
     plt.plot([ECMWF, ECMWF], [0, 2], colors[0], label="ECMWF/ORAS4")
@@ -310,10 +321,10 @@ def plot_results_xr() -> None:
     plt.text(0.35, 1.85, "(a)", color="black")
     plt.text(0.35, 0.85, "(b)", color="black")
     plt.xlim([0.3, 1.1])
-    plt.ylim([-0.7, 2.5])
+    plt.ylim([-1.1, 2.5])
     plt.yticks([])
     plt.xlabel(r"NINO3.4 trend 1958-2017 [$\Delta$K]")
-    plt.legend(loc="lower center")
+    plt.legend(loc="lower center", ncol=2)
     plt.savefig("result.png")
 
 
