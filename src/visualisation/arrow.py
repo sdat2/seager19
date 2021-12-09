@@ -281,13 +281,8 @@ def plot_results_xr() -> None:
     """
     Plot the `RESULTS_XR` object, to make a nice plot for AGU.
     """
-    delta = 0.1
-    points = [
-        0.5 - 3 * delta / 2,
-        0.5 - delta / 2,
-        0.5 + delta / 2,
-        0.5 + 3 * delta / 2,
-    ]
+    ps_defaults(use_tex=False)
+
     pairs = [("EEEE", "EEEE"), ("EECE", "EE6E"), ("EEEC", "EEE6"), ("EECC", "EE66")]
     label_matches = {
         "EEEE": "ECMWF inputs",
@@ -296,6 +291,16 @@ def plot_results_xr() -> None:
         "EECC": "CMIP relative humidity and windspeed swapped in",
     }
     colors = ["blue", "green", "orange", "red"]
+
+    # plot 1 - the trend itself.
+    delta = 0.1
+    points = [
+        0.5 - 3 * delta / 2,
+        0.5 - delta / 2,
+        0.5 + delta / 2,
+        0.5 + 3 * delta / 2,
+    ]
+    points.reverse()
     for pair_number, pair in enumerate(pairs):
         for i in [0, 1]:
             for count, letter in enumerate(RESULTS_XR.coords["var"].values):
@@ -325,7 +330,84 @@ def plot_results_xr() -> None:
     plt.yticks([])
     plt.xlabel(r"NINO3.4 trend 1958-2017 [$\Delta$K]")
     plt.legend(loc="lower center", ncol=2)
-    plt.savefig("result.png")
+    plt.savefig("result_1.png")
+    plt.clf()
+
+    # plot 2 - the difference in the trends created by each intervention
+    delta = 0.2
+    points_a = [
+        0.5 - 3 * delta / 2,
+        0.5 - delta / 2,
+        0.5 + delta / 2,
+        0.5 + 3 * delta / 2,
+    ]
+    points_a.reverse()
+
+    delta = 0.05
+    points_b = [
+        -3 * delta / 2,
+        -delta / 2,
+        +delta / 2,
+        # +3 * delta / 2,
+    ]
+    points_b.reverse()
+    for pair_number, pair in enumerate(pairs):
+        head_length = 0.01
+        for i in [0, 1]:
+            if pair_number != 0:
+                for count, letter in enumerate(RESULTS_XR.coords["var"].values):
+                    print(str(letter), type(str(letter)))
+                    if str(letter) == "N" and i == 0:
+                        label_dict = {"label": label_matches[pair[0]]}
+                    else:
+                        label_dict = {}
+                    plt.arrow(
+                        0,
+                        1 - i + points_a[count] + points_b[pair_number - 1],
+                        RESULTS_XR.sel(var=str(letter), mem=pair[i]).values
+                        - ECMWF
+                        - head_length,
+                        0,
+                        color=colors[pair_number],
+                        head_length=head_length,
+                        head_width=0.02,
+                        # marker=r"$" + letter + r"$",
+                        **label_dict
+                    )
+                    if pair_number == 1:
+                        plt.text(
+                            -0.02,
+                            1 - i + points_a[count] + points_b[2],
+                            str(letter),
+                            color="black",
+                        )
+
+    plt.plot([0, 0], [0, 2], colors[0], label="ECMWF/ORAS4")
+    plt.plot(
+        [CMIP5_MMM - ECMWF, CMIP5_MMM - ECMWF],
+        [1, 2],
+        "--",
+        color=colors[3],
+        label="CMIP5 MMM - ECMWF",
+    )
+    plt.plot(
+        [CMIP6_MMM - ECMWF, CMIP6_MMM - ECMWF],
+        [0, 1],
+        ":",
+        color=colors[3],
+        label="CMIP6 MMM - ECMWF",
+    )
+    plt.plot([0, CMIP5_MMM], [2, 2], "--", color="grey")
+    plt.plot([0, max(CMIP5_MMM - ECMWF, CMIP6_MMM - ECMWF)], [1, 1], "--", color="grey")
+    plt.plot([0, CMIP5_MMM - ECMWF], [0, 0], "--", color="grey")
+    plt.text(-0.05, 1.85, "(a)", color="black")
+    plt.text(-0.05, 0.85, "(b)", color="black")
+    plt.xlim([-0.1, 0.6])
+    plt.ylim([-1.1, 2.5])
+    plt.yticks([])
+    plt.xlabel(r"NINO3.4 change from ECMWF [$\Delta$K]")
+    plt.legend(loc="lower center", ncol=2)
+    plt.savefig("result_2.png")
 
 
 if __name__ == "__main__":
