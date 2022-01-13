@@ -1,6 +1,6 @@
 """Get CMIP6 variables on pangeo."""
 import os
-from typing import Union
+from typing import Union, Callable
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -30,8 +30,6 @@ def standardise_time(
     if isinstance(time, np.datetime64):
         time = pd.to_datetime(time)
     # put the new time in the middle of the given month
-    # return np.datetime64(str(str(time.year) +
-    #  '-' + str(time.month) + '-' + str(15) + "T00:00:00"))
     return cftime.datetime(time.year, time.month, 15, calendar=calendar)  # "360_day")
 
 
@@ -365,6 +363,30 @@ class GetEnsemble:
         # return da_list
 
 
+def _preproc_2(var_str: str) -> Callable:
+    """Preprocessing function for later 'make_${resource}' functions."""
+
+    def _preproc_3(ds: xr.Dataset) -> xr.Dataset:
+        dsa = ds.copy()
+        dsa = dsa.expand_dims("member")
+        if "__xarray_dataarray_variable__" in dsa:
+            dsa = dsa["__xarray_dataarray_variable__"].rename("clt").to_dataset()
+        dsa = dsa.assign_coords(
+            {
+                "member": [
+                    str(dsa.institution.values)
+                    + "."
+                    + str(dsa.model.values)
+                    + "."
+                    + str(dsa.member_id.values)
+                ]
+            }
+        )
+        return dsa
+
+    return _preproc_3
+
+
 def make_wsp() -> None:
     """
     Make wsp from uas and vas.
@@ -393,25 +415,9 @@ def mean_wsp() -> None:
     """
     Make mean windspeed.
     """
-
-    def preproc(ds: xr.Dataset) -> xr.Dataset:
-        dsa = ds.copy()
-        dsa = dsa.expand_dims("member")
-        dsa = dsa["__xarray_dataarray_variable__"].rename("wsp").to_dataset()
-        dsa = dsa.assign_coords(
-            {
-                "member": [
-                    str(dsa.institution.values)
-                    + "."
-                    + str(dsa.model.values)
-                    + "."
-                    + str(dsa.member_id.values)
-                ]
-            }
-        )
-        return dsa
-
-    wsp_da = xr.open_mfdataset("nc_wsp/*.nc", concat_dim="member", preprocess=preproc)
+    wsp_da = xr.open_mfdataset(
+        "nc_wsp/*.nc", concat_dim="member", preprocess=_preproc_2("wsp")
+    )
     wsp_mean = wsp_da.sel(time=slice("1958", "2017")).mean("member").mean("time")
     wsp_mean.wsp.attrs["units"] = "m s-1"
     wsp_mean.wsp.attrs["long_name"] = "Mean wind speed"
@@ -424,28 +430,9 @@ def mean_pr() -> None:
     Mean precipitation
     """
     var = "pr"
-
-    def preproc(ds: xr.Dataset) -> xr.Dataset:
-        dsa = ds.copy()
-        dsa = dsa.expand_dims("member")
-        if "__xarray_dataarray_variable__" in dsa:
-            dsa = dsa["__xarray_dataarray_variable__"].rename(var).to_dataset()
-        dsa = dsa.assign_coords(
-            {
-                "member": [
-                    str(dsa.institution.values)
-                    + "."
-                    + str(dsa.model.values)
-                    + "."
-                    + str(dsa.member_id.values)
-                ]
-            }
-        )
-        return dsa
-
     da = (
         xr.open_mfdataset(
-            "nc_" + var + "/*.nc", concat_dim="member", preprocess=preproc
+            "nc_" + var + "/*.nc", concat_dim="member", preprocess=_preproc_2(var)
         )
         .drop("lon")
         .drop("lat")
@@ -462,27 +449,10 @@ def mean_clt() -> None:
     """
     Mean cloud.
     """
-
-    def preproc(ds: xr.Dataset) -> xr.Dataset:
-        dsa = ds.copy()
-        dsa = dsa.expand_dims("member")
-        if "__xarray_dataarray_variable__" in dsa:
-            dsa = dsa["__xarray_dataarray_variable__"].rename("clt").to_dataset()
-        dsa = dsa.assign_coords(
-            {
-                "member": [
-                    str(dsa.institution.values)
-                    + "."
-                    + str(dsa.model.values)
-                    + "."
-                    + str(dsa.member_id.values)
-                ]
-            }
-        )
-        return dsa
-
     da = (
-        xr.open_mfdataset("nc_clt/*.nc", concat_dim="member", preprocess=preproc)
+        xr.open_mfdataset(
+            "nc_clt/*.nc", concat_dim="member", preprocess=_preproc_2("clt")
+        )
         .drop("lon")
         .drop("lat")
     )
@@ -499,26 +469,10 @@ def mean_rh() -> None:
     Mean relative humidity.
     """
 
-    def preproc(ds: xr.Dataset) -> xr.Dataset:
-        dsa = ds.copy()
-        dsa = dsa.expand_dims("member")
-        if "__xarray_dataarray_variable__" in dsa:
-            dsa = dsa["__xarray_dataarray_variable__"].rename("hur").to_dataset()
-        dsa = dsa.assign_coords(
-            {
-                "member": [
-                    str(dsa.institution.values)
-                    + "."
-                    + str(dsa.model.values)
-                    + "."
-                    + str(dsa.member_id.values)
-                ]
-            }
-        )
-        return dsa
-
     rh_da = (
-        xr.open_mfdataset("nc_hur/*.nc", concat_dim="member", preprocess=preproc)
+        xr.open_mfdataset(
+            "nc_hur/*.nc", concat_dim="member", preprocess=_preproc_2("hur")
+        )
         .drop("lon")
         .drop("lat")
     )
@@ -532,25 +486,8 @@ def mean_rh() -> None:
 def mean_ts() -> None:
     """Mean surface temperature"""
 
-    def preproc(ds: xr.Dataset) -> xr.Dataset:
-        dsa = ds.copy()
-        dsa = dsa.expand_dims("member")
-        if "__xarray_dataarray_variable__" in dsa:
-            dsa = dsa["__xarray_dataarray_variable__"].rename("ts").to_dataset()
-        return dsa.assign_coords(
-            {
-                "member": [
-                    str(dsa.institution.values)
-                    + "."
-                    + str(dsa.model.values)
-                    + "."
-                    + str(dsa.member_id.values)
-                ]
-            }
-        )
-
     da = (
-        xr.open_mfdataset("nc/*.nc", concat_dim="member", preprocess=preproc)
+        xr.open_mfdataset("nc/*.nc", concat_dim="member", preprocess=_preproc_2("ts"))
         .drop("lon")
         .drop("lat")
     )
@@ -568,10 +505,9 @@ if __name__ == "__main__":
     GetEnsemble(var="pr", output_folder="nc_pr")
     GetEnsemble(var="vas", output_folder="nc_vas")
     GetEnsemble(var="uas", output_folder="nc_uas")
-    make_wsp()
     GetEnsemble(var="ts", output_folder="nc_ts")
     GetEnsemble(var="hur", output_folder="nc_hur")
-    mean_wsp()
+    make_wsp()
     mean_clt()
     mean_rh()
     mean_ts()

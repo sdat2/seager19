@@ -44,6 +44,14 @@ src.visualisation.convergence module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.nino module
+-----------------------------
+
+.. automodule:: src.visualisation.nino
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.visualisation.pairplot module
 ---------------------------------
 

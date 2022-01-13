@@ -9,7 +9,7 @@ src
 |
 ├── __init__.py    <- Makes src a Python module
 |
-├── constants.py   <- Includes project wide constants for easy imports
+├── constants.py   <- Includes project-wide constants for easy imports
 |
 ├── main.py        <- The main file to run the model from.
 │

@@ -12,14 +12,6 @@ src.data\_loading.download module
    :undoc-members:
    :show-inheritance:
 
-src.data\_loading.get\_cmip6 module
------------------------------------
-
-.. automodule:: src.data_loading.get_cmip6
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 src.data\_loading.ingrid module
 -------------------------------
 
@@ -40,6 +32,14 @@ src.data\_loading.move\_old module
 ----------------------------------
 
 .. automodule:: src.data_loading.move_old
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.data\_loading.pangeo module
+-------------------------------
+
+.. automodule:: src.data_loading.pangeo
    :members:
    :undoc-members:
    :show-inheritance:

@@ -408,8 +408,6 @@ def plot_results_xr() -> None:
     plt.yticks([])
     plt.xlabel(r"NINO3.4 trend, change from ECMWF/ORAS4 [$\Delta$K]")
     plt.legend(loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.5))  # , extend=True)
-    # fig = plt.gca()
-    # fig.subplots_adjust(bottom=0.25)
     plt.savefig(os.path.join(FIGURE_PATH, "mechanism_arrows.pdf"), bbox_inches="tight")
     plt.clf()
 
