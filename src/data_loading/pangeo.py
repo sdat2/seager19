@@ -9,6 +9,15 @@ from cmip6_preprocessing.preprocessing import combined_preprocessing
 import cftime
 from intake import open_catalog
 
+VAR_PROP_D = {
+    "hur": {
+        "units": "dimensionless",
+        "long_name": "Relative humidity",
+        "description": "Mean relative humidity at surface",
+    },
+    "ts": {"units": "Kelvin?"},
+}
+
 
 @np.vectorize
 def standardise_time(
@@ -49,6 +58,12 @@ def _preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataAr
     return dsa
 
 
+def _folder(path: str) -> None:
+    """Check if folder exists, otherwise make it."""
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+
 class GetEnsemble:
     """A class to get the ensemble of CMIP6 members for monthly surface variables.
 
@@ -69,10 +84,10 @@ class GetEnsemble:
 
         """
         self.output_folder = output_folder
-        if not os.path.exists(output_folder):
-            os.mkdir(output_folder)
+        _folder(output_folder)
 
         self.var = var
+        # move to some constants file
         self.cat = open_catalog(
             str(
                 "https://raw.githubusercontent.com/pangeo-data/"
@@ -391,8 +406,8 @@ def make_wsp() -> None:
     """
     Make wsp from uas and vas.
     """
-    if not os.path.exists("nc_wsp"):
-        os.mkdir("nc_wsp")
+    _folder("nc_wsp")
+
     for u, v in [
         (sorted(os.listdir("nc_uas"))[i], sorted(os.listdir("nc_vas"))[i])
         for i in range(len(os.listdir("nc_uas")))
@@ -462,6 +477,34 @@ def mean_clt() -> None:
     mean.clt.attrs["long_name"] = "Cloud cover"
     mean.clt.attrs["description"] = "Mean cloud cover"
     mean.to_netcdf(os.path.join("nc_mean", "clt.nc"))
+
+
+def _folder_name(var: str) -> str:
+    """
+    Folder name for ensemble of netcdfs.
+
+    Args:
+        var (str): [description]
+
+    Returns:
+        str: [description]
+    """
+    return "nc_" + var
+
+
+def mean_field(var: str) -> None:
+    """Get mean field."""
+    da = (
+        xr.open_mfdataset(
+            os.path.join(_folder_name(var), "*.nc"),
+            concat_dim="member",
+            preprocess=_preproc_2(var),
+        )
+        .drop("lon")
+        .drop("lat")
+    )
+    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
 
 
 def mean_rh() -> None:
