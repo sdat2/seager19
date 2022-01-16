@@ -151,6 +151,7 @@ def get_nino_trend(
     """
     plt.clf()
     ps_defaults(dpi=150)
+    # TODO: this is very hacky :'(  Fix this!
     if "NOAA" not in path_of_run2f and "ts" not in path_of_run2f:
         sst_output = can_coords(open_dataset(path_of_run2f).SST_SST)
         sst_output = sst_output.where(sst_output != 0.0)
