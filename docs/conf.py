@@ -35,25 +35,24 @@ extensions = [
     "sphinx.ext.intersphinx",
     # "vacumm.sphinxext.fortran_domain",
     # "vacumm.sphinxext.fortran_autodoc",
-    "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
     "recommonmark",
     "sphinx_markdown_tables",
-    "nbsphinx",
     "sphinxfortran.fortran_domain",
     "sphinxfortran.fortran_autodoc",
     # "sphinx.ext.todo",
     "sphinx.ext.mathjax",
     "sphinx_c_autodoc",
     "sphinx_c_autodoc.napoleon",
+    "nbsphinx",
+    "nbsphinx_link",
 ]
 
 
 # C and fortran settings:
 
 c_autodoc_roots = ["ocean/SRC/"]
-
 
 fortran_src = ["ocean/SRC/", "."]
 
@@ -141,6 +140,6 @@ latex_elements = {
 # update the language totals
 try:
     os.system("cd .. \n cloc --report-file=docs/lang.txt $(git ls-files)")
-#pylint: disable=broad-except
+# pylint: disable=broad-except
 except:
     print("could not update language totals")

@@ -187,7 +187,7 @@ Citations:
    src
    OCEAN_README.md
    gallery.md
-   seager-rep.ipynb
+   tutorials
    about
 
 
