@@ -32,6 +32,7 @@ sphinx_rtd_theme
 sphinx-markdown-tables
 recommonmark
 nbsphinx==0.8.0
+nbsphinx_link
 sphinx-fortran
 sphinx-c-autodoc
 fortran-language-server
