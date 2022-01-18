@@ -33,11 +33,12 @@ def pairplot(df_tmp: pd.DataFrame) -> None:
             plt.show()
     """
 
-    def corrfunc(x, y, ax=None, **kws):
-        """Plot the correlation coefficient in the top left hand
-            corner of a plot.
+    def corrfunc(x, y, ax=None, **kws) -> None:
+        """Plot the correlation coefficient in the
+           top left hand corner of a plot.
 
-        A function to use with seaborn's `map_lower` api."""
+        A function to use with seaborn's `map_lower` api.
+        """
         corr = ma.corrcoef(ma.masked_invalid(x), ma.masked_invalid(y))
         corr_coeff = corr[0, 1]
         ax = ax or plt.gca()

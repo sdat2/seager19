@@ -1,4 +1,7 @@
-"""Program to automate testing output fields against the paper."""
+"""Program to automate testing output fields against the paper.
+
+Perhaps this module should be rename 'comp_v_seager19'.
+"""
 from typing import Union
 import numpy as np
 import xarray as xr
@@ -245,6 +248,7 @@ def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> str
 
 if __name__ == "__main__":
     # python src/visualisation/comp.py
+    # python src/visualisation/comp_v_seager19.py
     import os
 
     plot_dir = "/gws/nopw/j04/ai4er/users/sdat2/sensitivity/k_days_logs/k_days_10/plots"
