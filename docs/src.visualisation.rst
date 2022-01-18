@@ -20,18 +20,26 @@ src.visualisation.arrow module
    :undoc-members:
    :show-inheritance:
 
-src.visualisation.comp module
------------------------------
-
-.. automodule:: src.visualisation.comp
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 src.visualisation.comp\_cd module
 ---------------------------------
 
 .. automodule:: src.visualisation.comp_cd
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.visualisation.comp\_seq module
+----------------------------------
+
+.. automodule:: src.visualisation.comp_seq
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.visualisation.comp\_v\_seager19 module
+------------------------------------------
+
+.. automodule:: src.visualisation.comp_v_seager19
    :members:
    :undoc-members:
    :show-inheritance:
