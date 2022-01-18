@@ -15,7 +15,7 @@ VAR_PROP_D = {
         "long_name": "Relative humidity",
         "description": "Mean relative humidity at surface",
     },
-    "ts": {"units": "Kelvin?"},
+    "ts": {"units": "K"},
 }
 
 

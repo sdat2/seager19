@@ -1,7 +1,11 @@
-"""A module to contain my pairplot function."""
+"""A module to contain my pairplot function.
+
+# from scipy.stats import pearsonr
+
+from src.visualisation.pairplot import pairplot
+"""
 import numpy.ma as ma
 import pandas as pd
-from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
 import seaborn as sns
 

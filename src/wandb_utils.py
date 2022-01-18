@@ -246,12 +246,12 @@ def archive_dir_from_config(cfg: Union[DictConfig, dict]) -> str:
         return os.path.join(cfg["archive_dir"], cfg["name"])
 
 
-def setup_from_config(cfg: Union[DictConfig]) -> ModelSetup:
+def setup_from_config(cfg: DictConfig) -> ModelSetup:
     """
     Gets the setup object for the archived run from the config.
 
     Args:
-        cfg (Union[DictConfig, dict]): Either the dictconfig or the dict.
+        cfg (DictConfig): Either the dictconfig or the dict.
 
     Returns:
         ModelSetup: The model setup object.
@@ -343,4 +343,3 @@ def cd_variation_comp(e_frac=0.5) -> dict:
 if __name__ == "__main__":
     # python src/wandb_utils.py
     _other_tests()
-
