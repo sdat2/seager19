@@ -4,6 +4,8 @@
 # core packages
 xarray==0.17       # The most recent version as fo the start of the project.
 matplotlib>=3.1    # if lower this can cause some issues.
+emukit             # For emulation and experiment design.
+pyDOE
 
 # local package from setup.py
 -e ../.
@@ -44,7 +46,7 @@ numpy               # arrays, linear algebra
 scipy               # linear algebra and numerical mathematics
 numba               # speeding up array operations
 pandas              # tabular data analysis
-scipy               # scipy
+scipy               # scipy
 uncertainties       # linear error propogation
 
 # interactive computing
