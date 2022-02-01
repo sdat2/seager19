@@ -1,6 +1,6 @@
 """Program to automate testing output fields against the paper.
 
-Perhaps this module should be rename 'comp_v_seager19'.
+Perhaps this module should be renamed 'comp_v_seager19'.
 """
 from typing import Union
 import numpy as np
