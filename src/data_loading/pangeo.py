@@ -11,11 +11,35 @@ from intake import open_catalog
 
 VAR_PROP_D = {
     "hur": {
-        "units": "dimensionless",
+        "units": "percentage",
         "long_name": "Relative humidity",
         "description": "Mean relative humidity at surface",
     },
-    "ts": {"units": "K"},
+    "ts": {
+        "units": "K",
+        "long_name": "Suface temperature",
+        "description": "Surface Temperature [K]",
+    },
+    "vas": {
+        "units": r"m s${-1}$",
+        "long_name": "Northward Near-Surface Wind",
+        "description": "Northward Near-Surface Wind [m s-1]",
+    },
+    "uas": {
+        "units": r"m s${-1}$",
+        "long_name": "Eastward Near-Surface Wind",
+        "description": "Eastward Near-Surface Wind [m s-1]",
+    },
+    "pr": {
+        "units": r"kg m$^{-2}$ s$^{-1}$",
+        "long_name": "Precipitation",
+        "description": "Precipitation [kg m-2 s-1]",
+    },
+    "ps": {
+        "units": "K",
+        "long_name": "Suface pressure",
+        "description": "Surface Temperature [K]",
+    },
 }
 
 
