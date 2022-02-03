@@ -8,9 +8,12 @@ import dask
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 import cftime
 from intake import open_catalog
-from xarray.core.variable import Variable
+
+# from xarray.core.variable import Variable
 
 VAR_PROP_D = {
+    # From https://docs.google.com/spreadsheets/d/
+    # 1UUtoz6Ofyjlpx5LdqhKcwHFz2SGoTQV2_yekHyMfL9Y/edit?usp=sharing
     "hur": {
         "units": r"$\%$",
         "long_name": "Relative humidity",
@@ -398,11 +401,7 @@ class GetEnsemble:
                             self.output_folder,
                             self.var
                             + "."
-                            + str(instit)
-                            + "."
-                            + str(model)
-                            + "."
-                            + str(member_id)
+                            + _member_name(instit, model, member_id)
                             + ".80.nc",
                         )
                     )
@@ -413,10 +412,38 @@ class GetEnsemble:
         # return da_list
 
 
-def _preproc_2(var_str: str) -> Callable:
+def _member_name(instit: str, model: str, member_id: str) -> str:
+    """
+    Member name for dimension, and for file names.
+
+    Args:
+        instit (str): CMIP6 modelling institution.
+        model (str): Model name.
+        member_id (str): Model run id.
+
+    Returns:
+        str: thing.
+    """
+    return str(instit) + "." + str(model) + "." + str(member_id)
+
+
+def _folder_name(var: str) -> str:
+    """
+    Folder name for ensemble of netcdfs.
+
+    Args:
+        var (str): Variable name (e.g "pr")
+
+    Returns:
+        str: Folder path (e.g. "nc_pr")
+    """
+    return "nc_" + var
+
+
+def _get_preproc_func(var_str: str) -> Callable:
     """Preprocessing function for later 'make_${resource}' functions."""
 
-    def _preproc_3(ds: xr.Dataset) -> xr.Dataset:
+    def _preproc_func(ds: xr.Dataset) -> xr.Dataset:
         dsa = ds.copy()
         dsa = dsa.expand_dims("member")
         if "__xarray_dataarray_variable__" in dsa:
@@ -424,17 +451,41 @@ def _preproc_2(var_str: str) -> Callable:
         dsa = dsa.assign_coords(
             {
                 "member": [
-                    str(dsa.institution.values)
-                    + "."
-                    + str(dsa.model.values)
-                    + "."
-                    + str(dsa.member_id.values)
+                    _member_name(
+                        str(dsa.institution.values),
+                        str(dsa.model.values),
+                        str(dsa.member_id.values),
+                    )
                 ]
             }
         )
         return dsa
 
-    return _preproc_3
+    return _preproc_func
+
+
+def mean_var(var: str = "ts") -> None:
+    """
+    Variable mean in time and between models.
+
+    Args:
+        var (str, optional): Variable name string. Defaults to "ts".
+    """
+    da = (
+        xr.open_mfdataset(
+            _folder_name(var) + "/*.nc",
+            concat_dim="member",
+            preprocess=_get_preproc_func(var),
+        )
+        .drop("lon")
+        .drop("lat")
+    )
+    print(da)
+    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
+    mean[var].attrs["long_name"] = VAR_PROP_D[var]["long name"] + " mean"
+    mean[var].attrs["description"] = "Mean" + VAR_PROP_D[var]["description"]
+    mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
 
 
 def make_wsp() -> None:
@@ -466,48 +517,13 @@ def mean_wsp() -> None:
     Make mean windspeed.
     """
     wsp_da = xr.open_mfdataset(
-        "nc_wsp/*.nc", concat_dim="member", preprocess=_preproc_2("wsp")
+        "nc_wsp/*.nc", concat_dim="member", preprocess=_get_preproc_func("wsp")
     )
     wsp_mean = wsp_da.sel(time=slice("1958", "2017")).mean("member").mean("time")
-    wsp_mean.wsp.attrs["units"] = "m s-1"
+    wsp_mean.wsp.attrs["units"] = r"m s$^{-1}$"
     wsp_mean.wsp.attrs["long_name"] = "Mean wind speed"
     wsp_mean.wsp.attrs["description"] = "Wind speed at near surface (normally 10m)"
     wsp_mean.to_netcdf(os.path.join("nc_mean", "wsp.nc"))
-
-
-def mean_var(var: str = "ts") -> None:
-    """
-    Variable mean in time and between models.
-
-    Args:
-        var (str, optional): Variable name string. Defaults to "ts".
-    """
-    da = (
-        xr.open_mfdataset(
-            _folder_name(var) + "/*.nc", concat_dim="member", preprocess=_preproc_2(var)
-        )
-        .drop("lon")
-        .drop("lat")
-    )
-    print(da)
-    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
-    mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
-    mean[var].attrs["long_name"] = VAR_PROP_D[var]["long name"] + " mean"
-    mean[var].attrs["description"] = "Mean" + VAR_PROP_D[var]["description"]
-    mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
-
-
-def _folder_name(var: str) -> str:
-    """
-    Folder name for ensemble of netcdfs.
-
-    Args:
-        var (str): Variable name (e.g "pr")
-
-    Returns:
-        str: Folder path (e.g. "nc_pr")
-    """
-    return "nc_" + var
 
 
 if __name__ == "__main__":
