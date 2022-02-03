@@ -8,10 +8,11 @@ import dask
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 import cftime
 from intake import open_catalog
+from xarray.core.variable import Variable
 
 VAR_PROP_D = {
     "hur": {
-        "units": "percentage",
+        "units": r"$\%$",
         "long_name": "Relative humidity",
         "description": "Mean relative humidity at surface",
     },
@@ -36,9 +37,19 @@ VAR_PROP_D = {
         "description": "Precipitation [kg m-2 s-1]",
     },
     "ps": {
-        "units": "K",
-        "long_name": "Suface pressure",
-        "description": "Surface Temperature [K]",
+        "units": "Pa",
+        "long_name": "Suface air pressure",
+        "description": "Surface Air Pressure [Pa]",
+    },
+    "clt": {
+        "units": r"$\%$",
+        "long_name": "Total cloud cover percentage",
+        "description": "Total Cloud Cover Percentage [%]",
+    },
+    "sfcWind": {
+        "units": r"m s${-1}$",
+        "long_name": "Near-Surface Wind Speed ",
+        "description": "Near-Surface Wind Speed [m s-1]",
     },
 }
 
@@ -464,43 +475,26 @@ def mean_wsp() -> None:
     wsp_mean.to_netcdf(os.path.join("nc_mean", "wsp.nc"))
 
 
-def mean_pr() -> None:
+def mean_var(var: str = "ts") -> None:
     """
-    Mean precipitation
+    Variable mean in time and between models.
+
+    Args:
+        var (str, optional): Variable name string. Defaults to "ts".
     """
-    var = "pr"
     da = (
         xr.open_mfdataset(
-            "nc_" + var + "/*.nc", concat_dim="member", preprocess=_preproc_2(var)
+            _folder_name(var) + "/*.nc", concat_dim="member", preprocess=_preproc_2(var)
         )
         .drop("lon")
         .drop("lat")
     )
     print(da)
     mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
-    mean[var].attrs["units"] = "m s-1"
-    mean[var].attrs["long_name"] = "Precipitation"
-    mean[var].attrs["description"] = "Precipitation mean"
-    mean.to_netcdf(os.path.join("nc_mean", var + ".nc"))
-
-
-def mean_clt() -> None:
-    """
-    Mean cloud.
-    """
-    da = (
-        xr.open_mfdataset(
-            "nc_clt/*.nc", concat_dim="member", preprocess=_preproc_2("clt")
-        )
-        .drop("lon")
-        .drop("lat")
-    )
-    print(da)
-    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
-    mean.clt.attrs["units"] = "dimensionless"
-    mean.clt.attrs["long_name"] = "Cloud cover"
-    mean.clt.attrs["description"] = "Mean cloud cover"
-    mean.to_netcdf(os.path.join("nc_mean", "clt.nc"))
+    mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
+    mean[var].attrs["long_name"] = VAR_PROP_D[var]["long name"] + " mean"
+    mean[var].attrs["description"] = "Mean" + VAR_PROP_D[var]["description"]
+    mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
 
 
 def _folder_name(var: str) -> str:
@@ -508,73 +502,19 @@ def _folder_name(var: str) -> str:
     Folder name for ensemble of netcdfs.
 
     Args:
-        var (str): [description]
+        var (str): Variable name (e.g "pr")
 
     Returns:
-        str: [description]
+        str: Folder path (e.g. "nc_pr")
     """
     return "nc_" + var
 
 
-def mean_field(var: str) -> None:
-    """Get mean field."""
-    da = (
-        xr.open_mfdataset(
-            os.path.join(_folder_name(var), "*.nc"),
-            concat_dim="member",
-            preprocess=_preproc_2(var),
-        )
-        .drop("lon")
-        .drop("lat")
-    )
-    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
-    mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
-
-
-def mean_rh() -> None:
-    """
-    Mean relative humidity.
-    """
-
-    rh_da = (
-        xr.open_mfdataset(
-            "nc_hur/*.nc", concat_dim="member", preprocess=_preproc_2("hur")
-        )
-        .drop("lon")
-        .drop("lat")
-    )
-    rh_mean = rh_da.sel(time=slice("1958", "2017")).mean("member").mean("time")
-    rh_mean.hur.attrs["units"] = "dimensionless"
-    rh_mean.hur.attrs["long_name"] = "Relative humidity"
-    rh_mean.hur.attrs["description"] = "Mean relative humidity at the surface"
-    rh_mean.to_netcdf(os.path.join("nc_mean", "hur.nc"))
-
-
-def mean_ts() -> None:
-    """Mean surface temperature"""
-
-    da = (
-        xr.open_mfdataset("nc/*.nc", concat_dim="member", preprocess=_preproc_2("ts"))
-        .drop("lon")
-        .drop("lat")
-    )
-    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
-    mean.ts.attrs["units"] = "dimensionless"
-    mean.ts.attrs["long_name"] = "Surface temperature"
-    mean.ts.attrs["description"] = "Mean surface temperature"
-    mean.to_netcdf(os.path.join("nc_mean", "ts.nc"))
-
-
 if __name__ == "__main__":
     # from src/data_loading/get_cmip6 import GetEnsemble
-    # python src/main.py
-    GetEnsemble(var="ps", output_folder="nc_ps")
-    GetEnsemble(var="pr", output_folder="nc_pr")
-    GetEnsemble(var="vas", output_folder="nc_vas")
-    GetEnsemble(var="uas", output_folder="nc_uas")
-    GetEnsemble(var="ts", output_folder="nc_ts")
-    GetEnsemble(var="hur", output_folder="nc_hur")
-    make_wsp()
-    mean_clt()
-    mean_rh()
-    mean_ts()
+    # python src/data_loading/pangeo.py
+    for var_str in VAR_PROP_D:
+        GetEnsemble(var=var_str, output_folder=_folder_name(var_str))
+    for var_str in VAR_PROP_D:
+        mean_var(var=var_str)
+    # make_wsp()
