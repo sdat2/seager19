@@ -420,7 +420,7 @@ def _preproc_2(var_str: str) -> Callable:
         dsa = ds.copy()
         dsa = dsa.expand_dims("member")
         if "__xarray_dataarray_variable__" in dsa:
-            dsa = dsa["__xarray_dataarray_variable__"].rename("clt").to_dataset()
+            dsa = dsa["__xarray_dataarray_variable__"].rename(var_str).to_dataset()
         dsa = dsa.assign_coords(
             {
                 "member": [
