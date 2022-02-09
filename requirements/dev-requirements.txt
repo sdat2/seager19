@@ -10,9 +10,6 @@ emukit
 pyDOE         # latin hypercube etc.
 sobol-seq     # Sobol sequences
 
-# local package from setup.py
--e ../.
-
 # external requirements (mostly linters and formatters)
 flake8              # flake8 linter
 flake8-docstrings   # docstring support for flake8

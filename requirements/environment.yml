@@ -7,4 +7,5 @@ dependencies:
   - pip
   - gpy
   - pip:
+    - -r package.txt
     - -r dev-requirements.txt
