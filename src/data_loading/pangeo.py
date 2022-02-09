@@ -1,6 +1,6 @@
 """Get CMIP6 variables on pangeo."""
 import os
-from typing import Union, Callable
+from typing import Union, Callable, List
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -549,7 +549,13 @@ def mean_wsp() -> None:
     wsp_mean.to_netcdf(os.path.join(_folder_name("mean"), "wsp.nc"))
 
 
-def get_vars(var_list):
+def get_vars(var_list: List[str]):
+    """
+    Get the variable means and ensembles for the enviroment.
+
+    Args:
+        var_list (List[str]): List of variables to make.
+    """
     for var_str in var_list:
         GetEnsemble(
             var=var_str, output_folder=_folder_name(var_str), regen_success_list=True

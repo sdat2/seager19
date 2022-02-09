@@ -1,0 +1,49 @@
+# NOTE: These requirements are used for pangeo. 
+
+# core packages
+xarray==0.17       # The most recent version as of the start of the project.
+matplotlib>=3.1    # if lower this can cause some issues.
+cmip6_preprocessing
+
+#testing
+pytest
+coveralls
+recursive_diff     # test netcdfs
+typeguard
+
+# linear algebra and general data analysis
+numpy               # arrays, linear algebra
+scipy               # linear algebra and numerical mathematics
+numba               # speeding up array operations
+pandas              # tabular data analysis
+scipy               # scipy
+uncertainties       # linear error propogation
+
+# interactive computing
+tqdm                # loading bar
+jupyterlab          # jupyter notebooks
+jupyter
+ipython
+jupyterthemes       # change the color of jupyter-notebooks etc
+
+# useful xarray extensions
+eccodes
+cftime
+dask[complete]      # allows more lazy operation for xarray.
+# bottleneck          # useful for operations on arrays.
+nc-time-axis        # Hopefully this allows time to be decoded
+netCDF4             # makes sure that the default driver is netCDF4.
+
+# configuration inputs.
+hydra-core
+
+# Wandb
+wandb              # automatic recording of runs
+
+# improved plotting
+seaborn
+cmocean
+
+# downloads
+requests
+zipfile38
