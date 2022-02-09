@@ -1,6 +1,7 @@
 """Get CMIP6 variables on pangeo."""
 import os
 from typing import Union, Callable
+from xml.dom.pulldom import START_DOCUMENT
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -11,9 +12,43 @@ from intake import open_catalog
 
 # from xarray.core.variable import Variable
 
+START_YEAR: str = "1958"
+END_YEAR: str = "2017"
+
+DEFAULT_SUCCESS_LIST = [
+    "NCAR",
+    "CAMS",
+    "NOAA-GFDL",
+    "AS-RCEC",
+    "UA",
+    "FIO-QLNM",
+    "INM",
+    "CMCC",
+    "CAS",
+    "CCCma",
+    "NIMS-KMA",
+    "NASA-GISS",
+    "E3SM-Project",
+    "MOHC",
+    "KIOST",
+    "BCC",
+    "SNU",
+    "CCCR-IITM",
+    "THU",
+]
+
+DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma"]
+
 VAR_PROP_D = {
     # From https://docs.google.com/spreadsheets/d/
     # 1UUtoz6Ofyjlpx5LdqhKcwHFz2SGoTQV2_yekHyMfL9Y/edit?usp=sharing
+    # psl - sea level pressure.
+    # hurs - Near-Surface Relative Humidity
+    "hurs": {
+        "units": r"$\%$",
+        "long_name": "Relative humidity",
+        "description": "Mean relative humidity at surface",
+    },
     "hur": {
         "units": r"$\%$",
         "long_name": "Relative humidity",
@@ -133,31 +168,11 @@ class GetEnsemble:
             )
         )["climate"]["cmip6_gcs"]
         self.instit = self.cat.unique(["institution_id"])["institution_id"]["values"]
-        default_success_list = [
-            "NCAR",
-            "CAMS",
-            "NOAA-GFDL",
-            "AS-RCEC",
-            "UA",
-            "FIO-QLNM",
-            "INM",
-            "CMCC",
-            "CAS",
-            "CCCma",
-            "NIMS-KMA",
-            "NASA-GISS",
-            "E3SM-Project",
-            "MOHC",
-            "KIOST",
-            "BCC",
-            "SNU",
-            "CCCR-IITM",
-            "THU",
-        ]
+
         if regen_success_list:
             self.success_list = self.get_sucess_list()
         else:
-            self.success_list = default_success_list
+            self.success_list = DEFAULT_SUCCESS_LIST
         self.da_hist = self.get_var(
             xlim=[0, 360],
             ylim=[-80, 80],
@@ -242,10 +257,10 @@ class GetEnsemble:
 
     def get_var(
         self,
-        experiment="historical",
-        year_begin="1958",
-        year_end="2014",
-        var="ts",
+        experiment: str = "historical",
+        year_begin: str = START_YEAR,
+        year_end: str = "2014",
+        var: str = "ts",
         # pylint: disable=dangerous-default-value
         xlim=[100, 290],
         ylim=[-30, 30],
@@ -270,9 +285,7 @@ class GetEnsemble:
             experiment_id=[experiment],  # , "ssp585"],
             table_id=["Amon"],
             institution_id=[
-                x
-                for x in self.success_list
-                if x not in ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma"]
+                x for x in self.success_list if x not in DEFAULT_REJECT_LIST
             ],
         )
         subset = self.cat.search(**query)
@@ -341,7 +354,7 @@ class GetEnsemble:
         da_ssp585 = self.get_var(
             experiment="ssp585",
             year_begin="2014",
-            year_end="2017",
+            year_end=END_YEAR,
             xlim=[0, 360],
             ylim=[-80, 80],
             var=var,
@@ -481,10 +494,10 @@ def mean_var(var: str = "ts") -> None:
         .drop("lat")
     )
     print(da)
-    mean = da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
     mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
     mean[var].attrs["long_name"] = VAR_PROP_D[var]["long name"] + " mean"
-    mean[var].attrs["description"] = "Mean" + VAR_PROP_D[var]["description"]
+    mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
     mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
 
 
@@ -495,21 +508,30 @@ def make_wsp() -> None:
     _folder("nc_wsp")
 
     for u, v in [
-        (sorted(os.listdir("nc_uas"))[i], sorted(os.listdir("nc_vas"))[i])
-        for i in range(len(os.listdir("nc_uas")))
+        (
+            sorted(os.listdir(_folder_name("uas")))[i],
+            sorted(os.listdir(_folder_name("vas")))[i],
+        )
+        for i in range(len(os.listdir(_folder_name("uas"))))
     ]:
-        print(os.path.join("nc_uas", u), os.path.join("nc_vas", v))
+        print(
+            os.path.join(_folder_name("uas"), u), os.path.join(_folder_name("vas"), v)
+        )
         wsp = np.sqrt(
             np.square(
-                xr.open_dataarray(os.path.join("nc_uas", u)).drop("lon").drop("lat")
+                xr.open_dataarray(os.path.join(_folder_name("uas"), u))
+                .drop("lon")
+                .drop("lat")
             )
             + np.square(
-                xr.open_dataarray(os.path.join("nc_vas", v)).drop("lon").drop("lat")
+                xr.open_dataarray(os.path.join(_folder_name("vas"), v))
+                .drop("lon")
+                .drop("lat")
             )
         ).ffill("x")
         wsp.attrs["long_name"] = "Mean wind speed at near surface"
         w = "wsp." + u.strip("uas.")
-        wsp.rename("wsp").to_netcdf(os.path.join("nc_wsp", w))
+        wsp.rename("wsp").to_netcdf(os.path.join(_folder_name("wsp"), w))
 
 
 def mean_wsp() -> None:
@@ -517,20 +539,33 @@ def mean_wsp() -> None:
     Make mean windspeed.
     """
     wsp_da = xr.open_mfdataset(
-        "nc_wsp/*.nc", concat_dim="member", preprocess=_get_preproc_func("wsp")
+        _folder_name("wsp") + "/*.nc",
+        concat_dim="member",
+        preprocess=_get_preproc_func("wsp"),
     )
-    wsp_mean = wsp_da.sel(time=slice("1958", "2017")).mean("member").mean("time")
+    wsp_mean = wsp_da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
     wsp_mean.wsp.attrs["units"] = r"m s$^{-1}$"
     wsp_mean.wsp.attrs["long_name"] = "Mean wind speed"
     wsp_mean.wsp.attrs["description"] = "Wind speed at near surface (normally 10m)"
-    wsp_mean.to_netcdf(os.path.join("nc_mean", "wsp.nc"))
+    wsp_mean.to_netcdf(os.path.join(_folder_name("mean"), "wsp.nc"))
+
+
+def get_vars(var_list):
+    for var_str in var_list:
+        GetEnsemble(
+            var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
+        )
+        mean_var(var=var_str)
 
 
 if __name__ == "__main__":
     # from src/data_loading/get_cmip6 import GetEnsemble
     # python src/data_loading/pangeo.py
-    for var_str in VAR_PROP_D:
-        GetEnsemble(var=var_str, output_folder=_folder_name(var_str))
-    for var_str in VAR_PROP_D:
-        mean_var(var=var_str)
+    # for var_str in VAR_PROP_D:
+    #    GetEnsemble(
+    #        var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
+    #    )
+    # for var_str in VAR_PROP_D:
+    #    mean_var(var=var_str)
     # make_wsp()
+    get_vars(["hurs", "psl"])
