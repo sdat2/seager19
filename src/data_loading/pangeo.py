@@ -1,7 +1,6 @@
 """Get CMIP6 variables on pangeo."""
 import os
 from typing import Union, Callable
-from xml.dom.pulldom import START_DOCUMENT
 import numpy as np
 import pandas as pd
 import xarray as xr
