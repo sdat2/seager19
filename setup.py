@@ -6,7 +6,7 @@ setup(
     version="0.0.1",
     author="Simon Thomas",
     author_email="sdat2@cam.ac.uk",
-    description="ENSO MRes Project 2021",
+    description="Seager19 MRes Project 2021",
     url="https://github.com/sdat2/seager19",
     packages=find_packages(),
     # test_suite="src.tests.test_all.suite",

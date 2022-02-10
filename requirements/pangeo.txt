@@ -47,3 +47,10 @@ cmocean
 # downloads
 requests
 zipfile38
+aiohttp
+
+# intake not working
+intake-esm
+intake
+intake-xarray
+gcsfs
