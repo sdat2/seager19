@@ -1,4 +1,5 @@
-"""Get CMIP6 variables on pangeo."""
+"""Get CMIP6 variables on pangeo by linking together
+historical and SSP85 and historical simulations."""
 import os
 from typing import Union, Callable, List
 import numpy as np
@@ -15,7 +16,7 @@ START_YEAR: str = "1958"
 END_YEAR: str = "2017"
 
 DEFAULT_SUCCESS_LIST = [
-    "NCAR",
+    # "NCAR",
     "CAMS",
     "NOAA-GFDL",
     "AS-RCEC",
@@ -32,11 +33,14 @@ DEFAULT_SUCCESS_LIST = [
     "KIOST",
     "BCC",
     "SNU",
-    "CCCR-IITM",
+    # "CCCR-IITM",
     "THU",
 ]
 
-DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma"]
+PANGEO_CAT_URL = str("https://raw.githubusercontent.com/pangeo-data/"
+                + "pangeo-datastore/master/intake-catalogs/master.yaml")
+
+DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
 
 VAR_PROP_D = {
     # From https://docs.google.com/spreadsheets/d/
@@ -94,7 +98,8 @@ VAR_PROP_D = {
 @np.vectorize
 def standardise_time(
     time: Union[cftime.datetime, np.datetime64],
-    calendar="standard",  # "gregorian"
+    calendar: str = "standard",  # "gregorian"
+    standard_day: int = 15,
 ) -> cftime.datetime:
     """
     Standardise time.
@@ -103,7 +108,7 @@ def standardise_time(
         time (Union[ cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day,
                     np.datetime64 ]): Time array.
         calendar (str, optional): Which cftime calendar to replace it with.
-            Defaults to "standard".
+            Defaults to "standard". "360_day" possible alternative.
 
     Returns:
         cftime._cftime.Datetime360Day: The new calendar.
@@ -111,7 +116,7 @@ def standardise_time(
     if isinstance(time, np.datetime64):
         time = pd.to_datetime(time)
     # put the new time in the middle of the given month
-    return cftime.datetime(time.year, time.month, 15, calendar=calendar)  # "360_day")
+    return cftime.datetime(time.year, time.month, standard_day, calendar=calendar)  # "360_day")
 
 
 def _preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
@@ -160,12 +165,7 @@ class GetEnsemble:
 
         self.var = var
         # move to some constants file
-        self.cat = open_catalog(
-            str(
-                "https://raw.githubusercontent.com/pangeo-data/"
-                + "pangeo-datastore/master/intake-catalogs/master.yaml"
-            )
-        )["climate"]["cmip6_gcs"]
+        self.cat = open_catalog(PANGEO_CAT_URL)["climate"]["cmip6_gcs"]
         self.instit = self.cat.unique(["institution_id"])["institution_id"]["values"]
 
         if regen_success_list:
@@ -261,8 +261,8 @@ class GetEnsemble:
         year_end: str = "2014",
         var: str = "ts",
         # pylint: disable=dangerous-default-value
-        xlim=[100, 290],
-        ylim=[-30, 30],
+        xlim: List[int]=[100, 290],
+        ylim: List[int]=[-30, 30],
     ) -> xr.DataArray:
         """
         Get the variable from pangeo.
@@ -341,7 +341,7 @@ class GetEnsemble:
 
     def get_ensemble(self, var: str = "ts") -> xr.DataArray:
         """
-        Get ts.
+        Get a variable ensemble.
 
         Args:
             var (str, optional): The variable. Defaults to "ts".
@@ -549,7 +549,7 @@ def mean_wsp() -> None:
     wsp_mean.to_netcdf(os.path.join(_folder_name("mean"), "wsp.nc"))
 
 
-def get_vars(var_list: List[str]):
+def get_vars(var_list: List[str], regen_success_list=False):
     """
     Get the variable means and ensembles for the enviroment.
 
@@ -558,13 +558,13 @@ def get_vars(var_list: List[str]):
     """
     for var_str in var_list:
         GetEnsemble(
-            var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
+            var=var_str, output_folder=_folder_name(var_str), regen_success_list=regen_success_list
         )
         mean_var(var=var_str)
 
 
 if __name__ == "__main__":
-    # from src/data_loading/get_cmip6 import GetEnsemble
+    # from src.data_loading.pangeo import GetEnsemble
     # python src/data_loading/pangeo.py
     # for var_str in VAR_PROP_D:
     #    GetEnsemble(
@@ -573,4 +573,5 @@ if __name__ == "__main__":
     # for var_str in VAR_PROP_D:
     #    mean_var(var=var_str)
     # make_wsp()
-    get_vars(["hurs", "psl"])
+    # from src.data_loading.pangeo import get_vars
+    get_vars(["hurs", "psl"], )
