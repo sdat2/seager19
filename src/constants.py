@@ -136,8 +136,7 @@ def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
 
 
 # region selection dictionary
-SEL_DICT = {
-    r"""
+r"""
     Nino1-4 definitions are taken from:
 
     Trenberth, Kevin & National Center for Atmospheric Research Staff (Eds).
@@ -185,7 +184,10 @@ SEL_DICT = {
     # [west, east] [south, north] boundaries
     # X in degrees east, Y in degrees north.
     # colors compatible with matplotlib.
-    """
+"""
+
+
+SEL_DICT = {
     "pac": {"X": (100, 290), "Y": (-30, 30), "color": "#411900"},
     "nino1": {"X": (270, 280), "Y": (-10, -5), "color": "black"},
     "nino2": {"X": (270, 280), "Y": (-5, 0), "color": "black"},

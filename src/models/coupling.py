@@ -21,7 +21,7 @@ from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
 from src.visualisation.ani import animate_coupling
 from src.visualisation.quiver import prcp_quiver_plot
 from src.visualisation.trends import up_therm_qnet
-from src.visualisation.comp import comp_oc_sst, comp_atm_prwnd, comp_oc_htherm
+from src.visualisation.comp_v_seager19 import comp_oc_sst, comp_atm_prwnd, comp_oc_htherm
 
 
 # pylint: disable=no-value-for-parameter

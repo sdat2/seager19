@@ -30,6 +30,7 @@ jupyterthemes       # change the color of jupyter-notebooks etc
 eccodes
 cftime
 dask[complete]      # allows more lazy operation for xarray.
+
 # bottleneck          # useful for operations on arrays.
 nc-time-axis        # Hopefully this allows time to be decoded
 netCDF4             # makes sure that the default driver is netCDF4.

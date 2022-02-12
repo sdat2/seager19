@@ -177,7 +177,7 @@ def sel(
 
     Assumes
 
-    reg options: "pac", "nino1+2", "nino3", "nino3.4", "nino3", "glob"
+    reg options: "pac", "nino1+2", "nino3", "nino3.4", "nino3"
     https://www.ncdc.noaa.gov/teleconnections/enso/indicators/sst/
 
     From Figure 1:
