@@ -213,6 +213,8 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     if platform == "darwin":
         matplotlib.use("TkAgg")
 
+    use_tex: bool = False
+
     p_general = {
         "font.family": "STIXGeneral",  # Nice alternative font.
         # "font.family": "serif",

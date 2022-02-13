@@ -170,7 +170,7 @@ def can_coords(
 
 
 def sel(
-    xr_obj: Union[xr.Dataset, xr.DataArray], reg="pac"
+    xr_obj: Union[xr.Dataset, xr.DataArray], reg: str = "pac"
 ) -> Union[xr.Dataset, xr.DataArray]:
     """
     Select a region of the dataset or datarray.
