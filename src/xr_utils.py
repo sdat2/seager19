@@ -278,7 +278,7 @@ def open_dataset(
     if not use_can_coords:
         return fix_calendar(xr.open_dataset(str(path), decode_times=False))
     else:
-        can_coords(fix_calendar(xr.open_dataset(str(path), decode_times=False)))
+        return can_coords(fix_calendar(xr.open_dataset(str(path), decode_times=False)))
 
 
 def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
