@@ -88,7 +88,8 @@ def between_two(choices: List[Char] = ["C", "E"], length: int = 4) -> List[str]:
     All possible string sequences betweeen two characters for some length.
 
     Args:
-        choices (List[Char], optional): Characters to choose between. Defaults to ["C", "E"].
+        choices (List[Char], optional): Characters to choose between.
+            Defaults to ["C", "E"].
         length (int, optional): _description_. Defaults to 4.
 
     Returns:
@@ -110,7 +111,9 @@ def between_two(choices: List[Char] = ["C", "E"], length: int = 4) -> List[str]:
 
 
 def variable_combinations(
-    control: Char = "E", exps: List[Char] = ["C", "6"]
+    control: Char = "E",
+    exps: List[Char] = ["C", "6"],
+    vary: List[bool] = [True, True, True, True],
 ) -> List[str]:
     """
     Get the full set of options to try if there is one control
@@ -121,8 +124,9 @@ def variable_combinations(
         exps (List[Char], optional): _description_. Defaults to ["C", "6"].
 
     Returns:
-        List[str]: _description_
+        List[str]: List of combinations to try.
     """
+    length = len([x for x in vary if x])
 
     def _union(lst1: list, lst2: list) -> list:
         final_list = list(set(lst1) | set(lst2))
@@ -130,12 +134,30 @@ def variable_combinations(
 
     output = []
     for i in exps:
-        output = _union(output, between_two(choices=[control, i]))
+        output = _union(output, between_two(choices=[control, i], length=length))
+
+    for i in range(len(vary)):
+        if not vary[i]:
+            output = [x[:i] + control + x[i:] for x in output]
     return output
+
+
+def remainder_combinations() -> List[str]:
+    """
+    Work out which combinations are still to do.
+
+    Returns:
+        List[str]: list to-do.
+    """
+    big_list = variable_combinations()
+    small_list = variable_combinations(
+        vary=[False, False, True, True],
+    )
+    return [x for x in big_list if x not in small_list]
 
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     # python src/search.py
     # main()
-    print(variable_combinations())
+    print(len(remainder_combinations()))
