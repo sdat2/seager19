@@ -1,9 +1,12 @@
 """search.py"""
+from typing import List
 import os
 import numpy as np
+from itertools import product
 import hydra
 from hydra.experimental import initialize, compose
 from omegaconf import DictConfig
+from pyparsing import Char
 from src.constants import (
     CONFIG_PATH,
     CONFIG_NAME,
@@ -80,6 +83,59 @@ def main(settings: DictConfig) -> None:
         print(cfg.name)
 
 
+def between_two(choices: List[Char] = ["C", "E"], length: int = 4) -> List[str]:
+    """
+    All possible string sequences betweeen two characters for some length.
+
+    Args:
+        choices (List[Char], optional): Characters to choose between. Defaults to ["C", "E"].
+        length (int, optional): _description_. Defaults to 4.
+
+    Returns:
+        (List[str]): list of possible sequences.
+    """
+    assert len(choices) == 2
+    output = []
+    for x in map(
+        "".join,
+        product(
+            *zip(
+                [choices[0] for _ in range(length)],
+                [choices[1] for _ in range(length)],
+            )
+        ),
+    ):
+        output.append(x)
+    return output
+
+
+def variable_combinations(
+    control: Char = "E", exps: List[Char] = ["C", "6"]
+) -> List[str]:
+    """
+    Get the full set of options to try if there is one control
+    set and multiple experiments deviations.
+
+    Args:
+        control (Char, optional): _description_. Defaults to "E".
+        exps (List[Char], optional): _description_. Defaults to ["C", "6"].
+
+    Returns:
+        List[str]: _description_
+    """
+
+    def _union(lst1: list, lst2: list) -> list:
+        final_list = list(set(lst1) | set(lst2))
+        return final_list
+
+    output = []
+    for i in exps:
+        output = _union(output, between_two(choices=[control, i]))
+    return output
+
+
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    main()
+    # python src/search.py
+    # main()
+    print(variable_combinations())

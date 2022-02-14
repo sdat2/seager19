@@ -50,6 +50,7 @@ class ModelSetup:
         self.atmos_tmp_path = os.path.join(self.atmos_path, "tmp")
 
         # the different model names in a dict? - used by key from self.mem.
+        # most of this data isn't available.
         self.names: dict = {
             "E": "ECMWF",
             "F": "ECMWF-orig",
@@ -65,6 +66,7 @@ class ModelSetup:
             "M": "MERRA",
             "I": "ISCCP",
         }
+        # let's change the temperature at the surface, and the clouds as well.
 
         # dict of variables that are read in.
         self.var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
