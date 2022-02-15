@@ -175,6 +175,7 @@ dmypy.json
 etc/
 report/
 .gitmodules
+old-env
 
 # ocean
 ocean/SRC/tcom

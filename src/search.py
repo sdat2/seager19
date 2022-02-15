@@ -156,8 +156,53 @@ def remainder_combinations() -> List[str]:
     return [x for x in big_list if x not in small_list]
 
 
+def list_to_hydra_input(comb_list: List[str]) -> str:
+    """
+    List to hydra.
+
+    Args:
+        comb_list (List[str]): List to go through.
+
+    Returns:
+        str: string to add to terminal input.
+    """
+    output = ""
+    for i in comb_list:
+        output += i
+        output += ","
+    return output[:-1]
+
+
+def terminal_call(
+    e_frac: str = "0.5,2",
+    clouds: str = "true,false",
+    mem: str = list_to_hydra_input(remainder_combinations()),
+) -> str:
+    """
+    Return terminal call.
+
+    Args:
+        e_frac (str, optional): Defaults to "0.5,2".
+        clouds (str, optional): Defaults to "true,false".
+        mem (str, optional): Defaults to list_to_hydra_input(remainder_combinations()).
+
+    Returns:
+        str: Terminal call to run model some number of time.
+    """
+    command = str(
+        f"python src/main.py -m atm.e_frac={e_frac} "
+        + f"atm.vary_cloud_const={clouds} atm.mem={mem} "
+        + "archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep "
+        + "comp.sst=5a comp.prwnd=5a"
+    )
+    return command
+
+
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     # python src/search.py
     # main()
+    print(list_to_hydra_input(remainder_combinations()))
+    print(remainder_combinations())
     print(len(remainder_combinations()))
+    print(terminal_call())
