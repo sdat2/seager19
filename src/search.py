@@ -184,18 +184,38 @@ def terminal_call(
     Args:
         e_frac (str, optional): Defaults to "0.5,2".
         clouds (str, optional): Defaults to "true,false".
-        mem (str, optional): Defaults to list_to_hydra_input(remainder_combinations()).
+        mem (str, optional): Defaults to
+            `list_to_hydra_input(remainder_combinations())`.
 
     Returns:
         str: Terminal call to run model some number of time.
     """
-    command = str(
+    comp = which_comp(mem)
+    return str(
         f"python src/main.py -m atm.e_frac={e_frac} "
         + f"atm.vary_cloud_const={clouds} atm.mem={mem} "
         + "archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep "
-        + "comp.sst=5a comp.prwnd=5a"
+        + f"comp.sst={comp} comp.prwnd={comp}"
     )
-    return command
+
+
+def which_comp(mem: str) -> str:
+    """
+    Which figure to compare with.
+
+    Args:
+        mem (str): variable string.
+
+    Returns:
+        str: Figure string.
+    """
+    if mem[3] != "E":
+        if mem[2] != "E":
+            return "5b"
+        else:
+            return "5c"
+    else:
+        return "5a"
 
 
 if __name__ == "__main__":
@@ -206,3 +226,9 @@ if __name__ == "__main__":
     print(remainder_combinations())
     print(len(remainder_combinations()))
     print(terminal_call())
+    # for comb in remainder_combinations():
+    #    print(terminal_call(mem=comb))
+    for comb in variable_combinations(
+        vary=[False, False, True, True],
+    ):
+        print(terminal_call(mem=comb))
