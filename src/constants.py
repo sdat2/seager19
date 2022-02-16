@@ -87,6 +87,7 @@ NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
+ARCHIVE_DIR = GWS_DIR / "rep"
 
 # Subdirectories in GWS
 OLD_LOGS = GWS_DIR / "logs"

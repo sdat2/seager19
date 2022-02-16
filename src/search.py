@@ -13,6 +13,7 @@ from src.constants import (
     SENS_RANGES,
     SENS_SETTINGS,
     PROJECT_PATH,
+    ARCHIVE_DIR,
 )
 from src.utils import timeit
 
@@ -194,7 +195,7 @@ def terminal_call(
     return str(
         f"python src/main.py -m atm.e_frac={e_frac} "
         + f"atm.vary_cloud_const={clouds} atm.mem={mem} "
-        + "archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep "
+        + f"archive_dir={ARCHIVE_DIR} "
         + f"comp.sst={comp} comp.prwnd={comp}"
     )
 
