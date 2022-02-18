@@ -170,14 +170,14 @@ def can_coords(
 
 
 def sel(
-    xr_obj: Union[xr.Dataset, xr.DataArray], reg="pac"
+    xr_obj: Union[xr.Dataset, xr.DataArray], reg: str = "pac"
 ) -> Union[xr.Dataset, xr.DataArray]:
     """
     Select a region of the dataset or datarray.
 
     Assumes
 
-    reg options: "pac", "nino1+2", "nino3", "nino3.4", "nino3", "glob"
+    reg options: "pac", "nino1+2", "nino3", "nino3.4", "nino3"
     https://www.ncdc.noaa.gov/teleconnections/enso/indicators/sst/
 
     From Figure 1:
@@ -278,7 +278,7 @@ def open_dataset(
     if not use_can_coords:
         return fix_calendar(xr.open_dataset(str(path), decode_times=False))
     else:
-        can_coords(fix_calendar(xr.open_dataset(str(path), decode_times=False)))
+        return can_coords(fix_calendar(xr.open_dataset(str(path), decode_times=False)))
 
 
 def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
