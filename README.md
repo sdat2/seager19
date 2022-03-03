@@ -71,7 +71,7 @@ The paper is discussed in a podcast available at Deep Convection Season 1 Episod
 alt='Deep Convection: Season 1 Episode 5' width='150' />
 </a>
 
-Specifically they discuss the paper in the time-period 33:00-44:30.
+They discuss the paper in the time-period 33:00-44:30.
 
 ### Code
 
