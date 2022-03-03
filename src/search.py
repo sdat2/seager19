@@ -151,9 +151,19 @@ def remainder_combinations() -> List[str]:
         List[str]: list to-do.
     """
     big_list = variable_combinations()
-    small_list = variable_combinations(
-        vary=[False, False, True, True],
-    )
+    small_list = variable_combinations(vary=[False, False, True, True])
+    return [x for x in big_list if x not in small_list]
+
+
+def var_clt_combinations() -> List[str]:
+    """
+    Work out which combinations are still to do.
+
+    Returns:
+        List[str]: list to-do.
+    """
+    big_list = variable_combinations(vary=[False, True, True, True], exps=["6"])
+    small_list = variable_combinations(vary=[False, False, True, True], exps=["6"])
     return [x for x in big_list if x not in small_list]
 
 
@@ -223,6 +233,7 @@ if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     # python src/search.py
     # main()
+    """
     print(list_to_hydra_input(remainder_combinations()))
     print(remainder_combinations())
     print(len(remainder_combinations()))
@@ -232,4 +243,8 @@ if __name__ == "__main__":
     for comb in variable_combinations(
         vary=[False, False, True, True],
     ):
+        print(terminal_call(mem=comb))
+    """
+
+    for comb in var_clt_combinations():
         print(terminal_call(mem=comb))

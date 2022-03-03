@@ -109,7 +109,7 @@ class ModelSetup:
             self._init_ocean()
             self._init_atmos()
 
-    def _init_ocean(self):
+    def _init_ocean(self) -> None:
         """initialise the ocean model by copying files over."""
 
         for file_ending in ["*.F", "*.c", "*.h", "*.inc", "*.mod", ".tios"]:
@@ -152,7 +152,7 @@ class ModelSetup:
 
         os.system("cd " + str(self.ocean_data_path) + " \n make all")
 
-    def _init_atmos(self):
+    def _init_atmos(self) -> None:
         """Creating atmos by copying files over."""
 
         os.system(

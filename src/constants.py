@@ -85,6 +85,11 @@ NINO3_4_TEST_CODE: str = "8j698fap5iq2v9y/"
 NINO3_4_TEST_NAME: str = "noaa_nino3_4.nc"
 NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
 
+drop_var_d: dict = {"nc_clt", "nc_hur", "nc_pr", "ts_nc"}
+# https://www.dropbox.com/sh/pzp2s534m1i3081/AABsVz0HvpQTtXxlOXUS4eIla?dl=0
+# https://www.dropbox.com/s/o82yp69pkpz50ze/nc_clt.zip?dl=0
+# names of folders to download.
+
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
 ARCHIVE_DIR = GWS_DIR / "rep"
