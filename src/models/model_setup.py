@@ -208,7 +208,7 @@ class ModelSetup:
 
     def ts_clim(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "ts-ECMWF-clim.nc"
+            name = self.clim_name(0, path=False)  # "ts-ECMWF-clim.nc"
         else:
             name = "ts-" + str(it) + "-clim.nc"
 
@@ -219,7 +219,7 @@ class ModelSetup:
 
     def ts_clim60(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "ts-ECMWF-clim60.nc"
+            name = self.clim60_name(0, path=False)  # "ts-ECMWF-clim60.nc"
         else:
             name = "ts-" + str(it) + "-clim60.nc"
 
@@ -327,14 +327,24 @@ class ModelSetup:
     def _get_clim_name(self, var_num: int) -> str:
         return self.names[self.cfg.atm.mem[var_num]]
 
-    def clim60_name(self, var_num: int) -> str:
+    def clim60_name(self, var_num: int, path: bool = True) -> str:
         # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
         name = self._get_clim_name(var_num)
         variable = self.var[var_num]
-        return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim60.nc")
+        if path:
+            return os.path.join(
+                self.atmos_data_path, variable + "-" + name + "-clim60.nc"
+            )
+        else:
+            return variable + "-" + name + "-clim60.nc"
 
-    def clim_name(self, var_num: int) -> str:
+    def clim_name(self, var_num: int, path: bool = True) -> str:
         # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
         name = self._get_clim_name(var_num)
         variable = self.var[var_num]
-        return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim.nc")
+        if path:
+            return os.path.join(
+                self.atmos_data_path, variable + "-" + name + "-clim.nc"
+            )
+        else:
+            return variable + "-" + name + "-clim.nc"
