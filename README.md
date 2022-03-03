@@ -20,7 +20,7 @@ Model run results: <https://wandb.ai/sdat2/seager19>
 
 Docker image for gfortran/gcc/cdf/conda: <https://hub.docker.com/repository/docker/sdat2/seager19>
 
-![Coupling over iterations with c_d=2.25e-3 over the Pacific with the land masked out in green](gifs/coupling_pac_mask.gif)
+![Coupling over iterations with c_d=2.25e-3 over the Pacific, with the land masked out in green](gifs/coupling_pac_mask.gif)
 
 ## Purpose
 
@@ -36,14 +36,13 @@ A repository to contain, analyze, and expand upon the model from:
 
 - State-of-the-art GCMs predict weakening contrast with GHG concentration.
 
-- In observations, it has increased.
-
 - Their simple linear equatorial coupled model agrees
     with observations when forced with ECMWF reanalysis product.
 
-- When forced with CMIP5 ensemble relative humidity and
-    windspeed their model can reproduce the bias, highlighting
-    these fields as the mechanism through which it is created.
+- When forced with CMIP5 multi-model mean relative humidity and
+    windspeed their model can reproduce the bias, showing
+    that these mean state biases can explain the effect by
+     changing the sensitivity of the ocean to warming.
 
 ### Citation
 
@@ -72,11 +71,11 @@ The paper is discussed in a podcast available at Deep Convection Season 1 Episod
 alt='Deep Convection: Season 1 Episode 5' width='150' />
 </a>
 
-Specifically the time period 33:00-44:30.
+Specifically they discuss the paper in the time-period 33:00-44:30.
 
 ### Code
 
-The code and data were taken from a Columbia University website:
+The code and data were taken from this Columbia University website:
 
 <a href='http://kage.ldeo.columbia.edu:81/SOURCES/.LDEO/.ClimateGroup/.PROJECTS/.PublicationsData/.Seager_etal_NCC-2019/'>
 <img src='https://worldsummit.ai/wp-content/uploads/sites/4/2020/06/columbia-university-logo-png-columbia-university-crown.jpg', width='150'>
@@ -101,7 +100,7 @@ and so you may need to try a different connection method if it doesn't load.
 
 ```bash
 
-    # Enforcing these versions is necessary to be able to use 70s fortran.
+    # Enforcing these versions is necessary to be able to use 70s Fortran.
     # If you would rather not change your version, you might be better off
     # Using the docker image instead.
 
@@ -126,9 +125,9 @@ and so you may need to try a different connection method if it doesn't load.
 ### If you need to install the singularity environment
 
 ```bash
-    
-    # on jasmin you would need to make a new tmp directory in your home directory
-    # to be able to install the quite large singularity environment e.g:
+
+    # On Jasmin you would need to make a new `tmp` directory in your home directory
+    # to be able to install the quite large singularity environment e.g.:
 
     mkdir /home/users/sithom/tmp
 
@@ -136,7 +135,7 @@ and so you may need to try a different connection method if it doesn't load.
 
     TMPDIR=/home/users/sithom/tmp SINGULARITY_CACHEDIR=/home/users/sithom/tmp singularity pull docker://sdat2/seager19:g4.8
 
-    # and then to launch the envirnonment
+    # and then to launch the environment
 
     singularity run seager19_g4.8.sif
 
@@ -173,7 +172,6 @@ and so you may need to try a different connection method if it doesn't load.
     make jupyter_dark  # dark mode for jupyter notebooks
 
     # and to reverse this:
-
     make jupyter_light
 
 ```
@@ -196,7 +194,8 @@ and so you may need to try a different connection method if it doesn't load.
     python src/main.py atm.eps_days=0.7,0.8 -m 
 
 
-    # values from other papers quoted in the introduction to Romps (2014) "Raleigh Damping in the Free Troposphere"
+    # values from other papers quoted in the introduction 
+    # to Romps (2014) "Raleigh Damping in the Free Troposphere"
     python src/main.py atm.eps_days=1.25,1.8,2,2.5,3,5,10 -m
 
     python src/main.py atm.eps_days=2.1,1.75,1.9 -m
@@ -211,17 +210,15 @@ and so you may need to try a different connection method if it doesn't load.
     python src/main.py name=it_1 coup.iterations=1 coup.c_d=2.25e-3 wandb=false
 ```
 
-To look at the commands to relicate the paper figures, see `replicate.md`.
+To look at the commands to replicate the paper figures, see `replicate.md`.
 
-## Other handy commands for development of repo
-
+## Other handy commands for development of repository
 
 ### Make a notebook with helpful magic functions for dark mode
 
 ```bash
 
     make notebook name=your-notebook-name
-
 ```
 
 ### New python script
@@ -243,7 +240,6 @@ To look at the commands to relicate the paper figures, see `replicate.md`.
 ```bash
 
    grep -R "f1prime" ocean/SRC
-
 ```
 
 ### Get CMIP5 multimodel means from Columbia
