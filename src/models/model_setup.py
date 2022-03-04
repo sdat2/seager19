@@ -7,6 +7,8 @@ from src.constants import (
     OCEAN_DATA_PATH,
     ATMOS_DATA_PATH,
     ATMOS_TMP_PATH,
+    MODEL_NAMES,
+    VAR_DICT,
 )
 
 
@@ -51,25 +53,10 @@ class ModelSetup:
 
         # the different model names in a dict? - used by key from self.mem.
         # most of this data isn't available.
-        self.names: dict = {
-            "E": "ECMWF",
-            "F": "ECMWF-orig",
-            "B": "CMIP5-39m",
-            "C": "CMIP5",
-            "6": "CMIP6",
-            "D": "CMIP5-orig",
-            "H": "HadGEM2",
-            "f": "fixed",
-            "e": "fixed78",
-            "g": "fixed82",
-            "W": "WHOI",
-            "M": "MERRA",
-            "I": "ISCCP",
-        }
-        # let's change the temperature at the surface, and the clouds as well.
+        self.names: dict = MODEL_NAMES
 
         # dict of variables that are read in.
-        self.var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        self.var: dict = VAR_DICT
         # temperature of the surface, cloud area fraction, surface wind, rel humidity.
 
         if make_move:

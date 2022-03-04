@@ -85,7 +85,25 @@ NINO3_4_TEST_CODE: str = "8j698fap5iq2v9y/"
 NINO3_4_TEST_NAME: str = "noaa_nino3_4.nc"
 NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
 
-drop_var_d: dict = {"nc_clt", "nc_hur", "nc_pr", "ts_nc"}
+# Model names:
+MODEL_NAMES = {
+    "E": "ECMWF",
+    "F": "ECMWF-orig",
+    "B": "CMIP5-39m",
+    "C": "CMIP5",
+    "6": "CMIP6",
+    "D": "CMIP5-orig",
+    "H": "HadGEM2",
+    "f": "fixed",
+    "e": "fixed78",
+    "g": "fixed82",
+    "W": "WHOI",
+    "M": "MERRA",
+    "I": "ISCCP",
+}
+VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+
+drop_var_d: dict = {"nc_clt", "nc_hur", "nc_pr", "nc_ts"}
 # https://www.dropbox.com/sh/pzp2s534m1i3081/AABsVz0HvpQTtXxlOXUS4eIla?dl=0
 # https://www.dropbox.com/s/o82yp69pkpz50ze/nc_clt.zip?dl=0
 # names of folders to download.
