@@ -167,6 +167,18 @@ def var_clt_combinations() -> List[str]:
     return [x for x in big_list if x not in small_list]
 
 
+def var_ts_combinations() -> List[str]:
+    """
+    Work out which combinations are still to do.
+
+    Returns:
+        List[str]: list to-do.
+    """
+    big_list = variable_combinations(vary=[True, True, True, True], exps=["6"])
+    small_list = variable_combinations(vary=[False, True, True, True], exps=["6"])
+    return [x for x in big_list if x not in small_list]
+
+
 def list_to_hydra_input(comb_list: List[str]) -> str:
     """
     List to hydra.
@@ -246,5 +258,5 @@ if __name__ == "__main__":
         print(terminal_call(mem=comb))
     """
 
-    for comb in var_clt_combinations():
+    for comb in var_ts_combinations():
         print(terminal_call(mem=comb))
