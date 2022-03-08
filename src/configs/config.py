@@ -11,7 +11,28 @@ Example:
         cfg = format_config(cfg)
 
 """
+from dataclasses import dataclass
 from omegaconf import DictConfig
+import hydra
+from hydra.core.config_store import ConfigStore
+
+
+@dataclass
+class Atm:
+    mem: str = "EEEE"
+
+
+@dataclass
+class Config:
+    atm: Atm = Atm()
+
+
+cs = ConfigStore.instance()
+cs.store(name="config", node=Config)
+
+# database_lib registers its configs
+# in database_lib/db
+# database_lib.register_configs()
 
 
 def format_config(cfg: DictConfig) -> DictConfig:
@@ -37,3 +58,14 @@ def format_config(cfg: DictConfig) -> DictConfig:
                 # pylint: disable=eval-used
                 cfg.atm[i] = eval(item)
     return cfg
+
+
+@hydra.main(config_path=None, config_name="config")
+def test(cfg: Config) -> None:
+    print(cfg)
+
+
+if __name__ == "__main__":
+    # python src/configs/config.py
+    # pylint: disable=no-value-for-parameter
+    test()
