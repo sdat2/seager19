@@ -77,7 +77,7 @@ atm:
   # f: fixed
   # C: CMIP5
   # 6: CMIP6
-  pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day. 20 per hour?
+  pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day. 20 x per day?
   relative_humidity: 0.80  # relative humidity uniformly 0.8
   number_iterations: 50  #  int, the number of iterations.
   height_tropopause: 15e3  # metres. I.e 15 km.
