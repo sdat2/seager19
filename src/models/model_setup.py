@@ -16,7 +16,7 @@ from src.constants import (
 
 def mems_to_df(mem_list: List[str]) -> pd.DataFrame:
     """
-
+    Turn a list of mems into a dataframe of inputs.
 
     Args:
         mem_list (List[str]): List of mem to turn into corresponding
@@ -47,7 +47,9 @@ def mems_to_df(mem_list: List[str]) -> pd.DataFrame:
 
 def mem_to_dict(mem: str) -> dict:
     """
-    Single mem variable to dictionary.
+    Single mem variable to dictionary of inputs.
+
+    Uses logic in `mems_to_df`.
 
     Args:
         mem (str): the mem input e.g "EEEE"
