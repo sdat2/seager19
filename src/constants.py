@@ -102,7 +102,7 @@ MODEL_NAMES = {
     "M": "MERRA",
     "I": "ISCCP",
 }
-VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps"}
 
 drop_var_d: dict = {"nc_clt", "nc_hur", "nc_pr", "nc_ts"}
 # https://www.dropbox.com/sh/pzp2s534m1i3081/AABsVz0HvpQTtXxlOXUS4eIla?dl=0
