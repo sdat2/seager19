@@ -245,7 +245,8 @@ class ModelSetup:
 
     def ts_clim(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = self.clim_name(0, path=False)  # "ts-ECMWF-clim.nc"
+            name = self.clim_file("ts", "clim", "", path=False)
+            # name = self.clim_name(0, path=False)  # "ts-ECMWF-clim.nc"
         else:
             name = "ts-" + str(it) + "-clim.nc"
 
@@ -256,7 +257,7 @@ class ModelSetup:
 
     def ts_clim60(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = self.clim60_name(0, path=False)  # "ts-ECMWF-clim60.nc"
+            name = self.clim_file("ts", "clim", "60", path=False)
         else:
             name = "ts-" + str(it) + "-clim60.nc"
 
@@ -267,7 +268,7 @@ class ModelSetup:
 
     def ts_trend(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "ts-ECMWF-trend.nc"
+            name = self.clim_file("ts", "trend", "", path=False)
         else:
             name = "ts-" + str(it) + "-trend.nc"
         if path:
@@ -277,7 +278,7 @@ class ModelSetup:
 
     def tau_base(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "tau-ECMWF"
+            name = self.clim_file("tau", "", "", path=False)[:-4]
         else:
             name = "it_" + str(it) + "_tau"
         if path:
@@ -293,7 +294,7 @@ class ModelSetup:
 
     def tau_clim_base(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "tau-ECMWF-clim"
+            name = self.clim_file("tau", "clim", path=False)[:-3]
         else:
             name = "it_" + str(it) + "_clim_tau"
         if path:
@@ -364,15 +365,19 @@ class ModelSetup:
     def _get_clim_name(self, var_num: int) -> str:
         return self.names[self.cfg.atm.mem[var_num]]
 
-    def clim_file(self, var_name: str, appendage: str = "", path: bool = True) -> str:
-        name = var_name + "-" + self.input_dict[var_name] + "-clim" + appendage + ".nc"
+    def clim_file(
+        self, var_name: str, typ: str = "clim", appendage: str = "", path: bool = True
+    ) -> str:
+        name = (
+            var_name + "-" + self.input_dict[var_name] + "-" + typ + appendage + ".nc"
+        )
         if path:
             return os.path.join(self.atmos_data_path, name)
         else:
             return name
 
     def clim60_name(self, var_num: int, path: bool = True) -> str:
-        return self.clim_file(self.var[var_num], "60", path=path)
+        return self.clim_file(self.var[var_num], "clim", "60", path=path)
 
     def clim_name(self, var_num: int, path: bool = True) -> str:
-        return self.clim_file(self.var[var_num], "", path=path)
+        return self.clim_file(self.var[var_num], "clim", "", path=path)
