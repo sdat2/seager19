@@ -201,17 +201,44 @@ def metric_conv_data(
 
                 # enforce needing 6 iterations.
                 if len(pair_list) == 6:
-                    ## TODO - Add a blow up test.
-                    if len(index_by) == 2:
-                        metric_dict[cfg[index_by[0]][index_by[1]]] = np.array(pair_list)
-                        setup_dict[cfg[index_by[0]][index_by[1]]] = setup_from_config(
-                            cfg
-                        )
-                    else:
-                        metric_dict[cfg[index_by]] = np.array(pair_list)
-                        setup_dict[cfg[index_by]] = setup_from_config(cfg)
+                    if didnt_blow_up(rn):
+                        if len(index_by) == 2:
+                            metric_dict[cfg[index_by[0]][index_by[1]]] = np.array(
+                                pair_list
+                            )
+                            setup_dict[
+                                cfg[index_by[0]][index_by[1]]
+                            ] = setup_from_config(cfg)
+                        else:
+                            metric_dict[cfg[index_by]] = np.array(pair_list)
+                            setup_dict[cfg[index_by]] = setup_from_config(cfg)
 
     return metric_dict, setup_dict
+
+
+def didnt_blow_up(rn: wandb.apis.public.Run) -> bool:
+    """
+    Test if the run blew up. True if it didn't blow up.
+
+    Args:
+        rn (wandb.apis.public.Run): run.
+
+    Returns:
+        bool: whether there was any blow up during the run.
+    """
+    limits = {"mean_pac": [15, 30], "mean_nino3.4": [20, 30]}
+    results = []
+    rn_hist = rn.scan_history(keys=list(limits.keys()))
+    for region in limits:
+        results.append(
+            np.all(
+                [
+                    row[region] > limits[region][0] and row[region] < limits[region][1]
+                    for row in rn_hist
+                ]
+            )
+        )
+    return np.all(results)
 
 
 def fix_config(config: Union[dict, DictConfig]) -> DictConfig:
