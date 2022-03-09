@@ -92,7 +92,7 @@ MODEL_NAMES = {
     "B": "CMIP5-39m",
     "C": "CMIP5",
     "6": "CMIP6",
-    "X": "CMIP6",
+    "S": "CMIP6",
     "D": "CMIP5-orig",
     "H": "HadGEM2",
     "f": "fixed",
@@ -102,7 +102,7 @@ MODEL_NAMES = {
     "M": "MERRA",
     "I": "ISCCP",
 }
-VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps"}
+VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"}
 
 drop_var_d: dict = {"nc_clt", "nc_hur", "nc_pr", "nc_ts"}
 # https://www.dropbox.com/sh/pzp2s534m1i3081/AABsVz0HvpQTtXxlOXUS4eIla?dl=0
