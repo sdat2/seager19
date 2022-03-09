@@ -295,7 +295,7 @@ def setup_from_config(cfg: DictConfig) -> ModelSetup:
 
 def setup_from_name(name: str) -> ModelSetup:
     """Get the model setup from a name."""
-    api = wandb.Api()
+    api = wandb.Api(timeout=20)
     # Project is specified by <entity/project-name>
     runs = api.runs("sdat2/seager19")
     for rn in runs:  # [x for x in runs][0:13]:

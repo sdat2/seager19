@@ -92,6 +92,7 @@ MODEL_NAMES = {
     "B": "CMIP5-39m",
     "C": "CMIP5",
     "6": "CMIP6",
+    "X": "CMIP6",
     "D": "CMIP5-orig",
     "H": "HadGEM2",
     "f": "fixed",
