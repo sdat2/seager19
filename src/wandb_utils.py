@@ -201,6 +201,7 @@ def metric_conv_data(
 
                 # enforce needing 6 iterations.
                 if len(pair_list) == 6:
+                    ## TODO - Add a blow up test.
                     if len(index_by) == 2:
                         metric_dict[cfg[index_by[0]][index_by[1]]] = np.array(pair_list)
                         setup_dict[cfg[index_by[0]][index_by[1]]] = setup_from_config(
