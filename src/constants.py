@@ -25,26 +25,26 @@ SENS_RANGES: str = "sens_ranges"
 SENS_SETTINGS: str = "sens_settings"
 
 # PATHS to the models
-OCEAN_PATH = PROJECT_PATH / "ocean"
-OCEAN_DATA_PATH = OCEAN_PATH / "DATA"
-OCEAN_RUN_PATH = OCEAN_PATH / "RUN"
-OCEAN_SRC_PATH = OCEAN_PATH / "SRC"
-OCEAN_OUTPUT_PATH = OCEAN_PATH / "output"
-ATMOS_PATH = PROJECT_PATH / "atmos"
-ATMOS_DATA_PATH = ATMOS_PATH / "DATA"
-ATMOS_TMP_PATH = ATMOS_PATH / "tmp"
-GIF_PATH = PROJECT_PATH / "gifs"
-MASK = OCEAN_DATA_PATH / "om_mask.nc"
+OCEAN_PATH: pathlib.Path = PROJECT_PATH / "ocean"
+OCEAN_DATA_PATH: pathlib.Path = OCEAN_PATH / "DATA"
+OCEAN_RUN_PATH: pathlib.Path = OCEAN_PATH / "RUN"
+OCEAN_SRC_PATH: pathlib.Path = OCEAN_PATH / "SRC"
+OCEAN_OUTPUT_PATH: pathlib.Path = OCEAN_PATH / "output"
+ATMOS_PATH: pathlib.Path = PROJECT_PATH / "atmos"
+ATMOS_DATA_PATH: pathlib.Path = ATMOS_PATH / "DATA"
+ATMOS_TMP_PATH: pathlib.Path = ATMOS_PATH / "tmp"
+GIF_PATH: pathlib.Path = PROJECT_PATH / "gifs"
+MASK: pathlib.Path = OCEAN_DATA_PATH / "om_mask.nc"
 
 # General data from e.g. paper or cmip etc.
-DATA_PATH = SRC_PATH / "data"
-CMIP_TS_PATH = DATA_PATH / "ts_nc"
-CMIP6_TS_PATH = DATA_PATH / "nc80"
-CMIP6_CLIM60_PATH = DATA_PATH / "nc_mean"
+DATA_PATH: pathlib.Path = SRC_PATH / "data"
+CMIP_TS_PATH: pathlib.Path = DATA_PATH / "ts_nc"
+CMIP6_TS_PATH: pathlib.Path = DATA_PATH / "nc80"
+CMIP6_CLIM60_PATH: pathlib.Path = DATA_PATH / "nc_mean"
 
 # NINO34 trend from fig5e
-NINO34_TRENDS = DATA_PATH / "nino34-trends.csv"
-NINO34_TRENDS_CMIP5 = DATA_PATH / "nino34-trends-cmip5.csv"
+NINO34_TRENDS: pathlib.Path = DATA_PATH / "nino34-trends.csv"
+NINO34_TRENDS_CMIP5: pathlib.Path = DATA_PATH / "nino34-trends-cmip5.csv"
 
 # Wandb-summary file download:
 ORIG_WANDB_DATA = DATA_PATH / "results.csv"
@@ -161,6 +161,7 @@ def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
 
 
 # region selection dictionary
+# pylint: disable=pointless-string-statement
 r"""
     Nino1-4 definitions are taken from:
 

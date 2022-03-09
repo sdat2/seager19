@@ -364,24 +364,15 @@ class ModelSetup:
     def _get_clim_name(self, var_num: int) -> str:
         return self.names[self.cfg.atm.mem[var_num]]
 
-    def clim60_name(self, var_num: int, path: bool = True) -> str:
-        # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
-        name = self._get_clim_name(var_num)
-        variable = self.var[var_num]
+    def clim_file(self, var_name: str, appendage: str = "", path: bool = True) -> str:
+        name = var_name + "-" + self.input_dict[var_name] + "-clim" + appendage + ".nc"
         if path:
-            return os.path.join(
-                self.atmos_data_path, variable + "-" + name + "-clim60.nc"
-            )
+            return os.path.join(self.atmos_data_path, name)
         else:
-            return variable + "-" + name + "-clim60.nc"
+            return name
+
+    def clim60_name(self, var_num: int, path: bool = True) -> str:
+        return self.clim_file(self.var[var_num], "60", path=path)
 
     def clim_name(self, var_num: int, path: bool = True) -> str:
-        # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
-        name = self._get_clim_name(var_num)
-        variable = self.var[var_num]
-        if path:
-            return os.path.join(
-                self.atmos_data_path, variable + "-" + name + "-clim.nc"
-            )
-        else:
-            return variable + "-" + name + "-clim.nc"
+        return self.clim_file(self.var[var_num], "", path=path)
