@@ -122,6 +122,9 @@ EPS_LOGS = GWS_DIR / "sensitivity" / "eps_days_logs"
 EPS_FRAC_LOGS = GWS_DIR / "sensitivity" / "eps_frac"
 UC_LOGS = GWS_DIR / "uc_logs"
 CMIP6_ENSEMBLE_PATH = GWS_DIR / "CMIP6-ensemble"
+CMIP6_ENSEMBLE_MEANS = CMIP6_ENSEMBLE_PATH / "means"
+CMIP6_ENSEMBLE_CLIMATOLOGIES = CMIP6_ENSEMBLE_PATH / "climatologies"
+CMIP6_ENSEMBLE_TRENDS = CMIP6_ENSEMBLE_PATH / "trends"
 
 
 def cmip6_ensemble_var(var: str) -> str:
