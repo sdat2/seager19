@@ -105,7 +105,7 @@ MODEL_NAMES = {
 VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"}
 
 drop_var_d: dict = {"nc_clt", "nc_hur", "nc_pr", "nc_ts"}
-# https://www.dropbox.com/sh/pzp2s534m1i3081/AABsVz0HvpQTtXxlOXUS4eIla?dl=0
+# https://www.dropbox.com/sh/pzp2s534m1i3081/AABsVz0HvpQTtXxlOXUS4eIla?dl=1
 # https://www.dropbox.com/s/o82yp69pkpz50ze/nc_clt.zip?dl=0
 # names of folders to download.
 
@@ -121,6 +121,13 @@ K_LOGS = GWS_DIR / "sensitivity" / "k_days_logs"
 EPS_LOGS = GWS_DIR / "sensitivity" / "eps_days_logs"
 EPS_FRAC_LOGS = GWS_DIR / "sensitivity" / "eps_frac"
 UC_LOGS = GWS_DIR / "uc_logs"
+CMIP6_ENSEMBLE_PATH = GWS_DIR / "CMIP6-ensemble"
+
+
+def cmip6_ensemble_var(var: str) -> str:
+    """Get the folders that the files have been stored in."""
+    return str(CMIP6_ENSEMBLE_PATH / str("nc_" + var))
+
 
 # pylint: disable=using-constant-test
 # if False:  # os.path.exists(GWS_DIR):
