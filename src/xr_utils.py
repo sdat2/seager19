@@ -462,7 +462,7 @@ def get_trend(
             print(type(inp))
         return float(inp)
 
-    if "X" in da.dims or "Y" in da.dims:
+    if "X" in da.dims or "Y" in da.dims or "member" in da.dims:
 
         fit_da = da.polyfit(t_var, 1, cov=make_hatch_mask)
 
