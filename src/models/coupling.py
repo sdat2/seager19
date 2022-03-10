@@ -142,7 +142,7 @@ class Coupling:
             xr.Dataset: dataset with different different tau fields.
 
         """
-        sfcwind = xr.open_dataset(self.setup.clim_name(2)).sfcWind
+        sfcwind = xr.open_dataset(self.setup.clim_file("sfcWind")).sfcWind
         ubeg = xr.open_dataset(self.setup.tcam_output()).ubeg
         vbeg = xr.open_dataset(self.setup.tcam_output()).vbeg
         utrend = xr.open_dataset(self.setup.tcam_output()).utrend
