@@ -26,6 +26,7 @@ def process_var(var: str = "ts") -> None:
             print(i, member)
             ds = ds.expand_dims({"member": [member_list[i]]})
             ds.to_netcdf(file_list[i], mode="w")
+            del ds
 
     # load the data into dask.
     da = can_coords(xr.open_mfdataset(file_list))[var].sel(T=slice("1958", "2017"))
@@ -35,6 +36,17 @@ def process_var(var: str = "ts") -> None:
     mean = da.mean("T").compute()
     trend = get_trend(da).compute()
 
+    # remove .80 from member id for consistency if it's there.
+    trend = trend.assign_coords(
+        {"member": [x[:-3] for x in trend.member.values if x.endswith(".80")]}
+    )
+    mean = mean.assign_coords(
+        {"member": [x[:-3] for x in mean.member.values if x.endswith(".80")]}
+    )
+    climatology = climatology.assign_coords(
+        {"member": [x[:-3] for x in climatology.member.values if x.endswith(".80")]}
+    )
+
     # save key fields
     climatology.to_netcdf(os.path.join(CMIP6_ENSEMBLE_CLIMATOLOGIES, var + ".nc"))
     mean.to_netcdf(os.path.join(CMIP6_ENSEMBLE_MEANS, var + ".nc"))
@@ -43,4 +55,5 @@ def process_var(var: str = "ts") -> None:
 
 if __name__ == "__main__":
     # python src/data_loading/ensemble_processing.py
-    process_var("clt")
+    for var_temp in ["hur", "pr", "sfcWind"]:
+        process_var(var_temp)
