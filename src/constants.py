@@ -39,7 +39,6 @@ MASK: pathlib.Path = OCEAN_DATA_PATH / "om_mask.nc"
 # General data from e.g. paper or cmip etc.
 DATA_PATH: pathlib.Path = SRC_PATH / "data"
 CMIP_TS_PATH: pathlib.Path = DATA_PATH / "ts_nc"
-CMIP6_TS_PATH: pathlib.Path = DATA_PATH / "nc80"
 CMIP6_CLIM60_PATH: pathlib.Path = DATA_PATH / "nc_mean"
 
 # NINO34 trend from fig5e

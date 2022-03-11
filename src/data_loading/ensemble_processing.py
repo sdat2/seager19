@@ -55,5 +55,5 @@ def process_var(var: str = "ts") -> None:
 
 if __name__ == "__main__":
     # python src/data_loading/ensemble_processing.py
-    for var_temp in ["hur", "pr", "sfcWind"]:
+    for var_temp in ["ps", "uas", "vas"]: #"hur", "pr", "sfcWind"]:
         process_var(var_temp)

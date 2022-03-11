@@ -1,4 +1,4 @@
-"""Program to do."""
+"""Program to do; plot trends etc."""
 import xarray as xr
 import matplotlib.pyplot as plt
 from src.utils import timeit
