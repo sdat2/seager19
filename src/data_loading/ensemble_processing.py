@@ -27,7 +27,7 @@ def process_var(var: str = "ts") -> None:
             print(i, member)
             ds = ds.expand_dims({"member": [member_list[i]]})
             ds.to_netcdf(file_list[i], mode="w")
-            del ds
+        del ds
 
     # load the data into dask.
     da = can_coords(xr.open_mfdataset(file_list))[var].sel(T=slice("1958", "2017"))
@@ -57,5 +57,9 @@ def process_var(var: str = "ts") -> None:
 
 if __name__ == "__main__":
     # python src/data_loading/ensemble_processing.py
-    for var_temp in ["ps", "uas", "vas"]:  # "hur", "pr", "sfcWind"]:
+    for var_temp in [
+        "hur",
+        "pr",
+        "sfcWind",
+    ]:  # "ps", "uas", "vas"]:  # "hur", "pr", "sfcWind"]:
         process_var(var_temp)
