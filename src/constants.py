@@ -106,7 +106,9 @@ VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"
 # but being able to process the old data where atm.mem was used.
 #
 def atmos_input_file_path(var="ts", model="E") -> str:
-    return str(ATMOS_DATA_PATH / str(var + "-" + MODEL_NAMES[model] + "-" + "clim60.nc"))
+    return str(
+        ATMOS_DATA_PATH / str(var + "-" + MODEL_NAMES[model] + "-" + "clim60.nc")
+    )
 
 
 drop_var_d: dict = {"nc_clt", "nc_hur", "nc_pr", "nc_ts"}
