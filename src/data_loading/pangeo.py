@@ -11,7 +11,7 @@ import cftime
 from intake import open_catalog
 
 # from xarray.core.variable import Variable
-
+# This could definitely be moved to src/constants.py
 START_YEAR: str = "1958"
 END_YEAR: str = "2017"
 
@@ -147,13 +147,21 @@ class GetEnsemble:
     Regrids the data on to 1 degree grid with linear 2D interpolation."""
 
     def __init__(
-        self, var: str = "ts", output_folder: str = "nc", regen_success_list=False
+        self, var: str = "ts", table_id: str="Amon", output_folder: str = "nc", regen_success_list=False
     ) -> None:
         """
         Create the get ensemble instance and output the ensemble of netcdfs.
+        
+        TODO: enable wrapped interpolation for CMIP6.
+        TODO: add adequate unit tests to this crucial script.
+        TODO: Try to download hurs and sfcWind, and makes sure all of the variables
+            are correct.
+        TOOD: Add example to functions.
 
         Args:
             var (str, optional): Variable. Defaults to "ts".
+            table_id (str, optional): ID of cmip6 table to find variable in. 
+                Defaults to "Amon".
             output_folder (str, optional): Where to output the ensemble to.
                 Defaults to "nc".
             regen_success_list (bool, optional): whether or not to regenerate
@@ -162,8 +170,12 @@ class GetEnsemble:
         """
         self.output_folder = output_folder
         _folder(output_folder)
+        
+        self.xlim = [0, 360]
+        self.ylim= [-80, 80],
 
         self.var = var
+        self.table_id = table_id
         # move to some constants file
         self.cat = open_catalog(PANGEO_CAT_URL)["climate"]["cmip6_gcs"]
         self.instit = self.cat.unique(["institution_id"])["institution_id"]["values"]
@@ -172,20 +184,14 @@ class GetEnsemble:
             self.success_list = self.get_sucess_list()
         else:
             self.success_list = DEFAULT_SUCCESS_LIST
+        
         self.da_hist = self.get_var(
-            xlim=[0, 360],
-            ylim=[-80, 80],
-            var=self.var,
             year_begin="1948",
         )
         self.da_ssp585 = self.get_var(
             experiment="ssp585",
             year_begin="2014",
-            year_end="2027",
-            xlim=[0, 360],
-            ylim=[-80, 80],
-            var=self.var,
-        )
+            year_end="2027")
         for instit in self.success_list:
             self.comp_and_match(instit=instit)
         # comp_and_match(instit="NCAR")
@@ -212,7 +218,7 @@ class GetEnsemble:
             time=standardise_time(ds.time.values), calendar=calendar
         )
 
-    def get_sucess_list(self) -> list:
+    def get_sucess_list(self, table_id) -> list:
         """
         The only way to generate what will work seems to be trial and error.
 
@@ -229,7 +235,7 @@ class GetEnsemble:
             query = dict(
                 variable_id=[self.var],
                 experiment_id=["historical"],  # , "ssp585"],
-                table_id=["Amon"],
+                table_id=[self.table_id],
                 institution_id=[i],
             )
             subset = self.cat.search(**query)
@@ -259,10 +265,7 @@ class GetEnsemble:
         experiment: str = "historical",
         year_begin: str = START_YEAR,
         year_end: str = "2014",
-        var: str = "ts",
         # pylint: disable=dangerous-default-value
-        xlim: List[int]=[100, 290],
-        ylim: List[int]=[-30, 30],
     ) -> xr.DataArray:
         """
         Get the variable from pangeo.
@@ -272,17 +275,14 @@ class GetEnsemble:
                 Defaults to "historical".
             year_begin (str, optional): The year to begin with. Defaults to "1958".
             year_end (str, optional): The year to end at. Defaults to "2014".
-            var (str, optional): The variable to select. Defaults to "ts".
-            xlim (list, optional): The longitude limits. Defaults to [100, 290].
-            ylim (list, optional): The latitude limits. Defaults to [-30, 30].
 
         Returns:
             xr.DataArray: Monthly variables with all possible ensemble members.
         """
         query = dict(
-            variable_id=[var],
+            variable_id=[self.var],
             experiment_id=[experiment],  # , "ssp585"],
-            table_id=["Amon"],
+            table_id=[self.table_id],
             institution_id=[
                 x for x in self.success_list if x not in DEFAULT_REJECT_LIST
             ],
@@ -303,15 +303,16 @@ class GetEnsemble:
         for key in dset_dict_proc:
             print(key)
             da = (
+                # currently hitting bug here.
                 dset_dict_proc[key][var]
                 .sel(
-                    x=slice(xlim[0] - 1, xlim[1] + 1),
-                    y=slice(ylim[0] - 1, ylim[1] + 1),
+                    x=slice(self.xlim[0] - 1, self.xlim[1] + 1),
+                    y=slice(self.ylim[0] - 1, self.ylim[1] + 1),
                     time=slice(year_begin, year_end),
                 )
                 .interp(
-                    x=list(range(xlim[0], xlim[1] + 1)),
-                    y=list(range(ylim[0], ylim[1] + 1)),
+                    x=list(range(self.xlim[0], self.xlim[1] + 1)),
+                    y=list(range(self.ylim[0], self.ylim[1] + 1)),
                 )
             )
 
@@ -322,6 +323,8 @@ class GetEnsemble:
                 sub_da = sub_da.assign_coords(
                     {"institution": key_split[1], "model": key_split[2]}
                 )
+                # Try to get rid of annoying pressure / height data fields
+                # from what should be a surface field.
                 if "height" in sub_da.dims:
                     sub_da = sub_da.isel(height=0).drop("height")
                 # pylint: disable=unnecessary-comprehension
@@ -342,6 +345,8 @@ class GetEnsemble:
     def get_ensemble(self, var: str = "ts") -> xr.DataArray:
         """
         Get a variable ensemble.
+        
+        Is this called? why do the x and y limits get referecned so often?
 
         Args:
             var (str, optional): The variable. Defaults to "ts".
@@ -349,14 +354,11 @@ class GetEnsemble:
         Returns:
             xr.DataArray: Ensemble datarray full of different items.
         """
-        da_hist = self.get_var(xlim=[0, 360], ylim=[-80, 80], var=var)
+        da_hist = self.get_var()
         da_ssp585 = self.get_var(
             experiment="ssp585",
             year_begin="2014",
             year_end=END_YEAR,
-            xlim=[0, 360],
-            ylim=[-80, 80],
-            var=var,
         )
         da_comb = xr.concat(
             [da_hist.mean("model_center"), da_ssp585.mean("model_center")], "time"
@@ -536,6 +538,7 @@ def make_wsp() -> None:
 def mean_wsp() -> None:
     """
     Make mean windspeed.
+    Given that sfcWindsp is a variable in CMIP6, is this even neccesary?
     """
     wsp_da = xr.open_mfdataset(
         _folder_name("wsp") + "/*.nc",
