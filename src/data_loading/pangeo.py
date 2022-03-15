@@ -1,5 +1,7 @@
 """Get CMIP6 variables on pangeo by linking together
-historical and SSP85 and historical simulations."""
+historical and SSP85 and historical simulations.
+
+Script just for surface fields."""
 import os
 from typing import Union, Callable, List
 import numpy as np
@@ -45,7 +47,7 @@ DEFAULT_SUCCESS_LIST = [
 PANGEO_CAT_URL = str("https://raw.githubusercontent.com/pangeo-data/"
                 + "pangeo-datastore/master/intake-catalogs/master.yaml")
 
-DEFAULT_REJECT_LIST = [] #"AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
+DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
 
 VAR_PROP_D = {
     # From https://docs.google.com/spreadsheets/d/
@@ -496,13 +498,13 @@ def mean_var(var: str = "ts") -> None:
     print(da)
     mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
     mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
-    mean[var].attrs["long_name"] = VAR_PROP_D[var]["long name"] + " mean"
+    mean[var].attrs["long_name"] = VAR_PROP_D[var]["long_name"] + " mean"
     mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
     mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
 
 
 
-def get_vars(var_list: List[str], regen_success_list=True):
+def get_vars(var_list: List[str], regen_success_list=False):
     """
     Get the variable means and ensembles for the enviroment.
 
@@ -529,4 +531,4 @@ if __name__ == "__main__":
     # from src.data_loading.pangeo import get_vars
     
     # get_vars(["hurs", "psl"], )
-    get_vars(["sfcWind"])
+    get_vars(["psl"])

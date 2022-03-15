@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.o
 *.exe
+*.zip
 
 # local passwords/tokens
 .secret*
