@@ -5,18 +5,22 @@ from typing import Union, Callable, List
 import numpy as np
 import pandas as pd
 import xarray as xr
+import xesmf as xe
 import dask
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 import cftime
 from intake import open_catalog
+from src.utils import timeit
 
 # from xarray.core.variable import Variable
 # This could definitely be moved to src/constants.py
 START_YEAR: str = "1958"
 END_YEAR: str = "2017"
+DEFAULT_REGRIDDER_DS = xe.util.grid_global(1,1)
+FUTURE_SCENARIO = "ssp585"
 
 DEFAULT_SUCCESS_LIST = [
-    # "NCAR",
+    "NCAR",
     "CAMS",
     "NOAA-GFDL",
     "AS-RCEC",
@@ -33,14 +37,15 @@ DEFAULT_SUCCESS_LIST = [
     "KIOST",
     "BCC",
     "SNU",
-    # "CCCR-IITM",
+    "CCCR-IITM",
     "THU",
 ]
+
 
 PANGEO_CAT_URL = str("https://raw.githubusercontent.com/pangeo-data/"
                 + "pangeo-datastore/master/intake-catalogs/master.yaml")
 
-DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
+DEFAULT_REJECT_LIST = [] #"AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
 
 VAR_PROP_D = {
     # From https://docs.google.com/spreadsheets/d/
@@ -95,6 +100,7 @@ VAR_PROP_D = {
 }
 
 
+
 @np.vectorize
 def standardise_time(
     time: Union[cftime.datetime, np.datetime64],
@@ -102,7 +108,7 @@ def standardise_time(
     standard_day: int = 15,
 ) -> cftime.datetime:
     """
-    Standardise time.
+    Standardise time.e
 
     Args:
         time (Union[ cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day,
@@ -119,6 +125,12 @@ def standardise_time(
     return cftime.datetime(time.year, time.month, standard_day, calendar=calendar)  # "360_day")
 
 
+def regrid(ds_input: xr.Dataset, method="bilinear") -> xr.Dataset:
+    regridder = xe.Regridder(ds_input, DEFAULT_REGRIDDER_DS, method)
+    ds_output = regridder(ds_input, keep_attrs=True)
+    return ds_output
+
+
 def _preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
     """
     Preprocess.
@@ -131,7 +143,8 @@ def _preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataAr
     """
     dsa = ds.copy()
     dsa = combined_preprocessing(dsa)
-    dsa = dsa.assign_coords(time=standardise_time(dsa.time.values))
+    # dsa = dsa.assign_coords(x=(dsa.x % 360))
+    dsa = dsa.assign_coords(time=("time", standardise_time(dsa.time.values)))
     return dsa
 
 
@@ -171,8 +184,8 @@ class GetEnsemble:
         self.output_folder = output_folder
         _folder(output_folder)
         
-        self.xlim = [0, 360]
-        self.ylim= [-80, 80],
+        self.xlim = [0, 359]
+        self.ylim= [-80, 80]
 
         self.var = var
         self.table_id = table_id
@@ -184,7 +197,11 @@ class GetEnsemble:
             self.success_list = self.get_sucess_list()
         else:
             self.success_list = DEFAULT_SUCCESS_LIST
-        
+            
+        self.make_da()
+     
+    @timeit       
+    def make_da(self) -> None:
         self.da_hist = self.get_var(
             year_begin="1948",
         )
@@ -197,28 +214,8 @@ class GetEnsemble:
         # comp_and_match(instit="NCAR")
         # print(da_list)
 
-    def change_t_axis(
-        self,
-        ds: xr.Dataset,
-        calendar: str = "standard",  # "gregorian"
-    ) -> xr.Dataset:
-        """
-        Change the time axis.
-
-        Args:
-            ds (xr.Dataset): The dataset to change.
-            calendar (str, optional): [description]. Defaults to "standard".
-
-        Returns:
-            xr.Dataset: The dataset with the new time axis.
-        """
-        # ds = change_t_axis(ds, calendar="360_day")
-        dsa = ds.copy()
-        return dsa.assign_coords(
-            time=standardise_time(ds.time.values), calendar=calendar
-        )
-
-    def get_sucess_list(self, table_id) -> list:
+    @timeit
+    def get_sucess_list(self) -> list:
         """
         The only way to generate what will work seems to be trial and error.
 
@@ -257,13 +254,16 @@ class GetEnsemble:
                 print(e)
                 print(i, "failed")
                 failed_list.append(i)
+        
+        print("Success list", success_list)
 
         return success_list
-
+    
+    @timeit
     def get_var(
         self,
         experiment: str = "historical",
-        year_begin: str = START_YEAR,
+        year_begin: str = str(START_YEAR),
         year_end: str = "2014",
         # pylint: disable=dangerous-default-value
     ) -> xr.DataArray:
@@ -295,26 +295,23 @@ class GetEnsemble:
         with dask.config.set(**{"array.slicing.split_large_chunks": True}):
             dset_dict_proc = subset.to_dataset_dict(
                 zarr_kwargs=z_kwargs, preprocess=_preproc
-            )
+            )    
 
         da_list = []
         key_list = []
 
         for key in dset_dict_proc:
-            print(key)
-            da = (
-                # currently hitting bug here.
-                dset_dict_proc[key][var]
-                .sel(
-                    x=slice(self.xlim[0] - 1, self.xlim[1] + 1),
-                    y=slice(self.ylim[0] - 1, self.ylim[1] + 1),
-                    time=slice(year_begin, year_end),
+            da_sel = dset_dict_proc[key][self.var].sel(
+                    # x=slice(self.xlim[0] - 1, self.xlim[1] + 1),
+                    # y=slice(self.ylim[0] - 1, self.ylim[1] + 1),
+                    time=slice(str(year_begin), str(year_end)),
                 )
-                .interp(
-                    x=list(range(self.xlim[0], self.xlim[1] + 1)),
-                    y=list(range(self.ylim[0], self.ylim[1] + 1)),
-                )
-            )
+            da = regrid(da_sel)#.interp(
+                    #x=list(range(self.xlim[0], self.xlim[1] + 1)),
+                    #y=list(range(self.ylim[0], self.ylim[1] + 1)),
+                    #method="cubic"
+                #)
+            
 
             for i in da.member_id.values:
                 key_list.append(key + "." + i)
@@ -421,6 +418,8 @@ class GetEnsemble:
                     )
                 else:
                     print("problem with " + model + " " + member_id)
+                    print(ssp585_member)
+                    print(hist_member)
         # da = xr.concat(da_list, "member")
         # da = da.assign_coords({"member": key_list})
         # return da_list
@@ -480,7 +479,7 @@ def _get_preproc_func(var_str: str) -> Callable:
 
 def mean_var(var: str = "ts") -> None:
     """
-    Variable mean in time and between models.
+    Variable mean in time and between models for the 60 years.
 
     Args:
         var (str, optional): Variable name string. Defaults to "ts".
@@ -502,57 +501,8 @@ def mean_var(var: str = "ts") -> None:
     mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
 
 
-def make_wsp() -> None:
-    """
-    Make wsp from uas and vas.
-    """
-    _folder("nc_wsp")
 
-    for u, v in [
-        (
-            sorted(os.listdir(_folder_name("uas")))[i],
-            sorted(os.listdir(_folder_name("vas")))[i],
-        )
-        for i in range(len(os.listdir(_folder_name("uas"))))
-    ]:
-        print(
-            os.path.join(_folder_name("uas"), u), os.path.join(_folder_name("vas"), v)
-        )
-        wsp = np.sqrt(
-            np.square(
-                xr.open_dataarray(os.path.join(_folder_name("uas"), u))
-                .drop("lon")
-                .drop("lat")
-            )
-            + np.square(
-                xr.open_dataarray(os.path.join(_folder_name("vas"), v))
-                .drop("lon")
-                .drop("lat")
-            )
-        ).ffill("x")
-        wsp.attrs["long_name"] = "Mean wind speed at near surface"
-        w = "wsp." + u.strip("uas.")
-        wsp.rename("wsp").to_netcdf(os.path.join(_folder_name("wsp"), w))
-
-
-def mean_wsp() -> None:
-    """
-    Make mean windspeed.
-    Given that sfcWindsp is a variable in CMIP6, is this even neccesary?
-    """
-    wsp_da = xr.open_mfdataset(
-        _folder_name("wsp") + "/*.nc",
-        concat_dim="member",
-        preprocess=_get_preproc_func("wsp"),
-    )
-    wsp_mean = wsp_da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
-    wsp_mean.wsp.attrs["units"] = r"m s$^{-1}$"
-    wsp_mean.wsp.attrs["long_name"] = "Mean wind speed"
-    wsp_mean.wsp.attrs["description"] = "Wind speed at near surface (normally 10m)"
-    wsp_mean.to_netcdf(os.path.join(_folder_name("mean"), "wsp.nc"))
-
-
-def get_vars(var_list: List[str], regen_success_list=False):
+def get_vars(var_list: List[str], regen_success_list=True):
     """
     Get the variable means and ensembles for the enviroment.
 
@@ -577,4 +527,6 @@ if __name__ == "__main__":
     #    mean_var(var=var_str)
     # make_wsp()
     # from src.data_loading.pangeo import get_vars
-    get_vars(["hurs", "psl"], )
+    
+    # get_vars(["hurs", "psl"], )
+    get_vars(["sfcWind"])
