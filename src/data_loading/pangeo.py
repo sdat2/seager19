@@ -21,6 +21,9 @@ END_YEAR: str = "2017"
 DEFAULT_REGRIDDER_DS = xe.util.grid_global(1,1)
 FUTURE_SCENARIO = "ssp585"
 
+PANGEO_CAT_URL = str("https://raw.githubusercontent.com/pangeo-data/"
+                + "pangeo-datastore/master/intake-catalogs/master.yaml")
+
 DEFAULT_SUCCESS_LIST = [
     "NCAR",
     "CAMS",
@@ -42,10 +45,6 @@ DEFAULT_SUCCESS_LIST = [
     "CCCR-IITM",
     "THU",
 ]
-
-
-PANGEO_CAT_URL = str("https://raw.githubusercontent.com/pangeo-data/"
-                + "pangeo-datastore/master/intake-catalogs/master.yaml")
 
 DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
 
@@ -167,10 +166,7 @@ class GetEnsemble:
         """
         Create the get ensemble instance and output the ensemble of netcdfs.
         
-        TODO: enable wrapped interpolation for CMIP6.
         TODO: add adequate unit tests to this crucial script.
-        TODO: Try to download hurs and sfcWind, and makes sure all of the variables
-            are correct.
         TOOD: Add example to functions.
 
         Args:
