@@ -46,6 +46,7 @@ DEFAULT_SUCCESS_LIST = [
     "THU",
 ]
 
+# I think a lot of these modelling centres have problematic grids.
 DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
 
 VAR_PROP_D = {
@@ -88,6 +89,11 @@ VAR_PROP_D = {
         "long_name": "Suface air pressure",
         "description": "Surface Air Pressure [Pa]",
     },
+    "psl": {
+        "units": "Pa",
+        "long_name": "Sea level air pressure",
+        "description": "Sea Level Air Pressure [Pa]",
+    },
     "clt": {
         "units": r"$\%$",
         "long_name": "Total cloud cover percentage",
@@ -109,7 +115,7 @@ def standardise_time(
     standard_day: int = 15,
 ) -> cftime.datetime:
     """
-    Standardise time.e
+    Standardise time wrapper. Makes everything start on the same day of the month.
 
     Args:
         time (Union[ cftime._cftime.DatetimeNoLeap, cftime._cftime.Datetime360Day,
@@ -126,8 +132,10 @@ def standardise_time(
     return cftime.datetime(time.year, time.month, standard_day, calendar=calendar)  # "360_day")
 
 
-def regrid(ds_input: xr.Dataset, method="bilinear") -> xr.Dataset:
-    regridder = xe.Regridder(ds_input, DEFAULT_REGRIDDER_DS, method)
+def regrid(ds_input: xr.Dataset, method="bilinear", periodic=True) -> xr.Dataset:
+    # ds_input.lon.attrs["periodic"] = True
+    regridder = xe.Regridder(ds_input, DEFAULT_REGRIDDER_DS, method, periodic=periodic, ignore_degenerate=True, extrap_method="nearest_s2d")
+    #, #unmapped_to_nan=True)
     ds_output = regridder(ds_input, keep_attrs=True)
     return ds_output
 
@@ -516,7 +524,7 @@ def get_vars(var_list: List[str], regen_success_list=False):
 
 if __name__ == "__main__":
     # from src.data_loading.pangeo import GetEnsemble
-    # python src/data_loading/pangeo.py
+    # python src/data_loading/pangeo.py > log-pr-clt.txt
     # for var_str in VAR_PROP_D:
     #    GetEnsemble(
     #        var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
@@ -525,6 +533,5 @@ if __name__ == "__main__":
     #    mean_var(var=var_str)
     # make_wsp()
     # from src.data_loading.pangeo import get_vars
-    
     # get_vars(["hurs", "psl"], )
-    get_vars(["psl"])
+    get_vars(["pr", "clt"])
