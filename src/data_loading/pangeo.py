@@ -1,7 +1,16 @@
 """Get CMIP6 variables on pangeo by linking together
 historical and SSP85 and historical simulations.
 
-Script just for surface fields."""
+Script just for monthly surface fields.
+
+Reprocesses data onto a 1x1 degree standard lon-lat grid.
+
+Rejects some models because they are difficult to process.
+
+TODO:
+   - Grid keyword
+   - postprocess
+"""
 import os
 from typing import Union, Callable, List
 import numpy as np
@@ -132,7 +141,7 @@ def standardise_time(
     return cftime.datetime(time.year, time.month, standard_day, calendar=calendar)  # "360_day")
 
 
-def regrid(ds_input: xr.Dataset, method="bilinear", periodic=True) -> xr.Dataset:
+def regrid(ds_input: xr.Dataset, method: str = "bilinear", periodic: bool = True) -> xr.Dataset:
     # ds_input.lon.attrs["periodic"] = True
     regridder = xe.Regridder(ds_input, DEFAULT_REGRIDDER_DS, method, periodic=periodic, ignore_degenerate=True, extrap_method="nearest_s2d")
     #, #unmapped_to_nan=True)
@@ -189,9 +198,6 @@ class GetEnsemble:
         """
         self.output_folder = output_folder
         _folder(output_folder)
-        
-        self.xlim = [0, 359]
-        self.ylim= [-80, 80]
 
         self.var = var
         self.table_id = table_id
@@ -203,11 +209,10 @@ class GetEnsemble:
             self.success_list = self.get_sucess_list()
         else:
             self.success_list = DEFAULT_SUCCESS_LIST
-            
-        self.make_da()
-     
+                 
     @timeit       
-    def make_da(self) -> None:
+    def make_das(self) -> None:
+        """Make a set of merged datarrays."""
         self.da_hist = self.get_var(
             year_begin="1948",
         )
@@ -308,13 +313,9 @@ class GetEnsemble:
 
         for key in dset_dict_proc:
             da_sel = dset_dict_proc[key][self.var].sel(
-                    # x=slice(self.xlim[0] - 1, self.xlim[1] + 1),
-                    # y=slice(self.ylim[0] - 1, self.ylim[1] + 1),
                     time=slice(str(year_begin), str(year_end)),
                 )
             da = regrid(da_sel)#.interp(
-                    #x=list(range(self.xlim[0], self.xlim[1] + 1)),
-                    #y=list(range(self.ylim[0], self.ylim[1] + 1)),
                     #method="cubic"
                 #)
             
@@ -344,31 +345,6 @@ class GetEnsemble:
         da = da.assign_coords({"member": key_list})  # , "time": times})
 
         return da
-
-    def get_ensemble(self, var: str = "ts") -> xr.DataArray:
-        """
-        Get a variable ensemble.
-        
-        Is this called? why do the x and y limits get referecned so often?
-
-        Args:
-            var (str, optional): The variable. Defaults to "ts".
-
-        Returns:
-            xr.DataArray: Ensemble datarray full of different items.
-        """
-        da_hist = self.get_var()
-        da_ssp585 = self.get_var(
-            experiment="ssp585",
-            year_begin="2014",
-            year_end=END_YEAR,
-        )
-        da_comb = xr.concat(
-            [da_hist.mean("model_center"), da_ssp585.mean("model_center")], "time"
-        )
-        da_comb.attrs["hist_list"] = str(da_hist["model_center"].values)
-        da_comb.attrs["ssp585_list"] = str(da_ssp585["model_center"].values)
-        return da_comb
 
     def comp_and_match(self, instit: str = "NCAR") -> None:
         """
@@ -429,6 +405,31 @@ class GetEnsemble:
         # da = xr.concat(da_list, "member")
         # da = da.assign_coords({"member": key_list})
         # return da_list
+        
+    def mean_var(self) -> None:
+        """
+        Variable mean in time and between models for the 60 years.
+
+        Args:
+            var (str, optional): Variable name string. Defaults to "ts".
+        """
+        da = (
+            xr.open_mfdataset(
+                _folder_name(self.var) + "/*.nc",
+                concat_dim="member",
+                preprocess=_get_preproc_func(var),
+            )
+            #.drop("lon")
+            #.drop("lat")
+        )
+        print(da)
+        mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
+        mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
+        mean[var].attrs["long_name"] = VAR_PROP_D[var]["long_name"] + " mean"
+        mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
+        _folder(_folder_name("mean"))
+        mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
+
 
 
 def _member_name(instit: str, model: str, member_id: str) -> str:
@@ -483,31 +484,6 @@ def _get_preproc_func(var_str: str) -> Callable:
     return _preproc_func
 
 
-def mean_var(var: str = "ts") -> None:
-    """
-    Variable mean in time and between models for the 60 years.
-
-    Args:
-        var (str, optional): Variable name string. Defaults to "ts".
-    """
-    da = (
-        xr.open_mfdataset(
-            _folder_name(var) + "/*.nc",
-            concat_dim="member",
-            preprocess=_get_preproc_func(var),
-        )
-        .drop("lon")
-        .drop("lat")
-    )
-    print(da)
-    mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
-    mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
-    mean[var].attrs["long_name"] = VAR_PROP_D[var]["long_name"] + " mean"
-    mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
-    mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
-
-
-
 def get_vars(var_list: List[str], regen_success_list=False):
     """
     Get the variable means and ensembles for the enviroment.
@@ -516,15 +492,16 @@ def get_vars(var_list: List[str], regen_success_list=False):
         var_list (List[str]): List of variables to make.
     """
     for var_str in var_list:
-        GetEnsemble(
+        ens = GetEnsemble(
             var=var_str, output_folder=_folder_name(var_str), regen_success_list=regen_success_list
         )
-        mean_var(var=var_str)
+        ens.make_das()
+        ens.mean_var()
 
 
 if __name__ == "__main__":
     # from src.data_loading.pangeo import GetEnsemble
-    # python src/data_loading/pangeo.py > sfcWind
+    # python src/data_loading/pangeo.py > clt.txt
     # for var_str in VAR_PROP_D:
     #    GetEnsemble(
     #        var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
@@ -534,4 +511,4 @@ if __name__ == "__main__":
     # make_wsp()
     # from src.data_loading.pangeo import get_vars
     # get_vars(["hurs", "psl"], )
-    get_vars(["sfcWind"])
+    get_vars(["clt"])
