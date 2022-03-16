@@ -524,7 +524,7 @@ def get_vars(var_list: List[str], regen_success_list=False):
 
 if __name__ == "__main__":
     # from src.data_loading.pangeo import GetEnsemble
-    # python src/data_loading/pangeo.py > log-pr-clt.txt
+    # python src/data_loading/pangeo.py > sfcWind
     # for var_str in VAR_PROP_D:
     #    GetEnsemble(
     #        var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
@@ -534,4 +534,4 @@ if __name__ == "__main__":
     # make_wsp()
     # from src.data_loading.pangeo import get_vars
     # get_vars(["hurs", "psl"], )
-    get_vars(["pr", "clt"])
+    get_vars(["sfcWind"])
