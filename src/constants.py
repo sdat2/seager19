@@ -36,6 +36,11 @@ ATMOS_TMP_PATH: pathlib.Path = ATMOS_PATH / "tmp"
 GIF_PATH: pathlib.Path = PROJECT_PATH / "gifs"
 MASK: pathlib.Path = OCEAN_DATA_PATH / "om_mask.nc"
 
+# 60 year trends
+ECMWF_ORAS4_TREND = 0.411  # K
+CMIP5_MMM_TREND = 0.889  # K
+CMIP6_MMM_TREND = 0.772  # K
+
 # General data from e.g. paper or cmip etc.
 DATA_PATH: pathlib.Path = SRC_PATH / "data"
 CMIP_TS_PATH: pathlib.Path = DATA_PATH / "ts_nc"
@@ -105,9 +110,11 @@ VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"
 # backwards compatibility: we want the new data to be stored without a atm.mem,
 # but being able to process the old data where atm.mem was used.
 #
-def atmos_input_file_path(var="ts", model="E") -> str:
+def atmos_input_file_path(
+    var: str = "ts", model: str = "E", ending: str = "clim60"
+) -> str:
     return str(
-        ATMOS_DATA_PATH / str(var + "-" + MODEL_NAMES[model] + "-" + "clim60.nc")
+        ATMOS_DATA_PATH / str(var + "-" + MODEL_NAMES[model] + "-" + ending + ".nc")
     )
 
 
