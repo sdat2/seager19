@@ -110,7 +110,7 @@ def coupling_frame(
 
     def datetime360_to_str(time: cftime.Datetime360Day) -> str:
         """
-        Return the time string. sNow fails safely.
+        Return the time string. Now fails safely.
 
         Args:
             time (cftime.Datetime360Day): Hopefully you fed in the right time object.

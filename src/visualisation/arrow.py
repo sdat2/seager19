@@ -301,7 +301,7 @@ def plot_results_xr() -> None:
         0.5 + delta / 2,
         0.5 + 3 * delta / 2,
     ]
-    points.reverse()
+    points.reverse() # put them in the reverse order for whatever reason.
     for pair_number, pair in enumerate(pairs):
         for i in [0, 1]:
             for count, letter in enumerate(RESULTS_XR.coords["var"].values):
