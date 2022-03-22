@@ -68,7 +68,7 @@ def grid_1d(lon0_b, lon1_b, d_lon, lat0_b, lat1_b, d_lat):
     return ds
 
 
-def _regridder_1d(with_bounds=False):
+def _regridding_ds_1d(with_bounds=False):
     """
     Global 1D rectilinear grid centers, and bounds if required.
 
@@ -105,10 +105,9 @@ def regrid_2d(
     Returns:
         Union[xr.Dataset, xr.DataArray]: The preprocessed xarray object.
     """
-    regridder = xe.util.grid_global(1, 1)
     regridder = xe.Regridder(
         ds_input,
-        DEFAULT_REGRIDDER_DS,
+        xe.util.grid_global(1, 1),
         method,
         periodic=periodic,
         ignore_degenerate=True,
@@ -122,7 +121,7 @@ def regrid_2d_to_standard(
     da: Union[xr.Dataset, xr.DataArray]
 ) -> Union[xr.Dataset, xr.DataArray]:
     """Fix weird da structure returned by xESMf."""
-    return (
+    return can_coords(
         da.rename({"x": "X", "y": "Y"})
         .assign_coords(
             {
@@ -154,7 +153,7 @@ def regrid_1d(
     """
     regridder = xe.Regridder(
         ds_input,
-        std_transform(with_bounds=False),
+        _regridding_ds_1d(with_bounds=False),
         method,
         periodic=periodic,
         ignore_degenerate=True,
@@ -168,11 +167,22 @@ def regrid_1d_to_standard(
     da: Union[xr.Dataset, xr.DataArray]
 ) -> Union[xr.Dataset, xr.DataArray]:
     """Change names to standard names."""
-    return can_coords(da)
+    return can_coords(
+        da.rename({"x": "X", "y": "Y"})
+        .assign_coords(
+            {
+                "X": ("X", da.isel(y=0).lon.values),
+                "Y": ("Y", da.isel(x=0).lat.values),
+            }
+        )
+        .drop_vars(["lon", "lat"])
+    )
+
+
+# can_coords(da.)
 
 
 if __name__ == "__main__":
     # python src/data_loading/regrid.py
-    print(std_transform())
-    print(std_transform(with_bounds=False))
+    print(regrid_1d_to_standard(_regridding_ds_1d(with_bounds=False)))
     print(regrid_2d_to_standard(xe.util.grid_global(1, 1).drop(["lon_b", "lat_b"])))

@@ -36,7 +36,7 @@ START_YEAR: str = "1958"
 END_YEAR: str = "2017"
 FUTURE_SCENARIO = "ssp585"
 
-SCENARIOS = ["ssp585", "ssp245", "ssp370", "ssp126"]
+SCENARIOS: List[str] = ["ssp585", "ssp245", "ssp370", "ssp126"]
 
 PANGEO_CAT_URL = str(
     "https://raw.githubusercontent.com/pangeo-data/"
@@ -193,7 +193,8 @@ class GetEnsemble:
         table_id: str = "Amon",
         regrid: Literal["1d", "2d"] = "1d",
         output_folder: str = "nc",
-        regen_success_list=False,
+        regen_success_list: bool = False,
+        test: bool = False,
     ) -> None:
         """
         Create the get ensemble instance and output the ensemble of netcdfs.
@@ -205,10 +206,13 @@ class GetEnsemble:
             var (str, optional): Variable. Defaults to "ts".
             table_id (str, optional): ID of cmip6 table to find variable in.
                 Defaults to "Amon".
+            regrid (Literal["1d", "2d"]):
             output_folder (str, optional): Where to output the ensemble to.
                 Defaults to "nc".
             regen_success_list (bool, optional): whether or not to regenerate
                 the success list. Defaults to False.
+            test (bool, optional): Whether or not this is a test. If it is, it
+                only loads a single centre "INM".
 
         """
         self.output_folder = output_folder
@@ -216,11 +220,15 @@ class GetEnsemble:
         self.table_id = table_id
         # move to some constants file
         self.cat = open_catalog(PANGEO_CAT_URL)["climate"]["cmip6_gcs"]
-        self.instit = self.cat.unique(["institution_id"])["institution_id"]["values"]
-        self.da_lists = {}
+        self.instit: List[str] = self.cat.unique(["institution_id"])["institution_id"][
+            "values"
+        ]
+        self.da_lists: dict = {}
         self.regrid: Literal["1d", "2d"] = regrid
 
-        if regen_success_list:
+        if test:
+            self.success_list = ["INM"]
+        elif regen_success_list:
             self.success_list = self.get_sucess_list()
         else:
             self.success_list = DEFAULT_SUCCESS_LIST
@@ -332,8 +340,10 @@ class GetEnsemble:
                 time=slice(str(year_begin), str(year_end))
             )
             if self.regrid == "2d":
-                da = regrid_1d_to_standard(regrid_2d_to_standard(regrid_2d(da_sel)))
+                print("regridding 2d")
+                da = regrid_2d_to_standard(regrid_2d(da_sel))
             elif self.regrid == "1d":
+                print("regridding 1d")
                 da = regrid_1d_to_standard(regrid_1d(da_sel))
 
             for i in da.member_id.values:
@@ -431,12 +441,10 @@ class GetEnsemble:
         Args:
             var (str, optional): Variable name string. Defaults to "ts".
         """
-        da = (
-            xr.open_mfdataset(
-                _folder_name(self.var) + "/*.nc",
-                concat_dim="member",
-                preprocess=_get_preproc_func(var),
-            )
+        da = xr.open_mfdataset(
+            _folder_name(self.var) + "/*.nc",
+            concat_dim="member",
+            preprocess=_get_preproc_func(var),
         )
         print(da)
         mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
@@ -571,7 +579,7 @@ def _get_preproc_func(var_str: str) -> Callable:
     return _preproc_func
 
 
-def get_vars(var_list: List[str], regen_success_list=False):
+def get_vars(var_list: List[str], regen_success_list=False) -> None:
     """
     Get the variable means and ensembles for the enviroment.
 
@@ -588,7 +596,7 @@ def get_vars(var_list: List[str], regen_success_list=False):
         ens.mean_var()
 
 
-def make_future_nino34(scenario="ssp585"):
+def make_future_nino34(scenario="ssp585") -> None:
     da = _scenario_da(scenario=scenario)
     new_da = regridded_to_standard(da)
     nino34 = spatial_mean(sel(new_da, reg="nino3.4"))
@@ -601,6 +609,41 @@ def make_future_nino34(scenario="ssp585"):
             output_folder, "ts_nino3.4." + member_name + ".nc"
         )
         da_i.to_netcdf(output_file_name)
+
+
+def plausible_temperatures(values: np.ndarray) -> bool:
+    """
+    Cheks if plausible temperatures in Kelvin.
+
+    Args:
+        values (np.ndarray): numpy array.
+
+    Returns:
+        bool: Whether or not the temperatures are all plausible.
+    """
+    lower_bound = 100  # 100K
+    upper_bound = 373.15  # 100 Degrees Celsius
+    too_high = values > lower_bound
+    too_low = values < upper_bound
+    not_nan = np.invert(np.isnan(values))
+    return np.all(too_high) and np.all(too_low) and np.all(not_nan)
+
+
+def test_if_regridding_ok() -> None:
+    """Trying to test if different regridding mehtods each work."""
+    import matplotlib.pyplot as plt
+
+    oned = GetEnsemble(regrid="1d", test=True)
+    twod = GetEnsemble(regrid="2d", test=True)
+    da_list = [oned.get_var(), twod.get_var()]
+    for i, da in enumerate(da_list):
+        print(da)
+        print(da.isel(T=0, member=0).values)
+        print(plausible_temperatures(da.isel(T=0, member=0).values))
+        assert not plausible_temperatures(np.array([0, 200]))
+        da.isel(T=0, member=0).plot()
+        plt.savefig("fig" + str(i) + ".png")
+        plt.clf()
 
 
 if __name__ == "__main__":
@@ -619,5 +662,6 @@ if __name__ == "__main__":
     # ts = GetEnsemble(var="ts")
     # ts.get_future()
     # _print_scenario_sel()
-    for scenario in SCENARIOS:
-        make_future_nino34(scenario=scenario)
+    # for scenario in SCENARIOS:
+    #    make_future_nino34(scenario=scenario)
+    test_if_regridding_ok()
