@@ -367,9 +367,9 @@ class Atmos:
 
         return (
             self.atm.qlw_coeff
-            * (1 - a_cloud_const * cloud_cover ** 2)
+            * (1 - a_cloud_const * cloud_cover**2)
             # bar(Ts)^4
-            * temp_a ** 4
+            * temp_a**4
             * (f - self.atm.f2 * np.sqrt(self.f_ebar(temperature, rh_loc)))
             # f1'
         )
@@ -412,7 +412,7 @@ class Atmos:
             4
             * self.atm.emmisivity
             * self.atm.stefan_boltzman_const
-            * temperature ** 3
+            * temperature**3
             * (temperature - self.f_temp_a(temperature))
         )
 
@@ -456,8 +456,8 @@ class Atmos:
             a_cloud_const = self.get_cloud_const(temperature)
         return (
             self.atm.qlw_coeff
-            * (1 - a_cloud_const * cloud_cover ** 2)
-            * temperature ** 4
+            * (1 - a_cloud_const * cloud_cover**2)
+            * temperature**4
         )
 
     @typechecked
@@ -490,13 +490,13 @@ class Atmos:
         else:
             a_cloud_const = self.get_cloud_const(temperature)
         return self.atm.qlw_coeff * (
-            (1 - a_cloud_const * cloud_cover ** 2)
-            * temperature ** 3
+            (1 - a_cloud_const * cloud_cover**2)
+            * temperature**3
             * (
                 4 * f
                 - self.atm.f2 * np.sqrt(e_bar) * (4 + temperature * dqs_dtemp / 2 / q_s)
             )
-            + 12 * temperature ** 2 * self.atm.delta_temp
+            + 12 * temperature**2 * self.atm.delta_temp
         )
 
     @typechecked
@@ -666,7 +666,7 @@ class Atmos:
         rk = (
             1.0j * km * self.atm.beta
             - self.atm.eps_u * self.atm.eps_v * self.atm.eps_p
-            - self.atm.eps_v * km ** 2
+            - self.atm.eps_v * km**2
         )
 
         fcp = self.fcu[1 : self.atm.ny - 1] ** 2 / 4.0

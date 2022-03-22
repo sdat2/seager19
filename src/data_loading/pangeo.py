@@ -12,7 +12,7 @@ TODO:
    - postprocess
 """
 import os
-from typing import Union, Callable, List
+from typing import Union, Callable, List, Literal
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -23,6 +23,12 @@ import cftime
 from intake import open_catalog
 from src.utils import timeit
 from src.xr_utils import sel, can_coords, spatial_mean
+from src.data_loading.regrid import (
+    regrid_2d,
+    regrid_2d_to_standard,
+    regrid_1d_to_standard,
+    regrid_1d,
+)
 
 # from xarray.core.variable import Variable
 # This could definitely be moved to src/constants.py
@@ -32,8 +38,10 @@ FUTURE_SCENARIO = "ssp585"
 
 SCENARIOS = ["ssp585", "ssp245", "ssp370", "ssp126"]
 
-PANGEO_CAT_URL = str("https://raw.githubusercontent.com/pangeo-data/"
-                + "pangeo-datastore/master/intake-catalogs/master.yaml")
+PANGEO_CAT_URL = str(
+    "https://raw.githubusercontent.com/pangeo-data/"
+    + "pangeo-datastore/master/intake-catalogs/master.yaml"
+)
 
 DEFAULT_SUCCESS_LIST = [
     "NCAR",
@@ -58,7 +66,14 @@ DEFAULT_SUCCESS_LIST = [
 ]
 
 # I think a lot of these modelling centres have problematic grids.
-DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
+DEFAULT_REJECT_LIST = [
+    "AWI",
+    "MRI",
+    "CSIRO-ARCCSS",
+    "CCCma",
+    "MIROC",
+    "HAMMOX-Consortium",
+]
 
 VAR_PROP_D = {
     # From https://docs.google.com/spreadsheets/d/
@@ -118,7 +133,6 @@ VAR_PROP_D = {
 }
 
 
-
 @np.vectorize
 def standardise_time(
     time: Union[cftime.datetime, np.datetime64],
@@ -140,35 +154,9 @@ def standardise_time(
     if isinstance(time, np.datetime64):
         time = pd.to_datetime(time)
     # put the new time in the middle of the given month
-    return cftime.datetime(time.year, time.month, standard_day, calendar=calendar)  # "360_day")
-
-
-def regrid(ds_input: Union[xr.Dataset, xr.DataArray], method: str = "bilinear", periodic: bool = True) -> Union[xr.Dataset, xr.DataArray]:
-    """
-    Regrid to a 1x1 grid, using by default bilinear interpolation and periodic boundaries.
-
-    Args:
-        ds_input (Union[xr.Dataset, xr.DataArray]): The xarray object to preprocess.
-        method (str, optional): The method to choose. By default "bilinear".
-        periodic (bool, optional): Whether or not to treat the boundaries as periodic. 
-            Defaults to True.
-
-    Returns:
-        Union[xr.Dataset, xr.DataArray]: The preprocessed xarray object.
-    """
-    # ds_input.lon.attrs["periodic"] = True
-    regridder = xe.Regridder(ds_input, DEFAULT_REGRIDDER_DS, method, periodic=periodic, ignore_degenerate=True, extrap_method="nearest_s2d")
-    #, #unmapped_to_nan=True)
-    ds_output = regridder(ds_input, keep_attrs=True)
-    return ds_output
-
-
-def regridded_to_standard(da: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
-    """Fix weird da structure returned by xESMf"""
-    return da.rename({"x": "X", "y": "Y"}).assign_coords(
-        {"X": ("X", da.isel(y=0).lon.values % 360),
-         "Y": ("Y",  da.isel(x=0).lat.values)}
-    ).drop_vars(["lon", "lat"]).sortby("X")
+    return cftime.datetime(
+        time.year, time.month, standard_day, calendar=calendar
+    )  # "360_day")
 
 
 def _preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
@@ -200,17 +188,22 @@ class GetEnsemble:
     Regrids the data on to 1 degree grid with linear 2D interpolation."""
 
     def __init__(
-        self, var: str = "ts", table_id: str="Amon", output_folder: str = "nc", regen_success_list=False
+        self,
+        var: str = "ts",
+        table_id: str = "Amon",
+        regrid: Literal["1d", "2d"] = "1d",
+        output_folder: str = "nc",
+        regen_success_list=False,
     ) -> None:
         """
         Create the get ensemble instance and output the ensemble of netcdfs.
-        
+
         TODO: add adequate unit tests to this crucial script.
         TOOD: Add example to functions.
 
         Args:
             var (str, optional): Variable. Defaults to "ts".
-            table_id (str, optional): ID of cmip6 table to find variable in. 
+            table_id (str, optional): ID of cmip6 table to find variable in.
                 Defaults to "Amon".
             output_folder (str, optional): Where to output the ensemble to.
                 Defaults to "nc".
@@ -225,13 +218,14 @@ class GetEnsemble:
         self.cat = open_catalog(PANGEO_CAT_URL)["climate"]["cmip6_gcs"]
         self.instit = self.cat.unique(["institution_id"])["institution_id"]["values"]
         self.da_lists = {}
+        self.regrid: Literal["1d", "2d"] = regrid
 
         if regen_success_list:
             self.success_list = self.get_sucess_list()
         else:
             self.success_list = DEFAULT_SUCCESS_LIST
-                 
-    @timeit       
+
+    @timeit
     def make_comb80_das(self) -> None:
         """Make a set of merged datarrays."""
         self.da_lists["hist"] = self.get_var(
@@ -240,9 +234,8 @@ class GetEnsemble:
             year_end="2018",
         )
         self.da_lists["ssp585"] = self.get_var(
-            experiment="ssp585",
-            year_begin="2014",
-            year_end="2027")
+            experiment="ssp585", year_begin="2014", year_end="2027"
+        )
         for instit in self.success_list:
             self.comp_and_match(instit=instit)
         # comp_and_match(instit="NCAR")
@@ -288,11 +281,11 @@ class GetEnsemble:
                 print(e)
                 print(i, "failed")
                 failed_list.append(i)
-        
+
         print("Success list", success_list)
 
         return success_list
-    
+
     @timeit
     def get_var(
         self,
@@ -336,10 +329,12 @@ class GetEnsemble:
 
         for key in dset_dict_proc:
             da_sel = dset_dict_proc[key][self.var].sel(
-                    time=slice(str(year_begin), str(year_end)),
-                )
-            # da regrid
-            da = regrid(da_sel)
+                time=slice(str(year_begin), str(year_end))
+            )
+            if self.regrid == "2d":
+                da = regrid_1d_to_standard(regrid_2d_to_standard(regrid_2d(da_sel)))
+            elif self.regrid == "1d":
+                da = regrid_1d_to_standard(regrid_1d(da_sel))
 
             for i in da.member_id.values:
                 key_list.append(key + "." + i)
@@ -369,7 +364,7 @@ class GetEnsemble:
 
     def comp_and_match(self, instit: str = "NCAR") -> None:
         """
-        Compare and match.
+        Compare and match. Outputs the netcdf to the directory.
 
         Args:
             instit (str, optional): Which institute to go through. Defaults to "NCAR".
@@ -377,7 +372,9 @@ class GetEnsemble:
         ssp585_instit = self.da_lists["ssp585"].where(
             sself.da_lists["ssp585"].institution == instit, drop=True
         )
-        hist_instit = self.da_lists["hist"].where(self.da_lists["hist"].institution == instit, drop=True)
+        hist_instit = self.da_lists["hist"].where(
+            self.da_lists["hist"].institution == instit, drop=True
+        )
         # print(ssp585_instit.member.values)
         # print(hist_instit.member.values)
         for model in ssp585_instit.model.values:
@@ -426,7 +423,7 @@ class GetEnsemble:
         # da = xr.concat(da_list, "member")
         # da = da.assign_coords({"member": key_list})
         # return da_list
-        
+
     def mean_var(self) -> None:
         """
         Variable mean in time and between models for the 60 years.
@@ -440,8 +437,6 @@ class GetEnsemble:
                 concat_dim="member",
                 preprocess=_get_preproc_func(var),
             )
-            #.drop("lon")
-            #.drop("lat")
         )
         print(da)
         mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
@@ -450,32 +445,34 @@ class GetEnsemble:
         mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
         _folder(_folder_name("mean"))
         mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
-        
+
     @timeit
     def get_future(self) -> None:
         """Get futures, make them into separate netcdfs.
-        
+
         File structure:
-        ScenanarioMIP/experiment_id/variable_id/ensemble_member.nc
+            ScenanarioMIP/experiment_id/variable_id/ensemble_member.nc
         """
         _folder("ScenarioMIP")
         for scenario in SCENARIOS:
             _folder(os.path.join("ScenarioMIP", scenario))
             _folder(os.path.join("ScenarioMIP", scenario, self.var))
-            da = self.get_var(experiment=scenario, 
-                              year_begin="2014", 
-                              year_end="2100")
+            da = self.get_var(experiment=scenario, year_begin="2014", year_end="2100")
             for member in da.member.values:
 
                 da.sel(member=member).to_netcdf(
-                        os.path.join(
-                            "ScenarioMIP", scenario, self.var,
-                            self.var
-                            + "."
-                            + _member_name_from_da(da.sel(member=member))
-                            + ".nc",
-                        )
+                    os.path.join(
+                        "ScenarioMIP",
+                        scenario,
+                        self.var,
+                        self.var
+                        + "."
+                        + _member_name_from_da(da.sel(member=member))
+                        + ".nc",
                     )
+                )
+
+
 def _scenariomip_data(var: str = "ts", scenario: str = "ssp585"):
     return os.path.join(os.path.join("ScenarioMIP", scenario, var))
 
@@ -484,27 +481,42 @@ def _print_scenario_folders():
     for scenario in SCENARIOS:
         print(_scenariomip_data(scenario=scenario))
 
-        
+
 def _scenario_nino34(scenario: str = "ssp585"):
-    return xr.open_mfdataset(os.path.join(_scenariomip_data(scenario=scenario, var="ts_nino3.4"),"*.nc"), concat_dim="member",
-                preprocess=_get_preproc_func("ts"))["ts"]
+    return xr.open_mfdataset(
+        os.path.join(_scenariomip_data(scenario=scenario, var="ts_nino3.4"), "*.nc"),
+        concat_dim="member",
+        preprocess=_get_preproc_func("ts"),
+    )["ts"]
+
 
 def _scenario_da(var: str = "ts", scenario: str = "ssp585"):
-    return xr.open_mfdataset(os.path.join(_scenariomip_data(scenario=scenario, var=var),"*.nc"), concat_dim="member",
-                preprocess=_get_preproc_func(var))[var]
-        
+    return xr.open_mfdataset(
+        os.path.join(_scenariomip_data(scenario=scenario, var=var), "*.nc"),
+        concat_dim="member",
+        preprocess=_get_preproc_func(var),
+    )[var]
+
+
 def _print_scenario_sel():
     for scenario in SCENARIOS:
-        print(can_coords(xr.open_mfdataset(os.path.join(_scenariomip_data(scenario=scenario),"*.nc"), concat_dim="member",
-                preprocess=_get_preproc_func("ts")).ts))
-            
+        print(
+            can_coords(
+                xr.open_mfdataset(
+                    os.path.join(_scenariomip_data(scenario=scenario), "*.nc"),
+                    concat_dim="member",
+                    preprocess=_get_preproc_func("ts"),
+                ).ts
+            )
+        )
+
+
 def _member_name_from_da(da: xr.DataArray) -> str:
     """member name from da already referenced by member"""
     instit = da.institution.values
     model = da.model.values
     member_id = da.member_id.values
     return _member_name(instit, model, member_id)
-
 
 
 def _member_name(instit: str, model: str, member_id: str) -> str:
@@ -568,7 +580,9 @@ def get_vars(var_list: List[str], regen_success_list=False):
     """
     for var_str in var_list:
         ens = GetEnsemble(
-            var=var_str, output_folder=_folder_name(var_str), regen_success_list=regen_success_list
+            var=var_str,
+            output_folder=_folder_name(var_str),
+            regen_success_list=regen_success_list,
         )
         ens.make_das()
         ens.mean_var()
@@ -583,9 +597,11 @@ def make_future_nino34(scenario="ssp585"):
     for i in range(len(nino34.member.values)):
         da_i = nino34.isel(member=i)
         member_name = _member_name_from_da(da_i)
-        output_file_name = os.path.join(output_folder,"ts_nino3.4." + member_name + ".nc")
+        output_file_name = os.path.join(
+            output_folder, "ts_nino3.4." + member_name + ".nc"
+        )
         da_i.to_netcdf(output_file_name)
-        
+
 
 if __name__ == "__main__":
     # from src.data_loading.pangeo import GetEnsemble
@@ -600,9 +616,8 @@ if __name__ == "__main__":
     # from src.data_loading.pangeo import get_vars
     # get_vars(["hurs", "psl"], )
     # get_vars(["clt"])
-    #ts = GetEnsemble(var="ts")
-    #ts.get_future()
-    #_print_scenario_sel()
+    # ts = GetEnsemble(var="ts")
+    # ts.get_future()
+    # _print_scenario_sel()
     for scenario in SCENARIOS:
         make_future_nino34(scenario=scenario)
-    

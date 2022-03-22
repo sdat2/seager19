@@ -30,7 +30,7 @@ def test_plot() -> None:
         axs[1, 1].plot(x, np.abs(x), color=OX_BLUE)
 
         # set size
-        set_dim(fig, fraction_of_line_width=1, ratio=(5 ** 0.5 - 1) / 2)
+        set_dim(fig, fraction_of_line_width=1, ratio=(5**0.5 - 1) / 2)
 
         # label subplots
         label_subplots(axs, start_from=0, fontsize=10)
