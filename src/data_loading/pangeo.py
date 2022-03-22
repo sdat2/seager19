@@ -756,3 +756,5 @@ if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     main()
     # python src/data_loading/pangeo.py -m var=sfcWind,hurs
+    # python src/data_loading/pangeo.py -m var=pr,ps
+    # python src/data_loading/pangeo.py var=clt
