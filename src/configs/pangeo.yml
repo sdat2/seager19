@@ -1,0 +1,6 @@
+project: pangeo
+user: sdat2
+name: ${var}_${past}_${future}
+var: ts
+past: historical
+future: ssp585

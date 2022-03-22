@@ -12,7 +12,7 @@ TODO:
    - postprocess
 """
 import os
-from typing import Union, Callable, List, Literal
+from typing import Union, Callable, List, Literal, Optional
 import pathlib
 import numpy as np
 import pandas as pd
@@ -22,7 +22,10 @@ import dask
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 import cftime
 from intake import open_catalog
-from src.constants import NC_PATH
+import hydra
+import wandb
+from omegaconf import DictConfig
+from src.constants import NC_PATH, CONFIG_PATH
 from src.utils import timeit
 from src.xr_utils import sel, can_coords, spatial_mean
 from src.data_loading.regrid import (
@@ -199,8 +202,10 @@ class GetEnsemble:
         var: str = "ts",
         table_id: str = "Amon",
         regrid: Literal["1d", "2d"] = "1d",
-        output_folder: str = "nc",
+        output_folder: Optional[str] = None,
         regen_success_list: bool = False,
+        past: str = "historical",
+        future: str = DEFAULT_FUTURE_SCENARIO,
         test: bool = False,
     ) -> None:
         """
@@ -214,17 +219,17 @@ class GetEnsemble:
             table_id (str, optional): ID of cmip6 table to find variable in.
                 Defaults to "Amon".
             regrid (Literal["1d", "2d"]):
-            output_folder (str, optional): Where to output the ensemble to.
-                Defaults to "nc".
+            output_folder (Optional[str], optional): Where to output the ensemble to.
+                Defaults to None, and uses default structure. 
+                nc/scenariomip/ts/
             regen_success_list (bool, optional): whether or not to regenerate
                 the success list. Defaults to False.
             test (bool, optional): Whether or not this is a test. If it is, it
-                only loads a single centre "INM".
+                only loads a single centre "INM". This makes tests quicker to run.
 
         """
-        self.output_folder = output_folder
-        self.var = var
-        self.table_id = table_id
+        self.var: str = var
+        self.table_id: str = table_id
         # move to some constants file
         self.cat = open_catalog(PANGEO_CAT_URL)["climate"]["cmip6_gcs"]
         self.instit: List[str] = self.cat.unique(["institution_id"])["institution_id"][
@@ -232,6 +237,12 @@ class GetEnsemble:
         ]
         self.da_lists: dict = {}
         self.regrid: Literal["1d", "2d"] = regrid
+        self.past = past
+        self.future = future
+        if output_folder is None:
+            output_folder = _folder_name(self.var, self.past + "." + self.future)
+        self.output_folder = output_folder
+        _folder(output_folder)
 
         if test:
             self.success_list = ["INM"]
@@ -241,15 +252,15 @@ class GetEnsemble:
             self.success_list = DEFAULT_SUCCESS_LIST
 
     @timeit
-    def make_comb80_das(self) -> None:
+    def make_comb_das(self) -> None:
         """Make a set of merged datarrays."""
-        self.da_lists["hist"] = self.get_var(
-            experiment="historical",
+        self.da_lists[self.past] = self.get_var(
+            experiment=self.past,
             year_begin="1948",
-            year_end="2018",
+            year_end="2015",
         )
-        self.da_lists["ssp585"] = self.get_var(
-            experiment="ssp585", year_begin="2014", year_end="2027"
+        self.da_lists[self.future] = self.get_var(
+            experiment=self.future, year_begin="2014", year_end="2100"
         )
         for instit in self.success_list:
             self.comp_and_match(instit=instit)
@@ -273,7 +284,7 @@ class GetEnsemble:
             print(i)
             query = dict(
                 variable_id=[self.var],
-                experiment_id=["historical"],  # , "ssp585"],
+                experiment_id=[self.past],  # , "ssp585"],
                 table_id=[self.table_id],
                 institution_id=[i],
             )
@@ -384,57 +395,63 @@ class GetEnsemble:
         Args:
             instit (str, optional): Which institute to go through. Defaults to "NCAR".
         """
-        ssp585_instit = self.da_lists["ssp585"].where(
-            sself.da_lists["ssp585"].institution == instit, drop=True
+        scenario_instit = self.da_lists[self.future].where(
+            self.da_lists[self.future].institution == instit, drop=True
         )
-        hist_instit = self.da_lists["hist"].where(
-            self.da_lists["hist"].institution == instit, drop=True
+        historical_instit = self.da_lists[self.past].where(
+            self.da_lists[self.past].institution == instit, drop=True
         )
-        # print(ssp585_instit.member.values)
-        # print(hist_instit.member.values)
-        for model in ssp585_instit.model.values:
-            ssp585_model = ssp585_instit.where(ssp585_instit.model == model, drop=True)
-            hist_model = hist_instit.where(hist_instit.model == model, drop=True)
-            # print(ssp585_model.member.values)
-            # print(hist_model.member.values)
-            for member_id in ssp585_instit.member_id.values:
-                ssp585_member = ssp585_model.where(
-                    ssp585_model.member_id == member_id, drop=True
+        # print(scenario_instit.member.values)
+        # print(historical_instit.member.values)
+        for model in scenario_instit.model.values:
+            scenario_model = scenario_instit.where(scenario_instit.model == model, drop=True)
+            historical_model = historical_instit.where(historical_instit.model == model, drop=True)
+            # print(scenario_model.member.values)
+            # print(historical_model.member.values)
+            for member_id in scenario_instit.member_id.values:
+                scenario_member = scenario_model.where(
+                    scenario_model.member_id == member_id, drop=True
                 )
-                hist_member = hist_model.where(
-                    hist_model.member_id == member_id, drop=True
+                historical_member = historical_model.where(
+                    historical_model.member_id == member_id, drop=True
                 )
                 if (
-                    len(ssp585_member.member.values) != 0
-                    and len(hist_member.member.values) != 0
+                    len(scenario_member.member.values) != 0
+                    and len(historical_member.member.values) != 0
                 ):
-                    print(hist_member.member.values)
-                    print(ssp585_member.member.values)
-                    # if len(ssp585_member.member.values) !=0 and
-                    # len(hist_member.member.values) != 0:
+                    print(historical_member.member.values)
+                    print(scenario_member.member.values)
+                    # if len(scenario_member.member.values) !=0 and
+                    # len(historical_member.member.values) != 0:
                     # if len(da_list) <= 1:
                     ensemble_da = xr.concat(
                         [
-                            hist_member.isel(member=0).drop("member"),
-                            ssp585_member.isel(member=0).drop("member"),
+                            historical_member.isel(member=0).drop("member"),
+                            scenario_member.isel(member=0).drop("member"),
                         ],
-                        "time",
+                        "T",
                     )
                     # da_list.append(ensemble_da)
-                    # key_list.append(ssp585_member.member.values[0])
+                    # key_list.append(scenario_member.member.values[0])
                     ensemble_da.to_netcdf(
                         os.path.join(
                             self.output_folder,
                             self.var
                             + "."
                             + _member_name(instit, model, member_id)
-                            + ".80.nc",
-                        )
+                            + "."
+                            + self.past
+                            + "."
+                            + self.future
+                            + ".nc",
+                        ),
+                        # save some space
+                        encoding={self.var: {"dtype": "float16"}}
                     )
                 else:
                     print("problem with " + model + " " + member_id)
-                    print(ssp585_member)
-                    print(hist_member)
+                    print(scenario_member)
+                    print(historical_member)
         # da = xr.concat(da_list, "member")
         # da = da.assign_coords({"member": key_list})
         # return da_list
@@ -497,6 +514,23 @@ class GetEnsemble:
                     )
                 )
 
+def load_ensemble_da(var: str, path: str) -> xr.DataArray:
+    """
+    Args:
+        var (str): the variable to load.
+            E.g. "ts"
+        path (str): the path to the variable to load. 
+            E.g. "src/data/nc/nc_ts"
+        
+    Returns:
+        xr.DataArray: the xarray datarray with "X", "Y", "T", and "member" 
+            as dimensions.
+    """
+    return xr.open_mfdataset(
+            os.path.join(path, "*.nc"),
+            concat_dim="member",
+            preprocess=_get_preproc_func(var),
+        )[var]
 
 def _scenariomip_data(var: str = "ts", scenario: str = "ssp585"):
     return os.path.join(os.path.join("ScenarioMIP", scenario, var))
@@ -566,19 +600,22 @@ def _member_name(instit: str, model: str, member_id: str) -> str:
     return str(instit) + "." + str(model) + "." + str(member_id)
 
 
-def _folder_name(var: str, root_direc: Union[pathlib.Path, str] = NC_PATH) -> str:
+def _folder_name(var: str, experiment: str, root_direc: Union[pathlib.Path, str] = NC_PATH) -> str:
     """
     Folder name for ensemble of netcdfs.
 
     Args:
         var (str): Variable name (e.g "pr").
+        experiment (str): Experiment name (e.g. "historical")
         root_direc (Union[pathlib.Path, str]): Folder path.
 
     Returns:
-        str: Folder path (e.g. "nc_pr")
+        str: Folder path (e.g. "pr")
     """
     _folder(root_direc)
-    path = str(os.path.join(root_direc, "nc_" + var))
+    experiment_direc = str(os.path.join(root_direc, experiment))
+    _folder(experiment_direc)
+    path = str(os.path.join(experiment_direc, var))
     _folder(path)
     return path
 
@@ -617,10 +654,9 @@ def get_vars(var_list: List[str], regen_success_list=False) -> None:
     for var_str in var_list:
         ens = GetEnsemble(
             var=var_str,
-            output_folder=_folder_name(var_str),
             regen_success_list=regen_success_list,
         )
-        ens.make_das()
+        ens.make_comb_das()
         ens.mean_var()
 
 
@@ -667,7 +703,7 @@ def plausible_temperatures(values: np.ndarray) -> bool:
 
 
 def test_if_regridding_ok() -> None:
-    """Trying to test if different regridding mehtods each work."""
+    """Trying to test if different regridding methods each work."""
     import matplotlib.pyplot as plt
 
     oned = GetEnsemble(regrid="1d", test=True)
@@ -682,6 +718,20 @@ def test_if_regridding_ok() -> None:
         plt.savefig("fig-" + str(i) + "-a.png")
         plt.clf()
 
+@timeit
+@hydra.main(config_path=CONFIG_PATH, config_name="pangeo.yml")
+def main(cfg: DictConfig) -> None:
+    print(cfg)
+    wandb.init(
+            project=cfg.project,
+            entity=cfg.user,
+            save_code=True,
+            name=cfg.name,
+            # pylint: disable=protected-access
+            config=cfg._content,
+        )
+    
+    get_vars([cfg.var], regen_success_list=False)
 
 if __name__ == "__main__":
     # from src.data_loading.pangeo import GetEnsemble
@@ -701,4 +751,8 @@ if __name__ == "__main__":
     # _print_scenario_sel()
     # for scenario in SCENARIOS:
     #    make_future_nino34(scenario=scenario)
-    test_if_regridding_ok()
+    # test_if_regridding_ok()
+    # get_vars(["ts", "sfcWind", "hurs"], regen_success_list=False)
+    # pylint: disable=no-value-for-parameter
+    main()
+    # python src/data_loading/pangeo.py -m var=sfcWind,hurs

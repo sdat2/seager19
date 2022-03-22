@@ -182,7 +182,6 @@ def regrid_1d_to_standard(
 
 # can_coords(da.)
 
-
 if __name__ == "__main__":
     # python src/data_loading/regrid.py
     print(regrid_1d_to_standard(_regridding_ds_1d(with_bounds=False)))
