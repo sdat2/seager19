@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.o
 *.exe
+*.zip
 
 # local passwords/tokens
 .secret*
@@ -175,6 +176,7 @@ dmypy.json
 etc/
 report/
 .gitmodules
+old-env
 
 # ocean
 ocean/SRC/tcom

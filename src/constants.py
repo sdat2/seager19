@@ -38,6 +38,7 @@ MASK = OCEAN_DATA_PATH / "om_mask.nc"
 
 # General data from e.g. paper or cmip etc.
 DATA_PATH = SRC_PATH / "data"
+NC_PATH = DATA_PATH / "nc"
 CMIP_TS_PATH = DATA_PATH / "ts_nc"
 CMIP6_TS_PATH = DATA_PATH / "nc80"
 CMIP6_CLIM60_PATH = DATA_PATH / "nc_mean"
@@ -87,6 +88,7 @@ NINO3_4_TEST_PATH: pathlib.Path = DATA_PATH / NINO3_4_TEST_NAME
 
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
+ARCHIVE_DIR = GWS_DIR / "rep"
 
 # Subdirectories in GWS
 OLD_LOGS = GWS_DIR / "logs"
@@ -136,8 +138,7 @@ def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
 
 
 # region selection dictionary
-SEL_DICT = {
-    r"""
+r"""
     Nino1-4 definitions are taken from:
 
     Trenberth, Kevin & National Center for Atmospheric Research Staff (Eds).
@@ -185,7 +186,10 @@ SEL_DICT = {
     # [west, east] [south, north] boundaries
     # X in degrees east, Y in degrees north.
     # colors compatible with matplotlib.
-    """
+"""
+
+
+SEL_DICT = {
     "pac": {"X": (100, 290), "Y": (-30, 30), "color": "#411900"},
     "nino1": {"X": (270, 280), "Y": (-10, -5), "color": "black"},
     "nino2": {"X": (270, 280), "Y": (-5, 0), "color": "black"},

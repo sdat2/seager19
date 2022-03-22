@@ -105,7 +105,7 @@ def label_subplots(
 def get_dim(
     width: float = REPORT_WIDTH,
     fraction_of_line_width: float = 1,
-    ratio: float = (5 ** 0.5 - 1) / 2,
+    ratio: float = (5**0.5 - 1) / 2,
 ) -> Tuple[float, float]:
     """Return figure height, width in inches to avoid scaling in latex.
 
@@ -150,7 +150,7 @@ def set_dim(
     fig: matplotlib.figure.Figure,
     width: float = REPORT_WIDTH,
     fraction_of_line_width: float = 1,
-    ratio: float = (5 ** 0.5 - 1) / 2,
+    ratio: float = (5**0.5 - 1) / 2,
 ) -> None:
     """Set aesthetic figure dimensions to avoid scaling in latex.
 
@@ -187,9 +187,6 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     Call this at the start of a script which uses `matplotlib`.
     Can enable `matplotlib` LaTeX backend if it is available.
 
-    TODO: There seems to currently be a bug where markers
-         don't appear with 'plt.plot([], [], "x").
-         Need to figure out how I have caused this.
 
     Args:
         use_tex (bool, optional): Whether or not to use latex matplotlib backend.
@@ -212,6 +209,8 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
     """
     if platform == "darwin":
         matplotlib.use("TkAgg")
+
+    use_tex: bool = False
 
     p_general = {
         "font.family": "STIXGeneral",  # Nice alternative font.
@@ -430,6 +429,8 @@ def axis_formatter() -> matplotlib.ticker.ScalarFormatter:
         >>> plt.gca().ticklabel_format(
         >>>    axis=ax_format, style="sci", scilimits=(0, 0), useMathText=True
         >>> )
+
+    TODO Add an example of formatter use.
 
     Returns:
         matplotlib.ticker.ScalarFormatter: An object to pass in to a

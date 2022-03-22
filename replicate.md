@@ -2,6 +2,8 @@
 
 ```bash
 
+python src/main.py name=test25
+
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=true atm.mem=EE66 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c
 
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=false atm.mem=EE66 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5c comp.prwnd=5c

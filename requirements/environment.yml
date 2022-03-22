@@ -5,5 +5,7 @@ channels:
 dependencies:
   - python=3.8
   - pip
+  - gpy
   - pip:
+    - -r package.txt
     - -r dev-requirements.txt
