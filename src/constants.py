@@ -38,6 +38,7 @@ MASK = OCEAN_DATA_PATH / "om_mask.nc"
 
 # General data from e.g. paper or cmip etc.
 DATA_PATH = SRC_PATH / "data"
+NC_PATH = DATA_PATH / "nc"
 CMIP_TS_PATH = DATA_PATH / "ts_nc"
 CMIP6_TS_PATH = DATA_PATH / "nc80"
 CMIP6_CLIM60_PATH = DATA_PATH / "nc_mean"

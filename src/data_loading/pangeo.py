@@ -13,6 +13,7 @@ TODO:
 """
 import os
 from typing import Union, Callable, List, Literal
+import pathlib
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -21,6 +22,7 @@ import dask
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 import cftime
 from intake import open_catalog
+from src.constants import NC_PATH
 from src.utils import timeit
 from src.xr_utils import sel, can_coords, spatial_mean
 from src.data_loading.regrid import (
@@ -34,9 +36,9 @@ from src.data_loading.regrid import (
 # This could definitely be moved to src/constants.py
 START_YEAR: str = "1958"
 END_YEAR: str = "2017"
-FUTURE_SCENARIO = "ssp585"
+DEFAULT_FUTURE_SCENARIO: str = "ssp585"
 
-SCENARIOS: List[str] = ["ssp585", "ssp245", "ssp370", "ssp126"]
+SCENARIOS: List[str] = ["ssp126", "ssp245", "ssp370", "ssp585"]
 
 PANGEO_CAT_URL = str(
     "https://raw.githubusercontent.com/pangeo-data/"
@@ -84,16 +86,19 @@ VAR_PROP_D = {
         "units": r"$\%$",
         "long_name": "Relative humidity",
         "description": "Mean relative humidity at surface",
+        "limits": [0, 100],
     },
     "hur": {
         "units": r"$\%$",
         "long_name": "Relative humidity",
         "description": "Mean relative humidity at surface",
+        "limits": [0, 100],
     },
     "ts": {
         "units": "K",
         "long_name": "Suface temperature",
         "description": "Surface Temperature [K]",
+        "limits": [100, 373.15],  # 100K to 100 C
     },
     "vas": {
         "units": r"m s${-1}$",
@@ -124,11 +129,13 @@ VAR_PROP_D = {
         "units": r"$\%$",
         "long_name": "Total cloud cover percentage",
         "description": "Total Cloud Cover Percentage [%]",
+        "limits": [0, 100],
     },
     "sfcWind": {
         "units": r"m s${-1}$",
         "long_name": "Near-Surface Wind Speed ",
         "description": "Near-Surface Wind Speed [m s-1]",
+        "limits": [0, 200],  # 0 to 200 ms-1
     },
 }
 
@@ -340,10 +347,8 @@ class GetEnsemble:
                 time=slice(str(year_begin), str(year_end))
             )
             if self.regrid == "2d":
-                print("regridding 2d")
                 da = regrid_2d_to_standard(regrid_2d(da_sel))
             elif self.regrid == "1d":
-                print("regridding 1d")
                 da = regrid_1d_to_standard(regrid_1d(da_sel))
 
             for i in da.member_id.values:
@@ -447,7 +452,19 @@ class GetEnsemble:
             preprocess=_get_preproc_func(var),
         )
         print(da)
-        mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
+        if "limits" in VAR_PROP_D[var]:
+            mean = (
+                da.sel(time=slice(START_YEAR, END_YEAR))
+                .clip(
+                    min=VAR_PROP_D[var]["limits"][0],
+                    max=VAR_PROP_D[var]["limits"][1],
+                    keep_attrs=True,
+                )
+                .mean("member")
+                .mean("time")
+            )
+        else:
+            mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
         mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
         mean[var].attrs["long_name"] = VAR_PROP_D[var]["long_name"] + " mean"
         mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
@@ -520,7 +537,14 @@ def _print_scenario_sel():
 
 
 def _member_name_from_da(da: xr.DataArray) -> str:
-    """member name from da already referenced by member"""
+    """Member name from da already referenced by member.
+    
+    Args:
+        da (xr.DataArray): xarray input.
+    
+    Returns:
+        str: member name.
+    """
     instit = da.institution.values
     model = da.model.values
     member_id = da.member_id.values
@@ -542,17 +566,21 @@ def _member_name(instit: str, model: str, member_id: str) -> str:
     return str(instit) + "." + str(model) + "." + str(member_id)
 
 
-def _folder_name(var: str) -> str:
+def _folder_name(var: str, root_direc: Union[pathlib.Path, str] = NC_PATH) -> str:
     """
     Folder name for ensemble of netcdfs.
 
     Args:
-        var (str): Variable name (e.g "pr")
+        var (str): Variable name (e.g "pr").
+        root_direc (Union[pathlib.Path, str]): Folder path.
 
     Returns:
         str: Folder path (e.g. "nc_pr")
     """
-    return "nc_" + var
+    _folder(root_direc)
+    path = str(os.path.join(root_direc, "nc_" + var))
+    _folder(path)
+    return path
 
 
 def _get_preproc_func(var_str: str) -> Callable:
@@ -596,7 +624,16 @@ def get_vars(var_list: List[str], regen_success_list=False) -> None:
         ens.mean_var()
 
 
-def make_future_nino34(scenario="ssp585") -> None:
+def make_future_nino34(
+    scenario: Literal["ssp126", "ssp245", "ssp370", "ssp585"] = "ssp585"
+) -> None:
+    """
+    Make future nino3.4 records.
+
+    Args:
+        scenario (Literal["ssp126", "ssp245", "ssp370", "ssp585"]):
+            which scenario to get data from.
+    """
     da = _scenario_da(scenario=scenario)
     new_da = regridded_to_standard(da)
     nino34 = spatial_mean(sel(new_da, reg="nino3.4"))
@@ -642,7 +679,7 @@ def test_if_regridding_ok() -> None:
         print(plausible_temperatures(da.isel(T=0, member=0).values))
         assert not plausible_temperatures(np.array([0, 200]))
         da.isel(T=0, member=0).plot()
-        plt.savefig("fig" + str(i) + ".png")
+        plt.savefig("fig-" + str(i) + "-a.png")
         plt.clf()
 
 

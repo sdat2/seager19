@@ -77,6 +77,7 @@ def _regridding_ds_1d(with_bounds=False):
     Args:
         with_bounds (bool, optional): Whether to include bounds,
             which is required for the conservative regridding method.
+            Being False allows us to goo from -90 to 90 just like in NH type grids.
             Defaults to False.
 
     Returns:
