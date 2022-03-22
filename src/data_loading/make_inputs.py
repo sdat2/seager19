@@ -1,4 +1,4 @@
-"""Make CMIP5 variables to put into the atmosphere model."""
+"""Make input variable fields to put into the atmosphere and ocean model."""
 import os
 import numpy as np
 import xarray as xr
@@ -13,7 +13,7 @@ from src.constants import (
 from src.xr_utils import open_dataset, open_dataarray, can_coords
 from src.utils import timeit
 from src.data_loading.download import get_uv, get_mmm, get_figure_data
-from src.visualisation.comp import return_figure_ds
+from src.visualisation.comp_v_seager19 import return_figure_ds
 
 
 @timeit
@@ -150,7 +150,7 @@ def get_sfcwind() -> None:
 
 @timeit
 def get_sfcwind_6() -> None:
-    """Get the CMIP6 surface wind from the figure data."""
+    """Get the CMIP6 surface wind and put it in the right files."""
     # wsp = can_coords(return_figure_ds("5d")["wnspClim"])
     wsp = can_coords(xr.open_dataarray(os.path.join(CMIP6_CLIM60_PATH, "wsp.nc")))
     print(wsp.max())
@@ -212,7 +212,7 @@ def get_rh_6() -> None:
 
 
 if __name__ == "__main__":
-    # python3 src/data_loading/make_cmip5.py
+    # python3 src/data_loading/make_inputs.py
     # print(return_figure_ds("5f"))
     # make_rh()
     # make_sfcwind()

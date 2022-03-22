@@ -102,7 +102,7 @@ Example:
         self.c_bar = 0.6  # C is the cloud cover. perhaps C_bar is the average.
 
 """
-from typing import Tuple, Union
+from typing import Tuple, Union, Any
 import os
 import numpy as np
 from scipy.interpolate import interp2d
@@ -796,13 +796,9 @@ class Atmos:
             fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
             ds_clim = xr.open_dataset(self.setup.ts_clim(self.it))
             fts = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ts, kind="linear")
-            ds_clim = xr.open_dataset(
-                os.path.join(self.setup.atmos_data_path, "pr-ECMWF-clim.nc")
-            )
+            ds_clim = xr.open_dataset(self.setup.clim_file("pr", path=True))
             fpr = interp2d(ds_clim.X, ds_clim.Y, ds_clim.pr, kind="linear")
-            ds_clim = xr.open_dataset(
-                os.path.join(self.setup.atmos_data_path, "ps-ECMWF-clim.nc")
-            )
+            ds_clim = xr.open_dataset(self.setup.clim_file("ps", path=True))
             fps = interp2d(ds_clim.X, ds_clim.Y, ds_clim.ps, kind="linear")
             # Return interpolation objects
             return fwnsp, fts, fpr, fps
@@ -824,7 +820,7 @@ class Atmos:
             ds_trend = xr.open_dataset(self.setup.ts_trend(self.it))
             fts_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.ts, kind="linear")
             ds_trend = xr.open_dataset(
-                os.path.join(self.setup.atmos_data_path, "pr-ECMWF-trend.nc")
+                self.setup.clim_file("pr", typ="trend", path=True)
             )
             fpr_trend = interp2d(ds_trend.X, ds_trend.Y, ds_trend.pr, kind="linear")
             return fts_trend, fpr_trend
@@ -1109,20 +1105,18 @@ class Atmos:
         files = []
 
         for i, m in enumerate(self.atm.mem):
-            name = self.names[m]
-            variable = self.var[i]
-            if variable == "ts":
-                # the surface temperature can be an input from the ocean model.
-                file = self.setup.ts_clim60(self.it)
-                # temperature is in degrees kelvin!
-            else:
-                file = os.path.join(
-                    self.setup.atmos_data_path, variable + "-" + name + "-clim60.nc"
-                )
-            print(name, variable, file)
-            print(file)
-            assert os.path.isfile(file)
-            files += [file]  # append to list.
+            if i < 4:
+                name = self.names[m]
+                variable = self.var[i]
+                if variable == "ts":
+                    # the surface temperature can be an input from the ocean model.
+                    file = self.setup.ts_clim60(self.it)
+                    # temperature is in degrees kelvin!
+                else:
+                    self.setup.clim60_name(i, path=True)
+                print(name, variable, file)
+                assert os.path.isfile(file)
+                files += [file]  # append to list.
 
         return xr.open_mfdataset(files, decode_times=False)
 
@@ -1274,7 +1268,7 @@ class Atmos:
     @typechecked
     def make_figure(
         self,
-        cmap: Union[str] = "viridis",
+        cmap: Union[str, Any] = "viridis",
         lat: str = "latitude",
         lon: str = "longitude",
     ) -> None:

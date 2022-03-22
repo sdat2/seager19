@@ -244,7 +244,7 @@ class Ocean:
     def animate_all(self) -> None:
         """Animate the sst into gifs."""
 
-        l_x = list()
+        l_x = []
         if self.cfg.ocean.diag:
             l_x.append("om_diag")
         if self.cfg.ocean.run_through:

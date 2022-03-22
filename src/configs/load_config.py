@@ -1,5 +1,5 @@
 """Load hydra config (util for tests)."""
-from hydra.experimental import initialize, compose
+from hydra import initialize, compose  # new hydra moved from experimental
 from src.constants import PROJECT_PATH, CONFIG_NAME, CONFIG_PATH
 from src.configs.config import format_config
 from omegaconf import DictConfig

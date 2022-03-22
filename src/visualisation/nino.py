@@ -3,7 +3,9 @@ from typing import Tuple
 import matplotlib
 import matplotlib.pyplot as plt
 from src.constants import SEL_DICT
-from src.plot_utils import add_units, cmap
+from src.plot_utils import add_units, cmap, label_subplots, get_dim
+from src.xr_utils import get_trend
+from src.metrics import nino_calculate
 
 
 def plot_nino(ax: matplotlib.axes.Axes, legend: bool = False) -> None:
@@ -50,7 +52,31 @@ def plot_nino(ax: matplotlib.axes.Axes, legend: bool = False) -> None:
         )
 
 
-def multi_panel_nino(show_plots=False):
+def multi_panel_nino(sst_output, graph_path, show_plots=False):
+    """
+    Multi panel nino plot.
+
+    Args:
+        sst_output (xr.DataArray): sst_output netcdf.
+        graph_path (str): Graph path.
+        show_plots (bool, optional): Show plots. Defaults to False.
+    """
+    _, axs = plt.subplots(3, 1, figsize=get_dim(ratio=1.2))
+
+    metric_l = []
+    clim_l = []
+    reg_l = []
+    nino_dict = []
+
+    add_units(get_trend(sst_output, min_clim_f=True, output="rise")).plot(
+        ax=axs[0],
+        cmap=cmap("delta"),
+        cbar_kwargs={"label": r"$\Delta T_s$ [$\Delta$K]"},
+    )
+    plot_nino(axs[0])
+
+    plt.xlim(95, 295)
+    plt.ylim(-32, 32)
     add_units(get_trend(sst_output, min_clim_f=True, output="rise")).plot(
         ax=axs[0],
         cmap=cmap("delta"),

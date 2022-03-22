@@ -1,5 +1,7 @@
 """Set up the model, copy the files, get the names."""
+from typing import List
 import os
+import pandas as pd
 from omegaconf import DictConfig
 from src.constants import (
     OCEAN_RUN_PATH,
@@ -7,7 +9,55 @@ from src.constants import (
     OCEAN_DATA_PATH,
     ATMOS_DATA_PATH,
     ATMOS_TMP_PATH,
+    MODEL_NAMES,
+    VAR_DICT,
 )
+
+
+def mems_to_df(mem_list: List[str]) -> pd.DataFrame:
+    """
+    Turn a list of mems into a dataframe of inputs.
+
+    Args:
+        mem_list (List[str]): List of mem to turn into corresponding
+            dataframe of inputs.
+
+    Returns:
+        pd.DataFrame: A dataframe
+
+    Example:
+        Work out what inputs a list of runs got::
+
+            mems_to_df(["EEEE", "CCCC", "66E6"])
+    """
+    results_lol = []
+    for i in VAR_DICT:
+        results_lol.append([])
+    for i, mem in enumerate(mem_list):
+        for j in VAR_DICT:
+            if len(mem) <= j:
+                results_lol[j].append(MODEL_NAMES["E"])
+            else:
+                results_lol[j].append(MODEL_NAMES[mem[j]])
+    return pd.DataFrame(
+        data={VAR_DICT[i]: results_lol[i] for i in range(len(results_lol))},
+        index=mem_list,
+    )
+
+
+def mem_to_dict(mem: str) -> dict:
+    """
+    Single mem variable to dictionary of inputs.
+
+    Uses logic in `mems_to_df`.
+
+    Args:
+        mem (str): the mem input e.g "EEEE"
+
+    Returns:
+        dict: dictionary of inputs, e.g.
+    """
+    return {var: input_d[mem] for (var, input_d) in mems_to_df([mem]).to_dict().items()}
 
 
 class ModelSetup:
@@ -51,26 +101,13 @@ class ModelSetup:
 
         # the different model names in a dict? - used by key from self.mem.
         # most of this data isn't available.
-        self.names: dict = {
-            "E": "ECMWF",
-            "F": "ECMWF-orig",
-            "B": "CMIP5-39m",
-            "C": "CMIP5",
-            "6": "CMIP6",
-            "D": "CMIP5-orig",
-            "H": "HadGEM2",
-            "f": "fixed",
-            "e": "fixed78",
-            "g": "fixed82",
-            "W": "WHOI",
-            "M": "MERRA",
-            "I": "ISCCP",
-        }
-        # let's change the temperature at the surface, and the clouds as well.
+        self.names: dict = MODEL_NAMES
 
         # dict of variables that are read in.
-        self.var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        self.var: dict = VAR_DICT
         # temperature of the surface, cloud area fraction, surface wind, rel humidity.
+
+        self.input_dict = mem_to_dict(self.cfg.atm.mem)
 
         if make_move:
 
@@ -109,7 +146,7 @@ class ModelSetup:
             self._init_ocean()
             self._init_atmos()
 
-    def _init_ocean(self):
+    def _init_ocean(self) -> None:
         """initialise the ocean model by copying files over."""
 
         for file_ending in ["*.F", "*.c", "*.h", "*.inc", "*.mod", ".tios"]:
@@ -152,7 +189,7 @@ class ModelSetup:
 
         os.system("cd " + str(self.ocean_data_path) + " \n make all")
 
-    def _init_atmos(self):
+    def _init_atmos(self) -> None:
         """Creating atmos by copying files over."""
 
         os.system(
@@ -208,7 +245,8 @@ class ModelSetup:
 
     def ts_clim(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "ts-ECMWF-clim.nc"
+            name = self.clim_file("ts", "clim", "", path=False)
+            # name = self.clim_name(0, path=False)  # "ts-ECMWF-clim.nc"
         else:
             name = "ts-" + str(it) + "-clim.nc"
 
@@ -219,7 +257,7 @@ class ModelSetup:
 
     def ts_clim60(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "ts-ECMWF-clim60.nc"
+            name = self.clim_file("ts", "clim", "60", path=False)
         else:
             name = "ts-" + str(it) + "-clim60.nc"
 
@@ -230,7 +268,7 @@ class ModelSetup:
 
     def ts_trend(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "ts-ECMWF-trend.nc"
+            name = self.clim_file("ts", "trend", "", path=False)
         else:
             name = "ts-" + str(it) + "-trend.nc"
         if path:
@@ -240,7 +278,7 @@ class ModelSetup:
 
     def tau_base(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "tau-ECMWF"
+            name = self.clim_file("tau", "", "", path=False)[:-4]
         else:
             name = "it_" + str(it) + "_tau"
         if path:
@@ -256,7 +294,7 @@ class ModelSetup:
 
     def tau_clim_base(self, it: int, path: bool = True) -> str:
         if it == 0:
-            name = "tau-ECMWF-clim"
+            name = self.clim_file("tau", "clim", path=False)[:-3]
         else:
             name = "it_" + str(it) + "_clim_tau"
         if path:
@@ -327,14 +365,19 @@ class ModelSetup:
     def _get_clim_name(self, var_num: int) -> str:
         return self.names[self.cfg.atm.mem[var_num]]
 
-    def clim60_name(self, var_num: int) -> str:
-        # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
-        name = self._get_clim_name(var_num)
-        variable = self.var[var_num]
-        return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim60.nc")
+    def clim_file(
+        self, var_name: str, typ: str = "clim", appendage: str = "", path: bool = True
+    ) -> str:
+        name = (
+            var_name + "-" + self.input_dict[var_name] + "-" + typ + appendage + ".nc"
+        )
+        if path:
+            return os.path.join(self.atmos_data_path, name)
+        else:
+            return name
 
-    def clim_name(self, var_num: int) -> str:
-        # {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
-        name = self._get_clim_name(var_num)
-        variable = self.var[var_num]
-        return os.path.join(self.atmos_data_path, variable + "-" + name + "-clim.nc")
+    def clim60_name(self, var_num: int, path: bool = True) -> str:
+        return self.clim_file(self.var[var_num], "clim", "60", path=path)
+
+    def clim_name(self, var_num: int, path: bool = True) -> str:
+        return self.clim_file(self.var[var_num], "clim", "", path=path)

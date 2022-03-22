@@ -417,6 +417,7 @@ def get_trend(
     output: Literal["slope", "rise"] = "rise",
     t_var: str = "T",
     make_hatch_mask: bool = False,
+    keep_ds: bool = False,
     uncertainty: bool = False,
 ) -> Union[float, ufloat, xr.DataArray, Tuple[xr.DataArray, xr.DataArray]]:
     """
@@ -462,7 +463,7 @@ def get_trend(
             print(type(inp))
         return float(inp)
 
-    if "X" in da.dims or "Y" in da.dims:
+    if "X" in da.dims or "Y" in da.dims or "member" in da.dims or keep_ds:
 
         fit_da = da.polyfit(t_var, 1, cov=make_hatch_mask)
 
