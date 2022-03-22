@@ -446,7 +446,7 @@ class GetEnsemble:
                             + ".nc",
                         ),
                         # save some space
-                        encoding={self.var: {"dtype": "float16"}}
+                        encoding={self.var: {"dtype": "f8"}}
                     )
                 else:
                     print("problem with " + model + " " + member_id)
@@ -464,7 +464,7 @@ class GetEnsemble:
             var (str, optional): Variable name string. Defaults to "ts".
         """
         da = xr.open_mfdataset(
-            _folder_name(self.var) + "/*.nc",
+            _folder_name(self.var, "mean") + "/*.nc",
             concat_dim="member",
             preprocess=_get_preproc_func(var),
         )
