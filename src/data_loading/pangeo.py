@@ -28,7 +28,6 @@ from src.xr_utils import sel, can_coords, spatial_mean
 # This could definitely be moved to src/constants.py
 START_YEAR: str = "1958"
 END_YEAR: str = "2017"
-DEFAULT_REGRIDDER_DS = xe.util.grid_global(1,1)
 FUTURE_SCENARIO = "ssp585"
 
 SCENARIOS = ["ssp585", "ssp245", "ssp370", "ssp126"]
@@ -330,7 +329,7 @@ class GetEnsemble:
         with dask.config.set(**{"array.slicing.split_large_chunks": True}):
             dset_dict_proc = subset.to_dataset_dict(
                 zarr_kwargs=z_kwargs, preprocess=_preproc
-            )    
+            )
 
         da_list = []
         key_list = []
@@ -339,10 +338,8 @@ class GetEnsemble:
             da_sel = dset_dict_proc[key][self.var].sel(
                     time=slice(str(year_begin), str(year_end)),
                 )
-            da = regrid(da_sel)#.interp(
-                    #method="cubic"
-                #)
-            
+            # da regrid
+            da = regrid(da_sel)
 
             for i in da.member_id.values:
                 key_list.append(key + "." + i)

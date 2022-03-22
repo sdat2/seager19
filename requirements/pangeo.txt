@@ -45,3 +45,7 @@ intake-esm
 intake
 intake-xarray
 gcsfs
+
+# plotting dependencies of package
+cmocean
+seaborn
