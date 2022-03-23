@@ -431,9 +431,17 @@ class GetEnsemble:
                         ],
                         "T",
                     )
+                    ensemble_da["X"].attrs = {'standard_name': 'longitude', 'units': 'degrees_east'}
+            
+                    ensemble_da["Y"].attrs = {'standard_name': 'latitude', 'units': 'degrees_north'}
+                    ensemble_da["T"].attrs = {'standard_name': 'time'}
+                    
+                    times = ensemble_da["T"].values
+                    vals, idx_start, count = np.unique(times, return_counts=True, return_index=True)
+
                     # da_list.append(ensemble_da)
                     # key_list.append(scenario_member.member.values[0])
-                    ensemble_da.to_netcdf(
+                    ensemble_da.isel(time=idx_start).astype("float32").to_netcdf(
                         os.path.join(
                             self.output_folder,
                             self.var
@@ -446,7 +454,7 @@ class GetEnsemble:
                             + ".nc",
                         ),
                         # save some space
-                        encoding={self.var: {"dtype": "f8"}}
+                        # encoding={self.var: {"dtype": "f8"}}
                     )
                 else:
                     print("problem with " + model + " " + member_id)
@@ -465,7 +473,7 @@ class GetEnsemble:
         """
         var = self.var
         da = xr.open_mfdataset(
-            _folder_name(var, "mean") + "/*.nc",
+            _folder_name(var, self.past + "." + self.future) + "/*.nc",
             concat_dim="member",
             preprocess=_get_preproc_func(self.var),
         )
@@ -487,7 +495,7 @@ class GetEnsemble:
         mean[var].attrs["long_name"] = VAR_PROP_D[var]["long_name"] + " mean"
         mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
         _folder(_folder_name("mean"))
-        mean.to_netcdf(os.path.join(_folder_name("mean"), var + ".nc"))
+        mean.to_netcdf(os.path.join(_folder_name("mean", self.past + "." + self.future), var + ".nc"))
 
     @timeit
     def get_future(self) -> None:
