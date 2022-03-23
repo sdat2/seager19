@@ -463,10 +463,11 @@ class GetEnsemble:
         Args:
             var (str, optional): Variable name string. Defaults to "ts".
         """
+        var = self.var
         da = xr.open_mfdataset(
-            _folder_name(self.var, "mean") + "/*.nc",
+            _folder_name(var, "mean") + "/*.nc",
             concat_dim="member",
-            preprocess=_get_preproc_func(var),
+            preprocess=_get_preproc_func(self.var),
         )
         print(da)
         if "limits" in VAR_PROP_D[var]:
@@ -595,7 +596,7 @@ def _member_name(instit: str, model: str, member_id: str) -> str:
         member_id (str): Model run id.
 
     Returns:
-        str: thing.
+        str: ${istit}.${model}.${member_id}
     """
     return str(instit) + "." + str(model) + "." + str(member_id)
 
@@ -686,7 +687,7 @@ def make_future_nino34(
 
 def plausible_temperatures(values: np.ndarray) -> bool:
     """
-    Cheks if plausible temperatures in Kelvin.
+    Checks if plausible temperatures in Kelvin.
 
     Args:
         values (np.ndarray): numpy array.
@@ -757,4 +758,4 @@ if __name__ == "__main__":
     main()
     # python src/data_loading/pangeo.py -m var=sfcWind,hurs
     # python src/data_loading/pangeo.py -m var=pr,ps
-    # python src/data_loading/pangeo.py var=clt
+    # python src/data_loading/pangeo.py -m var=clt,ts
