@@ -1,15 +1,45 @@
 """Get CMIP6 variables on pangeo by linking together
 historical and SSP85 and historical simulations.
 
+It is possible to change the options to link together different
+
 Script just for monthly surface fields.
 
-Reprocesses data onto a 1x1 degree standard lon-lat grid.
+Reprocesses data onto a 1x1 degree standard lon-lat grid. 
+X = 0,1,2 ... 359
 
 Rejects some models because they are difficult to process.
 
 TODO:
-   - Grid keyword
    - postprocess
+   - look at how many members have inputs for all relevant variables.
+
+File structures inside src/data:
+
+    Full ensemble time series:
+        nc/historical.ssp585/${var}/${member}.nc
+
+    Ensemble 60 year mean state:
+        nc/historical.ssp585.mean/${var}/${member}.nc
+
+    Ensemble 60 year climatology:
+        nc/historical.ssp585.climatology/${var}/${member}.nc
+
+    Ensemble 60 year linear trend:
+        nc/historical.ssp585.trend/${var}/${member}.nc
+
+    Ensemble 60 year linear trend:
+        nc/historical.ssp585.nino3.4/${var}/${member}.nc
+
+    MMM 60 year mean:
+        nc/historical.ssp585.mmm.mean/${var}.nc
+
+    MMM 60 year trend:
+        nc/historical.ssp585.mmm.trend/${var}.nc
+
+    MMM 60 year climatology:
+        nc/historical.ssp585.mmm.climatology/${var}.nc
+
 """
 import os
 from typing import Union, Callable, List, Literal, Optional
@@ -252,7 +282,7 @@ class GetEnsemble:
             self.success_list = DEFAULT_SUCCESS_LIST
 
     @timeit
-    def make_comb_das(self) -> None:
+    def ensemble_timeseries(self) -> None:
         """Make a set of merged datarrays."""
         self.da_lists[self.past] = self.get_var(
             experiment=self.past,
@@ -264,8 +294,6 @@ class GetEnsemble:
         )
         for instit in self.success_list:
             self.comp_and_match(instit=instit)
-        # comp_and_match(instit="NCAR")
-        # print(da_list)
 
     @timeit
     def get_sucess_list(self) -> list:
@@ -441,7 +469,7 @@ class GetEnsemble:
 
                     # da_list.append(ensemble_da)
                     # key_list.append(scenario_member.member.values[0])
-                    ensemble_da.isel(time=idx_start).astype("float32").to_netcdf(
+                    ensemble_da.isel(T=idx_start).astype("float32").to_netcdf(
                         os.path.join(
                             self.output_folder,
                             self.var
@@ -460,11 +488,8 @@ class GetEnsemble:
                     print("problem with " + model + " " + member_id)
                     print(scenario_member)
                     print(historical_member)
-        # da = xr.concat(da_list, "member")
-        # da = da.assign_coords({"member": key_list})
-        # return da_list
 
-    def mean_var(self) -> None:
+    def mmm_mean_state(self) -> None:
         """
         Variable mean in time and between models for the 60 years.
 
@@ -473,7 +498,7 @@ class GetEnsemble:
         """
         var = self.var
         da = xr.open_mfdataset(
-            _folder_name(var, self.past + "." + self.future) + "/*.nc",
+            os.path.join(_folder_name(var, self.past + "." + self.future), "*.nc"),
             concat_dim="member",
             preprocess=_get_preproc_func(self.var),
         )
@@ -487,10 +512,10 @@ class GetEnsemble:
                     keep_attrs=True,
                 )
                 .mean("member")
-                .mean("time")
+                .mean("T")
             )
         else:
-            mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("time")
+            mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("T")
         mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
         mean[var].attrs["long_name"] = VAR_PROP_D[var]["long_name"] + " mean"
         mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
@@ -653,20 +678,24 @@ def _get_preproc_func(var_str: str) -> Callable:
     return _preproc_func
 
 
-def get_vars(var_list: List[str], regen_success_list=False) -> None:
+def get_vars(cfg: DictConfig) -> None:
     """
     Get the variable means and ensembles for the enviroment.
 
     Args:
-        var_list (List[str]): List of variables to make.
+        cfg (DictConfig): List of variables to make.
     """
-    for var_str in var_list:
-        ens = GetEnsemble(
-            var=var_str,
+    ens = GetEnsemble(
+            var=cfg.var,
             regen_success_list=regen_success_list,
+            
         )
-        ens.make_comb_das()
-        ens.mean_var()
+    if cfg.ensemble_timeseries:
+        ens.ensemble_timeseries()
+    if cfg.ensemble_derivatives:
+        print("No ensemble derivatives.")
+    if cfg.mmm_derivatives:
+        ens.mmm_mean_state()
 
 
 def make_future_nino34(
@@ -740,7 +769,7 @@ def main(cfg: DictConfig) -> None:
             config=cfg._content,
         )
     
-    get_vars([cfg.var], regen_success_list=False)
+    get_vars([cfg], regen_success_list=False)
 
 if __name__ == "__main__":
     # from src.data_loading.pangeo import GetEnsemble
@@ -764,6 +793,8 @@ if __name__ == "__main__":
     # get_vars(["ts", "sfcWind", "hurs"], regen_success_list=False)
     # pylint: disable=no-value-for-parameter
     main()
+    # conda activate pangeo3
     # python src/data_loading/pangeo.py -m var=sfcWind,hurs
     # python src/data_loading/pangeo.py -m var=pr,ps
     # python src/data_loading/pangeo.py -m var=clt,ts
+    # python src/data_loading/pangeo.py -m var=tauv,tauu
