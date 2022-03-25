@@ -114,6 +114,7 @@ def atmos_input_file_path(
         ATMOS_DATA_PATH / str(var + "-" + MODEL_NAMES[model] + "-" + ending + ".nc")
     )
 
+
 # Data directory on GWS
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
 ARCHIVE_DIR = GWS_DIR / "rep"

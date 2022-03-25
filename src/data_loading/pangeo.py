@@ -221,7 +221,7 @@ def _folder(path: str) -> None:
     if not os.path.exists(path):
         os.mkdir(path)
 
-
+        
 class GetEnsemble:
     """A class to get the ensemble of CMIP6 members for monthly surface variables.
 
@@ -250,7 +250,7 @@ class GetEnsemble:
                 Defaults to "Amon".
             regrid (Literal["1d", "2d"]):
             output_folder (Optional[str], optional): Where to output the ensemble to.
-                Defaults to None, and uses default structure. 
+                Defaults to None, and uses default structure.
                 nc/scenariomip/ts/
             regen_success_list (bool, optional): whether or not to regenerate
                 the success list. Defaults to False.
@@ -338,7 +338,7 @@ class GetEnsemble:
 
         print("Success list", success_list)
 
-        return success_list
+        return success_list        
 
     @timeit
     def get_var(
@@ -416,6 +416,21 @@ class GetEnsemble:
 
         return da
 
+    def _coord_attrs(self, da: xr.DataArray) -> xr.DataArray:
+        """Add coordinate attribute dictionaries."""
+        da["X"].attrs = {
+            "standard_name": "longitude",
+            "units": "degrees_east",
+            "long_name": "Longitude",
+        }
+        da["Y"].attrs = {
+            "standard_name": "latitude",
+            "units": "degrees_north",
+            "long_name": "Latitude",
+        }
+        da["T"].attrs = {"standard_name": "time", "long_name": "Time"}
+        return da
+
     def comp_and_match(self, instit: str = "NCAR") -> None:
         """
         Compare and match. Outputs the netcdf to the directory.
@@ -432,8 +447,12 @@ class GetEnsemble:
         # print(scenario_instit.member.values)
         # print(historical_instit.member.values)
         for model in scenario_instit.model.values:
-            scenario_model = scenario_instit.where(scenario_instit.model == model, drop=True)
-            historical_model = historical_instit.where(historical_instit.model == model, drop=True)
+            scenario_model = scenario_instit.where(
+                scenario_instit.model == model, drop=True
+            )
+            historical_model = historical_instit.where(
+                historical_instit.model == model, drop=True
+            )
             # print(scenario_model.member.values)
             # print(historical_model.member.values)
             for member_id in scenario_instit.member_id.values:
@@ -459,13 +478,11 @@ class GetEnsemble:
                         ],
                         "T",
                     )
-                    ensemble_da["X"].attrs = {'standard_name': 'longitude', 'units': 'degrees_east'}
-            
-                    ensemble_da["Y"].attrs = {'standard_name': 'latitude', 'units': 'degrees_north'}
-                    ensemble_da["T"].attrs = {'standard_name': 'time'}
-                    
+                    ensemble_da = self._coord_attrs(ensemble_da)
                     times = ensemble_da["T"].values
-                    vals, idx_start, count = np.unique(times, return_counts=True, return_index=True)
+                    vals, idx_start, count = np.unique(
+                        times, return_counts=True, return_index=True
+                    )
 
                     # da_list.append(ensemble_da)
                     # key_list.append(scenario_member.member.values[0])
@@ -489,6 +506,28 @@ class GetEnsemble:
                     print(scenario_member)
                     print(historical_member)
 
+    def _clip(self, da: xr.DataArray) -> xr.DataArray:
+        """Clip variable between limits if they exist."""
+        if "limits" in VAR_PROP_D[self.var]:
+            return da.clip(
+                min=VAR_PROP_D[self.var]["limits"][0],
+                max=VAR_PROP_D[self.var]["limits"][1],
+                keep_attrs=True,
+            )
+        else:
+            return da
+
+    def _mean_attrs(self, da: xr.DataArray) -> xr.DataArray:
+        """Modify variable names to make it obvious that this is a mean."""
+        da[self.var].attrs["units"] = VAR_PROP_D[self.var]["units"]
+        da[self.var].attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + " mean"
+        da[self.var].attrs["description"] = (
+            "Mean " + VAR_PROP_D[self.var]["description"]
+        )
+        da[self.var].attrs["start_year"] = START_YEAR
+        da[self.var].attrs["end_year"] = END_YEAR
+        return da
+
     def mmm_mean_state(self) -> None:
         """
         Variable mean in time and between models for the 60 years.
@@ -497,30 +536,30 @@ class GetEnsemble:
             var (str, optional): Variable name string. Defaults to "ts".
         """
         var = self.var
-        da = xr.open_mfdataset(
-            os.path.join(_folder_name(var, self.past + "." + self.future), "*.nc"),
+        da = self.load_ensemble_da()
+        mean = self._mean_attrs(
+            (self._clip(da.sel(T=slice(START_YEAR, END_YEAR))).mean("member").mean("T"))
+        )
+        mean.to_netcdf(
+            os.path.join(
+                _mmm_folder_name(self.past + "." + self.future + ".mmm.mean"),
+                var + ".nc",
+            )
+        )
+        
+    def load_ensemble_da(self) -> xr.DataArray:
+        """Load the ensemble of this variable"""
+        return xr.open_mfdataset(
+            os.path.join(_folder_name(self.var, self.past + "." + self.future), "*.nc"),
             concat_dim="member",
             preprocess=_get_preproc_func(self.var),
         )
-        print(da)
-        if "limits" in VAR_PROP_D[var]:
-            mean = (
-                da.sel(time=slice(START_YEAR, END_YEAR))
-                .clip(
-                    min=VAR_PROP_D[var]["limits"][0],
-                    max=VAR_PROP_D[var]["limits"][1],
-                    keep_attrs=True,
-                )
-                .mean("member")
-                .mean("T")
-            )
-        else:
-            mean = da.sel(time=slice(START_YEAR, END_YEAR)).mean("member").mean("T")
-        mean[var].attrs["units"] = VAR_PROP_D[var]["units"]
-        mean[var].attrs["long_name"] = VAR_PROP_D[var]["long_name"] + " mean"
-        mean[var].attrs["description"] = "Mean " + VAR_PROP_D[var]["description"]
-        _folder(_folder_name("mean"))
-        mean.to_netcdf(os.path.join(_folder_name("mean", self.past + "." + self.future), var + ".nc"))
+        
+        
+    def _member_list(self) -> List[str]:
+        """Member list."""
+        return list(self.load_ensemble_da()["member"].values)
+
 
     @timeit
     def get_future(self) -> None:
@@ -548,23 +587,25 @@ class GetEnsemble:
                     )
                 )
 
+
 def load_ensemble_da(var: str, path: str) -> xr.DataArray:
     """
     Args:
         var (str): the variable to load.
             E.g. "ts"
-        path (str): the path to the variable to load. 
+        path (str): the path to the variable to load.
             E.g. "src/data/nc/nc_ts"
-        
+
     Returns:
-        xr.DataArray: the xarray datarray with "X", "Y", "T", and "member" 
+        xr.DataArray: the xarray datarray with "X", "Y", "T", and "member"
             as dimensions.
     """
     return xr.open_mfdataset(
-            os.path.join(path, "*.nc"),
-            concat_dim="member",
-            preprocess=_get_preproc_func(var),
-        )[var]
+        os.path.join(path, "*.nc"),
+        concat_dim="member",
+        preprocess=_get_preproc_func(var),
+    )[var]
+
 
 def _scenariomip_data(var: str = "ts", scenario: str = "ssp585"):
     return os.path.join(os.path.join("ScenarioMIP", scenario, var))
@@ -606,10 +647,10 @@ def _print_scenario_sel():
 
 def _member_name_from_da(da: xr.DataArray) -> str:
     """Member name from da already referenced by member.
-    
+
     Args:
         da (xr.DataArray): xarray input.
-    
+
     Returns:
         str: member name.
     """
@@ -634,7 +675,9 @@ def _member_name(instit: str, model: str, member_id: str) -> str:
     return str(instit) + "." + str(model) + "." + str(member_id)
 
 
-def _folder_name(var: str, experiment: str, root_direc: Union[pathlib.Path, str] = NC_PATH) -> str:
+def _folder_name(
+    var: str, experiment: str, root_direc: Union[pathlib.Path, str] = NC_PATH
+) -> str:
     """
     Folder name for ensemble of netcdfs.
 
@@ -652,6 +695,25 @@ def _folder_name(var: str, experiment: str, root_direc: Union[pathlib.Path, str]
     path = str(os.path.join(experiment_direc, var))
     _folder(path)
     return path
+
+
+def _mmm_folder_name(
+    experiment: str, root_direc: Union[pathlib.Path, str] = NC_PATH
+) -> str:
+    """
+    Folder name for ensemble of netcdfs.
+
+    Args:
+        experiment (str): Experiment name (e.g. "historical")
+        root_direc (Union[pathlib.Path, str]): Folder path.
+
+    Returns:
+        str: Folder path (e.g. "pr")
+    """
+    _folder(root_direc)
+    experiment_direc = str(os.path.join(root_direc, experiment))
+    _folder(experiment_direc)
+    return experiment_direc
 
 
 def _get_preproc_func(var_str: str) -> Callable:
@@ -676,26 +738,6 @@ def _get_preproc_func(var_str: str) -> Callable:
         return dsa
 
     return _preproc_func
-
-
-def get_vars(cfg: DictConfig) -> None:
-    """
-    Get the variable means and ensembles for the enviroment.
-
-    Args:
-        cfg (DictConfig): List of variables to make.
-    """
-    ens = GetEnsemble(
-            var=cfg.var,
-            regen_success_list=regen_success_list,
-            
-        )
-    if cfg.ensemble_timeseries:
-        ens.ensemble_timeseries()
-    if cfg.ensemble_derivatives:
-        print("No ensemble derivatives.")
-    if cfg.mmm_derivatives:
-        ens.mmm_mean_state()
 
 
 def make_future_nino34(
@@ -756,20 +798,32 @@ def test_if_regridding_ok() -> None:
         plt.savefig("fig-" + str(i) + "-a.png")
         plt.clf()
 
+
 @timeit
 @hydra.main(config_path=CONFIG_PATH, config_name="pangeo.yml")
 def main(cfg: DictConfig) -> None:
     print(cfg)
     wandb.init(
-            project=cfg.project,
-            entity=cfg.user,
-            save_code=True,
-            name=cfg.name,
-            # pylint: disable=protected-access
-            config=cfg._content,
-        )
-    
-    get_vars([cfg], regen_success_list=False)
+        project=cfg.project,
+        entity=cfg.user,
+        save_code=True,
+        name=cfg.name,
+        # pylint: disable=protected-access
+        config=cfg._content,
+    )
+
+    ens = GetEnsemble(
+        var=cfg.var,
+        regen_success_list=cfg.regen_success_list,
+    )
+    if cfg.ensemble_timeseries:
+        ens.ensemble_timeseries()
+    if cfg.ensemble_derivatives:
+        print(ens._member_list())
+        print("No ensemble derivatives.")
+    if cfg.mmm_derivatives:
+        ens.mmm_mean_state()
+
 
 if __name__ == "__main__":
     # from src.data_loading.pangeo import GetEnsemble
@@ -798,3 +852,4 @@ if __name__ == "__main__":
     # python src/data_loading/pangeo.py -m var=pr,ps
     # python src/data_loading/pangeo.py -m var=clt,ts
     # python src/data_loading/pangeo.py -m var=tauv,tauu
+    # python src/data_loading/pangeo.py -m var=pr,ps,clt,ts,sfcWind,hurs ensemble_timeseries=false
