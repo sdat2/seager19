@@ -57,13 +57,14 @@ import wandb
 from omegaconf import DictConfig
 from src.constants import NC_PATH, CONFIG_PATH
 from src.utils import timeit
-from src.xr_utils import sel, can_coords, spatial_mean
+from src.xr_utils import sel, can_coords, spatial_mean, get_trend, get_clim
 from src.data_loading.regrid import (
     regrid_2d,
     regrid_2d_to_standard,
     regrid_1d_to_standard,
     regrid_1d,
 )
+
 
 # from xarray.core.variable import Variable
 # This could definitely be moved to src/constants.py
@@ -169,6 +170,16 @@ VAR_PROP_D = {
         "long_name": "Near-Surface Wind Speed ",
         "description": "Near-Surface Wind Speed [m s-1]",
         "limits": [0, 200],  # 0 to 200 ms-1
+    },
+    "tauu": {
+        "units": "Pa",
+        "long_name": "Zonal Surface Wind Stress",
+        "description": "Near-Surface Zonal Wind Stress"
+    },
+    "tauv": {
+        "units": "Pa",
+        "long_name": "Meridional Surface Wind Stress",
+        "description": "Near-Surface Meridional Wind Stress"
     },
 }
 
@@ -479,6 +490,8 @@ class GetEnsemble:
                         "T",
                     )
                     ensemble_da = self._coord_attrs(ensemble_da)
+                    if wandb.run is not None:
+                        ensemble_da.attrs["pangeo_processing_run"] = wandb.get_url()
                     times = ensemble_da["T"].values
                     vals, idx_start, count = np.unique(
                         times, return_counts=True, return_index=True
@@ -552,7 +565,7 @@ class GetEnsemble:
         return xr.open_mfdataset(
             os.path.join(_folder_name(self.var, self.past + "." + self.future), "*.nc"),
             concat_dim="member",
-            preprocess=_get_preproc_func(self.var),
+            preprocess=_member_preproc_func(self.var),
         )
         
         
@@ -603,7 +616,7 @@ def load_ensemble_da(var: str, path: str) -> xr.DataArray:
     return xr.open_mfdataset(
         os.path.join(path, "*.nc"),
         concat_dim="member",
-        preprocess=_get_preproc_func(var),
+        preprocess=_member_preproc_func(var),
     )[var]
 
 
@@ -617,32 +630,46 @@ def _print_scenario_folders():
 
 
 def _scenario_nino34(scenario: str = "ssp585"):
-    return xr.open_mfdataset(
-        os.path.join(_scenariomip_data(scenario=scenario, var="ts_nino3.4"), "*.nc"),
-        concat_dim="member",
-        preprocess=_get_preproc_func("ts"),
-    )["ts"]
-
+    return load_mfda(_scenariomip_data(scenario=scenario, var="ts_nino3.4"),  "ts")
 
 def _scenario_da(var: str = "ts", scenario: str = "ssp585"):
+    return load_mfda(_scenariomip_data(scenario=scenario, var=var),  "ts")
+
+
+def load_mfds(files_path: str, var: str) -> xr.Dataset:
+    """
+    Load multi file dataset.
+    
+    Args:
+        files_path (str): Path to files.
+        var (str): variable.
+        
+    Returns:
+        xr.Dataset: The variable dataset.
+    """
     return xr.open_mfdataset(
-        os.path.join(_scenariomip_data(scenario=scenario, var=var), "*.nc"),
-        concat_dim="member",
-        preprocess=_get_preproc_func(var),
-    )[var]
+                    os.path.join(files_path, "*.nc"),
+                    concat_dim="member",
+                    preprocess=_member_preproc_func(var),
+                )
+
+def load_mfda(files_path: str, var: str) -> xr.DataArray:
+    """
+    Load multi file dataarray.
+    
+    Args:
+        files_path (str): Path to files.
+        var (str): variable.
+        
+    Returns:
+        xr.DataArray: The variable dataset.
+    """
+    return load_mfds(files_path, var)[var]
 
 
 def _print_scenario_sel():
     for scenario in SCENARIOS:
-        print(
-            can_coords(
-                xr.open_mfdataset(
-                    os.path.join(_scenariomip_data(scenario=scenario), "*.nc"),
-                    concat_dim="member",
-                    preprocess=_get_preproc_func("ts"),
-                ).ts
-            )
-        )
+        print(can_coords(load_mfda(_scenariomip_data(scenario=scenario), "ts")))
 
 
 def _member_name_from_da(da: xr.DataArray) -> str:
@@ -716,8 +743,11 @@ def _mmm_folder_name(
     return experiment_direc
 
 
-def _get_preproc_func(var_str: str) -> Callable:
-    """Preprocessing function for later 'make_${resource}' functions."""
+def _member_preproc_func(var_str: str) -> Callable:
+    """Preprocessing function for loading preprocessed data.
+    
+    Adds the member dimension and coordinate.
+    """
 
     def _preproc_func(ds: xr.Dataset) -> xr.Dataset:
         dsa = ds.copy()
@@ -800,8 +830,46 @@ def test_if_regridding_ok() -> None:
 
 
 @timeit
+def members_df() -> pd.DataFrame:
+    """
+    Members dataframe showing whether each variable exists.
+    
+    Returns:
+        pd.DataFrame: Truth/False for each variable for each possible ensemble member.
+    """
+    var_dict = {}
+    truth_dict = {}
+    variables = ["pr", "ps", "clt", "ts", "sfcWind", "hurs", "tauu", "tauv"]
+    new_variables = ["pr", "psl", "ps", "clt", "ts", "sfcWind", "hurs", "hur"]
+    combined_list = []
+    for var in variables:
+        ens = GetEnsemble(
+            var=var,
+            regen_success_list=False,
+        )
+        var_dict[var] = ens._member_list()
+        combined_list = [*combined_list, *var_dict[var]]
+    
+    unique_list = list(np.unique(combined_list))
+    
+    for var in var_dict:
+        truth_dict[var] = [x in var_dict[var] for x in unique_list]
+
+    return pd.DataFrame(data=truth_dict, index=unique_list)
+
+def members_csv() -> None:
+    """Make members csv so that I can transfer it."""
+    members_df().to_csv("members.csv")
+
+@timeit
 @hydra.main(config_path=CONFIG_PATH, config_name="pangeo.yml")
 def main(cfg: DictConfig) -> None:
+    """
+    Run the data generation scripts.
+    
+    Args:
+        cfg (DictConfig): 
+    """
     print(cfg)
     wandb.init(
         project=cfg.project,
@@ -811,7 +879,6 @@ def main(cfg: DictConfig) -> None:
         # pylint: disable=protected-access
         config=cfg._content,
     )
-
     ens = GetEnsemble(
         var=cfg.var,
         regen_success_list=cfg.regen_success_list,
@@ -823,6 +890,7 @@ def main(cfg: DictConfig) -> None:
         print("No ensemble derivatives.")
     if cfg.mmm_derivatives:
         ens.mmm_mean_state()
+    wandb.finish()
 
 
 if __name__ == "__main__":
@@ -847,9 +915,11 @@ if __name__ == "__main__":
     # get_vars(["ts", "sfcWind", "hurs"], regen_success_list=False)
     # pylint: disable=no-value-for-parameter
     main()
+    # print(members_df())
+    members_csv()
     # conda activate pangeo3
     # python src/data_loading/pangeo.py -m var=sfcWind,hurs
-    # python src/data_loading/pangeo.py -m var=pr,ps
-    # python src/data_loading/pangeo.py -m var=clt,ts
+    # python src/data_loading/pangeo.py -m var=ps,ts
+    # python src/data_loading/pangeo.py -m var=clt,pr
     # python src/data_loading/pangeo.py -m var=tauv,tauu
     # python src/data_loading/pangeo.py -m var=pr,ps,clt,ts,sfcWind,hurs ensemble_timeseries=false
