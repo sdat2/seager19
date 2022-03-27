@@ -248,6 +248,7 @@ class GetEnsemble:
         past: str = "historical",
         future: str = DEFAULT_FUTURE_SCENARIO,
         test: bool = False,
+        wandb_run: Optional[wandb.sdk.wandb_run.Run] = None
     ) -> None:
         """
         Create the get ensemble instance and output the ensemble of netcdfs.
@@ -267,6 +268,7 @@ class GetEnsemble:
                 the success list. Defaults to False.
             test (bool, optional): Whether or not this is a test. If it is, it
                 only loads a single centre "INM". This makes tests quicker to run.
+            wandb_run (Optional[wandb.sdk.wandb_run.Run]): wandb run.
 
         """
         self.var: str = var
@@ -284,6 +286,7 @@ class GetEnsemble:
             output_folder = _folder_name(self.var, self.past + "." + self.future)
         self.output_folder = output_folder
         _folder(output_folder)
+        self.wandb = wandb_run
 
         if test:
             self.success_list = ["INM"]
@@ -490,8 +493,8 @@ class GetEnsemble:
                         "T",
                     )
                     ensemble_da = self._coord_attrs(ensemble_da)
-                    if wandb.run is not None:
-                        ensemble_da.attrs["pangeo_processing_run"] = wandb.get_url()
+                    if wandb.run is not None and self.wandb is not None:
+                        ensemble_da.attrs["pangeo_processing_run"] = self.wandb.get_url()
                     times = ensemble_da["T"].values
                     vals, idx_start, count = np.unique(
                         times, return_counts=True, return_index=True
@@ -871,7 +874,7 @@ def main(cfg: DictConfig) -> None:
         cfg (DictConfig): 
     """
     print(cfg)
-    wandb.init(
+    wandb_run = wandb.init(
         project=cfg.project,
         entity=cfg.user,
         save_code=True,
@@ -882,6 +885,7 @@ def main(cfg: DictConfig) -> None:
     ens = GetEnsemble(
         var=cfg.var,
         regen_success_list=cfg.regen_success_list,
+        wandb_run=wandb_run,
     )
     if cfg.ensemble_timeseries:
         ens.ensemble_timeseries()
