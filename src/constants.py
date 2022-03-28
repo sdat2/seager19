@@ -118,7 +118,7 @@ def atmos_input_file_path(
     )
 
 
-drop_var_d: dict = {"nc_clt", "nc_hur", "nc_pr", "nc_ts"}
+drop_var_d: dict = {"nc_clt": [], "nc_hur": [], "nc_pr": [], "nc_ts": []}
 # https://www.dropbox.com/sh/pzp2s534m1i3081/AABsVz0HvpQTtXxlOXUS4eIla?dl=1
 # https://www.dropbox.com/s/o82yp69pkpz50ze/nc_clt.zip?dl=0
 # names of folders to download.
