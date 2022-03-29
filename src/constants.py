@@ -107,6 +107,10 @@ VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"
 # backwards compatibility: we want the new data to be stored without a atm.mem,
 # but being able to process the old data where atm.mem was used.
 #
+
+ENSEMBLE_CSV = DATA_PATH / "ensemble_variable_members.csv"
+MINIMAL_ENSEMBLE_CSV = 
+
 def atmos_input_file_path(
     var: str = "ts", model: str = "E", ending: str = "clim60"
 ) -> str:

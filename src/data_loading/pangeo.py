@@ -30,6 +30,9 @@ File structures inside src/data:
 
     Ensemble 60 year linear trend:
         nc/historical.ssp585.nino3.4/${var}/${member}.nc
+        
+    MMM full time series:
+        nc/historical.ssp585.mmm/${var}.nc
 
     MMM 60 year mean:
         nc/historical.ssp585.mmm.mean/${var}.nc
@@ -72,14 +75,19 @@ START_YEAR: str = "1958"
 END_YEAR: str = "2017"
 DEFAULT_FUTURE_SCENARIO: str = "ssp585"
 
+# Different scenarios that we could choose from.
 SCENARIOS: List[str] = ["ssp126", "ssp245", "ssp370", "ssp585"]
 
+# Pangeo catalog url.
 PANGEO_CAT_URL = str(
     "https://raw.githubusercontent.com/pangeo-data/"
     + "pangeo-datastore/master/intake-catalogs/master.yaml"
 )
 
-DEFAULT_SUCCESS_LIST = [
+CMIP6_ENSEMBLE_VARIABLES: List[str] = ["pr", "ps", "clt", "ts", "sfcWind", "hurs", "tauu", "tauv"]
+
+# The different modelling centers.
+DEFAULT_SUCCESS_LIST: List[str] = [
     "NCAR",
     "CAMS",
     "NOAA-GFDL",
@@ -102,7 +110,11 @@ DEFAULT_SUCCESS_LIST = [
 ]
 
 # I think a lot of these modelling centres have problematic grids.
-DEFAULT_REJECT_LIST = [
+# Unstructured grids cannot be interpolated using xESMf,
+# and both ESMpy and cdo seem to require the netcdf files to be fed into
+# the algorithm, which would require a step where the full objects are
+# transferred.
+DEFAULT_REJECT_LIST: List[str] = [
     "AWI",
     "MRI",
     "CSIRO-ARCCSS",
@@ -111,11 +123,9 @@ DEFAULT_REJECT_LIST = [
     "HAMMOX-Consortium",
 ]
 
-VAR_PROP_D = {
+VAR_PROP_D: dict = {
     # From https://docs.google.com/spreadsheets/d/
     # 1UUtoz6Ofyjlpx5LdqhKcwHFz2SGoTQV2_yekHyMfL9Y/edit?usp=sharing
-    # psl - sea level pressure.
-    # hurs - Near-Surface Relative Humidity
     "hurs": {
         "units": r"$\%$",
         "long_name": "Relative humidity",
@@ -212,7 +222,7 @@ def standardise_time(
 
 def _preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
     """
-    Preprocess.
+    Preprocess function that includes the cmip6_preprocessing alongside custom.
 
     Args:
         ds (Union[xr.Dataset, xr.DataArray]): The xarray object to preprocess.
@@ -533,49 +543,102 @@ class GetEnsemble:
         else:
             return da
 
-    def _mean_attrs(self, da: xr.DataArray) -> xr.DataArray:
+    def _mmm_attrs(self, da: xr.DataArray) -> xr.DataArray:
         """Modify variable names to make it obvious that this is a mean."""
-        da[self.var].attrs["units"] = VAR_PROP_D[self.var]["units"]
-        da[self.var].attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + " mean"
-        da[self.var].attrs["description"] = (
-            "Mean " + VAR_PROP_D[self.var]["description"]
+        da.attrs["units"] = VAR_PROP_D[self.var]["units"]
+        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + "multi-model-mean"
+        da.attrs["description"] = (
+            "Multi-Model Mean " + VAR_PROP_D[self.var]["description"]
         )
-        da[self.var].attrs["start_year"] = START_YEAR
-        da[self.var].attrs["end_year"] = END_YEAR
         return da
+
+    def _time_mean_attrs(self, da: xr.DataArray) -> xr.DataArray:
+        """Modify variable names to make it obvious that this is a mean."""
+        da.attrs["units"] = VAR_PROP_D[self.var]["units"]
+        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + "time mean"
+        da.attrs["description"] = (
+            "Time mean of the " + VAR_PROP_D[self.var]["description"]
+        )
+        da.attrs["start_year"] = START_YEAR
+        da.attrs["end_year"] = END_YEAR
+        return da
+
+    def _climatology_attrs(self, da: xr.DataArray) -> xr.DataArray:
+        """Modify variable names to make it obvious that this is a mean."""
+        da.attrs["units"] = VAR_PROP_D[self.var]["units"]
+        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + "climatology"
+        da.attrs["description"] = (
+            "Climatology of the" + VAR_PROP_D[self.var]["description"]
+        )
+        da.attrs["start_year"] = START_YEAR
+        da.attrs["end_year"] = END_YEAR
+        return da
+    # TODO Add in minimal test before calculating MMM mean.
+    
+    def _mmm_time_series(self) -> str:
+        os.path.join(
+                _mmm_folder_name(self.past + "." + self.future + ".mmm"),
+                self.var + ".nc",
+            )
+    
+    def mmm_time_series(self):
+        """Multi model mean time series."""
+        da = self.load_ensemble_da()
+        mean = self._mmm_mean_attrs(
+            da.mean("member"))
+        mean.to_netcdf(
+            self._mmm_time_series()
+        )
 
     def mmm_mean_state(self) -> None:
         """
         Variable mean in time and between models for the 60 years.
-
-        Args:
-            var (str, optional): Variable name string. Defaults to "ts".
         """
-        var = self.var
-        da = self.load_ensemble_da()
-        mean = self._mean_attrs(
-            (self._clip(da.sel(T=slice(START_YEAR, END_YEAR))).mean("member").mean("T"))
-        )
+        mmm = xr.open_dataarray(self._mmm_time_series())
+        mean = self._time_series_attrs(mmm.sel(T=slice(START_YEAR, END_YEAR)).mean("T"))
         mean.to_netcdf(
             os.path.join(
                 _mmm_folder_name(self.past + "." + self.future + ".mmm.mean"),
-                var + ".nc",
+                self.var + ".nc",
             )
         )
         
-    def load_ensemble_da(self) -> xr.DataArray:
-        """Load the ensemble of this variable"""
-        return xr.open_mfdataset(
-            os.path.join(_folder_name(self.var, self.past + "." + self.future), "*.nc"),
-            concat_dim="member",
-            preprocess=_member_preproc_func(self.var),
+    def mmm_trend(self) -> None:
+        """Multi-mean trend."""
+        mmm = xr.open_dataarray(self._mmm_time_series())
+        trend = get_trend(mmm.sel(T=slice(START_YEAR, END_YEAR)))
+        trend.to_netcdf(
+            os.path.join(
+                _mmm_folder_name(self.past + "." + self.future + ".mmm.trend"),
+                self.var + ".nc",
+            )
         )
         
+    def mmm_clim(self) -> None:
+        """Multi-mean climatology."""
+        mmm = xr.open_dataarray(self._mmm_time_series())
+        trend = _climatology_attrs(get_clim(mmm.sel(T=slice(START_YEAR, END_YEAR))))
+        trend.to_netcdf(
+            os.path.join(
+                _mmm_folder_name(self.past + "." + self.future + ".mmm.climatology"),
+                self.var + ".nc",
+            )
+        )
+        
+    def mmm_derivatives(self) -> None:
+        """Multi-model mean derivatives."""
+        self.mmm_time_series()
+        self.mmm_mean_state()
+        self.mmm_trend()
+        self.mmm_clim()
+        
+    def load_ensemble_da(self) -> xr.DataArray:
+        """Load the ensemble of this variable"""
+        return load_mfda(_folder_name(self.var, self.past + "." + self.future))
         
     def _member_list(self) -> List[str]:
         """Member list."""
         return list(self.load_ensemble_da()["member"].values)
-
 
     @timeit
     def get_future(self) -> None:
@@ -842,8 +905,8 @@ def members_df() -> pd.DataFrame:
     """
     var_dict = {}
     truth_dict = {}
-    variables = ["pr", "ps", "clt", "ts", "sfcWind", "hurs", "tauu", "tauv"]
-    new_variables = ["pr", "psl", "ps", "clt", "ts", "sfcWind", "hurs", "hur"]
+    variables = ["pr", "ps", "psl", "clt", "ts", "sfcWind", "hur", "hurs", "tauu", "tauv"]
+    # new_variables = ["pr", "psl", "ps", "clt", "ts", "sfcWind", "hurs", "hur"]
     combined_list = []
     for var in variables:
         ens = GetEnsemble(
@@ -860,9 +923,39 @@ def members_df() -> pd.DataFrame:
 
     return pd.DataFrame(data=truth_dict, index=unique_list)
 
+def minimal_ensemble(df: pd.DataFrame) -> List[str]:
+    """
+    Args:
+        df (pd.DataFrame): members_df.
+    
+    Returns:
+        List[str]: list of ensemble members
+    """
+    df =df[CMIP6_ENSEMBLE_VARIABLES]
+    print(df)
+    output = []
+    for index, row in df.iterrows():
+        if np.all(row):
+            output.append(index)
+    print(len(output))
+    return output
+
+
+def minimal_members_ensemble() -> List[str]:
+    """
+    Minimal members ensemble.
+    
+    Returns:
+        List[str]: Ensemble member name string list.
+    """
+    return minimal_ensemble(pd.read_csv(DATA_PATH / "ensemble_variable_members.csv", index_col=0))
+
+
 def members_csv() -> None:
     """Make members csv so that I can transfer it."""
-    members_df().to_csv("members.csv")
+    from src.constants import DATA_PATH
+    members_df().to_csv(DATA_PATH / "ensemble_variable_members.csv")
+
 
 @timeit
 @hydra.main(config_path=CONFIG_PATH, config_name="pangeo.yml")
@@ -871,7 +964,7 @@ def main(cfg: DictConfig) -> None:
     Run the data generation scripts.
     
     Args:
-        cfg (DictConfig): 
+        cfg (DictConfig): The config struct to run the program.
     """
     print(cfg)
     wandb_run = wandb.init(
@@ -893,7 +986,7 @@ def main(cfg: DictConfig) -> None:
         print(ens._member_list())
         print("No ensemble derivatives.")
     if cfg.mmm_derivatives:
-        ens.mmm_mean_state()
+        ens.mmm_derivatives()
     wandb.finish()
 
 
@@ -904,6 +997,7 @@ if __name__ == "__main__":
     #    GetEnsemble(
     #        var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
     #    )
+    min_ensemble()
     # for var_str in VAR_PROP_D:
     #    mean_var(var=var_str)
     # make_wsp()
@@ -918,9 +1012,9 @@ if __name__ == "__main__":
     # test_if_regridding_ok()
     # get_vars(["ts", "sfcWind", "hurs"], regen_success_list=False)
     # pylint: disable=no-value-for-parameter
-    main()
+    # main()
     # print(members_df())
-    members_csv()
+    # members_csv()
     # conda activate pangeo3
     # python src/data_loading/pangeo.py -m var=sfcWind,hurs
     # python src/data_loading/pangeo.py -m var=ps,ts
