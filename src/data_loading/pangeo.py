@@ -515,15 +515,8 @@ class GetEnsemble:
                     ensemble_da.isel(T=idx_start).astype("float32").to_netcdf(
                         os.path.join(
                             self.output_folder,
-                            self.var
-                            + "."
-                            + _member_name(instit, model, member_id)
-                            + "."
-                            + self.past
-                            + "."
-                            + self.future
-                            + ".nc",
-                        ),
+                            self._file_name(insitit, model, member_id)
+                            )
                         # save some space
                         # encoding={self.var: {"dtype": "f8"}}
                     )
@@ -531,6 +524,18 @@ class GetEnsemble:
                     print("problem with " + model + " " + member_id)
                     print(scenario_member)
                     print(historical_member)
+    
+    def _file_name(self, insitit: str, model: str, member_id: str) -> str:
+        return str(self.var
+                    + "."
+                    + _member_name(instit, model, member_id)
+                    + "."
+                    + self.past
+                    + "."
+                    + self.future
+                    + ".nc"
+                    )
+
 
     def _clip(self, da: xr.DataArray) -> xr.DataArray:
         """Clip variable between limits if they exist."""
@@ -546,16 +551,28 @@ class GetEnsemble:
     def _mmm_attrs(self, da: xr.DataArray) -> xr.DataArray:
         """Modify variable names to make it obvious that this is a mean."""
         da.attrs["units"] = VAR_PROP_D[self.var]["units"]
-        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + "multi-model-mean"
+        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + " multi-model-mean"
         da.attrs["description"] = (
             "Multi-Model Mean " + VAR_PROP_D[self.var]["description"]
         )
         return da
 
+    def _trend_attrs(self, da: xr.DataArray) -> xr.DataArray:
+        """Modify variable names to make it obvious that this is a mean."""
+        da.attrs["units"] = VAR_PROP_D[self.var]["units"]
+        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + " trend"
+        da.attrs["description"] = (
+            "Trend for " + VAR_PROP_D[self.var]["description"]
+        )
+        da.attrs["start_year"] = START_YEAR
+        da.attrs["end_year"] = END_YEAR
+        return da
+    
+
     def _time_mean_attrs(self, da: xr.DataArray) -> xr.DataArray:
         """Modify variable names to make it obvious that this is a mean."""
         da.attrs["units"] = VAR_PROP_D[self.var]["units"]
-        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + "time mean"
+        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + " time mean"
         da.attrs["description"] = (
             "Time mean of the " + VAR_PROP_D[self.var]["description"]
         )
@@ -566,16 +583,36 @@ class GetEnsemble:
     def _climatology_attrs(self, da: xr.DataArray) -> xr.DataArray:
         """Modify variable names to make it obvious that this is a mean."""
         da.attrs["units"] = VAR_PROP_D[self.var]["units"]
-        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + "climatology"
+        da.attrs["long_name"] = VAR_PROP_D[self.var]["long_name"] + " climatology"
         da.attrs["description"] = (
-            "Climatology of the" + VAR_PROP_D[self.var]["description"]
+            "Climatology of the " + VAR_PROP_D[self.var]["description"]
         )
         da.attrs["start_year"] = START_YEAR
         da.attrs["end_year"] = END_YEAR
         return da
+
     # TODO Add in minimal test before calculating MMM mean.
     
+    def ensemble_derivatives(self) -> None:
+        """Ensemble derivatives."""
+        da = self.load_ensemble_da().sel(T=slice(START_YEAR, END_YEAR))
+        for member in da["member"].values:
+            member_da = self._clip(da.sel(member=member))
+            instit = member_da.institution.values
+            model = member_da.model.values
+            member_id = member_da.member_id.values            
+            mean = _time_mean_attrs(member_da.mean("T"))
+            mean.to_netcdf(os.path.join(_folder_name(self.var, self.past + "." + self.future + ".mean"),
+                           self._file_name(insitit, model, member_id)))
+            clim = _climatology_attrs(get_clim(member_da))
+            clim.to_netcdf(os.path.join(_folder_name(self.var, self.past + "." + self.future + ".climatology"),
+                           self._file_name(insitit, model, member_id)))
+            trend = _trend_attrs(get_trend(member_da))
+            trend.to_netcdf(os.path.join(_folder_name(self.var, self.past + "." + self.future + ".trend"),
+                            self._file_name(insitit, model, member_id)))
+    
     def _mmm_time_series(self) -> str:
+        """Multi-model mean time-series file name."""
         os.path.join(
                 _mmm_folder_name(self.past + "." + self.future + ".mmm"),
                 self.var + ".nc",
@@ -606,7 +643,7 @@ class GetEnsemble:
     def mmm_trend(self) -> None:
         """Multi-mean trend."""
         mmm = xr.open_dataarray(self._mmm_time_series())
-        trend = get_trend(mmm.sel(T=slice(START_YEAR, END_YEAR)))
+        trend = _trend_attrs(get_trend(mmm.sel(T=slice(START_YEAR, END_YEAR))))
         trend.to_netcdf(
             os.path.join(
                 _mmm_folder_name(self.past + "." + self.future + ".mmm.trend"),
@@ -679,11 +716,7 @@ def load_ensemble_da(var: str, path: str) -> xr.DataArray:
         xr.DataArray: the xarray datarray with "X", "Y", "T", and "member"
             as dimensions.
     """
-    return xr.open_mfdataset(
-        os.path.join(path, "*.nc"),
-        concat_dim="member",
-        preprocess=_member_preproc_func(var),
-    )[var]
+    return load_mfda(path, var)
 
 
 def _scenariomip_data(var: str = "ts", scenario: str = "ssp585"):
@@ -984,7 +1017,8 @@ def main(cfg: DictConfig) -> None:
         ens.ensemble_timeseries()
     if cfg.ensemble_derivatives:
         print(ens._member_list())
-        print("No ensemble derivatives.")
+        ensemble_derivatives()
+        # print("No ensemble derivatives.")
     if cfg.mmm_derivatives:
         ens.mmm_derivatives()
     wandb.finish()
