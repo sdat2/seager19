@@ -58,7 +58,7 @@ from intake import open_catalog
 import hydra
 import wandb
 from omegaconf import DictConfig
-from src.constants import NC_PATH, CONFIG_PATH
+from src.constants import NC_PATH, CONFIG_PATH, DATA_PATH
 from src.utils import timeit
 from src.xr_utils import sel, can_coords, spatial_mean, get_trend, get_clim
 from src.data_loading.regrid import (
@@ -621,8 +621,9 @@ class GetEnsemble:
     def mmm_time_series(self):
         """Multi model mean time series."""
         da = self.load_ensemble_da()
+        minimal_members = minimal_members_ensemble()
         mean = self._mmm_mean_attrs(
-            da.mean("member"))
+            da.sel(members=minimal_members).mean("member"))
         mean.to_netcdf(
             self._mmm_time_series()
         )
@@ -958,6 +959,8 @@ def members_df() -> pd.DataFrame:
 
 def minimal_ensemble(df: pd.DataFrame) -> List[str]:
     """
+    Minimal ensemble.
+    
     Args:
         df (pd.DataFrame): members_df.
     
@@ -986,7 +989,6 @@ def minimal_members_ensemble() -> List[str]:
 
 def members_csv() -> None:
     """Make members csv so that I can transfer it."""
-    from src.constants import DATA_PATH
     members_df().to_csv(DATA_PATH / "ensemble_variable_members.csv")
 
 
@@ -1015,10 +1017,10 @@ def main(cfg: DictConfig) -> None:
     )
     if cfg.ensemble_timeseries:
         ens.ensemble_timeseries()
+        members_csv()
     if cfg.ensemble_derivatives:
         print(ens._member_list())
-        ensemble_derivatives()
-        # print("No ensemble derivatives.")
+        ens.ensemble_derivatives()
     if cfg.mmm_derivatives:
         ens.mmm_derivatives()
     wandb.finish()
@@ -1031,7 +1033,7 @@ if __name__ == "__main__":
     #    GetEnsemble(
     #        var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
     #    )
-    min_ensemble()
+    minimal_members_ensemble()
     # for var_str in VAR_PROP_D:
     #    mean_var(var=var_str)
     # make_wsp()
