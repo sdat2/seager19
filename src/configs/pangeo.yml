@@ -18,3 +18,4 @@ ensemble_derivatives: true
 mmm_derivatives: true
 # whether to try all possible centres.
 regen_success_list: false
+nino34_derivatives: true

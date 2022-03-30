@@ -11,8 +11,7 @@ X = 0,1,2 ... 359
 Rejects some models because they are difficult to process.
 
 TODO:
-   - postprocess
-   - look at how many members have inputs for all relevant variables.
+   - postprocess more thorougly.
 
 File structures inside src/data:
 
@@ -28,9 +27,15 @@ File structures inside src/data:
     Ensemble 60 year linear trend:
         nc/historical.ssp585.trend/${var}/${member}.nc
 
-    Ensemble 60 year linear trend:
-        nc/historical.ssp585.nino3.4/${var}/${member}.nc
-        
+    Ensemble 60 year nino3.4:
+        nc/historical.ssp585.nino3.4/${var}.nc
+
+    Ensemble 60 year nino3.4.climatology:
+        nc/historical.ssp585.nino3.4.climatology/${var}.nc
+    
+    Ensemble 60 year nino3.4.trends:
+        nc/historical.ssp585.nino3.4.trends/${var}.nc
+
     MMM full time series:
         nc/historical.ssp585.mmm/${var}.nc
 
@@ -140,7 +145,7 @@ VAR_PROP_D: dict = {
     },
     "ts": {
         "units": "K",
-        "long_name": "Suface temperature",
+        "long_name": "Surface temperature",
         "description": "Surface Temperature [K]",
         "limits": [100, 373.15],  # 100K to 100 C
     },
@@ -161,7 +166,7 @@ VAR_PROP_D: dict = {
     },
     "ps": {
         "units": "Pa",
-        "long_name": "Suface air pressure",
+        "long_name": "Surface air pressure",
         "description": "Surface Air Pressure [Pa]",
     },
     "psl": {
@@ -525,7 +530,7 @@ class GetEnsemble:
                     print(scenario_member)
                     print(historical_member)
     
-    def _file_name(self, insitit: str, model: str, member_id: str) -> str:
+    def _file_name(self, instit: str, model: str, member_id: str) -> str:
         return str(self.var
                     + "."
                     + _member_name(instit, model, member_id)
@@ -566,6 +571,7 @@ class GetEnsemble:
         )
         da.attrs["start_year"] = START_YEAR
         da.attrs["end_year"] = END_YEAR
+        da = da.rename(self.var)
         return da
     
 
@@ -601,29 +607,59 @@ class GetEnsemble:
             instit = member_da.institution.values
             model = member_da.model.values
             member_id = member_da.member_id.values            
-            mean = _time_mean_attrs(member_da.mean("T"))
+            mean = self._time_mean_attrs(member_da.mean("T"))
             mean.to_netcdf(os.path.join(_folder_name(self.var, self.past + "." + self.future + ".mean"),
-                           self._file_name(insitit, model, member_id)))
-            clim = _climatology_attrs(get_clim(member_da))
+                           self._file_name(instit, model, member_id)))
+            clim = self._climatology_attrs(get_clim(member_da))
             clim.to_netcdf(os.path.join(_folder_name(self.var, self.past + "." + self.future + ".climatology"),
-                           self._file_name(insitit, model, member_id)))
-            trend = _trend_attrs(get_trend(member_da))
+                           self._file_name(instit, model, member_id)))
+            trend = self._trend_attrs(get_trend(member_da))
             trend.to_netcdf(os.path.join(_folder_name(self.var, self.past + "." + self.future + ".trend"),
-                            self._file_name(insitit, model, member_id)))
+                            self._file_name(instit, model, member_id)))
     
+    # NINO3.4
+    
+    def _nino34_timeseries(self) -> str:
+        """Multi-model mean time-series file name."""
+        return os.path.join(
+                _mmm_folder_name(self.past + "." + self.future + ".nino3.4"),
+                self.var + ".nc"
+            )
+    
+    def nino34_derivatives(self) -> None:
+        """Nino3.4 derivatives."""
+        da = self._clip(self.load_ensemble_da())
+        minimal_members = minimal_members_ensemble()
+        nino34 = spatial_mean(sel(da.sel(member=minimal_members), reg="nino3.4"))
+        nino34.rename(self.var)
+        nino34.to_netcdf(self._nino34_timeseries())
+        clim = get_clim(nino34.sel(T=slice(START_YEAR, END_YEAR)))
+        clim = clim.rename(self.var)
+        clim.to_netcdf(os.path.join(
+                _mmm_folder_name(self.past + "." + self.future + ".nino3.4.climatology"),
+                self.var + ".nc"
+            ))
+        trends = get_60yr_trends(nino34.groupby("T.month") - clim)
+        trends = trends.rename(self.var)
+        trends.to_netcdf(os.path.join(
+                _mmm_folder_name(self.past + "." + self.future + ".nino3.4.trends"),
+                self.var + ".nc"
+            ))
+        
     def _mmm_time_series(self) -> str:
         """Multi-model mean time-series file name."""
-        os.path.join(
+        return os.path.join(
                 _mmm_folder_name(self.past + "." + self.future + ".mmm"),
-                self.var + ".nc",
+                self.var + ".nc"
             )
     
     def mmm_time_series(self):
         """Multi model mean time series."""
         da = self.load_ensemble_da()
         minimal_members = minimal_members_ensemble()
-        mean = self._mmm_mean_attrs(
-            da.sel(members=minimal_members).mean("member"))
+        mean = self._mmm_attrs(
+            da.sel(member=minimal_members).mean("member"))
+        mean.attrs["member_list"] = str(minimal_members)
         mean.to_netcdf(
             self._mmm_time_series()
         )
@@ -633,7 +669,8 @@ class GetEnsemble:
         Variable mean in time and between models for the 60 years.
         """
         mmm = xr.open_dataarray(self._mmm_time_series())
-        mean = self._time_series_attrs(mmm.sel(T=slice(START_YEAR, END_YEAR)).mean("T"))
+        mean = self._time_mean_attrs(mmm.sel(T=slice(START_YEAR, END_YEAR)).mean("T"))
+        mean.attrs["member_list"] = mmm.attrs["member_list"]
         mean.to_netcdf(
             os.path.join(
                 _mmm_folder_name(self.past + "." + self.future + ".mmm.mean"),
@@ -644,7 +681,8 @@ class GetEnsemble:
     def mmm_trend(self) -> None:
         """Multi-mean trend."""
         mmm = xr.open_dataarray(self._mmm_time_series())
-        trend = _trend_attrs(get_trend(mmm.sel(T=slice(START_YEAR, END_YEAR))))
+        trend = self._trend_attrs(get_trend(mmm.sel(T=slice(START_YEAR, END_YEAR))))
+        trend.attrs["member_list"] = mmm.attrs["member_list"]
         trend.to_netcdf(
             os.path.join(
                 _mmm_folder_name(self.past + "." + self.future + ".mmm.trend"),
@@ -655,8 +693,10 @@ class GetEnsemble:
     def mmm_clim(self) -> None:
         """Multi-mean climatology."""
         mmm = xr.open_dataarray(self._mmm_time_series())
-        trend = _climatology_attrs(get_clim(mmm.sel(T=slice(START_YEAR, END_YEAR))))
-        trend.to_netcdf(
+        clim = self._climatology_attrs(get_clim(mmm.sel(T=slice(START_YEAR, END_YEAR))))
+        clim = clim.rename(self.var)
+        clim.attrs["member_list"] = mmm.attrs["member_list"]
+        clim.to_netcdf(
             os.path.join(
                 _mmm_folder_name(self.past + "." + self.future + ".mmm.climatology"),
                 self.var + ".nc",
@@ -671,8 +711,8 @@ class GetEnsemble:
         self.mmm_clim()
         
     def load_ensemble_da(self) -> xr.DataArray:
-        """Load the ensemble of this variable"""
-        return load_mfda(_folder_name(self.var, self.past + "." + self.future))
+        """Load the ensemble of this variable."""
+        return load_mfda(_folder_name(self.var, self.past + "." + self.future), self.var)
         
     def _member_list(self) -> List[str]:
         """Member list."""
@@ -686,10 +726,12 @@ class GetEnsemble:
             ScenanarioMIP/experiment_id/variable_id/ensemble_member.nc
         """
         _folder("ScenarioMIP")
+        
         for scenario in SCENARIOS:
             _folder(os.path.join("ScenarioMIP", scenario))
             _folder(os.path.join("ScenarioMIP", scenario, self.var))
             da = self.get_var(experiment=scenario, year_begin="2014", year_end="2100")
+            
             for member in da.member.values:
 
                 da.sel(member=member).to_netcdf(
@@ -705,6 +747,36 @@ class GetEnsemble:
                 )
 
 
+def get_60yr_trends(da: xr.DataArray) -> xr.Dataset:
+    """Get 60 year trends.
+    
+    Args:
+        da (xr.DataArray): input dataarray with dimension T.
+        
+    Returns:
+        xr.DataArray: output dataarray with dimension end_year.
+    """
+    def _year(date: np.datetime64) -> int:
+        year = date.astype('datetime64[Y]').astype(int) + 1970
+        return int(year)
+
+    min_year = _year(da["T"].values[0])
+    max_year = _year(da["T"].values[-1])
+    beginning = min_year + 59
+    finish = max_year
+    da_tr_list = []
+    if beginning < finish:
+        for start, end in [(str(x - 59), str(x)) for x in range(beginning, finish+1)]:
+            da_tr_list.append(
+                get_trend(da.sel(T=slice(start, end)), keep_ds=True).expand_dims({"end_year": [int(end)]})
+            )
+    da_tr = xr.merge(da_tr_list)
+    da_tr.end_year.attrs["long_name"] = "End year"
+    da_tr.rise.attrs["units"] = "K"
+    da_tr.rise.attrs["long_name"] = "Trend over 60 years up to end year"
+    return da_tr               
+                
+                
 def load_ensemble_da(var: str, path: str) -> xr.DataArray:
     """
     Args:
@@ -874,11 +946,11 @@ def make_future_nino34(
     scenario: Literal["ssp126", "ssp245", "ssp370", "ssp585"] = "ssp585"
 ) -> None:
     """
-    Make future nino3.4 records.
+    Make future `nino3.4` records.
 
     Args:
         scenario (Literal["ssp126", "ssp245", "ssp370", "ssp585"]):
-            which scenario to get data from.
+            Which scenario to get data from.
     """
     da = _scenario_da(scenario=scenario)
     new_da = regridded_to_standard(da)
@@ -1023,6 +1095,8 @@ def main(cfg: DictConfig) -> None:
         ens.ensemble_derivatives()
     if cfg.mmm_derivatives:
         ens.mmm_derivatives()
+    if cfg.nino34_derivatives:
+        ens.nino34_derivatives()
     wandb.finish()
 
 
@@ -1033,7 +1107,7 @@ if __name__ == "__main__":
     #    GetEnsemble(
     #        var=var_str, output_folder=_folder_name(var_str), regen_success_list=True
     #    )
-    minimal_members_ensemble()
+    # minimal_members_ensemble()
     # for var_str in VAR_PROP_D:
     #    mean_var(var=var_str)
     # make_wsp()
@@ -1048,7 +1122,7 @@ if __name__ == "__main__":
     # test_if_regridding_ok()
     # get_vars(["ts", "sfcWind", "hurs"], regen_success_list=False)
     # pylint: disable=no-value-for-parameter
-    # main()
+    main()
     # print(members_df())
     # members_csv()
     # conda activate pangeo3
