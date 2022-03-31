@@ -312,14 +312,23 @@ class GetEnsemble:
 
     @timeit
     def ensemble_timeseries(self) -> None:
-        """Make a set of merged datarrays."""
+        """Make a set of merged datarrays.
+        
+        Now changed to be analagous to line in Seager et al. 2019.
+        
+        Mulitimodel mean of 40 historical and RCP8.5 CMIP5 models.
+        
+        1940 to end of 2013 - historical experiment.
+        2014 to end of 2099 - ssp585 experiment.
+        
+        """
         self.da_lists[self.past] = self.get_var(
             experiment=self.past,
-            year_begin="1948",
-            year_end="2015",
+            year_begin="1940",
+            year_end="2013",
         )
         self.da_lists[self.future] = self.get_var(
-            experiment=self.future, year_begin="2014", year_end="2100"
+            experiment=self.future, year_begin="2014", year_end="2099"
         )
         for instit in self.success_list:
             self.comp_and_match(instit=instit)
@@ -341,7 +350,7 @@ class GetEnsemble:
             print(i)
             query = dict(
                 variable_id=[self.var],
-                experiment_id=[self.past],  # , "ssp585"],
+                experiment_id=[self.past],
                 table_id=[self.table_id],
                 institution_id=[i],
             )
@@ -757,7 +766,7 @@ def get_60yr_trends(da: xr.DataArray) -> xr.Dataset:
         xr.DataArray: output dataarray with dimension end_year.
     """
     def _year(date: np.datetime64) -> int:
-        year = date.astype('datetime64[Y]').astype(int) + 1970
+        year = date.astype("datetime64[Y]").astype(int) + 1970
         return int(year)
 
     min_year = _year(da["T"].values[0])
@@ -766,17 +775,20 @@ def get_60yr_trends(da: xr.DataArray) -> xr.Dataset:
     finish = max_year
     da_tr_list = []
     if beginning < finish:
-        for start, end in [(str(x - 59), str(x)) for x in range(beginning, finish+1)]:
+        for start, end in [(str(x - 59), str(x)) 
+                           for x in range(beginning, finish+1)]:
             da_tr_list.append(
-                get_trend(da.sel(T=slice(start, end)), keep_ds=True).expand_dims({"end_year": [int(end)]})
+                get_trend(da.sel(T=slice(start, end)),
+                          keep_ds=True).expand_dims(
+                    {"end_year": [int(end)]})
             )
     da_tr = xr.merge(da_tr_list)
-    da_tr.end_year.attrs["long_name"] = "End year"
-    da_tr.rise.attrs["units"] = "K"
-    da_tr.rise.attrs["long_name"] = "Trend over 60 years up to end year"
-    return da_tr               
-                
-                
+    da_tr["end_year"].attrs["long_name"] = "End year"
+    da_tr["rise"].attrs["units"] = "K"
+    da_tr["rise"].attrs["long_name"] = "Trend over 60 years up to end year"
+    return da_tr.rise
+
+ 
 def load_ensemble_da(var: str, path: str) -> xr.DataArray:
     """
     Args:
@@ -1131,3 +1143,4 @@ if __name__ == "__main__":
     # python src/data_loading/pangeo.py -m var=clt,pr
     # python src/data_loading/pangeo.py -m var=tauv,tauu
     # python src/data_loading/pangeo.py -m var=pr,ps,clt,ts,sfcWind,hurs ensemble_timeseries=false
+    # python src/data_loading/pangeo.py -m var=pr,ps,clt,ts,sfcWind,hurs ensemble_timeseries=false ensemble_derivatives=false mmm_derivatives=false 
