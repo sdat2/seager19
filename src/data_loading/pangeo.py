@@ -114,21 +114,12 @@ DEFAULT_SUCCESS_LIST: List[str] = [
     "THU",
 ]
 
-<<<<<<< HEAD
-PANGEO_CAT_URL = str(
-    "https://raw.githubusercontent.com/pangeo-data/"
-    + "pangeo-datastore/master/intake-catalogs/master.yaml"
-)
-
-DEFAULT_REJECT_LIST = [
-=======
 # I think a lot of these modelling centres have problematic grids.
 # Unstructured grids cannot be interpolated using xESMf,
 # and both ESMpy and cdo seem to require the netcdf files to be fed into
 # the algorithm, which would require a step where the full objects are
 # transferred.
 DEFAULT_REJECT_LIST: List[str] = [
->>>>>>> 51865b30c01539b3107c5538b11ee83eebcd6add
     "AWI",
     "MRI",
     "CSIRO-ARCCSS",
@@ -394,11 +385,6 @@ class GetEnsemble:
         year_begin: str = str(START_YEAR),
         year_end: str = "2014",
         # pylint: disable=dangerous-default-value
-<<<<<<< HEAD
-        xlim: List[int] = [100, 290],
-        ylim: List[int] = [-30, 30],
-=======
->>>>>>> 51865b30c01539b3107c5538b11ee83eebcd6add
     ) -> xr.DataArray:
         """
         Get the variable from pangeo.
@@ -1099,15 +1085,6 @@ def main(cfg: DictConfig) -> None:
     Args:
         cfg (DictConfig): The config struct to run the program.
     """
-<<<<<<< HEAD
-    for var_str in var_list:
-        GetEnsemble(
-            var=var_str,
-            output_folder=_folder_name(var_str),
-            regen_success_list=regen_success_list,
-        )
-        mean_var(var=var_str)
-=======
     print(cfg)
     wandb_run = wandb.init(
         project=cfg.project,
@@ -1133,7 +1110,6 @@ def main(cfg: DictConfig) -> None:
     if cfg.nino34_derivatives:
         ens.nino34_derivatives()
     wandb.finish()
->>>>>>> 51865b30c01539b3107c5538b11ee83eebcd6add
 
 
 if __name__ == "__main__":
@@ -1148,11 +1124,6 @@ if __name__ == "__main__":
     #    mean_var(var=var_str)
     # make_wsp()
     # from src.data_loading.pangeo import get_vars
-<<<<<<< HEAD
-    get_vars(
-        ["hurs", "psl"],
-    )
-=======
     # get_vars(["hurs", "psl"], )
     # get_vars(["clt"])
     # ts = GetEnsemble(var="ts")
@@ -1173,4 +1144,3 @@ if __name__ == "__main__":
     # python src/data_loading/pangeo.py -m var=tauv,tauu
     # python src/data_loading/pangeo.py -m var=pr,ps,clt,ts,sfcWind,hurs ensemble_timeseries=false
     # python src/data_loading/pangeo.py -m var=pr,ps,clt,ts,sfcWind,hurs ensemble_timeseries=false ensemble_derivatives=false mmm_derivatives=false 
->>>>>>> 51865b30c01539b3107c5538b11ee83eebcd6add
