@@ -105,6 +105,8 @@ MODEL_NAMES = {
     "W": "WHOI",
     "M": "MERRA",
     "I": "ISCCP",
+    "G": "MOHC.HadGEM3-GC31-LL.r1i1p1f3",
+    "N": "NOAA-GFDL.GFDL-ESM4.r1i1p1f1",
 }
 VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"}
 # backwards compatibility: we want the new data to be stored without a atm.mem,

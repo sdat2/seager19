@@ -37,10 +37,19 @@ DEFAULT_SUCCESS_LIST = [
     "THU",
 ]
 
-PANGEO_CAT_URL = str("https://raw.githubusercontent.com/pangeo-data/"
-                + "pangeo-datastore/master/intake-catalogs/master.yaml")
+PANGEO_CAT_URL = str(
+    "https://raw.githubusercontent.com/pangeo-data/"
+    + "pangeo-datastore/master/intake-catalogs/master.yaml"
+)
 
-DEFAULT_REJECT_LIST = ["AWI", "MRI", "CSIRO-ARCCSS", "CCCma", "MIROC", "HAMMOX-Consortium"]
+DEFAULT_REJECT_LIST = [
+    "AWI",
+    "MRI",
+    "CSIRO-ARCCSS",
+    "CCCma",
+    "MIROC",
+    "HAMMOX-Consortium",
+]
 
 VAR_PROP_D = {
     # From https://docs.google.com/spreadsheets/d/
@@ -116,7 +125,9 @@ def standardise_time(
     if isinstance(time, np.datetime64):
         time = pd.to_datetime(time)
     # put the new time in the middle of the given month
-    return cftime.datetime(time.year, time.month, standard_day, calendar=calendar)  # "360_day")
+    return cftime.datetime(
+        time.year, time.month, standard_day, calendar=calendar
+    )  # "360_day")
 
 
 def _preproc(ds: Union[xr.Dataset, xr.DataArray]) -> Union[xr.Dataset, xr.DataArray]:
@@ -261,8 +272,8 @@ class GetEnsemble:
         year_end: str = "2014",
         var: str = "ts",
         # pylint: disable=dangerous-default-value
-        xlim: List[int]=[100, 290],
-        ylim: List[int]=[-30, 30],
+        xlim: List[int] = [100, 290],
+        ylim: List[int] = [-30, 30],
     ) -> xr.DataArray:
         """
         Get the variable from pangeo.
@@ -558,7 +569,9 @@ def get_vars(var_list: List[str], regen_success_list=False):
     """
     for var_str in var_list:
         GetEnsemble(
-            var=var_str, output_folder=_folder_name(var_str), regen_success_list=regen_success_list
+            var=var_str,
+            output_folder=_folder_name(var_str),
+            regen_success_list=regen_success_list,
         )
         mean_var(var=var_str)
 
@@ -574,4 +587,6 @@ if __name__ == "__main__":
     #    mean_var(var=var_str)
     # make_wsp()
     # from src.data_loading.pangeo import get_vars
-    get_vars(["hurs", "psl"], )
+    get_vars(
+        ["hurs", "psl"],
+    )
