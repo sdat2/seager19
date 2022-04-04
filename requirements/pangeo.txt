@@ -1,8 +1,6 @@
 # NOTE: These requirements are used for pangeo. 
 
 # core packages
-xarray==0.17       # The most recent version as of the start of the project.
-matplotlib>=3.1    # if lower this can cause some issues.
 cmip6_preprocessing
 
 #testing
@@ -21,10 +19,6 @@ uncertainties       # linear error propogation
 
 # interactive computing
 tqdm                # loading bar
-jupyterlab          # jupyter notebooks
-jupyter
-ipython
-jupyterthemes       # change the color of jupyter-notebooks etc
 
 # useful xarray extensions
 eccodes
@@ -41,10 +35,6 @@ hydra-core
 # Wandb
 wandb              # automatic recording of runs
 
-# improved plotting
-seaborn
-cmocean
-
 # downloads
 requests
 zipfile38
@@ -55,3 +45,7 @@ intake-esm
 intake
 intake-xarray
 gcsfs
+
+# plotting dependencies of package
+cmocean
+seaborn

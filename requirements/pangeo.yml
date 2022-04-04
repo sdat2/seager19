@@ -1,0 +1,13 @@
+name: pangeo3
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - xesmf==0.5.3
+  - xarray==0.19
+  - cftime
+  - pip
+  - pip:
+      - -e ../.
+      - -r pangeo.txt

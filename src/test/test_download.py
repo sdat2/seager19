@@ -5,7 +5,7 @@ from src.data_loading.download import (
     get_member_data,
     get_original_models,
     get_figure_data,
-    get_noaa_data
+    get_noaa_data,
 )
 
 
