@@ -44,12 +44,12 @@ class Coupling:
     increase to derive a new SST change over 1958–2017 that is then used to force
     the atmosphere model. This iterative coupling is repeated until equilibrium is
     reached, which takes just a few times. There is a unique solution for any given
-    value of CO2. The model wind stress change is computed as ρ c Wu a D , where cD
+    value of CO2. The model wind stress change is computed as ρcWu*cD, where cD
     is a drag coefficient and u is the vector surface wind change computed by the
     atmosphere model, which is added to the ECMWF climatological stresses. Since
     the atmosphere model dynamics are only applicable in the tropics, the computed
-    wind stress anomaly is only applied to the ocean model between 20 S and 20 N,
-    and is linearly tapered to zero at 25 S and 2 5N.
+    wind stress anomaly is only applied to the ocean model between 20S and 20N,
+    and is linearly tapered to zero at 25S and 25N.
     """
 
     # pylint: disable=no-value-for-parameter
@@ -96,7 +96,7 @@ class Coupling:
 
         Returns:
             Tuple[xr.DataArray, xr.DataArray]: tau_x (zonal wind stress),
-               tau_y (meridional wind stress)
+                                               tau_y (meridional wind stress).
 
         """
         stress_coeff = self.coup.rho_air * self.coup.c_d * wind_speed_mean
