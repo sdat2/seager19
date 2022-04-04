@@ -1,4 +1,4 @@
-name: pangeo3
+name: pangeo
 channels:
   - defaults
   - conda-forge

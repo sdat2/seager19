@@ -174,7 +174,7 @@ def coupling_frame(
             "extendfrac": 0.0,
             "extendrect": True,
         }
-        fig, axs = plt.subplots(3, 2, figsize=get_dim(ratio=(5**0.5 - 1) / 2 * 1.5))
+        fig, axs = plt.subplots(3, 2, figsize=get_dim(ratio=(5 ** 0.5 - 1) / 2 * 1.5))
         plt.suptitle("Iteration: " + str(index))
         da = clip(add_units(open_dataset(setup.tau_y(it=index)).tauy.isel(T=600)))
         da.plot(

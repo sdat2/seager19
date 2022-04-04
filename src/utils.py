@@ -10,26 +10,28 @@ from src.models.model_setup import ModelSetup
 from src.configs.load_config import load_config
 from src.constants import K_LOGS
 
-class TimeoutException(Exception): pass
+
+class TimeoutException(Exception):
+    pass
 
 
 @contextmanager
 def time_limit(seconds: int) -> None:
     """Time limit manager.
-    
+
     Function taken from:
-    
+
     https://stackoverflow.com/questions/366682/
     how-to-limit-execution-time-of-a-function-call
-    
+
     Args:
         seconds (int): how  many seconds to wait until timeout.
-        
+
     Example:
         Call a function which will take longer than the time limit::
 
             import time
-            
+
             def long_function_call():
                 for i in range(5):
                     print(i)
@@ -42,16 +44,19 @@ def time_limit(seconds: int) -> None:
                 print("Timed out!")
             except:
                 print("A different exception")
-    
+
     """
+
     def signal_handler(signum, frame):
         raise TimeoutException("Timed out!")
+
     signal.signal(signal.SIGALRM, signal_handler)
     signal.alarm(seconds)
     try:
         yield
     finally:
         signal.alarm(0)
+
 
 def hr_time(time_in: float) -> str:
     """

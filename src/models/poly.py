@@ -11,12 +11,12 @@ Flt = Union[float, ufloat]
 
 def _cubic(x: float, a: Flt, b: Flt, c: Flt, d: Flt) -> Flt:
     """Fit cubic curve to data"""
-    return a * (x**3) + b * (x**2) + c * x + d
+    return a * (x ** 3) + b * (x ** 2) + c * x + d
 
 
 def _parab(x: float, a: Flt, b: Flt, c: Flt) -> Flt:
     """Fit parabola to data."""
-    return a * (x**2) + b * x + c
+    return a * (x ** 2) + b * x + c
 
 
 def _lin(x: float, a: Flt, b: Flt) -> Flt:

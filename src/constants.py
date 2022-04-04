@@ -111,7 +111,8 @@ VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"
 #
 
 ENSEMBLE_CSV = DATA_PATH / "ensemble_variable_members.csv"
-# MINIMAL_ENSEMBLE_CSV = 
+# MINIMAL_ENSEMBLE_CSV =
+
 
 def atmos_input_file_path(
     var: str = "ts", model: str = "E", ending: str = "clim60"
