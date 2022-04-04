@@ -1,0 +1,21 @@
+# Wandb project.
+project: pangeo
+# User for wandb.
+user: sdat2
+# name for wandb.
+name: ${var}_${past}_${future}
+# cmip variable.
+var: ts
+# cmip historical run.
+past: historical
+# ScenariMIP to choose.
+future: ssp585
+# remake the whole timeseries.
+ensemble_timeseries: true
+# make the ensemble derivatives.
+ensemble_derivatives: true
+# make the multi-model mean.
+mmm_derivatives: true
+# whether to try all possible centres.
+regen_success_list: false
+nino34_derivatives: true
