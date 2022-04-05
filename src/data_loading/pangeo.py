@@ -327,17 +327,19 @@ class GetEnsemble:
 
         Mulitimodel mean of 40 historical and RCP8.5 CMIP5 models.
 
-        1940 to end of 2013 - historical experiment.
-        2014 to end of 2099 - ssp585 experiment.
+        1940 to end of 2014 - historical experiment.
+        2015 to end of 2099 - ssp585 experiment.
 
         """
         self.da_lists[self.past] = self.get_var(
             experiment=self.past,
             year_begin="1940",
-            year_end="2013",
+            year_end="2014",
         )
         self.da_lists[self.future] = self.get_var(
-            experiment=self.future, year_begin="2014", year_end="2099"
+            experiment=self.future,
+            year_begin="2015",
+            year_end="2099"
         )
         for instit in self.success_list:
             self.comp_and_match(instit=instit)
@@ -540,7 +542,7 @@ class GetEnsemble:
                     ensemble_da.isel(T=idx_start).astype("float32").to_netcdf(
                         os.path.join(
                             self.output_folder,
-                            self._file_name(insitit, model, member_id),
+                            self._file_name(instit, model, member_id),
                         )
                         # save some space
                         # encoding={self.var: {"dtype": "f8"}}

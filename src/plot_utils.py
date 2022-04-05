@@ -430,8 +430,6 @@ def axis_formatter() -> matplotlib.ticker.ScalarFormatter:
         >>>    axis=ax_format, style="sci", scilimits=(0, 0), useMathText=True
         >>> )
 
-    TODO Add an example of formatter use.
-
     Returns:
         matplotlib.ticker.ScalarFormatter: An object to pass in to a
             matplotlib operation.

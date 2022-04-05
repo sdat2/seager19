@@ -33,8 +33,8 @@ def time_limit(seconds: int) -> None:
             import time
 
             def long_function_call():
-                for i in range(5):
-                    print(i)
+                for t in range(5):
+                    print("t=", t, "seconds")
                     time.sleep(1)
             try:
                 with time_limit(3):
@@ -47,10 +47,10 @@ def time_limit(seconds: int) -> None:
 
     """
 
-    def signal_handler(signum, frame):
+    def _signal_handler(signum, frame):
         raise TimeoutException("Timed out!")
 
-    signal.signal(signal.SIGALRM, signal_handler)
+    signal.signal(signal.SIGALRM, _signal_handler)
     signal.alarm(seconds)
     try:
         yield
