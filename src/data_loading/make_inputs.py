@@ -9,6 +9,9 @@ from src.constants import (
     U_HIST,
     V_HIST,
     CMIP6_CLIM60_PATH,
+    cmip6_mmm_mean,
+    atmos_input_file_path,
+    cmip6_mmm_trend,
 )
 from src.xr_utils import open_dataset, open_dataarray, can_coords
 from src.utils import timeit
@@ -211,6 +214,57 @@ def get_rh_6() -> None:
     rh_new.to_netcdf(ATMOS_DATA_PATH / "rh-CMIP6-clim60.nc")
 
 
+rename_dict = {
+    "clim60": {"Y": "lat", "X": "lon"},
+    # "clim": {"Y": "X", "X": "X"},
+    # "trend": {"Y": "X", "X": "X"},
+}
+sel_dict = {
+    "clim60": {"Y": slice(-60, 60)},
+    "clim": {
+        "Y": slice(-90, 90),
+    },
+    "trend": {
+        "Y": slice(-90, 90),
+    },
+}
+cmip6_mmm_func_d = {
+    "clim60": cmip6_mmm_mean,
+    "clim": cmip6_mmm_mean,
+    "trend": cmip6_mmm_trend,
+}
+
+
+def generate(var: str, model: str = "S", ending="clim60"):
+    """
+    Generate an input variable.
+
+    Args:
+        var (str): _description_
+        model (str, optional): _description_. Defaults to "S".
+        ending (str, optional): _description_. Defaults to "clim60".
+    """
+    cmip6_mean = xr.open_dataarray(cmip6_mmm_func_d[ending](var))
+    ecmwf_mean = xr.open_dataarray(atmos_input_file_path(var=var, ending=ending))
+    cmip6_mean = cmip6_mean.sel(**sel_dict[ending])
+    if ecmwf_mean.attrs["units"] == "degree_Celsius":
+        cmip6_mean = cmip6_mean - 273.15
+    print(ecmwf_mean.dims)
+    print(cmip6_mean.dims)
+    print(ecmwf_mean)
+    if ending in rename_dict:
+        cmip6_mean = cmip6_mean.rename(rename_dict[ending])
+    print(model)
+    print(atmos_input_file_path(var=var, ending=ending, model=model))
+    assert cmip6_mean.dims == ecmwf_mean.dims
+    new_mean = ecmwf_mean.copy()
+    new_mean[:, :359] = cmip6_mean[:, :359]
+    # print(cmip6_mean[:, :359].values.shape)
+    # print(ecmwf_mean[:, :359].values.shape)
+    # print(new_mean)
+    # new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
+
+
 if __name__ == "__main__":
     # python3 src/data_loading/make_inputs.py
     # print(return_figure_ds("5f"))
@@ -219,9 +273,12 @@ if __name__ == "__main__":
     # get_figure_data()
     # get_rh()  # get it from the figure data
     # get_sfcwind()  # get it from the figure data
-    get_rh_6()
-    get_sfcwind_6()
-
+    # get_rh_6()
+    # get_sfcwind_6()
+    for var in ["ts", "sfcWind"]:
+        generate(var, ending="clim60")
+        generate(var, ending="clim")
+        # generate("ts", ending="trend")
 
 # pylint: disable=pointless-string-statement
 """
