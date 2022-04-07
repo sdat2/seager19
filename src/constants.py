@@ -112,7 +112,14 @@ VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"
 
 ENSEMBLE_CSV = DATA_PATH / "ensemble_variable_members.csv"
 # MINIMAL_ENSEMBLE_CSV =
+def cmip6_mmm_mean(var: str) -> str:
+    return str(DATA_PATH / "nc" / "historical.ssp585.mmm.mean" / str(var + ".nc"))
 
+def cmip6_mmm_trend(var: str) -> str:
+    return str(DATA_PATH / "nc" / "historical.ssp585.mmm.trend" / str(var + ".nc"))
+
+def cmip6_ensemble_var(var: str) -> str:
+    return str(DATA_PATH / "nc" / "historical.ssp585" / str(var))
 
 def atmos_input_file_path(
     var: str = "ts", model: str = "E", ending: str = "clim60"

@@ -55,7 +55,6 @@ import pathlib
 import numpy as np
 import pandas as pd
 import xarray as xr
-import xesmf as xe
 import dask
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 import cftime
@@ -99,6 +98,19 @@ CMIP6_ENSEMBLE_VARIABLES: List[str] = [
     "tauu",
     "tauv",
 ]
+
+ALL_VARIABLES:  List[str] = [
+        "pr",
+        "ps",
+        "psl",
+        "clt",
+        "ts",
+        "sfcWind",
+        "hur",
+        "hurs",
+        "tauu",
+        "tauv",
+    ]
 
 # The different modelling centers.
 DEFAULT_SUCCESS_LIST: List[str] = [
@@ -528,10 +540,7 @@ class GetEnsemble:
                         "T",
                     )
                     ensemble_da = self._coord_attrs(ensemble_da)
-                    if wandb.run is not None and self.wandb is not None:
-                        ensemble_da.attrs[
-                            "pangeo_processing_run"
-                        ] = self.wandb.get_url()
+                    ensemble_da = self._wandb(ensemble_da, stage_str = "processing")
                     times = ensemble_da["T"].values
                     vals, idx_start, count = np.unique(
                         times, return_counts=True, return_index=True
@@ -551,6 +560,21 @@ class GetEnsemble:
                     print("problem with " + model + " " + member_id)
                     print(scenario_member)
                     print(historical_member)
+
+    def _wandb(self, da: xr.DataArray, stage_str: str = "processing") -> xr.DataArray:
+        """
+        ensemble_da = self._wandb(ensemble_da, stage_str = "processing")
+
+        Args:
+            da (xr.DataArray): _description_
+            stage_str (str, optional): _description_. Defaults to "processing".
+
+        Returns:
+            xr.DataArray: _description_
+        """
+        if wandb.run is not None and self.wandb is not None:
+                da.attrs["pangeo_"+stage_str+"_run"] = self.wandb.get_url()
+        return da
 
     def _file_name(self, instit: str, model: str, member_id: str) -> str:
         return str(
@@ -627,6 +651,7 @@ class GetEnsemble:
             model = member_da.model.values
             member_id = member_da.member_id.values
             mean = self._time_mean_attrs(member_da.mean("T"))
+            mean = self._wandb(mean, stage_str = "time_mean")
             mean.to_netcdf(
                 os.path.join(
                     _folder_name(self.var, self.past + "." + self.future + ".mean"),
@@ -634,6 +659,7 @@ class GetEnsemble:
                 )
             )
             clim = self._climatology_attrs(get_clim(member_da))
+            clim = self._wandb(clim, stage_str = "climatology")
             clim.to_netcdf(
                 os.path.join(
                     _folder_name(
@@ -643,6 +669,7 @@ class GetEnsemble:
                 )
             )
             trend = self._trend_attrs(get_trend(member_da))
+            trend = self._wandb(trend, stage_str = "climatology")
             trend.to_netcdf(
                 os.path.join(
                     _folder_name(self.var, self.past + "." + self.future + ".trend"),
@@ -995,7 +1022,7 @@ def make_future_nino34(
             Which scenario to get data from.
     """
     da = _scenario_da(scenario=scenario)
-    new_da = regridded_to_standard(da)
+    new_da = regrid_2d_to_standard(da)
     nino34 = spatial_mean(sel(new_da, reg="nino3.4"))
     output_folder = _scenariomip_data(var="ts_nino3.4", scenario=scenario)
     _folder(output_folder)
@@ -1053,19 +1080,7 @@ def members_df() -> pd.DataFrame:
     """
     var_dict = {}
     truth_dict = {}
-    variables = [
-        "pr",
-        "ps",
-        "psl",
-        "clt",
-        "ts",
-        "sfcWind",
-        "hur",
-        "hurs",
-        "tauu",
-        "tauv",
-    ]
-    # new_variables = ["pr", "psl", "ps", "clt", "ts", "sfcWind", "hurs", "hur"]
+    variables: List[str] = ALL_VARIABLES
     combined_list = []
     for var in variables:
         ens = GetEnsemble(
@@ -1145,6 +1160,7 @@ def main(cfg: DictConfig) -> None:
     )
     if cfg.ensemble_timeseries:
         ens.ensemble_timeseries()
+    if cfg.regenerate_members_csv:
         members_csv()
     if cfg.ensemble_derivatives:
         print(ens._member_list())

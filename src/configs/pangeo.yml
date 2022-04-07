@@ -18,4 +18,7 @@ ensemble_derivatives: true
 mmm_derivatives: true
 # whether to try all possible centres.
 regen_success_list: false
+# nino3.4 derivatives
 nino34_derivatives: true
+# regenerate members csv
+regenerate_members_csv: false
