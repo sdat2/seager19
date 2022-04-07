@@ -2,7 +2,6 @@
 import os
 from typing import Tuple
 import matplotlib.pyplot as plt
-import matplotlib
 import xarray as xr
 from src.constants import (
     NOAA_DATA_PATH,

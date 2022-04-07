@@ -1,5 +1,5 @@
 """Store plotting scripts for metrics.py"""
-from typing import Tuple
+from typing import Tuple, Optional
 import matplotlib
 import matplotlib.pyplot as plt
 from src.constants import SEL_DICT
@@ -8,36 +8,62 @@ from src.xr_utils import get_trend
 from src.metrics import nino_calculate
 
 
+def _get_points(reg_dict: dict) -> Tuple[list]:
+    """Get the rectangle from the reg_dict."""
+    x, y = [], []
+    x.append(reg_dict["X"][0])
+    y.append(reg_dict["Y"][0])
+    x.append(reg_dict["X"][0])
+    y.append(reg_dict["Y"][1])
+    x.append(reg_dict["X"][1])
+    y.append(reg_dict["Y"][1])
+    x.append(reg_dict["X"][1])
+    y.append(reg_dict["Y"][0])
+    x.append(reg_dict["X"][0])
+    y.append(reg_dict["Y"][0])
+    return x, y
+
+
+def plot_nino_box(
+    ax: matplotlib.axes.Axes, reg: str, color: Optional[str] = None
+) -> None:
+    """
+    Plot a nino box.
+
+    Args:
+        ax (matplotlib.axes.Axes): axis to plot to.
+        reg (str): region to plot
+        color (Optional[str], optional): Override color option. Defaults to None.
+
+    Example:
+        Add Nino3.4 box to plot::
+
+            import matplotlib.pyplot as plt
+            from src.visualisation.nino import plot_nino_box
+
+            ax = plt.gca()
+            plot_nino_box(
+                ax, reg="nino3.4", color=None
+            )
+
+    """
+    x, y = _get_points(SEL_DICT[reg])
+    if color is None:
+        color = SEL_DICT[reg]["color"]
+    ax.plot(x, y, label=reg, alpha=0.5, linewidth=2, color=color)
+
+
 def plot_nino(ax: matplotlib.axes.Axes, legend: bool = False) -> None:
     """
-    Plot nino boxes.
+    Plot all the nino boxes.
+
+    Args:
+        ax (matplotlib.axes.Axes): axis to plot to.
+        legend (bool, optional): Whether to include legend. Defaults to False.
     """
 
-    def get_points(reg_dict: dict) -> Tuple[list]:
-        """Get the rectangle."""
-        x, y = [], []
-        x.append(reg_dict["X"][0])
-        y.append(reg_dict["Y"][0])
-        x.append(reg_dict["X"][0])
-        y.append(reg_dict["Y"][1])
-        x.append(reg_dict["X"][1])
-        y.append(reg_dict["Y"][1])
-        x.append(reg_dict["X"][1])
-        y.append(reg_dict["Y"][0])
-        x.append(reg_dict["X"][0])
-        y.append(reg_dict["Y"][0])
-        return x, y
-
     for reg in reversed(sorted(SEL_DICT)):
-
-        x, y = get_points(SEL_DICT[reg])
-        # if False: # reg == "nino3.4":
-        # metric
-        # plt.fill(x, y, label=reg, alpha=0.5,
-        # linewidth=1, color=SEL_DICT[reg]["color"])
-        # else:
-        ax.plot(x, y, label=reg, alpha=0.5, linewidth=2, color=SEL_DICT[reg]["color"])
-
+        plot_nino_box(ax, reg)
     ax.set_title("")
 
     ax.set_xlim(95, 295)

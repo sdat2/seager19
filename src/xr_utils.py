@@ -230,6 +230,7 @@ def clip(da: xr.DataArray, pac: bool = True, mask_land: bool = True) -> xr.DataA
     """
     Clip a datarray to the pacific using sel, and mask the land.
 
+
     Args:
         da (xr.DataArray): The datarray to pass in.
         pac (bool, optional): Whether to focus on pacific. Defaults to True.
