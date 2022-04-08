@@ -115,7 +115,12 @@ ENSEMBLE_CSV = DATA_PATH / "ensemble_variable_members.csv"
 # MINIMAL_ENSEMBLE_CSV =
 NC_PATH = DATA_PATH / "nc"
 NC_PREFIX = str(NC_PATH / "historical.ssp585.")
-ending_d = {"clim60": "mean", "clim": "mean", "trend": "trend"}
+ending_d = {
+    "clim60": "mean",
+    "clim": "mean",
+    "trend": "trend",
+    "climatology": "climatology",
+}
 
 
 def cmip6_file(var: str, model: str, ending: str) -> str:

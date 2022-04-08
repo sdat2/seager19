@@ -231,6 +231,7 @@ sel_dict = {
 
 var_rename_dict = {"rh": "hurs", "ps": "ps"}  # "psl"}
 var_regrid_list = ["ps"]
+# sst climatology is actual climatology, and actually in degrees celsius
 
 
 def generate(var: str, model: str = "S", ending: str = "clim60"):
@@ -316,7 +317,20 @@ if __name__ == "__main__":
     # get_sfcwind()  # get it from the figure data
     # get_rh_6()
     # get_sfcwind_6()
-    generate_all()
+    # generate_all()
+    print(xr.open_dataarray(cmip6_file("ts", "S", "climatology")))
+    print(
+        xr.open_dataarray(
+            atmos_input_file_path(var="sst", ending="clim", model="E"),
+            decode_times=False,
+        )
+    )
+    print(
+        xr.open_dataarray(
+            atmos_input_file_path(var="sst", ending="trend", model="E"),
+            decode_times=False,
+        )
+    )
 
 
 # pylint: disable=pointless-string-statement
