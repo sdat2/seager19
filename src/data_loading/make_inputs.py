@@ -9,6 +9,7 @@ from src.constants import (
     U_HIST,
     V_HIST,
     CMIP6_CLIM60_PATH,
+    MODEL_NAMES,
     cmip6_mmm_mean,
     atmos_input_file_path,
     cmip6_mmm_trend,
@@ -214,7 +215,7 @@ def get_rh_6() -> None:
     rh_new.to_netcdf(ATMOS_DATA_PATH / "rh-CMIP6-clim60.nc")
 
 
-rename_dict = {
+coord_rename_dict = {
     "clim60": {"Y": "lat", "X": "lon"},
     # "clim": {"Y": "X", "X": "X"},
     # "trend": {"Y": "X", "X": "X"},
@@ -233,36 +234,85 @@ cmip6_mmm_func_d = {
     "clim": cmip6_mmm_mean,
     "trend": cmip6_mmm_trend,
 }
+var_rename_dict = {"rh": "hurs", "ps": "ps"}  # "psl"}
+var_regrid_list = ["ps"]
 
 
-def generate(var: str, model: str = "S", ending="clim60"):
+def kgms_mmday() -> float:
+    """Bencini, Roberto. (2016). Re: How do I convert ERA Interim precipitation estimates from kg/m2/s to mm/day?. Retrieved from: https://www.researchgate.net/post/How-do-I-convert-ERA-Interim-precipitation-estimates-from-kg-m2-s-to-mm-day/56d71a54b0366dd61e0de055/citation/download."""
+    return 86400
+
+
+def generate(var: str, model: str = "S", ending: str = "clim60"):
     """
     Generate an input variable.
 
     Args:
-        var (str): _description_
-        model (str, optional): _description_. Defaults to "S".
-        ending (str, optional): _description_. Defaults to "clim60".
+        var (str): Variable string. e.g. "ts".
+        model (str, optional): Model character. Defaults to "S".
+        ending (str, optional): Input file ending. Defaults to "clim60".
     """
-    cmip6_mean = xr.open_dataarray(cmip6_mmm_func_d[ending](var))
+    if var in var_rename_dict:
+        old_var = var_rename_dict[var]
+        cmip6_mean = xr.open_dataarray(cmip6_mmm_func_d[ending](old_var))
+        cmip6_mean = cmip6_mean.rename(var)
+    else:
+        cmip6_mean = xr.open_dataarray(cmip6_mmm_func_d[ending](var))
     ecmwf_mean = xr.open_dataarray(atmos_input_file_path(var=var, ending=ending))
     cmip6_mean = cmip6_mean.sel(**sel_dict[ending])
-    if ecmwf_mean.attrs["units"] == "degree_Celsius":
-        cmip6_mean = cmip6_mean - 273.15
-    print(ecmwf_mean.dims)
-    print(cmip6_mean.dims)
-    print(ecmwf_mean)
-    if ending in rename_dict:
-        cmip6_mean = cmip6_mean.rename(rename_dict[ending])
-    print(model)
-    print(atmos_input_file_path(var=var, ending=ending, model=model))
+    print(var, model, ending)
+    print(ecmwf_mean.attrs["units"], "\t\t\t", cmip6_mean.attrs["units"])
+
+    # if (
+    #    var == "ts" and ending == "clim"
+    # ):  # ecmwf_mean.attrs["units"] == "degree_Celsius":
+    # cmip6_mean = cmip6_mean - 273.15
+    if var == "ps":
+        cmip6_mean = cmip6_mean / 100
+        cmip6_mean.attrs["units"] = ecmwf_mean.attrs["units"]
+    #if var == "pr":
+    #    #cmip6_mean = cmip6_mean  # * kgms_mmday()
+    #    #cmip6_mean.attrs["units"] = ecmwf_mean.attrs["units"]
+    if ending in coord_rename_dict:
+        cmip6_mean = cmip6_mean.rename(coord_rename_dict[ending])
+    ecmwf_dims = ecmwf_mean.dims
+    if var in var_regrid_list:
+        # this will break if clim60 requires regridding.
+        cmip6_mean = (
+            cmip6_mean.interp_like(ecmwf_mean)
+            .bfill(ecmwf_dims[0])
+            .ffill(ecmwf_dims[0])
+            .bfill(ecmwf_dims[1])
+            .ffill(ecmwf_dims[1])
+        )
     assert cmip6_mean.dims == ecmwf_mean.dims
+    print(
+        ecmwf_mean.mean(ecmwf_dims[1]).mean(ecmwf_dims[0]).values,
+        "\t\t\t",
+        cmip6_mean.mean(ecmwf_dims[1]).mean(ecmwf_dims[0]).values,
+    )
+    print("========================================================")
     new_mean = ecmwf_mean.copy()
     new_mean[:, :359] = cmip6_mean[:, :359]
-    # print(cmip6_mean[:, :359].values.shape)
-    # print(ecmwf_mean[:, :359].values.shape)
-    # print(new_mean)
+    new_mean.attrs["center"] = MODEL_NAMES[model] + " multi model mean"
     new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
+
+
+def generate_all() -> None:
+    """
+    Generate all cmip6 entries.
+    """
+    ending_d = {
+        "pr": ["clim", "trend"],
+        "rh": ["clim60"],
+        "sfcWind": ["clim", "clim60"],
+        "ts": ["clim", "clim60", "trend"],
+        "ps": ["clim"],
+        "clt": ["clim60"],
+    }
+    for var in ending_d:
+        for ending in ending_d[var]:
+            generate(var, ending=ending)
 
 
 if __name__ == "__main__":
@@ -275,17 +325,7 @@ if __name__ == "__main__":
     # get_sfcwind()  # get it from the figure data
     # get_rh_6()
     # get_sfcwind_6()
-    ending_d = {
-        "pr": ["clim", "trend"],
-        # "rh": ["clim60"],
-        "sfcWind": ["clim", "clim60"],
-        "ts": ["clim", "clim60", "trend"],
-        "ps": ["clim"],
-    }
-    for var in ending_d:
-        for ending in ending_d[var]:
-            generate(var, ending=ending)
-        # generate("ts", ending="trend")
+    generate_all()
 
 
 # pylint: disable=pointless-string-statement
