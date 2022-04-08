@@ -11,6 +11,7 @@ from src.constants import (
     CMIP6_CLIM60_PATH,
     MODEL_NAMES,
     atmos_input_file_path,
+    ocean_input_file_path,
     cmip6_file,
 )
 from src.xr_utils import open_dataset, open_dataarray, can_coords
@@ -214,18 +215,13 @@ def get_rh_6() -> None:
     rh_new.to_netcdf(ATMOS_DATA_PATH / "rh-CMIP6-clim60.nc")
 
 
-coord_rename_dict = {
-    "clim60": {"Y": "lat", "X": "lon"},
-    # "clim": {"Y": "X", "X": "X"},
-    # "trend": {"Y": "X", "X": "X"},
+var_rename_dict = {
+    "rh": "hurs",
+    "ps": "ps",
+    "sst": "ts",
+    "taux": "tauu",
+    "tauy": "tauv",
 }
-sel_dict = {
-    "clim60": {"Y": slice(-60, 60)},
-}
-
-var_rename_dict = {"rh": "hurs", "ps": "ps", "sst": "ts"}  # "psl"}
-var_regrid_list = ["ps"]
-# sst climatology is actual climatology, and actually in degrees celsius
 
 
 def generate(var: str, model: str = "S", ending: str = "clim60"):
@@ -237,6 +233,14 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
         model (str, optional): Model character. Defaults to "S".
         ending (str, optional): Input file ending. Defaults to "clim60".
     """
+    coord_rename_dict = {
+        "clim60": {"Y": "lat", "X": "lon"},
+    }
+    sel_dict = {
+        "clim60": {"Y": slice(-60, 60)},
+    }
+    var_regrid_list = ["ps"]
+    # sst climatology is actual climatology, and actually in degrees celsius
     if var in var_rename_dict:
         old_var = var_rename_dict[var]
         cmip6_mean = xr.open_dataarray(cmip6_file(old_var, model, ending))
@@ -284,31 +288,54 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
 
 
-def generate_climatology(model: str = "S") -> None:
+def generate_climatology(var: str = "sst", model: str = "S") -> None:
     """
     Generate climatology.
 
     Args:
-        model (str, optional): . Defaults to "S".
+        model (str, optional): Defaults to "S".
     """
-    cmip6_climatology = xr.open_dataarray(
-        cmip6_file("ts", model, "climatology")
-    ).rename({"month": "T"})
+    end_d = {"taux": ".x", "tauy": ".y"}  # "sst": ".nc",
+    if var in var_rename_dict:
+        cmip6_climatology = xr.open_dataarray(
+            cmip6_file(var_rename_dict[var], model, "climatology")
+        )
+    else:
+        cmip6_climatology = xr.open_dataarray(cmip6_file(var, model, "climatology"))
+    cmip6_climatology = cmip6_climatology.rename({"month": "T"})
     cmip6_climatology = cmip6_climatology.expand_dims("Z", axis=1).assign_coords(
         {"T": ("T", cmip6_climatology["T"].values - 0.5), "Z": ("Z", [0.0])}
     )
-    cmip6_climatology = cmip6_climatology - 273.15
-    cmip6_climatology.attrs["units"] = "degree_Celsius"
-    ecmwf_climatology = xr.open_dataarray(
-        atmos_input_file_path(var="sst", ending="clim", model="E"),
-        decode_times=False,
-    )
+    if var in end_d:
+        ecmwf_climatology = xr.open_dataarray(
+            ocean_input_file_path(var="tau", model="E", ending="clim", end=end_d[var]),
+            decode_times=False,
+            engine="netcdf4",
+        )
+    else:
+        ecmwf_climatology = xr.open_dataarray(
+            atmos_input_file_path(var=var, ending="clim", model="E"),
+            decode_times=False,
+        )
+    if var == "sst":
+        cmip6_climatology = cmip6_climatology - 273.15
+    cmip6_climatology.attrs["units"] = ecmwf_climatology.attrs["units"]
     print(cmip6_climatology, "\n", ecmwf_climatology)
     new_climatology = ecmwf_climatology.copy()
     new_climatology[:, :, :, :359] = cmip6_climatology[:, :, :, :359]
-    new_climatology.to_netcdf(
-        atmos_input_file_path(var="sst", ending="clim", model=model)
-    )
+    if var in end_d:
+        new_climatology.to_netcdf(
+            ocean_input_file_path(
+                var="tau", model=model, ending="clim", end=end_d[var]
+            ),
+            format="NETCDF3_CLASSIC",
+        )
+    else:
+        new_climatology.to_netcdf(
+            atmos_input_file_path(var=var, ending="clim", model=model),
+            format="NETCDF3_CLASSIC",
+        )
+        # shutil.copy()
 
 
 def generate_all() -> None:
@@ -322,13 +349,17 @@ def generate_all() -> None:
         "ts": ["clim", "clim60", "trend"],
         "ps": ["clim"],
         "clt": ["clim60"],
-        "sst": ["trend"],
+        "sst": ["trend", "climatology"],
+        "taux": ["climatology"],
+        "tauy": ["climatology"],
     }
     for model in ["S", "G", "U", "K", "I"]:
-        generate_climatology(model=model)
         for var in ending_d:
             for ending in ending_d[var]:
-                generate(var, model=model, ending=ending)
+                if ending != "climatology":
+                    generate(var, model=model, ending=ending)
+                elif model == "S" or var == "sst":
+                    generate_climatology(var=var, model=model)
 
 
 if __name__ == "__main__":
@@ -342,6 +373,8 @@ if __name__ == "__main__":
     # get_rh_6()
     # get_sfcwind_6()
     generate_all()
+    # print(xr.open_dataarray("ocean/DATA/tau-ECMWF-clim.x", decode_times=False))
+    # print(xr.open_dataarray("ocean/DATA/tau-ECMWF-clim.y", decode_times=False))
     # print(cmip6_climatology.values.shape, "\n", ecmwf_climatology.values.shape)
     # print(cmip6_climatology.values.shape, "\n", ecmwf_climatology.values.shape)
 

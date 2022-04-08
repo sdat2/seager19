@@ -160,6 +160,14 @@ def atmos_input_file_path(
     )
 
 
+def ocean_input_file_path(
+    var: str = "ts", model: str = "E", ending: str = "clim", end=".nc"
+) -> str:
+    return str(
+        OCEAN_DATA_PATH / str(var + "-" + MODEL_NAMES[model] + "-" + ending + end)
+    )
+
+
 drop_var_d: dict = {"nc_clt": [], "nc_hur": [], "nc_pr": [], "nc_ts": []}
 # https://www.dropbox.com/sh/pzp2s534m1i3081/AABsVz0HvpQTtXxlOXUS4eIla?dl=1
 # https://www.dropbox.com/s/o82yp69pkpz50ze/nc_clt.zip?dl=0
