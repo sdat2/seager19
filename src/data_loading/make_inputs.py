@@ -221,15 +221,9 @@ coord_rename_dict = {
 }
 sel_dict = {
     "clim60": {"Y": slice(-60, 60)},
-    "clim": {
-        "Y": slice(-90, 90),
-    },
-    "trend": {
-        "Y": slice(-90, 90),
-    },
 }
 
-var_rename_dict = {"rh": "hurs", "ps": "ps"}  # "psl"}
+var_rename_dict = {"rh": "hurs", "ps": "ps", "sst": "ts"}  # "psl"}
 var_regrid_list = ["ps"]
 # sst climatology is actual climatology, and actually in degrees celsius
 
@@ -250,7 +244,8 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     else:
         cmip6_mean = xr.open_dataarray(cmip6_file(var, model, ending))
     ecmwf_mean = xr.open_dataarray(atmos_input_file_path(var=var, ending=ending))
-    cmip6_mean = cmip6_mean.sel(**sel_dict[ending])
+    if ending in sel_dict:
+        cmip6_mean = cmip6_mean.sel(**sel_dict[ending])
     print(var, model, ending)
     print(ecmwf_mean.attrs["units"], "\t\t\t", cmip6_mean.attrs["units"])
 
@@ -289,6 +284,33 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
 
 
+def generate_climatology(model: str = "S") -> None:
+    """
+    Generate climatology.
+
+    Args:
+        model (str, optional): . Defaults to "S".
+    """
+    cmip6_climatology = xr.open_dataarray(
+        cmip6_file("ts", model, "climatology")
+    ).rename({"month": "T"})
+    cmip6_climatology = cmip6_climatology.expand_dims("Z", axis=1).assign_coords(
+        {"T": ("T", cmip6_climatology["T"].values - 0.5), "Z": ("Z", [0.0])}
+    )
+    cmip6_climatology = cmip6_climatology - 273.15
+    cmip6_climatology.attrs["units"] = "degree_Celsius"
+    ecmwf_climatology = xr.open_dataarray(
+        atmos_input_file_path(var="sst", ending="clim", model="E"),
+        decode_times=False,
+    )
+    print(cmip6_climatology, "\n", ecmwf_climatology)
+    new_climatology = ecmwf_climatology.copy()
+    new_climatology[:, :, :, :359] = cmip6_climatology[:, :, :, :359]
+    new_climatology.to_netcdf(
+        atmos_input_file_path(var="sst", ending="clim", model=model)
+    )
+
+
 def generate_all() -> None:
     """
     Generate all cmip6 entries.
@@ -300,8 +322,10 @@ def generate_all() -> None:
         "ts": ["clim", "clim60", "trend"],
         "ps": ["clim"],
         "clt": ["clim60"],
+        "sst": ["trend"],
     }
     for model in ["S", "G", "U", "K", "I"]:
+        generate_climatology(model=model)
         for var in ending_d:
             for ending in ending_d[var]:
                 generate(var, model=model, ending=ending)
@@ -317,20 +341,9 @@ if __name__ == "__main__":
     # get_sfcwind()  # get it from the figure data
     # get_rh_6()
     # get_sfcwind_6()
-    # generate_all()
-    print(xr.open_dataarray(cmip6_file("ts", "S", "climatology")))
-    print(
-        xr.open_dataarray(
-            atmos_input_file_path(var="sst", ending="clim", model="E"),
-            decode_times=False,
-        )
-    )
-    print(
-        xr.open_dataarray(
-            atmos_input_file_path(var="sst", ending="trend", model="E"),
-            decode_times=False,
-        )
-    )
+    generate_all()
+    # print(cmip6_climatology.values.shape, "\n", ecmwf_climatology.values.shape)
+    # print(cmip6_climatology.values.shape, "\n", ecmwf_climatology.values.shape)
 
 
 # pylint: disable=pointless-string-statement
