@@ -99,18 +99,18 @@ CMIP6_ENSEMBLE_VARIABLES: List[str] = [
     "tauv",
 ]
 
-ALL_VARIABLES:  List[str] = [
-        "pr",
-        "ps",
-        "psl",
-        "clt",
-        "ts",
-        "sfcWind",
-        "hur",
-        "hurs",
-        "tauu",
-        "tauv",
-    ]
+ALL_VARIABLES: List[str] = [
+    "pr",
+    "ps",
+    "psl",
+    "clt",
+    "ts",
+    "sfcWind",
+    "hur",
+    "hurs",
+    "tauu",
+    "tauv",
+]
 
 # The different modelling centers.
 DEFAULT_SUCCESS_LIST: List[str] = [
@@ -349,9 +349,7 @@ class GetEnsemble:
             year_end="2014",
         )
         self.da_lists[self.future] = self.get_var(
-            experiment=self.future,
-            year_begin="2015",
-            year_end="2099"
+            experiment=self.future, year_begin="2015", year_end="2099"
         )
         for instit in self.success_list:
             self.comp_and_match(instit=instit)
@@ -540,7 +538,7 @@ class GetEnsemble:
                         "T",
                     )
                     ensemble_da = self._coord_attrs(ensemble_da)
-                    ensemble_da = self._wandb(ensemble_da, stage_str = "processing")
+                    ensemble_da = self._wandb(ensemble_da, stage_str="processing")
                     times = ensemble_da["T"].values
                     vals, idx_start, count = np.unique(
                         times, return_counts=True, return_index=True
@@ -573,7 +571,7 @@ class GetEnsemble:
             xr.DataArray: _description_
         """
         if wandb.run is not None and self.wandb is not None:
-                da.attrs["pangeo_"+stage_str+"_run"] = self.wandb.get_url()
+            da.attrs["pangeo_" + stage_str + "_run"] = self.wandb.get_url()
         return da
 
     def _file_name(self, instit: str, model: str, member_id: str) -> str:
@@ -651,7 +649,7 @@ class GetEnsemble:
             model = member_da.model.values
             member_id = member_da.member_id.values
             mean = self._time_mean_attrs(member_da.mean("T"))
-            mean = self._wandb(mean, stage_str = "time_mean")
+            mean = self._wandb(mean, stage_str="time_mean")
             mean.to_netcdf(
                 os.path.join(
                     _folder_name(self.var, self.past + "." + self.future + ".mean"),
@@ -659,7 +657,7 @@ class GetEnsemble:
                 )
             )
             clim = self._climatology_attrs(get_clim(member_da))
-            clim = self._wandb(clim, stage_str = "climatology")
+            clim = self._wandb(clim, stage_str="climatology")
             clim.to_netcdf(
                 os.path.join(
                     _folder_name(
@@ -669,7 +667,7 @@ class GetEnsemble:
                 )
             )
             trend = self._trend_attrs(get_trend(member_da))
-            trend = self._wandb(trend, stage_str = "climatology")
+            trend = self._wandb(trend, stage_str="climatology")
             trend.to_netcdf(
                 os.path.join(
                     _folder_name(self.var, self.past + "." + self.future + ".trend"),

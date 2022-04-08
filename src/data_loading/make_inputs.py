@@ -10,9 +10,8 @@ from src.constants import (
     V_HIST,
     CMIP6_CLIM60_PATH,
     MODEL_NAMES,
-    cmip6_mmm_mean,
     atmos_input_file_path,
-    cmip6_mmm_trend,
+    cmip6_file,
 )
 from src.xr_utils import open_dataset, open_dataarray, can_coords
 from src.utils import timeit
@@ -229,18 +228,9 @@ sel_dict = {
         "Y": slice(-90, 90),
     },
 }
-cmip6_mmm_func_d = {
-    "clim60": cmip6_mmm_mean,
-    "clim": cmip6_mmm_mean,
-    "trend": cmip6_mmm_trend,
-}
+
 var_rename_dict = {"rh": "hurs", "ps": "ps"}  # "psl"}
 var_regrid_list = ["ps"]
-
-
-def kgms_mmday() -> float:
-    """Bencini, Roberto. (2016). Re: How do I convert ERA Interim precipitation estimates from kg/m2/s to mm/day?. Retrieved from: https://www.researchgate.net/post/How-do-I-convert-ERA-Interim-precipitation-estimates-from-kg-m2-s-to-mm-day/56d71a54b0366dd61e0de055/citation/download."""
-    return 86400
 
 
 def generate(var: str, model: str = "S", ending: str = "clim60"):
@@ -254,10 +244,10 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     """
     if var in var_rename_dict:
         old_var = var_rename_dict[var]
-        cmip6_mean = xr.open_dataarray(cmip6_mmm_func_d[ending](old_var))
+        cmip6_mean = xr.open_dataarray(cmip6_file(old_var, model, ending))
         cmip6_mean = cmip6_mean.rename(var)
     else:
-        cmip6_mean = xr.open_dataarray(cmip6_mmm_func_d[ending](var))
+        cmip6_mean = xr.open_dataarray(cmip6_file(var, model, ending))
     ecmwf_mean = xr.open_dataarray(atmos_input_file_path(var=var, ending=ending))
     cmip6_mean = cmip6_mean.sel(**sel_dict[ending])
     print(var, model, ending)
@@ -270,7 +260,7 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     if var == "ps":
         cmip6_mean = cmip6_mean / 100
         cmip6_mean.attrs["units"] = ecmwf_mean.attrs["units"]
-    #if var == "pr":
+    # if var == "pr":
     #    #cmip6_mean = cmip6_mean  # * kgms_mmday()
     #    #cmip6_mean.attrs["units"] = ecmwf_mean.attrs["units"]
     if ending in coord_rename_dict:
@@ -287,7 +277,7 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
         )
     assert cmip6_mean.dims == ecmwf_mean.dims
     print(
-        ecmwf_mean.mean(ecmwf_dims[1]).mean(ecmwf_dims[0]).values,
+        ecmwf_mean.sel().mean(ecmwf_dims[1]).mean(ecmwf_dims[0]).values,
         "\t\t\t",
         cmip6_mean.mean(ecmwf_dims[1]).mean(ecmwf_dims[0]).values,
     )
@@ -310,9 +300,10 @@ def generate_all() -> None:
         "ps": ["clim"],
         "clt": ["clim60"],
     }
-    for var in ending_d:
-        for ending in ending_d[var]:
-            generate(var, ending=ending)
+    for model in ["S", "G", "U", "K", "I"]:
+        for var in ending_d:
+            for ending in ending_d[var]:
+                generate(var, model=model, ending=ending)
 
 
 if __name__ == "__main__":

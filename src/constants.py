@@ -101,25 +101,51 @@ MODEL_NAMES = {
     "g": "fixed82",
     "W": "WHOI",
     "M": "MERRA",
-    "I": "ISCCP",
     "G": "MOHC.HadGEM3-GC31-LL.r1i1p1f3",
-    "N": "NOAA-GFDL.GFDL-ESM4.r1i1p1f1",
+    "U": "NOAA-GFDL.GFDL-ESM4.r1i1p1f1",
+    "K": "NIMS-KMA.KACE-1-0-G.r3i1p1f1",
+    "I": "INM.INM-CM4-8.r1i1p1f1",
 }
 VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"}
 # backwards compatibility: we want the new data to be stored without a atm.mem,
 # but being able to process the old data where atm.mem was used.
 #
-
+INDIVIDUAL_MODELS = ["G", "U", "K", "I"]
 ENSEMBLE_CSV = DATA_PATH / "ensemble_variable_members.csv"
 # MINIMAL_ENSEMBLE_CSV =
-def cmip6_mmm_mean(var: str) -> str:
-    return str(DATA_PATH / "nc" / "historical.ssp585.mmm.mean" / str(var + ".nc"))
+NC_PATH = DATA_PATH / "nc"
+NC_PREFIX = str(NC_PATH / "historical.ssp585.")
+ending_d = {"clim60": "mean", "clim": "mean", "trend": "trend"}
 
-def cmip6_mmm_trend(var: str) -> str:
-    return str(DATA_PATH / "nc" / "historical.ssp585.mmm.trend" / str(var + ".nc"))
+
+def cmip6_file(var: str, model: str, ending: str) -> str:
+    """
+    Get CMIP6 file, either multimodel mean, or implemented individual model.
+
+    Args:
+        var (str): Variable string. e.g. "ts".
+        model (str): Model string. e.g. "S".
+        ending (str): Canonical File ending e.g. "clim60".
+
+    Returns:
+        str: netcdf file address.
+    """
+    if model in ["S", "6"]:
+        return os.path.join(NC_PREFIX + "mmm." + ending_d[ending], var + ".nc")
+    elif model in INDIVIDUAL_MODELS:
+        return os.path.join(
+            NC_PREFIX + ending_d[ending],
+            var,
+            var + "." + MODEL_NAMES[model] + ".historical.ssp585.nc",
+        )
+    else:
+        print("Model not implemented")
+        assert False
+
 
 def cmip6_ensemble_var(var: str) -> str:
     return str(DATA_PATH / "nc" / "historical.ssp585" / str(var))
+
 
 def atmos_input_file_path(
     var: str = "ts", model: str = "E", ending: str = "clim60"
