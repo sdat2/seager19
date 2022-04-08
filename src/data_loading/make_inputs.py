@@ -262,7 +262,7 @@ def generate(var: str, model: str = "S", ending="clim60"):
     # print(cmip6_mean[:, :359].values.shape)
     # print(ecmwf_mean[:, :359].values.shape)
     # print(new_mean)
-    # new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
+    new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
 
 
 if __name__ == "__main__":
@@ -275,10 +275,18 @@ if __name__ == "__main__":
     # get_sfcwind()  # get it from the figure data
     # get_rh_6()
     # get_sfcwind_6()
-    for var in ["ts", "sfcWind"]:
-        generate(var, ending="clim60")
-        generate(var, ending="clim")
+    ending_d = {
+        "pr": ["clim", "trend"],
+        # "rh": ["clim60"],
+        "sfcWind": ["clim", "clim60"],
+        "ts": ["clim", "clim60", "trend"],
+        "ps": ["clim"],
+    }
+    for var in ending_d:
+        for ending in ending_d[var]:
+            generate(var, ending=ending)
         # generate("ts", ending="trend")
+
 
 # pylint: disable=pointless-string-statement
 """
