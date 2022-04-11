@@ -293,6 +293,7 @@ def generate_climatology(var: str = "sst", model: str = "S") -> None:
     Generate climatology.
 
     Args:
+        var (str, optional): Defaults to "sst".
         model (str, optional): Defaults to "S".
     """
     end_d = {"taux": ".x", "tauy": ".y"}  # "sst": ".nc",
