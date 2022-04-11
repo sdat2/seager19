@@ -335,7 +335,10 @@ def generate_climatology(var: str = "sst", model: str = "S") -> None:
             atmos_input_file_path(var=var, ending="clim", model=model),
             format="NETCDF3_CLASSIC",
         )
-        # shutil.copy()
+        new_climatology.to_netcdf(
+            ocean_input_file_path(var=var, model=model, ending="clim", end=".nc"),
+            format="NETCDF3_CLASSIC",
+        )
 
 
 def generate_all() -> None:
