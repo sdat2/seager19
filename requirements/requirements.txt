@@ -46,7 +46,8 @@ numpy               # arrays, linear algebra
 scipy               # linear algebra and numerical mathematics
 numba               # speeding up array operations
 pandas              # tabular data analysis
-scipy               # scipy
+scipy               # constants, stats
+astropy             # some constants
 
 # interactive computing
 tqdm                # loading bar

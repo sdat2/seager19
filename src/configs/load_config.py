@@ -46,3 +46,8 @@ def load_config(prefix: str = "../../", test=True) -> DictConfig:
         # print(cfg)
 
     return cfg
+
+
+if __name__ == "__main__":
+    # python src/configs/load_config.py
+    print(load_config(test=True))
