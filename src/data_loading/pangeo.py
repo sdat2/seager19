@@ -69,7 +69,8 @@ from src.data_loading.regrid import (
     regrid_1d,
 )
 
-
+OUTPUT_FORMAT = "NETCDF3_64BIT"
+# format=OUTPUT_FORMAT
 # from xarray.core.variable import Variable
 # This could definitely be moved to src/constants.py
 START_YEAR: str = "1958"
@@ -298,7 +299,6 @@ class GetEnsemble:
         Create the get ensemble instance and output the ensemble of netcdfs.
 
         TODO: add adequate unit tests to this crucial script.
-        TOOD: Add example to functions.
 
         Args:
             var (str, optional): Variable. Defaults to "ts".
@@ -364,6 +364,8 @@ class GetEnsemble:
         2015 to end of 2099 - ssp585 experiment.
 
         """
+        # sel in xarray time is inclusive
+        # hence year end has to be 2014 to get to the end of it etc.
         self.da_lists[self.past] = self.get_var(
             experiment=self.past,
             year_begin="1940",
@@ -581,9 +583,10 @@ class GetEnsemble:
                         os.path.join(
                             self.output_folder,
                             self._file_name(instit, model, member_id),
-                        )
+                        ),
                         # save some space
                         # encoding={self.var: {"dtype": "f8"}}
+                        format=OUTPUT_FORMAT,
                     )
                 else:
                     print("problem with " + model + " " + member_id)
@@ -678,7 +681,8 @@ class GetEnsemble:
                 os.path.join(
                     _folder_name(self.var, self.past + "." + self.future + ".mean"),
                     self._file_name(instit, model, member_id),
-                )
+                ),
+                format=OUTPUT_FORMAT,
             )
             clim = self._climatology_attrs(get_clim(member_da))
             clim = self._wandb(clim, stage_str="climatology")
@@ -688,7 +692,8 @@ class GetEnsemble:
                         self.var, self.past + "." + self.future + ".climatology"
                     ),
                     self._file_name(instit, model, member_id),
-                )
+                ),
+                format=OUTPUT_FORMAT,
             )
             trend = self._trend_attrs(get_trend(member_da))
             trend = self._wandb(trend, stage_str="climatology")
@@ -696,7 +701,8 @@ class GetEnsemble:
                 os.path.join(
                     _folder_name(self.var, self.past + "." + self.future + ".trend"),
                     self._file_name(instit, model, member_id),
-                )
+                ),
+                format=OUTPUT_FORMAT,
             )
 
     # NINO3.4

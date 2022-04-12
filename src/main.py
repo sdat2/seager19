@@ -93,4 +93,5 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
+    # python src/main.py
     main()

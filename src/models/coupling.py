@@ -17,7 +17,8 @@ import wandb
 from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
-from src.metrics import get_nino_trend, get_other_trends
+from src.visualisation.nino import get_nino_trend
+from src.metrics import get_other_trends
 from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
 from src.visualisation.ani import animate_coupling
 from src.visualisation.quiver import prcp_quiver_plot
@@ -265,7 +266,7 @@ class Coupling:
 
         # sst_mean: take mean
         # take mean
-        sst_mean = sst_c_mean + zero_Celsius # kelvin
+        sst_mean = sst_c_mean + zero_Celsius  # kelvin
         # fill in land.
         sst_mean = sst_mean.where(mask != 0.0).fillna(0.0)
 
