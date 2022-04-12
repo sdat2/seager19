@@ -10,9 +10,6 @@ X = 0,1,2 ... 359
 
 Rejects some models because they are difficult to process.
 
-TODO:
-   - postprocess more thorougly.
-
 File structures inside src/data:
 
     Full ensemble time series:
@@ -62,9 +59,9 @@ from intake import open_catalog
 import hydra
 import wandb
 from omegaconf import DictConfig
-from src.constants import NC_PATH, CONFIG_PATH, DATA_PATH
+from src.constants import NC_PATH, CONFIG_PATH, ENSEMBLE_CSV
 from src.utils import timeit
-from src.xr_utils import sel, can_coords, spatial_mean, get_trend, get_clim
+from src.xr_utils import sel, spatial_mean, get_trend, get_clim
 from src.data_loading.regrid import (
     regrid_2d,
     regrid_2d_to_standard,
@@ -596,14 +593,7 @@ class GetEnsemble:
 
     def _clip(self, da: xr.DataArray) -> xr.DataArray:
         """Clip variable between limits if they exist."""
-        if "limits" in VAR_PROP_D[self.var]:
-            return da.clip(
-                min=VAR_PROP_D[self.var]["limits"][0],
-                max=VAR_PROP_D[self.var]["limits"][1],
-                keep_attrs=True,
-            )
-        else:
-            return da
+        return da_clip(da, self.var)
 
     def _mmm_attrs(self, da: xr.DataArray) -> xr.DataArray:
         """Modify variable names to make it obvious that this is a mean."""
@@ -914,11 +904,6 @@ def load_mfda(files_path: str, var: str) -> xr.DataArray:
     return load_mfds(files_path, var)[var]
 
 
-def _print_scenario_sel():
-    for scenario in SCENARIOS:
-        print(can_coords(load_mfda(_scenariomip_data(scenario=scenario), "ts")))
-
-
 def _member_name_from_da(da: xr.DataArray) -> str:
     """Member name from da already referenced by member.
 
@@ -1059,6 +1044,28 @@ def plausible_temperatures(values: np.ndarray) -> bool:
     return np.all(too_high) and np.all(too_low) and np.all(not_nan)
 
 
+def da_clip(da: xr.DataArray, var: str) -> xr.DataArray:
+    """
+    Clip variable between limits if they exist.
+
+
+    Args:
+        da (xr.DataArray): The dataarray.
+        var (str): Variable string.
+
+    Returns:
+        xr.DataArray: The dataarray.
+    """
+    if "limits" in VAR_PROP_D[var]:
+        return da.clip(
+            min=VAR_PROP_D[var]["limits"][0],
+            max=VAR_PROP_D[var]["limits"][1],
+            keep_attrs=True,
+        )
+    else:
+        return da
+
+
 def test_if_regridding_ok() -> None:
     """Trying to test if different regridding methods each work."""
     import matplotlib.pyplot as plt
@@ -1131,14 +1138,12 @@ def minimal_members_ensemble() -> List[str]:
     Returns:
         List[str]: Ensemble member name string list.
     """
-    return minimal_ensemble(
-        pd.read_csv(DATA_PATH / "ensemble_variable_members.csv", index_col=0)
-    )
+    return minimal_ensemble(pd.read_csv(ENSEMBLE_CSV, index_col=0))
 
 
 def members_csv() -> None:
     """Make members csv so that I can transfer it."""
-    members_df().to_csv(DATA_PATH / "ensemble_variable_members.csv")
+    members_df().to_csv(ENSEMBLE_CSV)
 
 
 @timeit
@@ -1169,7 +1174,6 @@ def main(cfg: DictConfig) -> None:
     if cfg.regenerate_members_csv:
         members_csv()
     if cfg.ensemble_derivatives:
-        print(ens._member_list())
         ens.ensemble_derivatives()
     if cfg.mmm_derivatives:
         ens.mmm_derivatives()

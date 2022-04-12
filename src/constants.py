@@ -13,6 +13,11 @@ import os
 import pathlib
 from omegaconf import DictConfig
 
+# Group work space (to store large files).
+GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
+# Place to put CMIP6 files
+NC_PATH = GWS_DIR / "CMIP6"
+
 # Note: constants should be UPPER_CASE
 constants_path = pathlib.Path(os.path.realpath(__file__))
 SRC_PATH = pathlib.Path(os.path.dirname(constants_path))
@@ -38,7 +43,6 @@ MASK = OCEAN_DATA_PATH / "om_mask.nc"
 
 # General data from e.g. paper or cmip etc.
 DATA_PATH = SRC_PATH / "data"
-NC_PATH = DATA_PATH / "nc"
 CMIP_TS_PATH = DATA_PATH / "ts_nc"
 CMIP6_TS_PATH = DATA_PATH / "nc80"
 CMIP6_CLIM60_PATH = DATA_PATH / "nc_mean"
@@ -111,9 +115,8 @@ VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"
 # but being able to process the old data where atm.mem was used.
 #
 INDIVIDUAL_MODELS = ["G", "U", "K", "I"]
-ENSEMBLE_CSV = DATA_PATH / "ensemble_variable_members.csv"
+ENSEMBLE_CSV = NC_PATH / "historical.ssp585.ensemble_variable_members.csv"
 # MINIMAL_ENSEMBLE_CSV =
-NC_PATH = DATA_PATH / "nc"
 NC_PREFIX = str(NC_PATH / "historical.ssp585.")
 ending_d = {
     "clim60": "mean",
@@ -173,7 +176,6 @@ drop_var_d: dict = {"nc_clt": [], "nc_hur": [], "nc_pr": [], "nc_ts": []}
 # https://www.dropbox.com/s/o82yp69pkpz50ze/nc_clt.zip?dl=0
 # names of folders to download.
 # Data directory on GWS
-GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
 ARCHIVE_DIR = GWS_DIR / "rep"
 
 # Subdirectories in GWS

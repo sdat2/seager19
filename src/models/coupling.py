@@ -9,6 +9,7 @@ Example:
 """
 from typing import Tuple, Union
 from scipy.interpolate import interp2d
+from scipy.constants import zero_Celsius
 import xarray as xr
 from typeguard import typechecked
 from omegaconf import DictConfig
@@ -18,7 +19,6 @@ from src.models.atmos import Atmos
 from src.models.ocean import Ocean
 from src.metrics import get_nino_trend, get_other_trends
 from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
-from scipy.constants import zero_Celsius
 from src.visualisation.ani import animate_coupling
 from src.visualisation.quiver import prcp_quiver_plot
 from src.visualisation.trends import up_therm_qnet
