@@ -302,7 +302,7 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     print("========================================================")
     new_mean = ecmwf_mean.copy()
     new_mean[:, :359] = cmip6_mean[:, :359]
-    new_mean.attrs["center"] = MODEL_NAMES[model] + " multi model mean"
+    new_mean.attrs["center"] = MODEL_NAMES[model]
     new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
 
 
@@ -337,6 +337,7 @@ def generate_climatology(var: str = "sst", model: str = "S") -> None:
     print(cmip6_climatology, "\n", ecmwf_climatology)
     new_climatology = ecmwf_climatology.copy()
     new_climatology[:, :, :, :359] = cmip6_climatology[:, :, :, :359]
+    new_climatology.attrs["center"] = MODEL_NAMES[model]
     if var in end_d:
         new_climatology.to_netcdf(
             ocean_input_file_path(

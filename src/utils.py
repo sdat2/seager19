@@ -31,6 +31,7 @@ def time_limit(seconds: int) -> None:
         Call a function which will take longer than the time limit::
 
             import time
+            from src.utils import time_limit, TimeoutException
 
             def long_function_call():
                 for t in range(5):

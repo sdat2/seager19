@@ -60,7 +60,7 @@ import hydra
 import wandb
 from omegaconf import DictConfig
 from src.constants import NC_PATH, CONFIG_PATH, ENSEMBLE_CSV
-from src.utils import timeit
+from src.utils import timeit, time_limit, TimeoutException
 from src.xr_utils import sel, spatial_mean, get_trend, get_clim
 from src.data_loading.regrid import (
     regrid_2d,
@@ -88,6 +88,7 @@ SCENARIOS: List[str] = [
 ]
 
 # Pangeo catalog url.
+CMIP6_INTAKE_URL = str("https://storage.googleapis.com/cmip6/pangeo-cmip6.json")
 PANGEO_CAT_URL = str(
     "https://raw.githubusercontent.com/pangeo-data/"
     + "pangeo-datastore/master/intake-catalogs/master.yaml"
@@ -143,10 +144,11 @@ DEFAULT_SUCCESS_LIST: List[str] = [
 # I think a lot of these modelling centres have problematic grids.
 # Unstructured grids cannot be interpolated using xESMf,
 # and both ESMpy and cdo seem to require the netcdf files to be fed into
-# the algorithm, which would require a step where the full objects are
-# transferred.
+# the algorithm, which would require a step where the full
+# netcdf objects are
+# downloaded to the machine you are working on.
 DEFAULT_REJECT_LIST: List[str] = [
-    "AWI",
+    "MPI-M" "AWI",
     "MRI",
     "CSIRO-ARCCSS",
     "CCCma",
@@ -286,6 +288,7 @@ class GetEnsemble:
         regrid: Literal["1d", "2d"] = "1d",
         output_folder: Optional[str] = None,
         regen_success_list: bool = False,
+        time_limit: int = 100,
         past: str = "historical",
         future: str = DEFAULT_FUTURE_SCENARIO,
         test: bool = False,
@@ -307,9 +310,20 @@ class GetEnsemble:
                 nc/scenariomip/ts/
             regen_success_list (bool, optional): whether or not to regenerate
                 the success list. Defaults to False.
+            time_limit (int, optional): Time limit in seconds. Defaults to 100.
+            past (str, optional): past cmip experiment. Defaults to "historical".
+            future (str, optional): future scenariomip experiment. Defaults to "ssp585".
             test (bool, optional): Whether or not this is a test. If it is, it
                 only loads a single centre "INM". This makes tests quicker to run.
             wandb_run (Optional[wandb.sdk.wandb_run.Run]): wandb run.
+
+        Examples:
+            Download processed "ts" ensemble timeseries (i.e the default)::
+
+                from src.data_loading.pangeo import GetEnsemble
+
+                ens = GetEnsemble()
+                ens.ensemble_timeseries()
 
         """
         self.var: str = var
@@ -328,8 +342,10 @@ class GetEnsemble:
         self.output_folder = output_folder
         _folder(output_folder)
         self.wandb = wandb_run
+        self.time_limit = time_limit
 
         if test:
+            # just have a single test centre
             self.success_list = ["INM"]
         elif regen_success_list:
             self.success_list = self.get_sucess_list()
@@ -362,7 +378,9 @@ class GetEnsemble:
     @timeit
     def get_sucess_list(self) -> list:
         """
-        The only way to generate what will work seems to be trial and error.
+        The only way to work out what will work seems to be trial and error.
+
+        Sometimes the functions halt, hence I added a .
 
         Returns:
             list: success_list of model centres that I can preprocess.
@@ -384,16 +402,23 @@ class GetEnsemble:
             z_kwargs = {"consolidated": True, "decode_times": True}
 
             try:
-                with dask.config.set(**{"array.slicing.split_large_chunks": True}):
-                    dset_dict_proc = subset.to_dataset_dict(
-                        zarr_kwargs=z_kwargs, preprocess=_preproc
-                    )
+                with time_limit(self.time_limit):
+                    with dask.config.set(**{"array.slicing.split_large_chunks": True}):
+                        dset_dict_proc = subset.to_dataset_dict(
+                            zarr_kwargs=z_kwargs, preprocess=_preproc
+                        )
                 if len(dset_dict_proc) == 0:
                     empty_list.append(i)
+                    print(i, "is empty")
                 else:
                     success_list.append(i)
+                    print(i, "was a success")
                     for j in dset_dict_proc:
                         time_d[i] = dset_dict_proc[j].time.values[0]
+            except TimeoutException as e:
+                print(e)
+                print(i, "timed out")
+                failed_list.append(i)
             # pylint: disable=broad-except
             except Exception as e:
                 print(e)
@@ -401,6 +426,7 @@ class GetEnsemble:
                 failed_list.append(i)
 
         print("Success list", success_list)
+        print("Failed list", failed_list)
 
         return success_list
 
@@ -1100,6 +1126,7 @@ def members_df() -> pd.DataFrame:
             var=var,
             regen_success_list=False,
         )
+        # pylint: disable=protected-access
         var_dict[var] = ens._member_list()
         combined_list = [*combined_list, *var_dict[var]]
 
@@ -1167,7 +1194,10 @@ def main(cfg: DictConfig) -> None:
     ens = GetEnsemble(
         var=cfg.var,
         regen_success_list=cfg.regen_success_list,
+        time_limit=cfg.time_limit,
         wandb_run=wandb_run,
+        past=cfg.past,
+        future=cfg.future,
     )
     if cfg.ensemble_timeseries:
         ens.ensemble_timeseries()

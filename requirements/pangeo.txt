@@ -16,6 +16,7 @@ numba               # speeding up array operations
 pandas              # tabular data analysis
 scipy               # scipy
 uncertainties       # linear error propogation
+astropy # some constants
 
 # interactive computing
 tqdm                # loading bar
