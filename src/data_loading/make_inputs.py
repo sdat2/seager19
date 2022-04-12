@@ -2,6 +2,7 @@
 import os
 import numpy as np
 import xarray as xr
+from scipy.constants import zero_Celsius
 from src.constants import (
     MMM_V23_HIST,
     MMM_V23_RCP85,
@@ -33,8 +34,7 @@ def qair2rh(qair: xr.DataArray, temp: xr.DataArray, pres: xr.DataArray) -> xr.Da
     Returns:
         xr.DataArray: The relative humidity.
     """
-    t_0c = 273.15
-    es = 6.112 * np.exp((17.76 * (temp - t_0c)) / (temp - t_0c + 243.5))
+    es = 6.112 * np.exp((17.76 * (temp - t_0c)) / (temp - zero_Celsius + 243.5))
     e = qair * pres / (0.378 * qair + 0.622)
     rh = e / es
     # rh[rh > 100] = 1
@@ -55,7 +55,9 @@ def q2rh(qair: xr.DataArray, temp: xr.DataArray, pres: xr.DataArray) -> xr.DataA
     Returns:
         xr.DataArray: The relative humidity.
     """
-    return 0.263 * pres * qair / (np.exp(17.67 * (temp - 273.16) / (temp - 29.65)))
+    return (
+        0.263 * pres * qair / (np.exp(17.67 * (temp - zero_Celsius) / (temp - 29.65)))
+    )
 
 
 @timeit

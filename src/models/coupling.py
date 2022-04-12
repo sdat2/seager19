@@ -18,6 +18,7 @@ from src.models.atmos import Atmos
 from src.models.ocean import Ocean
 from src.metrics import get_nino_trend, get_other_trends
 from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
+from scipy.constants import zero_Celsius
 from src.visualisation.ani import animate_coupling
 from src.visualisation.quiver import prcp_quiver_plot
 from src.visualisation.trends import up_therm_qnet
@@ -245,7 +246,7 @@ class Coupling:
 
         trend_new = (
             (
-                get_trend(sst + self.cfg.atm.temp_0_c, min_clim_f=True)
+                get_trend(sst + zero_Celsius, min_clim_f=True)
                 .rename("ts")
                 .isel(Z=0)
                 .drop("Z")
@@ -264,7 +265,7 @@ class Coupling:
 
         # sst_mean: take mean
         # take mean
-        sst_mean = sst_c_mean + self.cfg.atm.temp_0_c  # kelvin
+        sst_mean = sst_c_mean + zero_Celsius # kelvin
         # fill in land.
         sst_mean = sst_mean.where(mask != 0.0).fillna(0.0)
 

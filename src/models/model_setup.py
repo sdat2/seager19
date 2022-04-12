@@ -381,3 +381,34 @@ class ModelSetup:
 
     def clim_name(self, var_num: int, path: bool = True) -> str:
         return self.clim_file(self.var[var_num], "clim", "", path=path)
+
+    ## Ocean default input files:
+
+    def stress_file(self) -> str:
+        """
+        # these are the default start files.
+        # most of these are changed during the run
+        # TODO remove these file names, move control elsewhere.
+        wind_clim_file: tau-ECMWF-clim
+        wind_file: tau-ECMWF
+        dq_dtemp_file: dQdT-sample.nc
+        dq_df_file: dQdf-sample.nc
+        sst_file: sst-ECMWF-clim.nc
+        mask_file: om_mask.nc
+        """
+        return "tau-ECMWF"
+
+    def stress_clim_file(self) -> str:
+        return "tau-ECMWF-clim"
+
+    def dq_dtemp_file(self) -> str:
+        return "dQdT-sample.nc"
+
+    def dq_df_file(self) -> str:
+        return "dQdf-sample.nc"
+
+    def sst_file(self) -> str:
+        return "sst-ECMWF-clim.nc"
+
+    def mask_file(self) -> str:
+        return "om_mask.nc"

@@ -80,7 +80,15 @@ END_YEAR: str = "2017"
 DEFAULT_FUTURE_SCENARIO: str = "ssp585"
 
 # Different scenarios that we could choose from.
-SCENARIOS: List[str] = ["ssp126", "ssp245", "ssp370", "ssp585"]
+SCENARIOS: List[str] = [
+    "ssp119",
+    "ssp126",
+    "ssp245",
+    "ssp370",
+    "ssp434",
+    "ssp460",
+    "ssp585",
+]
 
 # Pangeo catalog url.
 PANGEO_CAT_URL = str(

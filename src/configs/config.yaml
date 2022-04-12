@@ -32,15 +32,6 @@ ocean: # whether to run parts of the ocean model
 oc: # the ocean paramters
   nummode: 2 # each aditional mode adds about 7 minutes to the run time of run2f.
   boundaries: Periodic # realistically this can't be changed.
-  # these are the default start files.
-  # most of these are changed during the run
-  # TODO remove these file names, move control elsewhere.
-  wind_clim_file: tau-ECMWF-clim
-  wind_file: tau-ECMWF
-  dq_dtemp_file: dQdT-sample.nc
-  dq_df_file: dQdf-sample.nc
-  sst_file: sst-ECMWF-clim.nc
-  mask_file: om_mask.nc
   # How long to run each part of the ocean model.
   time_test: 2 months # the time input to the tests.
   time_spin: 20 years # seems long - maybe check that this is the correct number to be quoting.
