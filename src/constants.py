@@ -138,26 +138,46 @@ def cmip6_file(var: str, model: str, ending: str) -> str:
     Returns:
         str: netcdf file address.
     """
-    if model in ["S", "6"]:
+    if model in ["S", "6"]:  # cmip6 multi-model mean.
         return os.path.join(NC_PREFIX + "mmm." + ending_d[ending], var + ".nc")
-    elif model in INDIVIDUAL_MODELS:
+    elif model in INDIVIDUAL_MODELS:  # cmip6 individual ensemble member
         return os.path.join(
             NC_PREFIX + ending_d[ending],
             var,
             var + "." + MODEL_NAMES[model] + ".historical.ssp585.nc",
         )
-    else:
+    else:  # if not in either, fail
         print("Model not implemented")
         assert False
 
 
 def cmip6_ensemble_var(var: str) -> str:
-    return str(DATA_PATH / "nc" / "historical.ssp585" / str(var))
+    """
+    CMIP6 ensemble variable path.
+
+    Args:
+        var (str): Variable. e.g. "ts".
+
+    Returns:
+        str: path to variable folder.
+    """
+    return str(NC_PATH / "historical.ssp585" / str(var))
 
 
 def atmos_input_file_path(
     var: str = "ts", model: str = "E", ending: str = "clim60"
 ) -> str:
+    """
+    Atmos input file.
+
+    Args:
+        var (str, optional): variable. Defaults to "ts".
+        model (str, optional): model character. Defaults to "E".
+        ending (str, optional): ending. Defaults to "clim60".
+
+    Returns:
+        str: input file path.
+    """
     return str(
         ATMOS_DATA_PATH / str(var + "-" + MODEL_NAMES[model] + "-" + ending + ".nc")
     )
@@ -166,6 +186,18 @@ def atmos_input_file_path(
 def ocean_input_file_path(
     var: str = "ts", model: str = "E", ending: str = "clim", end=".nc"
 ) -> str:
+    """
+    Ocean input file.
+
+    Args:
+        var (str, optional): variable. Defaults to "ts" for surface temperature.
+        model (str, optional): model character. Defaults to "E" for ECMWF.
+        ending (str, optional): ending. Defaults to "clim60".
+        end (str, optional) file ending suffix. Defaults to ".nc".
+
+    Returns:
+        str: input file path.
+    """
     return str(
         OCEAN_DATA_PATH / str(var + "-" + MODEL_NAMES[model] + "-" + ending + end)
     )
@@ -226,14 +258,17 @@ def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
 
 
 # region selection dictionary
-r"""
+# pylint: disable=pointless-string-statement
+"""
     Nino1-4 definitions are taken from:
 
     Trenberth, Kevin & National Center for Atmospheric Research Staff (Eds).
     Last modified 21 Jan 2020. "The Climate Data Guide: Nino SST Indices
     (Nino 1+2, 3, 3.4, 4; ONI and TNI)."
     Retrieved from
-    https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni.
+
+    https://climatedataguide.ucar.edu/climate-data/\
+nino-sst-indices-nino-12-3-34-4-oni-and-tni
 
     Nino5 and Nino6 definitions taken from:
 
