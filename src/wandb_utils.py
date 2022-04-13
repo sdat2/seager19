@@ -159,7 +159,7 @@ def metric_conv_data(
         metric_name (str, optional): Which keyword to use. Defaults to "mean_pac".
 
     Returns:
-        dict: A dictionary with the relevant metrics in.
+        Tuple[dict, dict]: metric_dict, setup_dict.
     """
     api = wandb.Api()
     # Project is specified by <entity/project-name>
@@ -226,6 +226,7 @@ def didnt_blow_up(rn: wandb.apis.public.Run) -> bool:
     Returns:
         bool: whether there was any blow up during the run.
     """
+    # limits (degrees celsius).
     limits = {"mean_pac": [15, 30], "mean_nino3.4": [20, 30]}
     results = []
     rn_hist = rn.scan_history(keys=list(limits.keys()))
@@ -249,7 +250,7 @@ def fix_config(config: Union[dict, DictConfig]) -> DictConfig:
         config (Union[dict, DictConfig]): config dictionary.
 
     Returns:
-        DictConfig:
+        DictConfig: original configuration.
     """
     if isinstance(config, dict):
         for i in config:
@@ -266,10 +267,10 @@ def archive_dir_from_config(cfg: Union[DictConfig, dict]) -> str:
     Get the archived folder from the names stored online.
 
     Args:
-        cfg (Union[DictConfig, dict]): The cfg
+        cfg (Union[DictConfig, dict]): The config from the run.
 
     Returns:
-        str: [description]
+        str: The archive directory path string.
     """
     if "archive_dir" not in cfg:
         cfg["archive_dir"] = "unknown"
@@ -294,9 +295,17 @@ def setup_from_config(cfg: DictConfig) -> ModelSetup:
 
 
 def setup_from_name(name: str) -> ModelSetup:
-    """Get the model setup from a name."""
+    """Get the model setup from a name.
+
+    Args:
+        name (str): model name.
+
+    Returns:
+        ModelSetup: The model setup object.
+    """
     api = wandb.Api(timeout=20)
     # Project is specified by <entity/project-name>
+    # TODO - change to ENSOTrend
     runs = api.runs("sdat2/seager19")
     for rn in runs:  # [x for x in runs][0:13]:
         if name == rn.name:
@@ -307,7 +316,7 @@ def setup_from_name(name: str) -> ModelSetup:
     return setup
 
 
-def _other_tests():
+def _other_tests() -> None:
     """Private function to store test."""
     metric_d, _ = metric_conv_data(
         metric_name="trend_nino3.4",
@@ -342,9 +351,15 @@ def _other_tests():
     print(metric_d)
 
 
-def cd_variation_comp(e_frac=0.5) -> dict:
+def cd_variation_comp(e_frac: float = 0.5) -> dict:
     """
     Vary drag coefficient and get the final metric.
+
+    Args:
+        e_frac (float): Defaults to 0.5.
+
+    Returns:
+        dict: mem_dict.
     """
     mem_dict = {}
     for mem in ["EEEE", "EECE", "EEEC", "EECC"]:

@@ -1,6 +1,5 @@
 """Different metrics to calculate
 
-from src.visualisation.nino import plot_nino_trend
 """
 import os
 from typing import Tuple

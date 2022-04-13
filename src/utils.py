@@ -61,7 +61,7 @@ def time_limit(seconds: int) -> None:
 
 def hr_time(time_in: float) -> str:
     """
-    Print human readable time.
+    Return human readable time as string.
 
     I got fed up with converting the number in my head.
     Probably runs very quickly.
@@ -71,6 +71,13 @@ def hr_time(time_in: float) -> str:
 
     Returns:
         str: string to print.
+
+    Example:
+        120 seconds to human readable string::
+
+            >>> from src.utils import hr_time
+            >>> hr_time(120)
+                "2 min 0 s"
     """
     if time_in < 60:
         return "%2.5f s" % time_in
