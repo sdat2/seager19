@@ -1091,14 +1091,16 @@ class Atmos:
 
         for i, m in enumerate(self.atm.mem):
             if i < 4:
+                print(i)
                 name = self.names[m]
                 variable = self.var[i]
+                print(name, variable)
                 if variable == "ts":
                     # the surface temperature can be an input from the ocean model.
                     file = self.setup.ts_clim60(self.it)
                     # temperature is in degrees kelvin!
                 else:
-                    self.setup.clim60_name(i, path=True)
+                    file = self.setup.clim60_name(i, path=True)
                 print(name, variable, file)
                 assert os.path.isfile(file)
                 files += [file]  # append to list.
@@ -1107,7 +1109,19 @@ class Atmos:
 
     @timeit
     @typechecked
-    def get_dclim(self) -> any:
+    def get_dclim(
+        self,
+    ) -> Tuple[
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+    ]:
         """Opens the files, and applies functions to get surface fluxes.
 
         Get the surface fluxes, qd_df, dq_dT among other things.
@@ -1161,7 +1175,6 @@ class Atmos:
         # Q'_LW is from formula 14 in paper
 
         dclim_loc = self.load_clim60()
-
         t_sb_loc = 1.0 * dclim_loc.ts
         # process the climatological windspeed
         tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
@@ -1227,10 +1240,10 @@ class Atmos:
         # Define the new Dataset
         dq = xr.Dataset(
             {
-                "lon": ("lon", dclim.lon),
-                "lat": ("lat", dclim.lat),
-                "dq_dt": (["lat", "lon"], dq_dt),
-                "dq_df": (["lat", "lon"], dq_df),
+                "lon": ("lon", dclim["lon"].values),
+                "lat": ("lat", dclim["lat"].values),
+                "dq_dt": (["lat", "lon"], dq_dt.data),
+                "dq_df": (["lat", "lon"], dq_df.data),
             }
         )
 

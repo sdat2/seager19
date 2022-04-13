@@ -243,12 +243,14 @@ def safe_da_open(var: str, model: str, ending: str) -> xr.DataArray:
         old_var = var_rename_dict[var]
         file_loc = cmip6_file(old_var, model, ending)
         cmip6 = xr.open_dataarray(file_loc)
-        cmip6 = da_clip(cmip6, old_var)
+        if ending != "trend":
+            cmip6 = da_clip(cmip6, old_var)
         cmip6 = cmip6.rename(var)
     else:
         file_loc = cmip6_file(var, model, ending)
         cmip6 = xr.open_dataarray(file_loc)
-        cmip6 = da_clip(cmip6, var)
+        if ending != "trend":
+            cmip6 = da_clip(cmip6, var)
     cmip6.attrs["loaded_from"] = file_loc
     return cmip6
 

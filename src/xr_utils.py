@@ -239,24 +239,25 @@ def clip(da: xr.DataArray, pac: bool = True, mask_land: bool = True) -> xr.DataA
     Returns:
         xr.DataArray: da with those operations applied to it.
     """
-
+    attrs = da.attrs
     mask = open_dataset(MASK).mask
     mask = rem_var(mask)
     da = fix_calendar(da.rename("unknown"))
     da = add_units(rem_var(da))
     if pac and not mask_land:
-        return sel(da)
+        da = sel(da)
     elif pac and mask_land:
         try:
-            return sel(da).where(sel(mask) != 0.0)
+            da = sel(da).where(sel(mask) != 0.0)
             # pylint: disable=bare-except
         except:
             print(da, type(da), mask)
-            return sel(da)
+            da = sel(da)
     elif not pac and mask_land:
-        return da.where(mask != 0.0)  # may not work if they have different grids.
-    else:
-        return da
+        da = da.where(mask != 0.0)
+
+    da.attrs = attrs
+    return da
 
 
 def open_dataset(
