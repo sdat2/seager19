@@ -368,9 +368,11 @@ class ModelSetup:
     def clim_file(
         self, var_name: str, typ: str = "clim", appendage: str = "", path: bool = True
     ) -> str:
-        name = (
-            var_name + "-" + self.input_dict[var_name] + "-" + typ + appendage + ".nc"
-        )
+        if var_name == "sst":
+            input_name = self.input_dict["ts"]
+        else:
+            input_name = self.input_dict[var_name]
+        name = var_name + "-" + input_name + "-" + typ + appendage + ".nc"
         if path:
             return os.path.join(self.atmos_data_path, name)
         else:

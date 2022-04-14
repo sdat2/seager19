@@ -17,6 +17,9 @@ from omegaconf import DictConfig
 GWS_DIR = pathlib.Path("/gws/nopw/j04/ai4er/users/sdat2")
 # Place to put CMIP6 files
 NC_PATH = GWS_DIR / "CMIP6"
+# Weights and biases project.
+DEFAULT_PROJECT: str = "sdat2/seager19"
+
 
 # Note: constants should be UPPER_CASE
 constants_path = pathlib.Path(os.path.realpath(__file__))

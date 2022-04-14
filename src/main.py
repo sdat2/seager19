@@ -86,7 +86,7 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
         archive()
         if cfg.wandb:
             wandb.finish()
-        clear()
+        clear(project=str(cfg.user +"/" + cfg.project))
     else:
         if cfg.wandb:
             wandb.finish()

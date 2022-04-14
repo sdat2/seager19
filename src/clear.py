@@ -1,14 +1,14 @@
 """Script for clearing all the finished runs from the SSD."""
 import os
 from src.wandb_utils import finished_names
-from src.constants import LOG_PATH
+from src.constants import LOG_PATH, DEFAULT_PROJECT
 
 
-def clear() -> None:
+def clear(project: str = DEFAULT_PROJECT) -> None:
     """
     Clear the logs.
     """
-    rem_list = [i for i in finished_names() if i in os.listdir(LOG_PATH)]
+    rem_list = [i for i in finished_names(project=project) if i in os.listdir(LOG_PATH)]
     print(rem_list)
     for i in rem_list:
         # delete_folder(os.path.join(LOG_PATH, i))
@@ -17,4 +17,4 @@ def clear() -> None:
 
 if __name__ == "__main__":
     # python src/clear.py
-    clear()
+    clear(project="sdat2/ENSOTrend-beta")

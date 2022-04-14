@@ -9,9 +9,8 @@ import wandb
 import logging
 from omegaconf import DictConfig, OmegaConf
 from subprocess import PIPE, run
-from src.constants import DATA_PATH, run_path
+from src.constants import DATA_PATH, run_path, DEFAULT_PROJECT
 from src.models.model_setup import ModelSetup
-
 
 log = logging.getLogger(__name__)
 
@@ -67,14 +66,14 @@ def start_wandb(cfg: DictConfig, unit_test: bool = False) -> None:
         print({"gfortran": get_v("gfortran -v"), "gcc": get_v("gcc -v")})
 
 
-def get_full_csv() -> pd.DataFrame:
+def get_full_csv(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     """
     Get the full csv.
     """
     api = wandb.Api()
 
     # Project is specified by <entity/project-name>
-    runs = api.runs("sdat2/seager19")
+    runs = api.runs(project)
     summary_list = []
     config_list = []
     name_list = []
@@ -125,7 +124,7 @@ def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     return df
 
 
-def finished_names() -> List[str]:
+def finished_names(project: str = DEFAULT_PROJECT) -> List[str]:
     """
     Return all the finished run names.
 
@@ -134,7 +133,7 @@ def finished_names() -> List[str]:
     """
     api = wandb.Api()
     # Project is specified by <entity/project-name>
-    runs = api.runs("sdat2/seager19")
+    runs = api.runs(project)
     name_list = [rn.name for rn in runs if rn.state == "finished"]
     return name_list
 
@@ -149,6 +148,7 @@ def metric_conv_data(
     ],
     control_variable_list=[(("atm", "k_days"), 10), (("atm", "e_frac"), 2)],
     index_by: tuple = ("coup", "c_d"),
+    project: str = DEFAULT_PROJECT,
 ) -> Tuple[dict, dict]:
     """
     Generate the data for the convergence of a particular item.
@@ -163,7 +163,7 @@ def metric_conv_data(
     """
     api = wandb.Api()
     # Project is specified by <entity/project-name>
-    runs = api.runs("sdat2/seager19")
+    runs = api.runs(project)
 
     def check_controls(config: DictConfig) -> bool:
         truth_list = []
@@ -294,7 +294,7 @@ def setup_from_config(cfg: DictConfig) -> ModelSetup:
     return ModelSetup(archive_dir_from_config(cfg), cfg, make_move=False)
 
 
-def setup_from_name(name: str) -> ModelSetup:
+def setup_from_name(name: str, project: str = DEFAULT_PROJECT) -> ModelSetup:
     """Get the model setup from a name.
 
     Args:
@@ -306,7 +306,7 @@ def setup_from_name(name: str) -> ModelSetup:
     api = wandb.Api(timeout=20)
     # Project is specified by <entity/project-name>
     # TODO - change to ENSOTrend
-    runs = api.runs("sdat2/seager19")
+    runs = api.runs(project)
     for rn in runs:  # [x for x in runs][0:13]:
         if name == rn.name:
             config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
