@@ -6,7 +6,7 @@ python src/main.py name=test25
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true atm.mem=EESS comp.sst=5c comp.prwnd=5c
 
-python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false atm.mem=SSSS comp.sst=5c comp.prwnd=5c
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=SSSS comp.sst=5c comp.prwnd=5c
 
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=true atm.mem=EEES comp.sst=5b comp.prwnd=5b
 

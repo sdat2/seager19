@@ -410,5 +410,8 @@ class ModelSetup:
     def sst_file(self) -> str:
         return "sst-ECMWF-clim.nc"
 
+    def sst_replacement_file(self) -> str:
+        return "sst-" + MODEL_NAMES[self.cfg.atm.mem[0]] + "-clim.nc"
+
     def mask_file(self) -> str:
         return "om_mask.nc"
