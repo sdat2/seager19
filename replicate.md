@@ -6,9 +6,13 @@ python src/main.py name=test25
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true atm.mem=EESS comp.sst=5c comp.prwnd=5c
 
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EECC comp.sst=5c comp.prwnd=5c
+
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=SSSS comp.sst=5c comp.prwnd=5c
 
-python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=true atm.mem=EEES comp.sst=5b comp.prwnd=5b
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEEC comp.sst=5b comp.prwnd=5b
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false atm.mem=EEES comp.sst=5b comp.prwnd=5b
 
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=true,false atm.mem=EEES comp.sst=5b comp.prwnd=5b
 
@@ -16,7 +20,7 @@ python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem
 
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=false atm.mem=EEE6 archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5b comp.prwnd=5b
 
-python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=true,false  atm.mem=EE6E archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false  atm.mem=EESE comp.sst=5a comp.prwnd=5a
 
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=true atm.mem=EE6E archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 

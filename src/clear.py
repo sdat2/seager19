@@ -7,6 +7,9 @@ from src.constants import LOG_PATH, DEFAULT_PROJECT
 def clear(project: str = DEFAULT_PROJECT) -> None:
     """
     Clear the logs.
+
+    Args:
+        project (str): Wandb project. Defaults to src.constants.DEFAULT_PROJECT.
     """
     rem_list = [i for i in finished_names(project=project) if i in os.listdir(LOG_PATH)]
     print(rem_list)
