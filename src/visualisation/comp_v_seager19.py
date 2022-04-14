@@ -27,6 +27,11 @@ def comp_plot(
     """
     A comparison plot for two scalar fields.
 
+    ours
+    papers
+    ours - papers
+    (ours - papers) / papers
+
     Args:
         ours (xr.DataArray): The output of the model.
         papers (xr.DataArray): The paper's values.

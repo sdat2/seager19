@@ -1,4 +1,9 @@
-"""Different metrics to calculate
+"""Different metrics to calculate.
+
+Currently mainly just calculates the nino indices.
+
+TODO:
+ - Add TNI.
 
 """
 import os

@@ -1091,18 +1091,16 @@ class Atmos:
 
         for i, m in enumerate(self.atm.mem):
             if i < 4:
-                print(i)
                 name = self.names[m]
                 variable = self.var[i]
-                print(name, variable)
                 if variable == "ts":
                     # the surface temperature can be an input from the ocean model.
                     file = self.setup.ts_clim60(self.it)
                     # temperature is in degrees kelvin!
                 else:
                     file = self.setup.clim60_name(i, path=True)
-                print(name, variable, file)
                 assert os.path.isfile(file)
+                print(name, variable, file)
                 files += [file]  # append to list.
 
         return xr.open_mfdataset(files, decode_times=False)
@@ -1112,7 +1110,7 @@ class Atmos:
     def get_dclim(
         self,
     ) -> Tuple[
-        xr.DataArray,
+        xr.Dataset,
         xr.DataArray,
         xr.DataArray,
         xr.DataArray,
@@ -1163,8 +1161,17 @@ class Atmos:
 
 
         Returns:
-            any: A list of outputs.
-                dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
+            Tuple[
+                xr.Dataset,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+            ]: dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
 
         """
         # set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
@@ -1177,9 +1184,10 @@ class Atmos:
         dclim_loc = self.load_clim60()
         t_sb_loc = 1.0 * dclim_loc.ts
         # process the climatological windspeed
-        tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
-        tmp[tmp < self.atm.wnsp_min] = self.atm.wnsp_min
-        u_b_loc = tmp.unstack("z").T  # climatological windspeed.
+        tmp_wsp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
+        # clip windspeed to above 4 ms-1
+        tmp_wsp[tmp_wsp < self.atm.wnsp_min] = self.atm.wnsp_min
+        u_b_loc = tmp_wsp.unstack("z").T  # climatological windspeed.
         c_b_loc = dclim_loc.clt / 100.0
         rh_loc = dclim_loc.rh / 100.0
         f1p = -0.003  # f1prime

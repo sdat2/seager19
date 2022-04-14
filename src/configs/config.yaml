@@ -61,14 +61,15 @@ atm:
   # this is actual rho_bar in the paper
   # 0.3 kg m-3
   # Strange properties to plot different models etc.
-  mem: "EEEEEEE"  # string is iterated through - standard model uses fixed value for
+  mem: "EEEEEEE"
+  # string is iterated through - standard model uses fixed value for
   # relative humidity.
   # Format: ${ts}${clt}${sfcwind}${rh}${pr}${ps}${tau}
   # mem: "EECC" would be the option close to cmip world.
-  # E: ECMWF
-  # f: fixed
-  # C: CMIP5
-  # S or 6: CMIP6
+  # E: ECMWF.
+  # f: fixed.
+  # C: CMIP5.
+  # S or 6: CMIP6.
   pr_max_mm_day: 20 # mm per day maximum precip
   relative_humidity: 0.80  # relative humidity uniformly 80%
   number_iterations: 50  #  int, the number of iterations in the atmos solver.

@@ -78,8 +78,9 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
                     run_p,
                     str(cfg.archive_dir),
                 )
-            # pylint: disable=bare-except
-            except:
+            # pylint: disable=broad-except
+            except Exception as e:
+                print(e)
                 print("files not deleted sucessfully.", "run:  rm  -rf " + run_p)
 
         archive()
