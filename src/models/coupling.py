@@ -162,10 +162,15 @@ class Coupling:
         t_trend_v = t_trend_v.rename("t_trend_v")
         return xr.merge([t_beg_u, t_beg_v, t_end_u, t_end_v, t_trend_u, t_trend_v])
 
-    def replace_stress(self, it: int) -> None:
+    def replace_stress(self, it: int, add: bool = True) -> None:
         """Replace the stress files.
 
         Currently just resaves the clim files with a diff name.
+
+        Args:
+            it: the iteration in the coupling scheme.
+            add: whether to add the trend to the ECMWF timeseries. Defaults to True.
+                If False just has the trend.
 
         """
         ds = self.tau_anom_ds()
@@ -174,9 +179,18 @@ class Coupling:
         taux_new = taux.copy()
         # ah ok, this is definitely wrong
         for i in range(len(taux.coords["T"].values)):
-            taux_new["taux"][i, 0, 40:141, :] = taux.taux[
-                i, 0, 40:141, :
-            ] + i * taux_trend[:, :] / len(taux.coords["T"].values)
+            if add:
+                taux_new["taux"][i, 0, 40:141, :] = (
+                    taux.taux[i, 0, 40:141, :]
+                    + i * taux_trend[:, :] / len(taux.coords["T"].values)
+                    - 1 / 2 * taux_trend[:, :]
+                )
+            else:
+                taux_new["taux"][i, 0, 40:141, :] = (
+                    i * taux_trend[:, :] / len(taux.coords["T"].values)
+                    - 1 / 2 * taux_trend[:, :]
+                )
+
         taux_new.to_netcdf(self.setup.tau_x(it), format="NETCDF3_CLASSIC")
 
         tauy = xr.open_dataset(self.setup.tau_y(0), decode_times=False)

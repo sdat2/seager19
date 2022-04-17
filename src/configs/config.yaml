@@ -2,7 +2,7 @@
 # src/configs/config.yaml: Config file for Hydra.
 # Hopefully passes all the important parameters.
 # Usage example: python src/main.py --multirun oc.nummode=9,10 wandb=false
-project: ENSOTrend-beta
+project: ENSOTrend-gamma
 user: sdat2
 animate: true # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
@@ -21,7 +21,7 @@ test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
 archive: true # whether to move the run to the gws archive
-archive_dir: /gws/nopw/j04/ai4er/users/sdat2/ensotrend-beta
+archive_dir: /gws/nopw/j04/ai4er/users/sdat2/ensotrend-gamma
 ocean: # whether to run parts of the ocean model
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -60,7 +60,7 @@ atm:
   # this means the density at the surface.
   # this is actual rho_bar in the paper
   # 0.3 kg m-3
-  # Strange properties to plot different models etc.
+  # Change model input fields:
   mem: "EEEEEEE"
   # string is iterated through - standard model uses fixed value for
   # relative humidity.
