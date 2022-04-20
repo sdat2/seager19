@@ -11,6 +11,7 @@ from omegaconf import DictConfig, OmegaConf
 from subprocess import PIPE, run
 from src.constants import DATA_PATH, run_path, DEFAULT_PROJECT
 from src.models.model_setup import ModelSetup
+from src.mem_to_input import mems_to_df
 
 log = logging.getLogger(__name__)
 
@@ -394,6 +395,12 @@ def cd_variation_comp(e_frac: float = 0.5) -> dict:
     return mem_dict
 
 
+def _get_cfg(rn) -> DictConfig:
+    config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
+    config["name"] = rn.name
+    return fix_config(config)
+
+
 def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     """
     Key input parameters, key output parameters, in a simple dataframe.
@@ -411,9 +418,42 @@ def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
         pd.DataFrame: A dataframe.
     """
     runs = _get_runs(project=project)
-    return pd.DataFrame([0, 0])
+    mem_list = []
+    metric_l = [
+        "c_d",
+        "eps_days",
+        "eps_frac",
+        "vary_cloud_const",
+        "trend_nino3.4 [degC]",
+        "mean_nino3.4 [degC]",
+        "mean_pac [degC]",
+    ]
+    metric_d = {key: [] for key in metric_l}
+
+    for rn in runs:  # [x for x in runs][0:13]:
+        cfg = _get_cfg(rn)
+        summary = rn.summary
+        res = [
+            cfg.coup.c_d,
+            cfg.atm.eps_days,
+            cfg.atm.e_frac,
+            cfg.atm.vary_cloud_const,
+            summary["trend_nino3.4"],
+            summary["mean_nino3.4"],
+            summary["mean_pac"],
+        ]
+        for i, key in enumerate(metric_l):
+            metric_d[key].append(res[i])
+        mem_list.append(cfg.atm.mem)
+
+    metric_df = pd.DataFrame(metric_d)
+    mem_df = mems_to_df(mem_list).reset_index(0)
+    combined_df = pd.concat([mem_df, metric_df], axis=1, join="inner")
+
+    return combined_df
 
 
 if __name__ == "__main__":
     # python src/wandb_utils.py
-    _other_tests()
+    # _other_tests()
+    print(summary_table(project="sdat2/ENSOTrend-beta"))
