@@ -409,7 +409,7 @@ def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
 
     paramters=mem, ${ts}${clt}${sfcwind}${rh}${pr}${ps}${tau}, c_d, eps_frac, eps,
 
-    Key indexes: nino3.4_trend, mean_pac
+    Key indexes: trend_nino3.4, mean_nino3.4,  mean_pac
 
     Args:
         project (str, optional): Which weights and biases project to scan. Defaults to DEFAULT_PROJECT.
@@ -430,21 +430,25 @@ def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     ]
     metric_d = {key: [] for key in metric_l}
 
-    for rn in runs:  # [x for x in runs][0:13]:
+    for rn in runs:
         cfg = _get_cfg(rn)
         summary = rn.summary
-        res = [
-            cfg.coup.c_d,
-            cfg.atm.eps_days,
-            cfg.atm.e_frac,
-            cfg.atm.vary_cloud_const,
-            summary["trend_nino3.4"],
-            summary["mean_nino3.4"],
-            summary["mean_pac"],
-        ]
-        for i, key in enumerate(metric_l):
-            metric_d[key].append(res[i])
-        mem_list.append(cfg.atm.mem)
+        try:
+            res = [
+                cfg.coup.c_d,
+                cfg.atm.eps_days,
+                cfg.atm.e_frac,
+                cfg.atm.vary_cloud_const,
+                summary["trend_nino3.4"],
+                summary["mean_nino3.4"],
+                summary["mean_pac"],
+            ]
+            for i, key in enumerate(metric_l):
+                metric_d[key].append(res[i])
+            mem_list.append(cfg.atm.mem)
+        # pylint: disable=broad-except
+        except Exception as e:
+            print(e)
 
     metric_df = pd.DataFrame(metric_d)
     mem_df = mems_to_df(mem_list).reset_index(0)
@@ -457,3 +461,4 @@ if __name__ == "__main__":
     # python src/wandb_utils.py
     # _other_tests()
     print(summary_table(project="sdat2/ENSOTrend-beta"))
+    print(summary_table(project="sdat2/ENSOTrend-gamma"))
