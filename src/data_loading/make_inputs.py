@@ -21,6 +21,8 @@ from src.data_loading.download import get_uv, get_mmm, get_figure_data
 from src.data_loading.pangeo import da_clip
 from src.visualisation.comp_v_seager19 import return_figure_ds
 
+LON_INDEX_UPPER_BOUND: int = 350
+
 
 @timeit
 def qair2rh(qair: xr.DataArray, temp: xr.DataArray, pres: xr.DataArray) -> xr.DataArray:
@@ -303,7 +305,7 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     )
     print("========================================================")
     new_mean = ecmwf_mean.copy()
-    new_mean[:, :359] = cmip6_mean[:, :359]
+    new_mean[:, :LON_INDEX_UPPER_BOUND] = cmip6_mean[:, :LON_INDEX_UPPER_BOUND]
     new_mean.attrs["center"] = MODEL_NAMES[model]
     new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
 
@@ -338,7 +340,9 @@ def generate_climatology(var: str = "sst", model: str = "S") -> None:
     cmip6_climatology.attrs["units"] = ecmwf_climatology.attrs["units"]
     print(cmip6_climatology, "\n", ecmwf_climatology)
     new_climatology = ecmwf_climatology.copy()
-    new_climatology[:, :, :, :359] = cmip6_climatology[:, :, :, :359]
+    new_climatology[:, :, :, :LON_INDEX_UPPER_BOUND] = cmip6_climatology[
+        :, :, :, :LON_INDEX_UPPER_BOUND
+    ]
     new_climatology.attrs["center"] = MODEL_NAMES[model]
     if var in end_d:
         new_climatology.to_netcdf(

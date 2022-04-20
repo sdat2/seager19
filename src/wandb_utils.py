@@ -7,8 +7,10 @@ import numpy as np
 import pandas as pd
 import wandb
 import logging
+from uncertainties import ufloat
 from omegaconf import DictConfig, OmegaConf
 from subprocess import PIPE, run
+from src.utils import timeit
 from src.constants import DATA_PATH, run_path, DEFAULT_PROJECT
 from src.models.model_setup import ModelSetup
 from src.mem_to_input import mems_to_df
@@ -401,6 +403,16 @@ def _get_cfg(rn) -> DictConfig:
     return fix_config(config)
 
 
+PARAM = ["c_d", "eps_days", "eps_frac", "vary_cloud_const"]
+
+RESULTS = [
+    "trend_nino3.4 [degC]",
+    "mean_nino3.4 [degC]",
+    "mean_pac [degC]",
+]
+
+
+@timeit
 def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     """
     Key input parameters, key output parameters, in a simple dataframe.
@@ -419,15 +431,7 @@ def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     """
     runs = _get_runs(project=project)
     mem_list = []
-    metric_l = [
-        "c_d",
-        "eps_days",
-        "eps_frac",
-        "vary_cloud_const",
-        "trend_nino3.4 [degC]",
-        "mean_nino3.4 [degC]",
-        "mean_pac [degC]",
-    ]
+    metric_l = PARAM + RESULTS
     metric_d = {key: [] for key in metric_l}
 
     for rn in runs:
@@ -457,8 +461,83 @@ def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     return combined_df
 
 
+@timeit
+def _aggregate_matches(
+    summary_df: pd.DataFrame, filter_df: pd.DataFrame
+) -> List[pd.DataFrame]:
+    df_list = []
+    for _, row in filter_df.iterrows():
+        # print(i, row)]
+        df = summary_df
+        for column_number, entry in enumerate(row):
+            column = filter_df.columns[column_number]
+            # print(i, filter_df.columns[column_number], entry)
+            df = df[df[column] == entry]
+        df_list.append(df)
+    return df_list
+
+
+def find_missing(df_list: List[pd.DataFrame], param: List[str] = PARAM) -> None:
+    new_df_list = []
+    for df in df_list:
+        new_df_list.append(df[param])
+    big_df = pd.concat(new_df_list)
+    unique = big_df.groupby(param).size().reset_index().rename(columns={0: "count"})
+    print(unique)
+    for df in df_list:
+        for _, row in unique.iterrows():
+            new_df = df.copy()
+            for column_number, entry in enumerate(row):
+                column = unique.columns[column_number]
+                # print(i, filter_df.columns[column_number], entry)
+                if column != "count":
+                    new_df = new_df[new_df[column] == entry]
+            if len(new_df) == 0:
+                print("\n MISSING \n", df["index"].to_numpy()[0], "\n", row)
+
+
+def aggregate_matches(
+    summary_df: pd.DataFrame,
+    filter_df: pd.DataFrame,
+    results: List[str] = RESULTS,
+    include_std_dev: bool = True,
+) -> pd.DataFrame:
+    df_list = _aggregate_matches(summary_df, filter_df)
+    results_d = {result: [] for result in results}
+    member_l = []
+    for df in df_list:
+        members = len(df)
+        member_l.append(members)
+        for result in results_d:
+            if include_std_dev and members != 0:
+                results_d[result].append(ufloat(df[result].mean(), df[result].std()))
+            else:
+                results_d[result].append(df[result].mean())
+    for result in results_d:
+        filter_df[result] = results_d[result]
+    filter_df["N"] = member_l
+    find_missing(df_list)
+    return filter_df
+
+
+def output_fig_2_data():
+    mem_list = ["EEEE", "EESE", "EEES", "EESS"]
+    print(
+        aggregate_matches(
+            summary_table(project="sdat2/ENSOTrend-beta"), mems_to_df(mem_list)
+        )
+    )
+    mem_list = ["EEEE", "EECE", "EEEC", "EECC"]
+    print(
+        aggregate_matches(
+            summary_table(project="sdat2/ENSOTrend-beta"), mems_to_df(mem_list)
+        )
+    )
+
+
 if __name__ == "__main__":
     # python src/wandb_utils.py
     # _other_tests()
-    print(summary_table(project="sdat2/ENSOTrend-beta"))
-    print(summary_table(project="sdat2/ENSOTrend-gamma"))
+    output_fig_2_data()
+    # print(summary_table(project="sdat2/ENSOTrend-beta"))
+    # print(summary_table(project="sdat2/ENSOTrend-gamma"))
