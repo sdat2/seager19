@@ -15,6 +15,21 @@ from src.models.model_setup import ModelSetup
 log = logging.getLogger(__name__)
 
 
+def _get_runs(project: str = DEFAULT_PROJECT) -> wandb.Api.runs:
+    """
+    Get the wandb runs using the api.
+
+    Args:
+        project (str, optional): Wandb run. E.g. "sdat2/seager19" Defaults to DEFAULT_PROJECT.
+
+    Returns:
+        wandb.Api.runs: _description_
+    """
+    api = wandb.Api(timeout=20)
+    # Project is specified by <entity/project-name>
+    return api.runs(project)
+
+
 def get_v(inp: str) -> str:
     """Get version of compilers.
 
@@ -70,10 +85,7 @@ def get_full_csv(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     """
     Get the full csv.
     """
-    api = wandb.Api()
-
-    # Project is specified by <entity/project-name>
-    runs = api.runs(project)
+    runs = _get_runs(project=project)
     summary_list = []
     config_list = []
     name_list = []
@@ -131,9 +143,7 @@ def finished_names(project: str = DEFAULT_PROJECT) -> List[str]:
     Returns:
         List[str]: list of run names.
     """
-    api = wandb.Api()
-    # Project is specified by <entity/project-name>
-    runs = api.runs(project)
+    runs = _get_runs(project=project)
     name_list = [rn.name for rn in runs if rn.state == "finished"]
     return name_list
 
@@ -161,9 +171,7 @@ def metric_conv_data(
     Returns:
         Tuple[dict, dict]: metric_dict, setup_dict.
     """
-    api = wandb.Api()
-    # Project is specified by <entity/project-name>
-    runs = api.runs(project)
+    runs = _get_runs(project=project)
 
     def check_controls(config: DictConfig) -> bool:
         truth_list = []
@@ -303,10 +311,7 @@ def setup_from_name(name: str, project: str = DEFAULT_PROJECT) -> ModelSetup:
     Returns:
         ModelSetup: The model setup object.
     """
-    api = wandb.Api(timeout=20)
-    # Project is specified by <entity/project-name>
-    # TODO - change to ENSOTrend
-    runs = api.runs(project)
+    runs = _get_runs(project=project)
     for rn in runs:  # [x for x in runs][0:13]:
         if name == rn.name:
             config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
@@ -387,6 +392,26 @@ def cd_variation_comp(e_frac: float = 0.5) -> dict:
 
     print(mem_dict)
     return mem_dict
+
+
+def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
+    """
+    Key input parameters, key output parameters, in a simple dataframe.
+
+    index=number
+
+    paramters=mem, ${ts}${clt}${sfcwind}${rh}${pr}${ps}${tau}, c_d, eps_frac, eps,
+
+    Key indexes: nino3.4_trend, mean_pac
+
+    Args:
+        project (str, optional): Which weights and biases project to scan. Defaults to DEFAULT_PROJECT.
+
+    Returns:
+        pd.DataFrame: A dataframe.
+    """
+    runs = _get_runs(project=project)
+    return pd.DataFrame([0, 0])
 
 
 if __name__ == "__main__":
