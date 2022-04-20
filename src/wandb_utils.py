@@ -23,7 +23,8 @@ def _get_runs(project: str = DEFAULT_PROJECT) -> wandb.Api.runs:
     Get the wandb runs using the api.
 
     Args:
-        project (str, optional): Wandb run. E.g. "sdat2/seager19" Defaults to DEFAULT_PROJECT.
+        project (str, optional): Wandb run. E.g. "sdat2/seager19".
+            Defaults to DEFAULT_PROJECT.
 
     Returns:
         wandb.Api.runs: _description_
@@ -404,6 +405,7 @@ def _get_cfg(rn) -> DictConfig:
 
 
 PARAM = ["c_d", "eps_days", "eps_frac", "vary_cloud_const"]
+PARAM_HYDRA = ["coup.c_d", "atm.eps_days", "atm.e_frac", "atm.vary_cloud_const"]
 
 RESULTS = [
     "trend_nino3.4 [degC]",
@@ -424,7 +426,8 @@ def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     Key indexes: trend_nino3.4, mean_nino3.4,  mean_pac
 
     Args:
-        project (str, optional): Which weights and biases project to scan. Defaults to DEFAULT_PROJECT.
+        project (str, optional): Which weights and biases project to scan.
+            Defaults to DEFAULT_PROJECT.
 
     Returns:
         pd.DataFrame: A dataframe.
@@ -478,6 +481,8 @@ def _aggregate_matches(
 
 
 def find_missing(df_list: List[pd.DataFrame], param: List[str] = PARAM) -> None:
+    missing_list = []
+    prefix = "python src/main.py"
     new_df_list = []
     for df in df_list:
         new_df_list.append(df[param])
@@ -492,8 +497,16 @@ def find_missing(df_list: List[pd.DataFrame], param: List[str] = PARAM) -> None:
                 # print(i, filter_df.columns[column_number], entry)
                 if column != "count":
                     new_df = new_df[new_df[column] == entry]
-            if len(new_df) == 0:
+            if len(new_df) == 0 and len(df) != 0:
                 print("\n MISSING \n", df["index"].to_numpy()[0], "\n", row)
+                command = prefix + "atm.mem=" + df["index"].to_numpy()[0]
+                for i, par in enumerate(param):
+                    command += " " + PARAM_HYDRA[i] + "=" + str(row[par])
+                missing_list.append(command)
+
+    for item in missing_list:
+        print(item)
+    print(len(missing_list))
 
 
 def aggregate_matches(
@@ -502,6 +515,19 @@ def aggregate_matches(
     results: List[str] = RESULTS,
     include_std_dev: bool = True,
 ) -> pd.DataFrame:
+    """
+    Aggregate the matches between two dataframes to find the
+    mean and std devation of a set of results.
+
+    Args:
+        summary_df (pd.DataFrame): The summary df create by summary_table.
+        filter_df (pd.DataFrame): The dataframe to filter by.
+        results (List[str], optional): _description_. Defaults to RESULTS.
+        include_std_dev (bool, optional): Whether to calculate standard devation. Defaults to True.
+
+    Returns:
+        pd.DataFrame: Includes uncertainty.ufloat values if include_std_dev=True.
+    """
     df_list = _aggregate_matches(summary_df, filter_df)
     results_d = {result: [] for result in results}
     member_l = []
@@ -520,24 +546,16 @@ def aggregate_matches(
     return filter_df
 
 
-def output_fig_2_data():
+def output_fig_2_data(project: str = DEFAULT_PROJECT) -> None:
     mem_list = ["EEEE", "EESE", "EEES", "EESS"]
-    print(
-        aggregate_matches(
-            summary_table(project="sdat2/ENSOTrend-beta"), mems_to_df(mem_list)
-        )
-    )
+    print(aggregate_matches(summary_table(project=project), mems_to_df(mem_list)))
     mem_list = ["EEEE", "EECE", "EEEC", "EECC"]
-    print(
-        aggregate_matches(
-            summary_table(project="sdat2/ENSOTrend-beta"), mems_to_df(mem_list)
-        )
-    )
+    print(aggregate_matches(summary_table(project=project), mems_to_df(mem_list)))
 
 
 if __name__ == "__main__":
     # python src/wandb_utils.py
     # _other_tests()
-    output_fig_2_data()
+    output_fig_2_data("sdat2/ENSOTrend-gamma")
     # print(summary_table(project="sdat2/ENSOTrend-beta"))
     # print(summary_table(project="sdat2/ENSOTrend-gamma"))

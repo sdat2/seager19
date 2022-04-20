@@ -9,6 +9,8 @@ python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true atm.mem=EESS 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EECCE comp.sst=5c comp.prwnd=5c
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEEEE comp.sst=5a comp.prwnd=5a
 
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEGG comp.sst=5c comp.prwnd=5c
+
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=SSSS comp.sst=5c comp.prwnd=5c
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEEC comp.sst=5b comp.prwnd=5b
