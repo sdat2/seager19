@@ -596,8 +596,10 @@ def change_table(
     Return a table with the differences between ECMWF run and the different inputs
 
     Args:
-        project (str, optional): Which project to read. Defaults to DEFAULT_PROJECT.
-        mem_list (List[str], optional): What list of inputs to compare. Defaults to DEFAULT_MEM_LIST.
+        project (str, optional): Which project to read.
+        Defaults to DEFAULT_PROJECT.
+        mem_list (List[str], optional): What list of inputs to compare.
+        Defaults to DEFAULT_MEM_LIST.
 
     Returns:
         Tuple[pd.DataFrame, str]: The change table, and the name of the new variable column.

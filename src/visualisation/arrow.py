@@ -95,9 +95,11 @@ def new_arrow_plot(
     TODO: Fix the xticks - currently not visibile.
 
     Args:
-        project (str, optional): Which wandb project to read. Defaults to "sdat2/ENSOTrend-gamma".
+        project (str, optional): Which wandb project to read.
+        Defaults to "sdat2/ENSOTrend-gamma".
         save_path (Optional[str], optional): Where to save plot to. Defaults to None.
-        show_plots (bool, optional): Whether to keep plots open for jupyter-notebook. Defaults to False.
+        show_plots (bool, optional): Whether to keep plots
+        open for jupyter-notebook. Defaults to False.
     """
     plt.clf()
     fig, axs = plt.subplots(1, 2, sharey=True)
