@@ -1,12 +1,12 @@
 """Arrow plots for mechanism."""
 import os
 from collections import OrderedDict
-from re import I
-from typing import Optional
+from typing import Optional, List
 import numpy as np
 import xarray as xr
 import matplotlib
 import matplotlib.pyplot as plt
+from uncertainties import ufloat
 from src.plot_utils import ps_defaults, set_dim, tex_uf, label_subplots
 from src.constants import FIGURE_PATH
 from src.wandb_utils import output_fig_2_data
@@ -54,18 +54,18 @@ def _plot_arrow(
         )
 
 
-def _horizontal_line(ax, y_val, color=COLOR_L[0]):
+def _horizontal_line(ax: matplotlib.axes.Axes, y_val: float, color: str = COLOR_L[0]):
     ax.plot([0.5, 3.5], [y_val, y_val], color=color)
 
 
-def _setup_ax(ax, cmip_trend):
+def _setup_ax(ax: matplotlib.axes.Axes, cmip_trend: float):
     ax.set_xlim([0.5, 3.5])
     ax.set_xticks([])
     _horizontal_line(ax, ECMWF_TREND, color=COLOR_L[0])
     _horizontal_line(ax, cmip_trend, color=COLOR_L[3])
 
 
-def _add_xticks(ax, mem_list, val_list):
+def _add_xticks(ax: matplotlib.axes.Axes, mem_list: List[str], val_list: List[ufloat]):
     unit = "K"
     name_dict = {
         "EECC": "RH+W",
@@ -77,20 +77,28 @@ def _add_xticks(ax, mem_list, val_list):
     }
     xticks = [x + 1 for x in range(len(mem_list))]
     xlabels = [
-            str(name_dict[mem_list[i]] + "\n +" + tex_uf(val_list[i]) + " " + unit)
-            for i in range(len(mem_list))
-        ]
-    ax.set_xticks(
-        xticks, xlabels
-    )
+        str(name_dict[mem_list[i]] + "\n +" + tex_uf(val_list[i]) + " " + unit)
+        for i in range(len(mem_list))
+    ]
+    ax.set_xticks(xticks, xlabels)
     print(xticks, xlabels)
 
 
 def new_arrow_plot(
-    project="sdat2/ENSOTrend-gamma",
+    project: str = "sdat2/ENSOTrend-gamma",
     save_path: Optional[str] = None,
     show_plots: bool = False,
 ) -> None:
+    """
+    Make the new arrow plot on a particular project.
+
+    TODO: Fix the xticks - currently not visibile.
+
+    Args:
+        project (str, optional): Which wandb project to read. Defaults to "sdat2/ENSOTrend-gamma".
+        save_path (Optional[str], optional): Where to save plot to. Defaults to None.
+        show_plots (bool, optional): Whether to keep plots open for jupyter-notebook. Defaults to False.
+    """
     plt.clf()
     fig, axs = plt.subplots(1, 2, sharey=True)
     set_dim(fig, ratio=0.4)

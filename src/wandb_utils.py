@@ -593,16 +593,14 @@ def change_table(
     mem_list: List[str] = DEFAULT_MEM_LIST,
 ) -> Tuple[pd.DataFrame, str]:
     """
-    _summary_
-
-    _extended_summary_
+    Return a table with the differences between ECMWF run and the different inputs
 
     Args:
-        project (str, optional): _description_. Defaults to DEFAULT_PROJECT.
-        mem_list (List[str], optional): _description_. Defaults to DEFAULT_MEM_LIST.
+        project (str, optional): Which project to read. Defaults to DEFAULT_PROJECT.
+        mem_list (List[str], optional): What list of inputs to compare. Defaults to DEFAULT_MEM_LIST.
 
     Returns:
-        Tuple[pd.DataFrame, str]: _description_
+        Tuple[pd.DataFrame, str]: The change table, and the name of the new variable column.
     """
     table = aggregate_table(project=project, mem_list=mem_list)
     table, new_variable = _add_change_column(table)
@@ -612,6 +610,16 @@ def change_table(
 
 
 def output_fig_2_data(project: str = DEFAULT_PROJECT) -> Tuple[List[pd.DataFrame], str]:
+    """
+    Output the figure 2 data for plotting.
+
+    Args:
+        project (str, optional): Wandb project to read. Defaults to DEFAULT_PROJECT.
+
+    Returns:
+        Tuple[List[pd.DataFrame], str]: The change table,
+        and the name of the new variable column.
+    """
     table_list = []
     for mem_list in [
         ["EEEE", "EECE", "EEEC", "EECC"],
