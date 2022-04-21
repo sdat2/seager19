@@ -6,7 +6,7 @@ import pandas as pd
 import xarray as xr
 import matplotlib
 import matplotlib.pyplot as plt
-from src.plot_utils import ps_defaults, add_units
+from src.plot_utils import ps_defaults
 from src.constants import (
     atmos_input_file_path,
     MODEL_NAMES,
@@ -162,7 +162,7 @@ def multi_bias_plot(model: str = "S", vertical=True) -> None:
     da = trends_from_csv()
     reanal = ["NCEP NCAR", "ERSSTv5", "HadlSST"]
     mmm = ["CMIP5 MMM", "LENS MMM"]
-    da.sel(source=reanal).plot.line(ax=axs[0], hue="source", linestyle='dashed')
+    da.sel(source=reanal).plot.line(ax=axs[0], hue="source", linestyle="dashed")
     da.sel(source=mmm).plot.line(ax=axs[0], hue="source")
     axs[0].set_xlim([2008, 2017])
     i = 1
