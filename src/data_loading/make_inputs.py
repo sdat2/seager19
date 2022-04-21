@@ -2,6 +2,7 @@
 import os
 import numpy as np
 import xarray as xr
+from scipy.constants import zero_Celsius
 from src.constants import (
     MMM_V23_HIST,
     MMM_V23_RCP85,
@@ -17,7 +18,10 @@ from src.constants import (
 from src.xr_utils import open_dataset, open_dataarray, can_coords
 from src.utils import timeit
 from src.data_loading.download import get_uv, get_mmm, get_figure_data
+from src.data_loading.pangeo import da_clip
 from src.visualisation.comp_v_seager19 import return_figure_ds
+
+LON_INDEX_UPPER_BOUND: int = 350
 
 
 @timeit
@@ -33,8 +37,7 @@ def qair2rh(qair: xr.DataArray, temp: xr.DataArray, pres: xr.DataArray) -> xr.Da
     Returns:
         xr.DataArray: The relative humidity.
     """
-    t_0c = 273.15
-    es = 6.112 * np.exp((17.76 * (temp - t_0c)) / (temp - t_0c + 243.5))
+    es = 6.112 * np.exp((17.76 * (temp - zero_Celsius)) / (temp - zero_Celsius + 243.5))
     e = qair * pres / (0.378 * qair + 0.622)
     rh = e / es
     # rh[rh > 100] = 1
@@ -55,7 +58,9 @@ def q2rh(qair: xr.DataArray, temp: xr.DataArray, pres: xr.DataArray) -> xr.DataA
     Returns:
         xr.DataArray: The relative humidity.
     """
-    return 0.263 * pres * qair / (np.exp(17.67 * (temp - 273.16) / (temp - 29.65)))
+    return (
+        0.263 * pres * qair / (np.exp(17.67 * (temp - zero_Celsius) / (temp - 29.65)))
+    )
 
 
 @timeit
@@ -224,6 +229,34 @@ var_rename_dict = {
 }
 
 
+def safe_da_open(var: str, model: str, ending: str) -> xr.DataArray:
+    """
+    Function to open and sanitise a cmip6 variable.
+
+    Args:
+        var (str): variable string.
+        model (str): model string e.g. "S".
+        ending (str): ending string, e.g. "clim60".
+
+    Returns:
+        xr.DataArray: The sanitised cmip6 input.
+    """
+    if var in var_rename_dict:
+        old_var = var_rename_dict[var]
+        file_loc = cmip6_file(old_var, model, ending)
+        cmip6 = xr.open_dataarray(file_loc)
+        if ending != "trend":
+            cmip6 = da_clip(cmip6, old_var)
+        cmip6 = cmip6.rename(var)
+    else:
+        file_loc = cmip6_file(var, model, ending)
+        cmip6 = xr.open_dataarray(file_loc)
+        if ending != "trend":
+            cmip6 = da_clip(cmip6, var)
+    cmip6.attrs["loaded_from"] = file_loc
+    return cmip6
+
+
 def generate(var: str, model: str = "S", ending: str = "clim60"):
     """
     Generate an input variable.
@@ -241,28 +274,17 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     }
     var_regrid_list = ["ps"]
     # sst climatology is actual climatology, and actually in degrees celsius
-    if var in var_rename_dict:
-        old_var = var_rename_dict[var]
-        cmip6_mean = xr.open_dataarray(cmip6_file(old_var, model, ending))
-        cmip6_mean = cmip6_mean.rename(var)
-    else:
-        cmip6_mean = xr.open_dataarray(cmip6_file(var, model, ending))
+    cmip6_mean = safe_da_open(var, model, ending)
     ecmwf_mean = xr.open_dataarray(atmos_input_file_path(var=var, ending=ending))
     if ending in sel_dict:
         cmip6_mean = cmip6_mean.sel(**sel_dict[ending])
     print(var, model, ending)
     print(ecmwf_mean.attrs["units"], "\t\t\t", cmip6_mean.attrs["units"])
 
-    # if (
-    #    var == "ts" and ending == "clim"
-    # ):  # ecmwf_mean.attrs["units"] == "degree_Celsius":
-    # cmip6_mean = cmip6_mean - 273.15
     if var == "ps":
         cmip6_mean = cmip6_mean / 100
         cmip6_mean.attrs["units"] = ecmwf_mean.attrs["units"]
-    # if var == "pr":
-    #    #cmip6_mean = cmip6_mean  # * kgms_mmday()
-    #    #cmip6_mean.attrs["units"] = ecmwf_mean.attrs["units"]
+
     if ending in coord_rename_dict:
         cmip6_mean = cmip6_mean.rename(coord_rename_dict[ending])
     ecmwf_dims = ecmwf_mean.dims
@@ -283,8 +305,8 @@ def generate(var: str, model: str = "S", ending: str = "clim60"):
     )
     print("========================================================")
     new_mean = ecmwf_mean.copy()
-    new_mean[:, :359] = cmip6_mean[:, :359]
-    new_mean.attrs["center"] = MODEL_NAMES[model] + " multi model mean"
+    new_mean[:, :LON_INDEX_UPPER_BOUND] = cmip6_mean[:, :LON_INDEX_UPPER_BOUND]
+    new_mean.attrs["center"] = MODEL_NAMES[model]
     new_mean.to_netcdf(atmos_input_file_path(var=var, ending=ending, model=model))
 
 
@@ -293,15 +315,11 @@ def generate_climatology(var: str = "sst", model: str = "S") -> None:
     Generate climatology.
 
     Args:
+        var (str, optional): Defaults to "sst".
         model (str, optional): Defaults to "S".
     """
     end_d = {"taux": ".x", "tauy": ".y"}  # "sst": ".nc",
-    if var in var_rename_dict:
-        cmip6_climatology = xr.open_dataarray(
-            cmip6_file(var_rename_dict[var], model, "climatology")
-        )
-    else:
-        cmip6_climatology = xr.open_dataarray(cmip6_file(var, model, "climatology"))
+    cmip6_climatology = safe_da_open(var, model, "climatology")
     cmip6_climatology = cmip6_climatology.rename({"month": "T"})
     cmip6_climatology = cmip6_climatology.expand_dims("Z", axis=1).assign_coords(
         {"T": ("T", cmip6_climatology["T"].values - 0.5), "Z": ("Z", [0.0])}
@@ -318,11 +336,14 @@ def generate_climatology(var: str = "sst", model: str = "S") -> None:
             decode_times=False,
         )
     if var == "sst":
-        cmip6_climatology = cmip6_climatology - 273.15
+        cmip6_climatology = cmip6_climatology - zero_Celsius
     cmip6_climatology.attrs["units"] = ecmwf_climatology.attrs["units"]
     print(cmip6_climatology, "\n", ecmwf_climatology)
     new_climatology = ecmwf_climatology.copy()
-    new_climatology[:, :, :, :359] = cmip6_climatology[:, :, :, :359]
+    new_climatology[:, :, :, :LON_INDEX_UPPER_BOUND] = cmip6_climatology[
+        :, :, :, :LON_INDEX_UPPER_BOUND
+    ]
+    new_climatology.attrs["center"] = MODEL_NAMES[model]
     if var in end_d:
         new_climatology.to_netcdf(
             ocean_input_file_path(

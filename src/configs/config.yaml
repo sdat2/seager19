@@ -2,11 +2,11 @@
 # src/configs/config.yaml: Config file for Hydra.
 # Hopefully passes all the important parameters.
 # Usage example: python src/main.py --multirun oc.nummode=9,10 wandb=false
-project: seager19
+project: ENSOTrend-gamma
 user: sdat2
-notes: changing inputs
 animate: true # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
+notes: NA
 # name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
 name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_${atm.mem}
 # name: eps_days_${atm.eps_days}
@@ -21,7 +21,7 @@ test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
 archive: true # whether to move the run to the gws archive
-archive_dir: /gws/nopw/j04/ai4er/users/sdat2/sensitivity/all
+archive_dir: /gws/nopw/j04/ai4er/users/sdat2/ensotrend-gamma
 ocean: # whether to run parts of the ocean model
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -33,20 +33,11 @@ ocean: # whether to run parts of the ocean model
 oc: # the ocean paramters
   nummode: 2 # each aditional mode adds about 7 minutes to the run time of run2f.
   boundaries: Periodic # realistically this can't be changed.
-  # these are the default start files.
-  # most of these are changed during the run
-  # TODO remove these file names, move control elsewhere.
-  wind_clim_file: tau-ECMWF-clim
-  wind_file: tau-ECMWF
-  dq_dtemp_file: dQdT-sample.nc
-  dq_df_file: dQdf-sample.nc
-  sst_file: sst-ECMWF-clim.nc
-  mask_file: om_mask.nc
   # How long to run each part of the ocean model.
   time_test: 2 months # the time input to the tests.
   time_spin: 20 years # seems long - maybe check that this is the correct number to be quoting.
   time_diag: 2 years # This time period includes the period during which qflx is removed.
-  time_run2f: 58 years # 58 years # let's change this to 60
+  time_run2f: 60 years # 58 years originally
   # editing of hcut and tcut currently disabled just in case.
   hcut: 5
   tcut: 14.6
@@ -55,7 +46,7 @@ coup:
   c_d: 2.25e-3    # dimensionless?,  wind stress.
   # breaks ocean model by the time you get to 3.5e0, but probably before.
   rho_air: 1.225   # kg m-3, density of sea surface air
-  iterations: 6  # how many times to repeat the coupling.
+  iterations: 10  # how many times to repeat the coupling.
   # The stopping condition is currently quite qualitative, and so 
   # iterations will be quite hard to tune.
   # Initially when fully coupled the models blew up.
@@ -69,51 +60,37 @@ atm:
   # this means the density at the surface.
   # this is actual rho_bar in the paper
   # 0.3 kg m-3
-  # Strange properties to plot different models etc.
-  mem: "EEEE"  # string is iterated through - standard model uses fixed value for
+  # Change model input fields:
+  mem: "EEEEEEE"
+  # string is iterated through - standard model uses fixed value for
   # relative humidity.
-  # Format: ${ts}${clt}${sfcwind}${rh}
+  # Format: ${ts}${clt}${sfcwind}${rh}${pr}${ps}${tau}
   # mem: "EECC" would be the option close to cmip world.
-  # E: ECMWF
-  # f: fixed
-  # C: CMIP5
-  # 6: CMIP6
-  pr_max: 20.0 / 3600 / 24  # 20 / seconds in hour / hours in day. 20 x per day?
-  relative_humidity: 0.80  # relative humidity uniformly 0.8
-  number_iterations: 50  #  int, the number of iterations.
+  # E: ECMWF.
+  # f: fixed.
+  # C: CMIP5.
+  # S or 6: CMIP6.
+  pr_max_mm_day: 20 # mm per day maximum precip
+  relative_humidity: 0.80  # relative humidity uniformly 80%
+  number_iterations: 50  #  int, the number of iterations in the atmos solver.
   height_tropopause: 15e3  # metres. I.e 15 km.
-  theta_00: 300  # potential temperature at the surface.
+  theta_00: 300  # potential temperature at the surface in kelvin.
   nbsq: 3.0e-4  # N^2 s-2. N^2 is a specified buoyancy frequency.
-  radius_earth: 6.37e6  # metres
-  # not really changeable :) Nonvariables.
-  pi: 3.141592653589793  # pi :)
-  stefan_boltzman_const: 5.67e-8
-  sec_in_day: 86400  # seconds in day.
+  # from scipy.constants import Stefan_Boltzmann, zero_Celsius
   gravity: 9.8  #  m s-2
-  temp_0_c: 273.15  # zero degrees in kelvin
-  omega_2: 2 * 2 * ${atm.pi} / ${atm.sec_in_day}  # 2 * rad per second
   latent_heat_vap: 2.5e6  # latent heat # J kg-1
   cp_air: 1000  #  cp_air is the specific heat capacity of air.
   # J kg-1 K-1
-  # Newtonian cooling, K
   k_days: 10     # K: 1/10 days, k_days is the recipriocal, and has the units of days.
-  newtonian_cooling_coeff_k1: ${atm.b_coeff} / ${atm.k_days} / ${atm.sec_in_day}
-  eps_p: (${atm.pi} / ${atm.height_tropopause}) ** 2 / ${atm.nbsq} / ${atm.k_days} / ${atm.sec_in_day}
   # raleigh friction step.
   eps_days: 0.75 # this is the inverse of the raleigh friction coefficient epsilon.
   # Over 1958–2017, the CO2 changed from ~300 to ~400 ppm, which would be about 0.75 W m−2
   # mult_or_div:  * 1 *
-  eps: 1.0 / ${atm.eps_days} / ${atm.sec_in_day}  # 1/.75 d
   e_frac: 0.5   # multiply epsu by efrac to get epsv
-  eps_u: ${atm.eps}  # 1/.75 d in the paper
-  eps_v: ${atm.eps} * ${atm.e_frac}
   # e_frac=1/2 in paper
-  b_coeff: ${atm.gravity} * ${atm.pi} / ${atm.nbsq} / ${atm.theta_00} / ${atm.height_tropopause}
-  beta: ${atm.omega_2} / ${atm.radius_earth} 
-  # beta param for beta plane approx? scaled to real distance? not quite sure what the point of dividing by distance is.
   rho_air: 1.225  # kg m-3 - also called rho_00
   emmisivity: 0.97
-  p_s: 1000  # pressure at the surface in pascals
+  p_s: 1000  # pressure at the surface in mb
   es_0: 6.11 # evaporation
   e_factor: 0.622 # strange constant
   delta_temp: 1.0  # ΔT: 1 K
@@ -134,18 +111,9 @@ atm:
   # to a_cloud_const change in CO2
   u_bar: 5.0  # average velocity?
   c_bar: 0.6  # C is the cloud cover. perhaps C_bar is the average.
-  temp_surface_bar: ${atm.temp_0_c} + 25  # 25C in Kelvin
-  c_e: 0.00125  # 1.25e-3 # cE is an exchange coefficient
-  # Heat flux coefficients.
-  # Find linearization of Q_LH (latent heating)
-  qlh_coeff: ${atm.rho_air} * ${atm.c_e} * ${atm.latent_heat_vap}
-  # Find linearization of Q_LW (longwave)8
-  qlw_coeff: ${atm.emmisivity} * ${atm.stefan_boltzman_const}
-  # grid characteristics
+  temp_surface_bar_celsius: 25
+  c_e: 0.00125  # 1.25e-3 # cE is an exchange coefficient. Pretty arbritatry, not yet varied.
   nx: 180  # number of x grid boxes
   ny: 60  # this seems like half the grid space
   y_north_lim: 60  # upper lat limit
-  y_south_lim: -${atm.y_north_lim} / 1   # make symmetric around the equator
-  # make grids
-  dx:  360 / ${atm.nx}  # delta degrees
-  dy: (${atm.y_north_lim} - ${atm.y_south_lim}) / ${atm.ny}  # delta degrees
+

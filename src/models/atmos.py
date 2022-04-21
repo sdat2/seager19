@@ -54,7 +54,7 @@ Example:
         # 20 / seconds in hour / hours in day.
         self.relative_humidity: float = 0.80  # relative humidity uniformly 0.8
         self.number_iterations: int = 50  #  int
-        self.radius_earth = 6.37e6  # metres
+        self.R_earth.to_value() = 6.37e6  # metres
         self.sec_in_day = 86400  # seconds in day.
         self.omega_2 = 2 * (2 * np.pi / self.sec_in_day)  # 2 * rad per second
         self.latent_heat_vap = 2.5e6  # latent heat # J kg-1
@@ -75,7 +75,7 @@ Example:
         self.eps_p = (np.pi / self.height_tropopause) ** 2 / (
             self.nbsq * self.k_days * self.sec_in_day
         )
-        self.beta = self.omega_2 / self.radius_earth
+        self.beta = self.omega_2 / self.R_earth.to_value()
         self.rho_air = 1.225  # kg m-3 - also called rho_00
         self.c_e = 0.00125  # 1.25e-3 # cE is an exchange coefficient
         self.emmisivity = 0.97  # problem here with second definintion.
@@ -107,12 +107,15 @@ import os
 import numpy as np
 from scipy.interpolate import interp2d
 from scipy.fftpack import fft, ifft
+from scipy.constants import zero_Celsius
+from astropy.constants import R_earth
 import matplotlib.pyplot as plt
 import xarray as xr
 from typeguard import typechecked
 from omegaconf import DictConfig
 from src.models.model_setup import ModelSetup
 from src.utils import timeit
+from src.constants import MODEL_NAMES, VAR_DICT
 
 
 class Atmos:
@@ -153,8 +156,8 @@ class Atmos:
         # properties derived from grid axes
         self.x_spacing = self.x_axis[1] - self.x_axis[0]  # degrees
         self.y_spacing = self.y_axis_v[1] - self.y_axis_v[0]  # degrees
-        self.dxm = self.x_spacing * self.atm.radius_earth * np.pi / 180
-        self.dym = self.y_spacing * self.atm.radius_earth * np.pi / 180
+        self.dxm = self.x_spacing * R_earth.to_value() * np.pi / 180
+        self.dym = self.y_spacing * R_earth.to_value() * np.pi / 180
         self.dym_2 = self.dym * self.dym
 
         # need to have the correct ordering of the wave numbers for fft
@@ -174,24 +177,10 @@ class Atmos:
             )
 
         # the different model names in a dict? - used by key from self.mem.
-        self.names: dict = {
-            "E": "ECMWF",
-            "F": "ECMWF-orig",
-            "B": "CMIP5-39m",
-            "C": "CMIP5",
-            "6": "CMIP6",
-            "D": "CMIP5-orig",
-            "H": "HadGEM2",
-            "f": "fixed",
-            "e": "fixed78",
-            "g": "fixed82",
-            "W": "WHOI",
-            "M": "MERRA",
-            "I": "ISCCP",
-        }
+        self.names: dict = MODEL_NAMES
 
         # dict of variables that are read in.
-        self.var: dict = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh"}
+        self.var: dict = VAR_DICT
         # temperature of the surface, cloud area fraction, surface wind, rel humidity.
 
         # END INIT.
@@ -223,9 +212,7 @@ class Atmos:
             xr.DataArray: Flux es.
         """
         return self.atm.es_0 * np.exp(
-            17.67
-            * (temperature - self.atm.temp_0_c)
-            / (temperature - self.atm.temp_0_c + 243.5)
+            17.67 * (temperature - zero_Celsius) / (temperature - zero_Celsius + 243.5)
         )
 
     @typechecked
@@ -258,7 +245,7 @@ class Atmos:
         return (
             self.f_qs(temperature)
             * (17.67 * 243.5)
-            / (temperature - self.atm.temp_0_c + 243.5) ** 2
+            / (temperature - zero_Celsius + 243.5) ** 2
         )
 
     @typechecked
@@ -387,7 +374,7 @@ class Atmos:
             xr.DataArray: The a constant. Normally 0.4 or 0.8. A standard value of
                 0.6 is applied if you disable deep convection.
         """
-        temperature = temperature - self.atm.temp_0_c
+        temperature = temperature - zero_Celsius
         cloud_const_da = temperature.copy()
         cloud_const_da = cloud_const_da.where(
             temperature >= self.atm.dc_threshold_temp
@@ -512,9 +499,7 @@ class Atmos:
 
         """
         e_s = self.atm.es_0 * np.exp(
-            17.67
-            * (t_s - self.atm.temp_0_c)
-            / ((t_s - self.atm.temp_0_c) + self.atm.temp_0_c)
+            17.67 * (t_s - zero_Celsius) / ((t_s - zero_Celsius) + zero_Celsius)
         )
         return self.atm.e_factor * self.atm.relative_humidity * e_s / s_p
 
@@ -529,7 +514,7 @@ class Atmos:
             np.ndarray: q_s, surface specific humidity.
 
         """
-        return 0.001 * (temp_surface - self.atm.temp_0_c - 11.0)
+        return 0.001 * (temp_surface - zero_Celsius - 11.0)
 
     @typechecked
     def f_evap(self, mask: np.ndarray, q_a: np.ndarray, wnsp: np.ndarray) -> np.ndarray:
@@ -574,7 +559,7 @@ class Atmos:
 
         """
         qu = q_a * u
-        qux = ifft(1.0j * self.kk_wavenumber * fft(qu) / self.atm.radius_earth).real
+        qux = ifft(1.0j * self.kk_wavenumber * fft(qu) / R_earth.to_value()).real
         aq = (q_a[1 : self.atm.ny - 1, :] + q_a[0 : self.atm.ny - 2, :]) / 2.0
         qv = aq * v[1 : self.atm.ny - 1, :]
         z = np.zeros((1, self.atm.nx))
@@ -635,6 +620,8 @@ class Atmos:
     def s91_solver(self, q1: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """S91 solver from TCAM.py.
 
+        Presumably name refers to Richard Seager 1991.
+
         's91_solver'  0.00564 s
 
         The atmosphere equations are solved by Fourier transforming in longitude,
@@ -659,7 +646,7 @@ class Atmos:
         q1_time = fft(q1)
         f_q = self.fcu[:, np.newaxis] * q1_time
         a_f_q = (f_q[1 : self.atm.ny - 1, :] + f_q[0 : self.atm.ny - 2, :]) / 2.0
-        km = self.kk_wavenumber / self.atm.radius_earth
+        km = self.kk_wavenumber / R_earth.to_value()
         d_q = (
             q1_time[1 : self.atm.ny - 1, :] - q1_time[0 : self.atm.ny - 2, :]
         ) / self.dym
@@ -791,7 +778,9 @@ class Atmos:
         def get_clim():
             # the average condions from ECMWF
             # Gets the windspeed, surface temperature, precipation, and surface pressure
-            ds_clim = xr.open_dataset(self.setup.clim_name(2))
+            # VAR_DICT = {0: "ts", 1: "clt", 2: "sfcWind", 3: "rh", 4: "pr", 5: "ps", 6: "tau"}
+            # "sfcWind"
+            ds_clim = xr.open_dataset(self.setup.clim_file("sfcWind", path=True))
             # this needs to be replaced
             fwnsp = interp2d(ds_clim.X, ds_clim.Y, ds_clim.sfcWind, kind="linear")
             ds_clim = xr.open_dataset(self.setup.ts_clim(self.it))
@@ -1113,16 +1102,28 @@ class Atmos:
                     file = self.setup.ts_clim60(self.it)
                     # temperature is in degrees kelvin!
                 else:
-                    self.setup.clim60_name(i, path=True)
-                print(name, variable, file)
+                    file = self.setup.clim60_name(i, path=True)
                 assert os.path.isfile(file)
+                print(name, variable, file)
                 files += [file]  # append to list.
 
         return xr.open_mfdataset(files, decode_times=False)
 
     @timeit
     @typechecked
-    def get_dclim(self) -> any:
+    def get_dclim(
+        self,
+    ) -> Tuple[
+        xr.Dataset,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+        xr.DataArray,
+    ]:
         """Opens the files, and applies functions to get surface fluxes.
 
         Get the surface fluxes, qd_df, dq_dT among other things.
@@ -1164,8 +1165,17 @@ class Atmos:
 
 
         Returns:
-            any: A list of outputs.
-                dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
+            Tuple[
+                xr.Dataset,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+                xr.DataArray,
+            ]: dclim, u_b, alh, alw, blw, dtemp_se, rh, c_b, t_sb.
 
         """
         # set Q'_LW + Q'_LH = 0, solve for Ts' (assuming U'=0)
@@ -1176,12 +1186,12 @@ class Atmos:
         # Q'_LW is from formula 14 in paper
 
         dclim_loc = self.load_clim60()
-
         t_sb_loc = 1.0 * dclim_loc.ts
         # process the climatological windspeed
-        tmp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
-        tmp[tmp < self.atm.wnsp_min] = self.atm.wnsp_min
-        u_b_loc = tmp.unstack("z").T  # climatological windspeed.
+        tmp_wsp = 1.0 * dclim_loc.sfcWind.stack(z=("lon", "lat")).load()
+        # clip windspeed to above 4 ms-1
+        tmp_wsp[tmp_wsp < self.atm.wnsp_min] = self.atm.wnsp_min
+        u_b_loc = tmp_wsp.unstack("z").T  # climatological windspeed.
         c_b_loc = dclim_loc.clt / 100.0
         rh_loc = dclim_loc.rh / 100.0
         f1p = -0.003  # f1prime
@@ -1242,10 +1252,10 @@ class Atmos:
         # Define the new Dataset
         dq = xr.Dataset(
             {
-                "lon": ("lon", dclim.lon),
-                "lat": ("lat", dclim.lat),
-                "dq_dt": (["lat", "lon"], dq_dt),
-                "dq_df": (["lat", "lon"], dq_df),
+                "lon": ("lon", dclim["lon"].values),
+                "lat": ("lat", dclim["lat"].values),
+                "dq_dt": (["lat", "lon"], dq_dt.data),
+                "dq_df": (["lat", "lon"], dq_df.data),
             }
         )
 

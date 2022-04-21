@@ -1,7 +1,5 @@
 """Set up the model, copy the files, get the names."""
-from typing import List
 import os
-import pandas as pd
 from omegaconf import DictConfig
 from src.constants import (
     OCEAN_RUN_PATH,
@@ -12,52 +10,7 @@ from src.constants import (
     MODEL_NAMES,
     VAR_DICT,
 )
-
-
-def mems_to_df(mem_list: List[str]) -> pd.DataFrame:
-    """
-    Turn a list of mems into a dataframe of inputs.
-
-    Args:
-        mem_list (List[str]): List of mem to turn into corresponding
-            dataframe of inputs.
-
-    Returns:
-        pd.DataFrame: A dataframe
-
-    Example:
-        Work out what inputs a list of runs got::
-
-            mems_to_df(["EEEE", "CCCC", "66E6"])
-    """
-    results_lol = []
-    for i in VAR_DICT:
-        results_lol.append([])
-    for i, mem in enumerate(mem_list):
-        for j in VAR_DICT:
-            if len(mem) <= j:
-                results_lol[j].append(MODEL_NAMES["E"])
-            else:
-                results_lol[j].append(MODEL_NAMES[mem[j]])
-    return pd.DataFrame(
-        data={VAR_DICT[i]: results_lol[i] for i in range(len(results_lol))},
-        index=mem_list,
-    )
-
-
-def mem_to_dict(mem: str) -> dict:
-    """
-    Single mem variable to dictionary of inputs.
-
-    Uses logic in `mems_to_df`.
-
-    Args:
-        mem (str): the mem input e.g "EEEE"
-
-    Returns:
-        dict: dictionary of inputs, e.g.
-    """
-    return {var: input_d[mem] for (var, input_d) in mems_to_df([mem]).to_dict().items()}
+from src.mem_to_input import mem_to_dict
 
 
 class ModelSetup:
@@ -368,9 +321,11 @@ class ModelSetup:
     def clim_file(
         self, var_name: str, typ: str = "clim", appendage: str = "", path: bool = True
     ) -> str:
-        name = (
-            var_name + "-" + self.input_dict[var_name] + "-" + typ + appendage + ".nc"
-        )
+        if var_name == "sst":
+            input_name = self.input_dict["ts"]
+        else:
+            input_name = self.input_dict[var_name]
+        name = var_name + "-" + input_name + "-" + typ + appendage + ".nc"
         if path:
             return os.path.join(self.atmos_data_path, name)
         else:
@@ -381,3 +336,37 @@ class ModelSetup:
 
     def clim_name(self, var_num: int, path: bool = True) -> str:
         return self.clim_file(self.var[var_num], "clim", "", path=path)
+
+    ## Ocean default input files:
+
+    def stress_file(self) -> str:
+        """
+        # these are the default start files.
+        # most of these are changed during the run
+        # TODO remove these file names, move control elsewhere.
+        wind_clim_file: tau-ECMWF-clim
+        wind_file: tau-ECMWF
+        dq_dtemp_file: dQdT-sample.nc
+        dq_df_file: dQdf-sample.nc
+        sst_file: sst-ECMWF-clim.nc
+        mask_file: om_mask.nc
+        """
+        return "tau-ECMWF"
+
+    def stress_clim_file(self) -> str:
+        return "tau-ECMWF-clim"
+
+    def dq_dtemp_file(self) -> str:
+        return "dQdT-sample.nc"
+
+    def dq_df_file(self) -> str:
+        return "dQdf-sample.nc"
+
+    def sst_file(self) -> str:
+        return "sst-ECMWF-clim.nc"
+
+    def sst_replacement_file(self) -> str:
+        return "sst-" + MODEL_NAMES[self.cfg.atm.mem[0]] + "-clim.nc"
+
+    def mask_file(self) -> str:
+        return "om_mask.nc"

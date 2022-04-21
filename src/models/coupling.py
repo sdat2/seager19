@@ -9,6 +9,7 @@ Example:
 """
 from typing import Tuple, Union
 from scipy.interpolate import interp2d
+from scipy.constants import zero_Celsius
 import xarray as xr
 from typeguard import typechecked
 from omegaconf import DictConfig
@@ -16,7 +17,8 @@ import wandb
 from src.models.model_setup import ModelSetup
 from src.models.atmos import Atmos
 from src.models.ocean import Ocean
-from src.metrics import get_nino_trend, get_other_trends
+from src.visualisation.nino import get_nino_trend
+from src.metrics import get_other_trends
 from src.xr_utils import can_coords, open_dataset, cut_and_taper, get_trend
 from src.visualisation.ani import animate_coupling
 from src.visualisation.quiver import prcp_quiver_plot
@@ -160,10 +162,15 @@ class Coupling:
         t_trend_v = t_trend_v.rename("t_trend_v")
         return xr.merge([t_beg_u, t_beg_v, t_end_u, t_end_v, t_trend_u, t_trend_v])
 
-    def replace_stress(self, it: int) -> None:
+    def replace_stress(self, it: int, add: bool = True) -> None:
         """Replace the stress files.
 
         Currently just resaves the clim files with a diff name.
+
+        Args:
+            it: the iteration in the coupling scheme.
+            add: whether to add the trend to the ECMWF timeseries. Defaults to True.
+                If False just has the trend.
 
         """
         ds = self.tau_anom_ds()
@@ -172,9 +179,18 @@ class Coupling:
         taux_new = taux.copy()
         # ah ok, this is definitely wrong
         for i in range(len(taux.coords["T"].values)):
-            taux_new["taux"][i, 0, 40:141, :] = taux.taux[
-                i, 0, 40:141, :
-            ] + i * taux_trend[:, :] / len(taux.coords["T"].values)
+            if add:
+                taux_new["taux"][i, 0, 40:141, :] = (
+                    taux.taux[i, 0, 40:141, :]
+                    + i * taux_trend[:, :] / len(taux.coords["T"].values)
+                    - 1 / 2 * taux_trend[:, :]
+                )
+            else:
+                taux_new["taux"][i, 0, 40:141, :] = (
+                    i * taux_trend[:, :] / len(taux.coords["T"].values)
+                    - 1 / 2 * taux_trend[:, :]
+                )
+
         taux_new.to_netcdf(self.setup.tau_x(it), format="NETCDF3_CLASSIC")
 
         tauy = xr.open_dataset(self.setup.tau_y(0), decode_times=False)
@@ -245,7 +261,7 @@ class Coupling:
 
         trend_new = (
             (
-                get_trend(sst + self.cfg.atm.temp_0_c, min_clim_f=True)
+                get_trend(sst + zero_Celsius, min_clim_f=True)
                 .rename("ts")
                 .isel(Z=0)
                 .drop("Z")
@@ -264,7 +280,7 @@ class Coupling:
 
         # sst_mean: take mean
         # take mean
-        sst_mean = sst_c_mean + self.cfg.atm.temp_0_c  # kelvin
+        sst_mean = sst_c_mean + zero_Celsius  # kelvin
         # fill in land.
         sst_mean = sst_mean.where(mask != 0.0).fillna(0.0)
 

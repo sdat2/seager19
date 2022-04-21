@@ -13,12 +13,14 @@ future: ssp585
 # remake the whole timeseries.
 ensemble_timeseries: true
 # make the ensemble derivatives.
-ensemble_derivatives: true
+ensemble_derivatives: false
 # make the multi-model mean.
-mmm_derivatives: true
+mmm_derivatives: false
 # whether to try all possible centres.
 regen_success_list: false
+# what time limit to keep them to:
+time_limit: 100
 # nino3.4 derivatives
-nino34_derivatives: true
+nino34_derivatives: false
 # regenerate members csv
 regenerate_members_csv: false

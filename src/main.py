@@ -78,14 +78,15 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
                     run_p,
                     str(cfg.archive_dir),
                 )
-            # pylint: disable=bare-except
-            except:
+            # pylint: disable=broad-except
+            except Exception as e:
+                print(e)
                 print("files not deleted sucessfully.", "run:  rm  -rf " + run_p)
 
         archive()
         if cfg.wandb:
             wandb.finish()
-        clear()
+        clear(project=str(cfg.user +"/" + cfg.project))
     else:
         if cfg.wandb:
             wandb.finish()
@@ -93,4 +94,5 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
+    # python src/main.py
     main()

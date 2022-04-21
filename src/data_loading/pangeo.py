@@ -10,9 +10,6 @@ X = 0,1,2 ... 359
 
 Rejects some models because they are difficult to process.
 
-TODO:
-   - postprocess more thorougly.
-
 File structures inside src/data:
 
     Full ensemble time series:
@@ -62,9 +59,9 @@ from intake import open_catalog
 import hydra
 import wandb
 from omegaconf import DictConfig
-from src.constants import NC_PATH, CONFIG_PATH, DATA_PATH
-from src.utils import timeit
-from src.xr_utils import sel, can_coords, spatial_mean, get_trend, get_clim
+from src.constants import NC_PATH, CONFIG_PATH, ENSEMBLE_CSV
+from src.utils import timeit, time_limit, TimeoutException
+from src.xr_utils import sel, spatial_mean, get_trend, get_clim
 from src.data_loading.regrid import (
     regrid_2d,
     regrid_2d_to_standard,
@@ -72,7 +69,8 @@ from src.data_loading.regrid import (
     regrid_1d,
 )
 
-
+OUTPUT_FORMAT = "NETCDF3_64BIT"
+# format=OUTPUT_FORMAT
 # from xarray.core.variable import Variable
 # This could definitely be moved to src/constants.py
 START_YEAR: str = "1958"
@@ -80,9 +78,18 @@ END_YEAR: str = "2017"
 DEFAULT_FUTURE_SCENARIO: str = "ssp585"
 
 # Different scenarios that we could choose from.
-SCENARIOS: List[str] = ["ssp126", "ssp245", "ssp370", "ssp585"]
+SCENARIOS: List[str] = [
+    "ssp119",
+    "ssp126",
+    "ssp245",
+    "ssp370",
+    "ssp434",
+    "ssp460",
+    "ssp585",
+]
 
 # Pangeo catalog url.
+CMIP6_INTAKE_URL = str("https://storage.googleapis.com/cmip6/pangeo-cmip6.json")
 PANGEO_CAT_URL = str(
     "https://raw.githubusercontent.com/pangeo-data/"
     + "pangeo-datastore/master/intake-catalogs/master.yaml"
@@ -138,10 +145,11 @@ DEFAULT_SUCCESS_LIST: List[str] = [
 # I think a lot of these modelling centres have problematic grids.
 # Unstructured grids cannot be interpolated using xESMf,
 # and both ESMpy and cdo seem to require the netcdf files to be fed into
-# the algorithm, which would require a step where the full objects are
-# transferred.
+# the algorithm, which would require a step where the full
+# netcdf objects are
+# downloaded to the machine you are working on.
 DEFAULT_REJECT_LIST: List[str] = [
-    "AWI",
+    "MPI-M" "AWI",
     "MRI",
     "CSIRO-ARCCSS",
     "CCCma",
@@ -281,6 +289,7 @@ class GetEnsemble:
         regrid: Literal["1d", "2d"] = "1d",
         output_folder: Optional[str] = None,
         regen_success_list: bool = False,
+        time_limit: int = 100,
         past: str = "historical",
         future: str = DEFAULT_FUTURE_SCENARIO,
         test: bool = False,
@@ -290,7 +299,6 @@ class GetEnsemble:
         Create the get ensemble instance and output the ensemble of netcdfs.
 
         TODO: add adequate unit tests to this crucial script.
-        TOOD: Add example to functions.
 
         Args:
             var (str, optional): Variable. Defaults to "ts".
@@ -302,9 +310,20 @@ class GetEnsemble:
                 nc/scenariomip/ts/
             regen_success_list (bool, optional): whether or not to regenerate
                 the success list. Defaults to False.
+            time_limit (int, optional): Time limit in seconds. Defaults to 100.
+            past (str, optional): past cmip experiment. Defaults to "historical".
+            future (str, optional): future scenariomip experiment. Defaults to "ssp585".
             test (bool, optional): Whether or not this is a test. If it is, it
                 only loads a single centre "INM". This makes tests quicker to run.
             wandb_run (Optional[wandb.sdk.wandb_run.Run]): wandb run.
+
+        Examples:
+            Download processed "ts" ensemble timeseries (i.e the default)::
+
+                from src.data_loading.pangeo import GetEnsemble
+
+                ens = GetEnsemble()
+                ens.ensemble_timeseries()
 
         """
         self.var: str = var
@@ -323,8 +342,10 @@ class GetEnsemble:
         self.output_folder = output_folder
         _folder(output_folder)
         self.wandb = wandb_run
+        self.time_limit = time_limit
 
         if test:
+            # just have a single test centre
             self.success_list = ["INM"]
         elif regen_success_list:
             self.success_list = self.get_sucess_list()
@@ -343,6 +364,8 @@ class GetEnsemble:
         2015 to end of 2099 - ssp585 experiment.
 
         """
+        # sel in xarray time is inclusive
+        # hence year end has to be 2014 to get to the end of it etc.
         self.da_lists[self.past] = self.get_var(
             experiment=self.past,
             year_begin="1940",
@@ -357,7 +380,9 @@ class GetEnsemble:
     @timeit
     def get_sucess_list(self) -> list:
         """
-        The only way to generate what will work seems to be trial and error.
+        The only way to work out what will work seems to be trial and error.
+
+        Sometimes the functions halt, hence I added a .
 
         Returns:
             list: success_list of model centres that I can preprocess.
@@ -379,16 +404,23 @@ class GetEnsemble:
             z_kwargs = {"consolidated": True, "decode_times": True}
 
             try:
-                with dask.config.set(**{"array.slicing.split_large_chunks": True}):
-                    dset_dict_proc = subset.to_dataset_dict(
-                        zarr_kwargs=z_kwargs, preprocess=_preproc
-                    )
+                with time_limit(self.time_limit):
+                    with dask.config.set(**{"array.slicing.split_large_chunks": True}):
+                        dset_dict_proc = subset.to_dataset_dict(
+                            zarr_kwargs=z_kwargs, preprocess=_preproc
+                        )
                 if len(dset_dict_proc) == 0:
                     empty_list.append(i)
+                    print(i, "is empty")
                 else:
                     success_list.append(i)
+                    print(i, "was a success")
                     for j in dset_dict_proc:
                         time_d[i] = dset_dict_proc[j].time.values[0]
+            except TimeoutException as e:
+                print(e)
+                print(i, "timed out")
+                failed_list.append(i)
             # pylint: disable=broad-except
             except Exception as e:
                 print(e)
@@ -396,6 +428,7 @@ class GetEnsemble:
                 failed_list.append(i)
 
         print("Success list", success_list)
+        print("Failed list", failed_list)
 
         return success_list
 
@@ -550,9 +583,10 @@ class GetEnsemble:
                         os.path.join(
                             self.output_folder,
                             self._file_name(instit, model, member_id),
-                        )
+                        ),
                         # save some space
                         # encoding={self.var: {"dtype": "f8"}}
+                        format=OUTPUT_FORMAT,
                     )
                 else:
                     print("problem with " + model + " " + member_id)
@@ -588,14 +622,7 @@ class GetEnsemble:
 
     def _clip(self, da: xr.DataArray) -> xr.DataArray:
         """Clip variable between limits if they exist."""
-        if "limits" in VAR_PROP_D[self.var]:
-            return da.clip(
-                min=VAR_PROP_D[self.var]["limits"][0],
-                max=VAR_PROP_D[self.var]["limits"][1],
-                keep_attrs=True,
-            )
-        else:
-            return da
+        return da_clip(da, self.var)
 
     def _mmm_attrs(self, da: xr.DataArray) -> xr.DataArray:
         """Modify variable names to make it obvious that this is a mean."""
@@ -654,7 +681,8 @@ class GetEnsemble:
                 os.path.join(
                     _folder_name(self.var, self.past + "." + self.future + ".mean"),
                     self._file_name(instit, model, member_id),
-                )
+                ),
+                format=OUTPUT_FORMAT,
             )
             clim = self._climatology_attrs(get_clim(member_da))
             clim = self._wandb(clim, stage_str="climatology")
@@ -664,7 +692,8 @@ class GetEnsemble:
                         self.var, self.past + "." + self.future + ".climatology"
                     ),
                     self._file_name(instit, model, member_id),
-                )
+                ),
+                format=OUTPUT_FORMAT,
             )
             trend = self._trend_attrs(get_trend(member_da))
             trend = self._wandb(trend, stage_str="climatology")
@@ -672,7 +701,8 @@ class GetEnsemble:
                 os.path.join(
                     _folder_name(self.var, self.past + "." + self.future + ".trend"),
                     self._file_name(instit, model, member_id),
-                )
+                ),
+                format=OUTPUT_FORMAT,
             )
 
     # NINO3.4
@@ -906,11 +936,6 @@ def load_mfda(files_path: str, var: str) -> xr.DataArray:
     return load_mfds(files_path, var)[var]
 
 
-def _print_scenario_sel():
-    for scenario in SCENARIOS:
-        print(can_coords(load_mfda(_scenariomip_data(scenario=scenario), "ts")))
-
-
 def _member_name_from_da(da: xr.DataArray) -> str:
     """Member name from da already referenced by member.
 
@@ -1051,6 +1076,28 @@ def plausible_temperatures(values: np.ndarray) -> bool:
     return np.all(too_high) and np.all(too_low) and np.all(not_nan)
 
 
+def da_clip(da: xr.DataArray, var: str) -> xr.DataArray:
+    """
+    Clip variable between limits if they exist.
+
+
+    Args:
+        da (xr.DataArray): The dataarray.
+        var (str): Variable string.
+
+    Returns:
+        xr.DataArray: The dataarray.
+    """
+    if "limits" in VAR_PROP_D[var]:
+        return da.clip(
+            min=VAR_PROP_D[var]["limits"][0],
+            max=VAR_PROP_D[var]["limits"][1],
+            keep_attrs=True,
+        )
+    else:
+        return da
+
+
 def test_if_regridding_ok() -> None:
     """Trying to test if different regridding methods each work."""
     import matplotlib.pyplot as plt
@@ -1085,6 +1132,7 @@ def members_df() -> pd.DataFrame:
             var=var,
             regen_success_list=False,
         )
+        # pylint: disable=protected-access
         var_dict[var] = ens._member_list()
         combined_list = [*combined_list, *var_dict[var]]
 
@@ -1123,14 +1171,12 @@ def minimal_members_ensemble() -> List[str]:
     Returns:
         List[str]: Ensemble member name string list.
     """
-    return minimal_ensemble(
-        pd.read_csv(DATA_PATH / "ensemble_variable_members.csv", index_col=0)
-    )
+    return minimal_ensemble(pd.read_csv(ENSEMBLE_CSV, index_col=0))
 
 
 def members_csv() -> None:
     """Make members csv so that I can transfer it."""
-    members_df().to_csv(DATA_PATH / "ensemble_variable_members.csv")
+    members_df().to_csv(ENSEMBLE_CSV)
 
 
 @timeit
@@ -1154,14 +1200,16 @@ def main(cfg: DictConfig) -> None:
     ens = GetEnsemble(
         var=cfg.var,
         regen_success_list=cfg.regen_success_list,
+        time_limit=cfg.time_limit,
         wandb_run=wandb_run,
+        past=cfg.past,
+        future=cfg.future,
     )
     if cfg.ensemble_timeseries:
         ens.ensemble_timeseries()
     if cfg.regenerate_members_csv:
         members_csv()
     if cfg.ensemble_derivatives:
-        print(ens._member_list())
         ens.ensemble_derivatives()
     if cfg.mmm_derivatives:
         ens.mmm_derivatives()

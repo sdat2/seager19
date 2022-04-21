@@ -372,7 +372,7 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
 
 
 def add_units(
-    xr_obj: Union[xr.DataArray, xr.Dataset], x_val="X", y_val="Y"
+    xr_obj: Union[xr.DataArray, xr.Dataset], x_val: str="X", y_val: str="Y"
 ) -> Union[xr.DataArray, xr.Dataset]:
     """
     Adding good units to make axes plottable.
@@ -385,6 +385,8 @@ def add_units(
     Args:
         xr_da (Union[xr.DataArray, xr.Dataset]: Initial datarray/datset
             (potentially with units for axes).
+        x_val (str): Defaults to "X"
+        y_val (str): Defaults to "Y"
 
     Returns:
         Union[xr.DataArray, xr.Dataset]: Datarray/Dataset with correct

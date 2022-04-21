@@ -7,13 +7,31 @@ import numpy as np
 import pandas as pd
 import wandb
 import logging
+from uncertainties import ufloat
 from omegaconf import DictConfig, OmegaConf
 from subprocess import PIPE, run
-from src.constants import DATA_PATH, run_path
+from src.utils import timeit
+from src.constants import DATA_PATH, run_path, DEFAULT_PROJECT
 from src.models.model_setup import ModelSetup
-
+from src.mem_to_input import mems_to_df
 
 log = logging.getLogger(__name__)
+
+
+def _get_runs(project: str = DEFAULT_PROJECT) -> wandb.Api.runs:
+    """
+    Get the wandb runs using the api.
+
+    Args:
+        project (str, optional): Wandb run. E.g. "sdat2/seager19".
+            Defaults to DEFAULT_PROJECT.
+
+    Returns:
+        wandb.Api.runs: _description_
+    """
+    api = wandb.Api(timeout=20)
+    # Project is specified by <entity/project-name>
+    return api.runs(project)
 
 
 def get_v(inp: str) -> str:
@@ -67,14 +85,11 @@ def start_wandb(cfg: DictConfig, unit_test: bool = False) -> None:
         print({"gfortran": get_v("gfortran -v"), "gcc": get_v("gcc -v")})
 
 
-def get_full_csv() -> pd.DataFrame:
+def get_full_csv(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
     """
     Get the full csv.
     """
-    api = wandb.Api()
-
-    # Project is specified by <entity/project-name>
-    runs = api.runs("sdat2/seager19")
+    runs = _get_runs(project=project)
     summary_list = []
     config_list = []
     name_list = []
@@ -125,16 +140,14 @@ def get_wandb_data(save_path: Optional[str] = None) -> pd.DataFrame:
     return df
 
 
-def finished_names() -> List[str]:
+def finished_names(project: str = DEFAULT_PROJECT) -> List[str]:
     """
     Return all the finished run names.
 
     Returns:
         List[str]: list of run names.
     """
-    api = wandb.Api()
-    # Project is specified by <entity/project-name>
-    runs = api.runs("sdat2/seager19")
+    runs = _get_runs(project=project)
     name_list = [rn.name for rn in runs if rn.state == "finished"]
     return name_list
 
@@ -149,6 +162,7 @@ def metric_conv_data(
     ],
     control_variable_list=[(("atm", "k_days"), 10), (("atm", "e_frac"), 2)],
     index_by: tuple = ("coup", "c_d"),
+    project: str = DEFAULT_PROJECT,
 ) -> Tuple[dict, dict]:
     """
     Generate the data for the convergence of a particular item.
@@ -159,11 +173,9 @@ def metric_conv_data(
         metric_name (str, optional): Which keyword to use. Defaults to "mean_pac".
 
     Returns:
-        dict: A dictionary with the relevant metrics in.
+        Tuple[dict, dict]: metric_dict, setup_dict.
     """
-    api = wandb.Api()
-    # Project is specified by <entity/project-name>
-    runs = api.runs("sdat2/seager19")
+    runs = _get_runs(project=project)
 
     def check_controls(config: DictConfig) -> bool:
         truth_list = []
@@ -226,6 +238,7 @@ def didnt_blow_up(rn: wandb.apis.public.Run) -> bool:
     Returns:
         bool: whether there was any blow up during the run.
     """
+    # limits (degrees celsius).
     limits = {"mean_pac": [15, 30], "mean_nino3.4": [20, 30]}
     results = []
     rn_hist = rn.scan_history(keys=list(limits.keys()))
@@ -249,7 +262,7 @@ def fix_config(config: Union[dict, DictConfig]) -> DictConfig:
         config (Union[dict, DictConfig]): config dictionary.
 
     Returns:
-        DictConfig:
+        DictConfig: original configuration.
     """
     if isinstance(config, dict):
         for i in config:
@@ -266,10 +279,10 @@ def archive_dir_from_config(cfg: Union[DictConfig, dict]) -> str:
     Get the archived folder from the names stored online.
 
     Args:
-        cfg (Union[DictConfig, dict]): The cfg
+        cfg (Union[DictConfig, dict]): The config from the run.
 
     Returns:
-        str: [description]
+        str: The archive directory path string.
     """
     if "archive_dir" not in cfg:
         cfg["archive_dir"] = "unknown"
@@ -293,11 +306,16 @@ def setup_from_config(cfg: DictConfig) -> ModelSetup:
     return ModelSetup(archive_dir_from_config(cfg), cfg, make_move=False)
 
 
-def setup_from_name(name: str) -> ModelSetup:
-    """Get the model setup from a name."""
-    api = wandb.Api(timeout=20)
-    # Project is specified by <entity/project-name>
-    runs = api.runs("sdat2/seager19")
+def setup_from_name(name: str, project: str = DEFAULT_PROJECT) -> ModelSetup:
+    """Get the model setup from a name.
+
+    Args:
+        name (str): model name.
+
+    Returns:
+        ModelSetup: The model setup object.
+    """
+    runs = _get_runs(project=project)
     for rn in runs:  # [x for x in runs][0:13]:
         if name == rn.name:
             config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
@@ -307,7 +325,7 @@ def setup_from_name(name: str) -> ModelSetup:
     return setup
 
 
-def _other_tests():
+def _other_tests() -> None:
     """Private function to store test."""
     metric_d, _ = metric_conv_data(
         metric_name="trend_nino3.4",
@@ -342,9 +360,15 @@ def _other_tests():
     print(metric_d)
 
 
-def cd_variation_comp(e_frac=0.5) -> dict:
+def cd_variation_comp(e_frac: float = 0.5) -> dict:
     """
     Vary drag coefficient and get the final metric.
+
+    Args:
+        e_frac (float): Defaults to 0.5.
+
+    Returns:
+        dict: mem_dict.
     """
     mem_dict = {}
     for mem in ["EEEE", "EECE", "EEEC", "EECC"]:
@@ -374,6 +398,243 @@ def cd_variation_comp(e_frac=0.5) -> dict:
     return mem_dict
 
 
+def _get_cfg(rn) -> DictConfig:
+    config = {k: v for k, v in rn.config.items() if not k.startswith("_")}
+    config["name"] = rn.name
+    return fix_config(config)
+
+
+PARAM = ["c_d", "eps_days", "eps_frac", "vary_cloud_const"]
+PARAM_HYDRA = ["coup.c_d", "atm.eps_days", "atm.e_frac", "atm.vary_cloud_const"]
+
+RESULTS = [
+    "trend_nino3.4 [degC]",
+    "mean_nino3.4 [degC]",
+    "mean_pac [degC]",
+]
+
+
+@timeit
+def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
+    """
+    Key input parameters, key output parameters, in a simple dataframe.
+
+    index=number
+
+    paramters=mem, ${ts}${clt}${sfcwind}${rh}${pr}${ps}${tau}, c_d, eps_frac, eps,
+
+    Key indexes: trend_nino3.4, mean_nino3.4,  mean_pac
+
+    Args:
+        project (str, optional): Which weights and biases project to scan.
+            Defaults to DEFAULT_PROJECT.
+
+    Returns:
+        pd.DataFrame: A dataframe.
+    """
+    runs = _get_runs(project=project)
+    mem_list = []
+    metric_l = PARAM + RESULTS
+    metric_d = {key: [] for key in metric_l}
+
+    for rn in runs:
+        cfg = _get_cfg(rn)
+        summary = rn.summary
+        try:
+            res = [
+                cfg.coup.c_d,
+                cfg.atm.eps_days,
+                cfg.atm.e_frac,
+                cfg.atm.vary_cloud_const,
+                summary["trend_nino3.4"],
+                summary["mean_nino3.4"],
+                summary["mean_pac"],
+            ]
+            for i, key in enumerate(metric_l):
+                metric_d[key].append(res[i])
+            mem_list.append(cfg.atm.mem)
+        # pylint: disable=broad-except
+        except Exception as e:
+            print(e)
+
+    metric_df = pd.DataFrame(metric_d)
+    mem_df = mems_to_df(mem_list).reset_index(0)
+    combined_df = pd.concat([mem_df, metric_df], axis=1, join="inner")
+
+    return combined_df
+
+
+@timeit
+def _aggregate_matches(
+    summary_df: pd.DataFrame, filter_df: pd.DataFrame
+) -> List[pd.DataFrame]:
+    df_list = []
+    for _, row in filter_df.iterrows():
+        # print(i, row)]
+        df = summary_df
+        for column_number, entry in enumerate(row):
+            column = filter_df.columns[column_number]
+            # print(i, filter_df.columns[column_number], entry)
+            df = df[df[column] == entry]
+        df_list.append(df)
+    return df_list
+
+
+def find_missing(df_list: List[pd.DataFrame], param: List[str] = PARAM) -> None:
+    """
+    Find which runs are missing from the project and print the commands to add them in.
+
+    Args:
+        df_list (List[pd.DataFrame]): list of dataframes by initial aggregation.
+        param (List[str], optional): Parameters to compare. Defaults to PARAM.
+    """
+    missing_list = []
+    prefix = "python src/main.py "
+    new_df_list = []
+    for df in df_list:
+        new_df_list.append(df[param])
+    big_df = pd.concat(new_df_list)
+    unique = big_df.groupby(param).size().reset_index().rename(columns={0: "count"})
+    # print(unique)
+    for df in df_list:
+        for _, row in unique.iterrows():
+            new_df = df.copy()
+            for column_number, entry in enumerate(row):
+                column = unique.columns[column_number]
+                # print(i, filter_df.columns[column_number], entry)
+                if column != "count":
+                    new_df = new_df[new_df[column] == entry]
+            if len(new_df) == 0 and len(df) != 0:
+                # print("\n MISSING \n", df["index"].to_numpy()[0], "\n", row)
+                command = prefix + "atm.mem=" + df["index"].to_numpy()[0]
+                for i, par in enumerate(param):
+                    command += " " + PARAM_HYDRA[i] + "=" + str(row[par])
+                missing_list.append(command)
+
+    for item in missing_list:
+        print(item)
+    print("MISSING: ", len(missing_list))
+
+
+def aggregate_matches(
+    summary_df: pd.DataFrame,
+    filter_df: pd.DataFrame,
+    results: List[str] = RESULTS,
+    include_std_dev: bool = True,
+) -> pd.DataFrame:
+    """
+    Aggregate the matches between two dataframes to find the
+    mean and std devation of a set of results.
+
+    Args:
+        summary_df (pd.DataFrame): The summary df create by summary_table.
+        filter_df (pd.DataFrame): The dataframe to filter by.
+        results (List[str], optional): _description_. Defaults to RESULTS.
+        include_std_dev (bool, optional): Whether to calculate standard devation. Defaults to True.
+
+    Returns:
+        pd.DataFrame: Includes uncertainty.ufloat values if include_std_dev=True.
+    """
+    df_list = _aggregate_matches(summary_df, filter_df)
+    results_d = {result: [] for result in results}
+    member_l = []
+    for df in df_list:
+        members = len(df)
+        member_l.append(members)
+        for result in results_d:
+            if include_std_dev and members != 0:
+                results_d[result].append(ufloat(df[result].mean(), df[result].std()))
+            else:
+                results_d[result].append(df[result].mean())
+    for result in results_d:
+        filter_df[result] = results_d[result]
+    filter_df["N"] = member_l
+    find_missing(df_list)
+    return filter_df
+
+
+DEFAULT_MEM_LIST: List[str] = ["EEEE", "EECE", "EEEC", "EECC"]
+
+
+def aggregate_table(
+    project: str = DEFAULT_PROJECT,
+    mem_list: List[str] = DEFAULT_MEM_LIST,
+) -> pd.DataFrame:
+    """
+    _summary_
+
+    _extended_summary_
+
+    Args:
+        project (str, optional): _description_. Defaults to DEFAULT_PROJECT.
+        mem_list (List[str], optional): _description_. Defaults to DEFAULT_MEM_LIST.
+
+    Returns:
+        pd.DataFrame: _description_
+    """
+    return aggregate_matches(summary_table(project=project), mems_to_df(mem_list))
+
+
+def _add_change_column(
+    df: pd.DataFrame, initial_variable: str = "trend_nino3.4 [degC]"
+) -> Tuple[pd.DataFrame, str]:
+    new_variable = "change " + initial_variable
+    df[new_variable] = df[initial_variable] - df[initial_variable].to_numpy()[0]
+    return df, new_variable
+
+
+def _remove_row(df: pd.DataFrame, row_index: str = "EEEE") -> pd.DataFrame:
+    df_new = df.copy()
+    return df_new.drop(row_index)
+
+
+def change_table(
+    project: str = DEFAULT_PROJECT,
+    mem_list: List[str] = DEFAULT_MEM_LIST,
+) -> Tuple[pd.DataFrame, str]:
+    """
+    Return a table with the differences between ECMWF run and the different inputs
+
+    Args:
+        project (str, optional): Which project to read.
+        Defaults to DEFAULT_PROJECT.
+        mem_list (List[str], optional): What list of inputs to compare.
+        Defaults to DEFAULT_MEM_LIST.
+
+    Returns:
+        Tuple[pd.DataFrame, str]: The change table, and the name of the new variable column.
+    """
+    table = aggregate_table(project=project, mem_list=mem_list)
+    table, new_variable = _add_change_column(table)
+    table = _remove_row(table)
+    # print(table[new_variable])
+    return table[[x for x in table.columns if x not in RESULTS]], new_variable
+
+
+def output_fig_2_data(project: str = DEFAULT_PROJECT) -> Tuple[List[pd.DataFrame], str]:
+    """
+    Output the figure 2 data for plotting.
+
+    Args:
+        project (str, optional): Wandb project to read. Defaults to DEFAULT_PROJECT.
+
+    Returns:
+        Tuple[List[pd.DataFrame], str]: The change table,
+        and the name of the new variable column.
+    """
+    table_list = []
+    for mem_list in [
+        ["EEEE", "EECE", "EEEC", "EECC"],
+        ["EEEE", "EESE", "EEES", "EESS"],
+    ]:
+        table, new_variable = change_table(project=project, mem_list=mem_list)
+        table_list.append(table)
+    return table_list, new_variable
+
+
 if __name__ == "__main__":
     # python src/wandb_utils.py
-    _other_tests()
+    # _other_tests()
+    output_fig_2_data("sdat2/ENSOTrend-gamma")
+    # print(summary_table(project="sdat2/ENSOTrend-beta"))
+    # print(summary_table(project="sdat2/ENSOTrend-gamma"))

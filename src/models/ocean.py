@@ -110,23 +110,33 @@ class Ocean:
             )
 
             string_list = replace_item(
-                self.setup.tau_base(0, path=False), self.cfg.oc.wind_file, string_list
+                self.setup.tau_base(0, path=False),
+                self.setup.stress_file(),
+                string_list,
             )
             string_list = replace_item(
                 self.setup.tau_clim_base(0, path=False),
-                self.cfg.oc.wind_clim_file,
+                self.setup.stress_clim_file(),
                 string_list,
             )
             string_list = replace_item(
                 self.setup.dq_dt(0, path=False),
-                self.cfg.oc.dq_dtemp_file,
+                self.setup.dq_dtemp_file(),
                 string_list,
             )
             string_list = replace_item(
                 self.setup.dq_df(0, path=False),
-                self.cfg.oc.dq_df_file,
+                self.setup.dq_df_file(),
                 string_list,
             )
+            # TODO: Need SST clim added?
+            string_list = replace_item(
+                self.setup.sst_file(),
+                self.setup.sst_replacement_file(),
+                string_list,
+            )
+
+            self.setup.clim_file("sst", "clim", path=False)
 
             if i == "om_test":
                 string_list = replace_item(
@@ -169,7 +179,7 @@ class Ocean:
 
     def edit_inputs(self, it: int) -> None:
         """
-        Edit the input files.
+        Edit the input files for each iteration.
 
         Args:
             it (int): The iteration number.
@@ -189,7 +199,6 @@ class Ocean:
                 self.setup.tau_clim_base(it, path=False),
                 string_list,
             )
-
             string_list = replace_item(
                 self.setup.tau_base(it - 1, path=False),
                 self.setup.tau_base(it, path=False),
@@ -205,7 +214,6 @@ class Ocean:
                 self.setup.dq_dt(it, path=False),
                 string_list,
             )
-
             with open(file_name, "w") as write_file:
                 write_file.writelines(string_list)
 
