@@ -86,8 +86,8 @@ def _add_xticks(ax: matplotlib.axes.Axes, mem_list: List[str], val_list: List[uf
     xlabels = [
         str(
             name_dict[mem_list[i]]
-            + "\n +"
-            + tex_uf(val_list[i], bracket=False)
+            + "\n "
+            + tex_uf(val_list[i], bracket=False, exponential=False)
             + " "
             + unit
         )
@@ -95,9 +95,10 @@ def _add_xticks(ax: matplotlib.axes.Axes, mem_list: List[str], val_list: List[uf
     ]
     print(xticks, xlabels)
     # xlabels = xticks
-    ax.set_xticks(xticks, xlabels)
-    plt.xticks(xticks, xlabels, fontsize=6)
-    print(xticks, xlabels)
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xlabels, fontsize=6)
+    # plt.xticks(xticks, xlabels, fontsize=6)
+    # print(xticks, xlabels)
 
 
 def arrow_plot(
@@ -127,6 +128,7 @@ def arrow_plot(
             arrow_plot(project="sdat2/seager19", show_plots=True)
     """
     plt.clf()
+    ps_defaults(use_tex=False)
     fig, axs = plt.subplots(1, 2, sharey=True)
     set_dim(fig, ratio=0.4)
     table_list, variable = output_fig_2_data(project=project)
