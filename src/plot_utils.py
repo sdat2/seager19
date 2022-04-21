@@ -415,7 +415,8 @@ def tex_uf(
             the parameter. Defaults to False.
         force_latex (bool, optional): Whether to force latex output.
     Defaults to False. If false will check matplotlib.rcParams first.
-        exponential (bool, optional): Whether to put in scientific notation. Defaults to True
+        exponential (bool, optional): Whether to put in scientific notation.
+    Defaults to True
 
 
     Returns:
@@ -443,15 +444,15 @@ def tex_uf(
 def axis_formatter() -> matplotlib.ticker.ScalarFormatter:
     """Returns axis formatter for scientific notation.
 
-    Returns an object that does the equivalent of:
+        Returns an object that does the equivalent of:
 
-        >>> plt.gca().ticklabel_format(
-        >>>    axis=ax_format, style="sci", scilimits=(0, 0), useMathText=True
-        >>> )
+            >>> plt.gca().ticklabel_format(
+            >>>    axis=ax_format, style="sci", scilimits=(0, 0), useMathText=True
+            >>> )
 
-    Returns:
-        matplotlib.ticker.ScalarFormatter: An object to pass in to a
-            matplotlib operation.
+        Returns:
+            matplotlib.ticker.ScalarFormatter: An object to pass in to a
+    matplotlib operation.
 
     """
 

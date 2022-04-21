@@ -107,25 +107,26 @@ def arrow_plot(
     show_plots: bool = False,
 ) -> None:
     """
-    Make the automated arrow plot on a particular project.
+        Make the automated arrow plot on a particular project.
 
-    TODO: Fix the xticks - currently not visibile.
+        TODO: Fix the xticks - currently not visibile.
 
-    Args:
-        project (str, optional): Which wandb project to read.
-        Defaults to "sdat2/ENSOTrend-gamma".
-        save_path (Optional[Union[str, bool]], optional): Where to save plot to. Defaults to None.
-        show_plots (bool, optional): Whether to keep plots
-        open for jupyter-notebook. Defaults to False.
+        Args:
+            project (str, optional): Which wandb project to read.
+            Defaults to "sdat2/ENSOTrend-gamma".
+            save_path (Optional[Union[str, bool]], optional): Where to save plot to.
+    Defaults to None.
+            show_plots (bool, optional): Whether to keep plots
+            open for jupyter-notebook. Defaults to False.
 
-    Examples:
-        Example of using function inside a jupyter notebook::
+        Examples:
+            Example of using function inside a jupyter notebook::
 
-            from src.visualisation.arrow import arrow_plot
+                from src.visualisation.arrow import arrow_plot
 
-            arrow_plot(project="sdat2/ENSOTrend-gamma", show_plots=True)
-            arrow_plot(project="sdat2/ENSOTrend-beta", show_plots=True)
-            arrow_plot(project="sdat2/seager19", show_plots=True)
+                arrow_plot(project="sdat2/ENSOTrend-gamma", show_plots=True)
+                arrow_plot(project="sdat2/ENSOTrend-beta", show_plots=True)
+                arrow_plot(project="sdat2/seager19", show_plots=True)
     """
     plt.clf()
     ps_defaults(use_tex=False)
@@ -574,7 +575,7 @@ def plot_results_xr() -> None:
 
 if __name__ == "__main__":
     # python src/visualisation/arrow.py
-    new_arrow_plot()
+    arrow_plot()
     # print(RESULTS_XR)
     # plot_results_xr()
     # plot_arrow_plot_6(save_path=os.path.join(FIGURE_PATH, "mech_arrow_cmip6.pdf"))
