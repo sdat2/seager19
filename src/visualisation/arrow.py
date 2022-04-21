@@ -1,15 +1,135 @@
 """Arrow plots for mechanism."""
 import os
 from collections import OrderedDict
+from re import I
 from typing import Optional
 import numpy as np
 import xarray as xr
+import matplotlib
 import matplotlib.pyplot as plt
-from src.plot_utils import ps_defaults
+from src.plot_utils import ps_defaults, set_dim, tex_uf, label_subplots
 from src.constants import FIGURE_PATH
+from src.wandb_utils import output_fig_2_data
+
+ECMWF_TREND = 0.411
+CMIP5_TREND = 0.889
+CMIP6_TREND = 0.772
+COLOR_L = ["blue", "green", "orange", "red"]
+CMIP_TREND_L = [CMIP5_TREND, CMIP6_TREND]
 
 
-def plot_arrow_plot(save_path: Optional[str] = None, show_plots: bool = False) -> None:
+def _plot_error(
+    ax: matplotlib.axes.Axes, x: float, y: float, yerr: float, color: str
+) -> None:
+    y = y + ECMWF_TREND
+    ax.fill_between(
+        [x - 0.2, x + 0.2],
+        [y + yerr, y + yerr],
+        [y - yerr, y - yerr],
+        color=color,
+        alpha=0.5,
+    )
+    ax.plot([x - 0.2, x + 0.2], [y, y], "black", linewidth=1)
+
+
+def _plot_arrow(
+    ax: matplotlib.axes.Axes,
+    x_val: float,
+    y_val: float,
+) -> None:
+    head_length = 0.03
+    decrease_arrow = 0.00
+    head_width = 0.03
+    # ax.arrow(0, 0, 0, 1, head_width=0.02, head_length=0.02, fc='k', ec='k')
+    if y_val > head_width:
+        ax.arrow(
+            x_val,
+            ECMWF_TREND,
+            0,
+            y_val - head_length - decrease_arrow,
+            head_width=head_width,
+            head_length=head_length,
+            fc="k",
+            ec="k",
+        )
+
+
+def _horizontal_line(ax, y_val, color=COLOR_L[0]):
+    ax.plot([0.5, 3.5], [y_val, y_val], color=color)
+
+
+def _setup_ax(ax, cmip_trend):
+    ax.set_xlim([0.5, 3.5])
+    ax.set_xticks([])
+    _horizontal_line(ax, ECMWF_TREND, color=COLOR_L[0])
+    _horizontal_line(ax, cmip_trend, color=COLOR_L[3])
+
+
+def _add_xticks(ax, mem_list, val_list):
+    unit = "K"
+    name_dict = {
+        "EECC": "RH+W",
+        "EECE": "W",
+        "EEEC": "RH",
+        "EESS": "RH+W",
+        "EESE": "W",
+        "EEES": "RH",
+    }
+    xticks = [x + 1 for x in range(len(mem_list))]
+    xlabels = [
+            str(name_dict[mem_list[i]] + "\n +" + tex_uf(val_list[i]) + " " + unit)
+            for i in range(len(mem_list))
+        ]
+    ax.set_xticks(
+        xticks, xlabels
+    )
+    print(xticks, xlabels)
+
+
+def new_arrow_plot(
+    project="sdat2/ENSOTrend-gamma",
+    save_path: Optional[str] = None,
+    show_plots: bool = False,
+) -> None:
+    plt.clf()
+    fig, axs = plt.subplots(1, 2, sharey=True)
+    set_dim(fig, ratio=0.4)
+    table_list, variable = output_fig_2_data(project=project)
+    # print(table_list, ECMWF_TREND, CMIP5_TREND, CMIP6_TREND)
+    for i, table in enumerate(table_list):
+        val_list = []
+        mem_list = []
+        print(ECMWF_TREND)
+        j = 0
+        _setup_ax(axs[i], CMIP_TREND_L[i])
+        for mem, row in table.iterrows():
+            j += 1
+            print(i, mem, row[variable], COLOR_L[j])
+            ufloat_val = row[variable]
+            val_list.append(ufloat_val)
+            mem_list.append(mem)
+            nom = ufloat_val.n
+            unc = ufloat_val.s
+            _plot_error(axs[i], j, nom, unc, COLOR_L[j])
+            _plot_arrow(axs[i], j, nom)
+        _add_xticks(axs[i], mem_list, val_list)
+        print("Difference {:.3}".format(CMIP_TREND_L[i] - ECMWF_TREND))
+    axs[0].set_ylabel("60 year nino3.4 trend [K]")
+    # axs[1].set_yticks([])
+    axs[1].set_ylabel("")
+    label_subplots(axs)
+    plt.tight_layout()
+    if save_path is not None:
+        plt.savefig(save_path, bbox_inches="tight")
+    if show_plots:
+        plt.show()
+    else:
+        plt.clf()
+
+
+def origninal_arrow_plot(
+    save_path: Optional[str] = None, show_plots: bool = False
+) -> None:
     """
     Plot the arrow plot to show that I have reproduced the paper.
 
@@ -414,7 +534,8 @@ def plot_results_xr() -> None:
 
 if __name__ == "__main__":
     # python src/visualisation/arrow.py
-    print(RESULTS_XR)
-    plot_results_xr()
+    new_arrow_plot()
+    # print(RESULTS_XR)
+    # plot_results_xr()
     # plot_arrow_plot_6(save_path=os.path.join(FIGURE_PATH, "mech_arrow_cmip6.pdf"))
     # plot_arrow_plot_6(save_path=os.path.join(FIGURE_PATH, "mech_arrow_cmip6.png"))

@@ -481,14 +481,21 @@ def _aggregate_matches(
 
 
 def find_missing(df_list: List[pd.DataFrame], param: List[str] = PARAM) -> None:
+    """
+    Find which runs are missing from the project and print the commands to add them in.
+
+    Args:
+        df_list (List[pd.DataFrame]): list of dataframes by initial aggregation.
+        param (List[str], optional): Parameters to compare. Defaults to PARAM.
+    """
     missing_list = []
-    prefix = "python src/main.py"
+    prefix = "python src/main.py "
     new_df_list = []
     for df in df_list:
         new_df_list.append(df[param])
     big_df = pd.concat(new_df_list)
     unique = big_df.groupby(param).size().reset_index().rename(columns={0: "count"})
-    print(unique)
+    # print(unique)
     for df in df_list:
         for _, row in unique.iterrows():
             new_df = df.copy()
@@ -498,7 +505,7 @@ def find_missing(df_list: List[pd.DataFrame], param: List[str] = PARAM) -> None:
                 if column != "count":
                     new_df = new_df[new_df[column] == entry]
             if len(new_df) == 0 and len(df) != 0:
-                print("\n MISSING \n", df["index"].to_numpy()[0], "\n", row)
+                # print("\n MISSING \n", df["index"].to_numpy()[0], "\n", row)
                 command = prefix + "atm.mem=" + df["index"].to_numpy()[0]
                 for i, par in enumerate(param):
                     command += " " + PARAM_HYDRA[i] + "=" + str(row[par])
@@ -506,7 +513,7 @@ def find_missing(df_list: List[pd.DataFrame], param: List[str] = PARAM) -> None:
 
     for item in missing_list:
         print(item)
-    print(len(missing_list))
+    print("MISSING: ", len(missing_list))
 
 
 def aggregate_matches(
@@ -546,11 +553,49 @@ def aggregate_matches(
     return filter_df
 
 
-def output_fig_2_data(project: str = DEFAULT_PROJECT) -> None:
-    mem_list = ["EEEE", "EESE", "EEES", "EESS"]
-    print(aggregate_matches(summary_table(project=project), mems_to_df(mem_list)))
-    mem_list = ["EEEE", "EECE", "EEEC", "EECC"]
-    print(aggregate_matches(summary_table(project=project), mems_to_df(mem_list)))
+DEFAULT_MEM_LIST: List[str] = ["EEEE", "EECE", "EEEC", "EECC"]
+
+
+def aggregate_table(
+    project: str = DEFAULT_PROJECT,
+    mem_list: List[str] = DEFAULT_MEM_LIST,
+) -> pd.DataFrame:
+    return aggregate_matches(summary_table(project=project), mems_to_df(mem_list))
+
+
+def _add_change_column(
+    df: pd.DataFrame, initial_variable: str = "trend_nino3.4 [degC]"
+) -> Tuple[pd.DataFrame, str]:
+    new_variable = "change " + initial_variable
+    df[new_variable] = df[initial_variable] - df[initial_variable].to_numpy()[0]
+    return df, new_variable
+
+
+def _remove_row(df: pd.DataFrame, row_index: str = "EEEE") -> pd.DataFrame:
+    df_new = df.copy()
+    return df_new.drop(row_index)
+
+
+def change_table(
+    project: str = DEFAULT_PROJECT,
+    mem_list: List[str] = DEFAULT_MEM_LIST,
+) -> Tuple[pd.DataFrame, str]:
+    table = aggregate_table(project=project, mem_list=mem_list)
+    table, new_variable = _add_change_column(table)
+    table = _remove_row(table)
+    # print(table[new_variable])
+    return table[[x for x in table.columns if x not in RESULTS]], new_variable
+
+
+def output_fig_2_data(project: str = DEFAULT_PROJECT) -> Tuple[List[pd.DataFrame], str]:
+    table_list = []
+    for mem_list in [
+        ["EEEE", "EECE", "EEEC", "EECC"],
+        ["EEEE", "EESE", "EEES", "EESS"],
+    ]:
+        table, new_variable = change_table(project=project, mem_list=mem_list)
+        table_list.append(table)
+    return table_list, new_variable
 
 
 if __name__ == "__main__":
