@@ -372,7 +372,7 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
 
 
 def add_units(
-    xr_obj: Union[xr.DataArray, xr.Dataset], x_val: str="X", y_val: str="Y"
+    xr_obj: Union[xr.DataArray, xr.Dataset], x_val: str = "X", y_val: str = "Y"
 ) -> Union[xr.DataArray, xr.Dataset]:
     """
     Adding good units to make axes plottable.
@@ -402,7 +402,7 @@ def add_units(
     return xr_obj
 
 
-def tex_uf(uf: ufloat, bracket: bool = False) -> str:
+def tex_uf(uf: ufloat, bracket: bool = False, force_latex=False) -> str:
     """
     A function to take an uncertainties.ufloat, and return a tex containing string
     for plotting, which has the right number of decimal places.
@@ -411,15 +411,24 @@ def tex_uf(uf: ufloat, bracket: bool = False) -> str:
         uf (ufloat): The uncertainties ufloat object.
         bracket (bool, optional): Whether or not to add latex brackets around
             the parameter. Defaults to False.
+        force_latex (bool, optional): Whether to force latex output.
+    Defaults to False. If false will check matplotlib.rcParams first.
 
     Returns:
         str: String ready to be added to a graph label.
     """
     dp = round(np.log10(abs(uf.n)) - np.log10(abs(uf.s)))
-    if bracket:
-        fs = "$ \\left( {:." + str(dp) + "eL} \\right) $"
+    # check if Latex is engaged
+    if matplotlib.rcParams["text.usetex"] is True or force_latex:
+        if bracket:
+            fs = "$\\left( {:." + str(dp) + "eL} \\right)$"
+        else:
+            fs = "${:." + str(dp) + "eL}$"
     else:
-        fs = "${:." + str(dp) + "eL}$"
+        if bracket:
+            fs = "({:." + str(dp) + "eP})"
+        else:
+            fs = "{:." + str(dp) + "eP}"
     return fs.format(uf)
 
 

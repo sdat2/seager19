@@ -40,6 +40,14 @@ src.main module
    :undoc-members:
    :show-inheritance:
 
+src.mem\_to\_input module
+-------------------------
+
+.. automodule:: src.mem_to_input
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.metrics module
 ------------------
 
