@@ -37,9 +37,11 @@ def nino_calculate(
     """
     Calculate the nino metric for a given region.
 
-    https://rabernat.github.io/research_computing_2018/assignment-8-xarray-for-enso.html
+    https://rabernat.github.io/research_computing_2018/\
+assignment-8-xarray-for-enso.html
 
-    https://ncar.github.io/PySpark4Climate/tutorials/Oceanic-Ni%C3%B1o-Index/
+    https://ncar.github.io/PySpark4Climate/tutorials/\
+Oceanic-Ni%C3%B1o-Index/
 
     Can work on regions nino1+2, nino3, nino3.4, nino4 (or "pac").
 

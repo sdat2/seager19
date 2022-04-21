@@ -11,6 +11,12 @@ python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEGG comp.sst=5c comp.prwnd=5c
 
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEUU comp.sst=5c comp.prwnd=5c
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEKK comp.sst=5c comp.prwnd=5c
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEII comp.sst=5c comp.prwnd=5c
+
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=SSSS comp.sst=5c comp.prwnd=5c
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEEC comp.sst=5b comp.prwnd=5b
@@ -21,7 +27,9 @@ python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EESS comp.sst=5c comp.prwnd=5c
 
-python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=EEEE
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=SSSSSSE comp.sst=5c comp.prwnd=5c
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=SSSSSSS comp.sst=5c comp.prwnd=5c
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=EEEC comp.sst=5b comp.prwnd=5b
 

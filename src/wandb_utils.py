@@ -560,6 +560,18 @@ def aggregate_table(
     project: str = DEFAULT_PROJECT,
     mem_list: List[str] = DEFAULT_MEM_LIST,
 ) -> pd.DataFrame:
+    """
+    _summary_
+
+    _extended_summary_
+
+    Args:
+        project (str, optional): _description_. Defaults to DEFAULT_PROJECT.
+        mem_list (List[str], optional): _description_. Defaults to DEFAULT_MEM_LIST.
+
+    Returns:
+        pd.DataFrame: _description_
+    """
     return aggregate_matches(summary_table(project=project), mems_to_df(mem_list))
 
 
@@ -580,6 +592,18 @@ def change_table(
     project: str = DEFAULT_PROJECT,
     mem_list: List[str] = DEFAULT_MEM_LIST,
 ) -> Tuple[pd.DataFrame, str]:
+    """
+    _summary_
+
+    _extended_summary_
+
+    Args:
+        project (str, optional): _description_. Defaults to DEFAULT_PROJECT.
+        mem_list (List[str], optional): _description_. Defaults to DEFAULT_MEM_LIST.
+
+    Returns:
+        Tuple[pd.DataFrame, str]: _description_
+    """
     table = aggregate_table(project=project, mem_list=mem_list)
     table, new_variable = _add_change_column(table)
     table = _remove_row(table)
