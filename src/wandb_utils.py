@@ -10,7 +10,7 @@ import logging
 from uncertainties import ufloat
 from omegaconf import DictConfig, OmegaConf
 from subprocess import PIPE, run
-from src.utils import timeit
+from src.utils import timeit, in_notebook
 from src.constants import DATA_PATH, run_path, DEFAULT_PROJECT
 from src.models.model_setup import ModelSetup
 from src.mem_to_input import mems_to_df
@@ -455,7 +455,8 @@ def summary_table(project: str = DEFAULT_PROJECT) -> pd.DataFrame:
             mem_list.append(cfg.atm.mem)
         # pylint: disable=broad-except
         except Exception as e:
-            print(e)
+            if not in_notebook:
+                print(e)
 
     metric_df = pd.DataFrame(metric_d)
     mem_df = mems_to_df(mem_list).reset_index(0)
@@ -521,6 +522,7 @@ def aggregate_matches(
     filter_df: pd.DataFrame,
     results: List[str] = RESULTS,
     include_std_dev: bool = True,
+    print_missing: bool = False,
 ) -> pd.DataFrame:
     """
     Aggregate the matches between two dataframes to find the
@@ -531,6 +533,7 @@ def aggregate_matches(
         filter_df (pd.DataFrame): The dataframe to filter by.
         results (List[str], optional): _description_. Defaults to RESULTS.
         include_std_dev (bool, optional): Whether to calculate standard devation. Defaults to True.
+        print_missing (bool, optional): Whether to highlight missing runs from ensemble. Defaults to False.
 
     Returns:
         pd.DataFrame: Includes uncertainty.ufloat values if include_std_dev=True.
@@ -549,7 +552,8 @@ def aggregate_matches(
     for result in results_d:
         filter_df[result] = results_d[result]
     filter_df["N"] = member_l
-    find_missing(df_list)
+    if print_missing:
+        find_missing(df_list)
     return filter_df
 
 
@@ -593,16 +597,17 @@ def change_table(
     mem_list: List[str] = DEFAULT_MEM_LIST,
 ) -> Tuple[pd.DataFrame, str]:
     """
-    Return a table with the differences between ECMWF run and the different inputs
+        Return a table with the differences between ECMWF run and the different inputs
 
-    Args:
-        project (str, optional): Which project to read.
-        Defaults to DEFAULT_PROJECT.
-        mem_list (List[str], optional): What list of inputs to compare.
-        Defaults to DEFAULT_MEM_LIST.
+        Args:
+            project (str, optional): Which project to read.
+            Defaults to DEFAULT_PROJECT.
+            mem_list (List[str], optional): What list of inputs to compare.
+            Defaults to DEFAULT_MEM_LIST.
 
-    Returns:
-        Tuple[pd.DataFrame, str]: The change table, and the name of the new variable column.
+        Returns:
+            Tuple[pd.DataFrame, str]: The change table,
+    and the name of the new variable column.
     """
     table = aggregate_table(project=project, mem_list=mem_list)
     table, new_variable = _add_change_column(table)

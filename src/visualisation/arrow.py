@@ -1,7 +1,8 @@
 """Arrow plots for mechanism."""
 import os
 from collections import OrderedDict
-from typing import Optional, List
+from typing import Optional, List, Union
+from typeguard import typechecked
 import numpy as np
 import xarray as xr
 import matplotlib
@@ -18,9 +19,14 @@ COLOR_L = ["blue", "green", "orange", "red"]
 CMIP_TREND_L = [CMIP5_TREND, CMIP6_TREND]
 
 
+def _arrow_plot_path(project: str) -> str:
+    return str(FIGURE_PATH / str("Arrow-2-Panel-" + project.split("/")[-1] + ".png"))
+
+
 def _plot_error(
     ax: matplotlib.axes.Axes, x: float, y: float, yerr: float, color: str
 ) -> None:
+    """Plot an error bar above the plot."""
     y = y + ECMWF_TREND
     ax.fill_between(
         [x - 0.2, x + 0.2],
@@ -65,6 +71,7 @@ def _setup_ax(ax: matplotlib.axes.Axes, cmip_trend: float):
     _horizontal_line(ax, cmip_trend, color=COLOR_L[3])
 
 
+@typechecked
 def _add_xticks(ax: matplotlib.axes.Axes, mem_list: List[str], val_list: List[ufloat]):
     unit = "K"
     name_dict = {
@@ -77,31 +84,51 @@ def _add_xticks(ax: matplotlib.axes.Axes, mem_list: List[str], val_list: List[uf
     }
     xticks = [x + 1 for x in range(len(mem_list))]
     xlabels = [
-        str(name_dict[mem_list[i]] + "\n +" + tex_uf(val_list[i]) + " " + unit)
+        str(
+            name_dict[mem_list[i]]
+            + "\n "
+            + tex_uf(val_list[i], bracket=False, exponential=False)
+            + " "
+            + unit
+        )
         for i in range(len(mem_list))
     ]
-    ax.set_xticks(xticks, xlabels)
     print(xticks, xlabels)
+    # xlabels = xticks
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xlabels, fontsize=6)
+    # plt.xticks(xticks, xlabels, fontsize=6)
+    # print(xticks, xlabels)
 
 
-def new_arrow_plot(
+def arrow_plot(
     project: str = "sdat2/ENSOTrend-gamma",
-    save_path: Optional[str] = None,
+    save_path: Optional[Union[str, bool]] = None,
     show_plots: bool = False,
 ) -> None:
     """
-    Make the new arrow plot on a particular project.
+    Make the automated arrow plot on a particular project.
 
     TODO: Fix the xticks - currently not visibile.
 
     Args:
         project (str, optional): Which wandb project to read.
         Defaults to "sdat2/ENSOTrend-gamma".
-        save_path (Optional[str], optional): Where to save plot to. Defaults to None.
+        save_path (Optional[Union[str, bool]], optional): Where to save plot to. Defaults to None.
         show_plots (bool, optional): Whether to keep plots
         open for jupyter-notebook. Defaults to False.
+
+    Examples:
+        Example of using function inside a jupyter notebook::
+
+            from src.visualisation.arrow import arrow_plot
+
+            arrow_plot(project="sdat2/ENSOTrend-gamma", show_plots=True)
+            arrow_plot(project="sdat2/ENSOTrend-beta", show_plots=True)
+            arrow_plot(project="sdat2/seager19", show_plots=True)
     """
     plt.clf()
+    ps_defaults(use_tex=False)
     fig, axs = plt.subplots(1, 2, sharey=True)
     set_dim(fig, ratio=0.4)
     table_list, variable = output_fig_2_data(project=project)
@@ -129,8 +156,11 @@ def new_arrow_plot(
     axs[1].set_ylabel("")
     label_subplots(axs)
     plt.tight_layout()
-    if save_path is not None:
-        plt.savefig(save_path, bbox_inches="tight")
+    if save_path is not None and save_path is not False:
+        if save_path is True:
+            plt.savefig(_arrow_plot_path(project), bbox_inches="tight")
+        else:
+            plt.savefig(save_path, bbox_inches="tight")
     if show_plots:
         plt.show()
     else:

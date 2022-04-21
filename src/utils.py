@@ -234,3 +234,26 @@ def get_default_setup() -> ModelSetup:
     cfg = load_config(test=False)
     setup = ModelSetup(run_dir, cfg, make_move=False)
     return setup
+
+
+def in_notebook() -> bool:
+    """
+    Check if in notebook.
+
+    Taken from this answer:
+    https://stackoverflow.com/a/22424821
+
+    Returns:
+        bool: whether in notebook.
+    """
+    try:
+        # pylint: disable=import-outside-top-level
+        from IPython import get_ipython
+
+        if "IPKernelApp" not in get_ipython().config:  # pragma: no cover
+            return False
+    except ImportError:
+        return False
+    except AttributeError:
+        return False
+    return True

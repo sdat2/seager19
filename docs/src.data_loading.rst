@@ -12,6 +12,22 @@ src.data\_loading.download module
    :undoc-members:
    :show-inheritance:
 
+src.data\_loading.ensemble\_processing module
+---------------------------------------------
+
+.. automodule:: src.data_loading.ensemble_processing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.data\_loading.gcloud module
+-------------------------------
+
+.. automodule:: src.data_loading.gcloud
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.data\_loading.ingrid module
 -------------------------------
 
@@ -20,10 +36,10 @@ src.data\_loading.ingrid module
    :undoc-members:
    :show-inheritance:
 
-src.data\_loading.make\_cmip5 module
-------------------------------------
+src.data\_loading.make\_inputs module
+-------------------------------------
 
-.. automodule:: src.data_loading.make_cmip5
+.. automodule:: src.data_loading.make_inputs
    :members:
    :undoc-members:
    :show-inheritance:
@@ -48,6 +64,22 @@ src.data\_loading.psl module
 ----------------------------
 
 .. automodule:: src.data_loading.psl
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.data\_loading.regrid module
+-------------------------------
+
+.. automodule:: src.data_loading.regrid
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.data\_loading.zenodo module
+-------------------------------
+
+.. automodule:: src.data_loading.zenodo
    :members:
    :undoc-members:
    :show-inheritance:

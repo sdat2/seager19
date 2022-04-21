@@ -20,6 +20,14 @@ src.configs.load\_config module
    :undoc-members:
    :show-inheritance:
 
+src.configs.pangeo module
+-------------------------
+
+.. automodule:: src.configs.pangeo
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

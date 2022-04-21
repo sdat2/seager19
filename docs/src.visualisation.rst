@@ -20,6 +20,14 @@ src.visualisation.arrow module
    :undoc-members:
    :show-inheritance:
 
+src.visualisation.bias module
+-----------------------------
+
+.. automodule:: src.visualisation.bias
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.visualisation.comp\_cd module
 ---------------------------------
 
