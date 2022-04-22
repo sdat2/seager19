@@ -1,7 +1,7 @@
 """Plot and process biases in trends and means."""
 import os
-from typing import Optional
-import numpy as np
+import pathlib
+from typing import Optional, Union
 import pandas as pd
 import xarray as xr
 import matplotlib
@@ -11,6 +11,7 @@ from src.constants import (
     atmos_input_file_path,
     MODEL_NAMES,
     DATA_PATH,
+    CMIP6_TS_PATH,
 )
 from src.plot_utils import label_subplots, cmap, ps_defaults, set_dim
 from src.xr_utils import (
@@ -20,8 +21,10 @@ from src.xr_utils import (
     spatial_mean,
     clip,
 )
-from src.data_loading.pangeo import load_mfds
 from src.visualisation.nino import plot_nino_box
+
+# from src.data_loading.pangeo import load_mfds
+# import numpy as np
 
 
 def atmos_bias(var: str = "ts", model: str = "S", ending: str = "clim") -> xr.DataArray:
@@ -56,7 +59,43 @@ def atmos_bias(var: str = "ts", model: str = "S", ending: str = "clim") -> xr.Da
     return bias
 
 
-def trends_from_da(da: xr.DataArray, beginning=2007, finish=2017) -> xr.DataArray:
+def get_trends(file_path: Union[str, pathlib.Path] = CMIP6_TS_PATH) -> xr.DataArray:
+    """
+    Get the 60 year trends over the nino3.4 region
+    for differnt members of the nino3.4 ensemble.
+
+    Args:
+        file_path (Union[str, pathlib.Path], optional): Defaults to CMIP6_TS_PATH.
+
+    Returns:
+        xr.DataArray: xr trends.
+    """
+    file_list = os.listdir(file_path)
+    tr_list = []
+    fin_list = []
+    for start, fin in [(x - 59, x) for x in range(2007, 2017)]:
+        tr_list.append([])
+        for i in range(len(file_list)):
+            ex = can_coords(
+                xr.open_dataarray(os.path.join(file_path, file_list[i])).sel(
+                    T=slice(str(start), str(fin))
+                )
+            )
+            tr_list[-1].append(
+                get_trend(spatial_mean(sel(ex, reg="nino3.4")), min_clim_f=True)
+            )
+        fin_list.append(fin)
+    return xr.DataArray(
+        tr_list,
+        dims=["end_year", "member"],
+        coords=dict(end_year=fin_list, member=os.listdir(CMIP6_TS_PATH)),
+        attrs=dict(units="K", long_name="60 year trend in nino3.4"),
+    )
+
+
+def trends_from_da(
+    da: xr.DataArray, beginning: int = 2007, finish: int = 2017
+) -> xr.DataArray:
     """
     Get 60 year trends over a few years.
 
@@ -82,7 +121,18 @@ def trends_from_da(da: xr.DataArray, beginning=2007, finish=2017) -> xr.DataArra
     return da_tr.rise
 
 
-def trends_from_csv(csv_path=DATA_PATH / "mmm-trends.csv") -> xr.DataArray:
+def trends_from_csv(
+    csv_path: Union[pathlib.Path, str] = DATA_PATH / "mmm-trends.csv"
+) -> xr.DataArray:
+    """
+    Get trends csv.
+
+    Args:
+        csv_path (pathlib.Path, optional): Defaults to DATA_PATH / "mmm-trends.csv".
+
+    Returns:
+        xr.DataArray:
+    """
     df = pd.read_csv(csv_path, index_col=0)
     print(df)
     da = xr.DataArray(
@@ -137,6 +187,25 @@ def plot_bias(
     plot_nino_box(ax, reg="nino3.4", color=None)
 
 
+def calculate_cmip6_ts_trends():
+    print("ok")
+
+
+def temperature_line_plot(ax: matplotlib.axes.Axes) -> None:
+    """
+    Temperature line plot.
+
+    Args:
+        ax (matplotlib.axes.Axes): which axis to add to.
+    """
+    da = trends_from_csv()
+    reanal = ["NCEP NCAR", "ERSSTv5", "HadlSST"]
+    mmm = ["CMIP5 MMM", "LENS MMM"]
+    da.sel(source=reanal).plot.line(ax=ax, hue="source", linestyle="dashed")
+    da.sel(source=mmm).plot.line(ax=ax, hue="source")
+    ax.set_xlim([2008, 2017])
+
+
 def multi_bias_plot(model: str = "S", vertical=True) -> None:
     """
     Plot the biases plot.
@@ -159,13 +228,9 @@ def multi_bias_plot(model: str = "S", vertical=True) -> None:
     set_dim(fig, ratio=1.5)
     ps_defaults()
     axs = axs.ravel()
-    da = trends_from_csv()
-    reanal = ["NCEP NCAR", "ERSSTv5", "HadlSST"]
-    mmm = ["CMIP5 MMM", "LENS MMM"]
-    da.sel(source=reanal).plot.line(ax=axs[0], hue="source", linestyle="dashed")
-    da.sel(source=mmm).plot.line(ax=axs[0], hue="source")
-    axs[0].set_xlim([2008, 2017])
-    i = 1
+    temperature_line_plot(axs[0])
+    i = 0
+    cmap_axs = axs[1:4]
     for var, ending, lim, long_name, units in [
         ("ts", "trend", 1.5, "Temperature rise bias", r"$\Delta$K"),
         ("rh", "clim60", 10, "Relative humidity bias", "%"),
@@ -173,7 +238,7 @@ def multi_bias_plot(model: str = "S", vertical=True) -> None:
     ]:
         try:
             plot_bias(
-                axs[i],
+                cmap_axs[i],
                 var=var,
                 ending=ending,
                 model=model,
