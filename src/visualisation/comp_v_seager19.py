@@ -96,6 +96,16 @@ def return_var_list(num: Union[int, str]) -> List[str]:
     return var_list
 
 
+def return_seager19_ds() -> xr.Dataset:
+    """
+    Return seager19 data taken from website.
+
+    Returns:
+        xr.Dataset: The dataset for all the figure data.
+    """
+    return xr.open_dataset(FIGURE_DATA_PATH)
+
+
 def return_figure_ds(num: str) -> xr.Dataset:
     """
     Get the figure dataset.
@@ -104,15 +114,15 @@ def return_figure_ds(num: str) -> xr.Dataset:
         num (str): The figure number e.g. "2c".
 
     Returns:
-        xr.Dataset: the dataset with the standard names.
+        xr.Dataset: the dataset for a particular figure panel with the standard names.
     """
     ps_defaults(use_tex=False, dpi=200)
-    fig_data = xr.open_dataset(FIGURE_DATA_PATH)
+    seager19_data = xr.open_dataset(FIGURE_DATA_PATH)
     r_dict = {}
-    for i in fig_data[return_var_list(num)]:
+    for i in seager19_data[return_var_list(num)]:
         r_dict[i] = i.split(".")[-1]
 
-    return fig_data[return_var_list(num)].rename(r_dict)
+    return seager19_data[return_var_list(num)].rename(r_dict)
 
 
 def comp_uc_oc(setup: ModelSetup, panel="d", show_plots: bool = False) -> None:
@@ -251,9 +261,7 @@ def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> str
     return setup.rep_plot(num, "_htherm")
 
 
-if __name__ == "__main__":
-    # python src/visualisation/comp.py
-    # python src/visualisation/comp_v_seager19.py
+def make_plots_example():
     import os
 
     plot_dir = "/gws/nopw/j04/ai4er/users/sdat2/sensitivity/k_days_logs/k_days_10/plots"
@@ -261,15 +269,26 @@ if __name__ == "__main__":
     if not os.path.exists(plot_dir):
         os.mkdir(plot_dir)
 
-    uncoupled_run_dir = str(UC_LOGS / "it_1")
-    cfg = load_config(test=False)
-    uncoup_setup = ModelSetup(uncoupled_run_dir, cfg, make_move=False)
+    # uncoupled_run_dir = str(UC_LOGS / "it_1")
+    # cfg = load_config(test=False)
+    # uncoup_setup = ModelSetup(uncoupled_run_dir, cfg, make_move=False)
     coup_setup = get_default_setup()
     # comp_uc_atm(uncoup_setup)
     comp_oc_sst(coup_setup, "3")
     comp_atm_prwnd(coup_setup, "3")
     comp_oc_htherm(coup_setup, "4b")
-    # comp_uc_oc(uncoup_setup)
+
+
+if __name__ == "__main__":
+    # python src/visualisation/comp.py
+    # python src/visualisation/comp_v_seager19.py
+    # ForcedAtmosphereModel.Fig_2c.nc.tsClim
+    # ForcedAtmosphereModel.Fig_2c.nc.tstrend
+    # ForcedAtmosphereModel.Fig_2d.nc.tsClim
+    # ForcedAtmosphereModel.Fig_2d.nc.tstrend
+    ds = return_seager19_ds()
+    for i in ds:
+        print(i)
 
 
 def field_plot() -> None:
