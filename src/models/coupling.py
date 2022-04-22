@@ -162,14 +162,14 @@ class Coupling:
         t_trend_v = t_trend_v.rename("t_trend_v")
         return xr.merge([t_beg_u, t_beg_v, t_end_u, t_end_v, t_trend_u, t_trend_v])
 
-    def replace_stress(self, it: int, add: bool = True) -> None:
+    def replace_stress(self, it: int, add: bool = False) -> None:
         """Replace the stress files.
 
         Currently just resaves the clim files with a diff name.
 
         Args:
             it: the iteration in the coupling scheme.
-            add: whether to add the trend to the ECMWF timeseries. Defaults to True.
+            add: whether to add the trend to the ECMWF timeseries. Defaults to False.
                 If False just has the trend.
 
         """

@@ -6,14 +6,13 @@ import pandas as pd
 import xarray as xr
 import matplotlib
 import matplotlib.pyplot as plt
-from src.plot_utils import ps_defaults
 from src.constants import (
     atmos_input_file_path,
     MODEL_NAMES,
     DATA_PATH,
     CMIP6_TS_PATH,
 )
-from src.plot_utils import label_subplots, cmap, ps_defaults, set_dim
+from src.plot_utils import ps_defaults, label_subplots, cmap, ps_defaults, set_dim
 from src.xr_utils import (
     can_coords,
     sel,
@@ -191,6 +190,11 @@ def calculate_cmip6_ts_trends():
     print("ok")
 
 
+def line_plot(da: xr.DataArray, ax: matplotlib.axes.Axes, **kwargs) -> any:
+    print("ok")
+    da.plot.line(ax=ax, **kwargs)
+
+
 def temperature_line_plot(ax: matplotlib.axes.Axes) -> None:
     """
     Temperature line plot.
@@ -201,8 +205,12 @@ def temperature_line_plot(ax: matplotlib.axes.Axes) -> None:
     da = trends_from_csv()
     reanal = ["NCEP NCAR", "ERSSTv5", "HadlSST"]
     mmm = ["CMIP5 MMM", "LENS MMM"]
-    da.sel(source=reanal).plot.line(ax=ax, hue="source", linestyle="dashed")
-    da.sel(source=mmm).plot.line(ax=ax, hue="source")
+    reanal_da = da.sel(source=reanal)
+    reanal_da["source"].attrs["long_name"] = "Reanalysis product"
+    reanal_da.plot.line(ax=ax, hue="source", linestyle="dashed", add_legend=False)
+    da.sel(source=mmm).plot.line(ax=ax, hue="source", add_legend=False)
+    # ax.legend(labels, bbox_to_anchor=(-1.15, 2.4, -1., .102),
+    # loc='lower left', ncol = 6)
     ax.set_xlim([2008, 2017])
 
 
