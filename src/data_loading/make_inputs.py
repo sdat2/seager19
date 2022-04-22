@@ -1,4 +1,5 @@
-"""Make input variable fields to put into the atmosphere and ocean model."""
+"""Make input variable fields to put into
+the atmosphere and ocean model."""
 import os
 import numpy as np
 import xarray as xr
@@ -21,7 +22,10 @@ from src.data_loading.download import get_uv, get_mmm, get_figure_data
 from src.data_loading.pangeo import da_clip
 from src.visualisation.comp_v_seager19 import return_figure_ds
 
-LON_INDEX_UPPER_BOUND: int = 350
+# The prime meridian is a bit of a mess due to imperfect regridding
+# cut off the indexes apart from it.
+LON_INDEX_UPPER_BOUND: int = 355
+LON_INDEX_LOWER_BOUND: int = 5
 
 
 @timeit
@@ -32,7 +36,7 @@ def qair2rh(qair: xr.DataArray, temp: xr.DataArray, pres: xr.DataArray) -> xr.Da
     Args:
         qair (xr.DataArray): The specific humidity (dimensionless).
         temp (xr.DataArray): The temperature (kelvin).
-        pres (xr.DataArray): The pressure (pascal).
+        pres (xr.DataArray): The pressure (pascal?).
 
     Returns:
         xr.DataArray: The relative humidity.
@@ -340,9 +344,9 @@ def generate_climatology(var: str = "sst", model: str = "S") -> None:
     cmip6_climatology.attrs["units"] = ecmwf_climatology.attrs["units"]
     print(cmip6_climatology, "\n", ecmwf_climatology)
     new_climatology = ecmwf_climatology.copy()
-    new_climatology[:, :, :, :LON_INDEX_UPPER_BOUND] = cmip6_climatology[
-        :, :, :, :LON_INDEX_UPPER_BOUND
-    ]
+    new_climatology[
+        :, :, :, LON_INDEX_LOWER_BOUND:LON_INDEX_UPPER_BOUND
+    ] = cmip6_climatology[:, :, :, LON_INDEX_LOWER_BOUND:LON_INDEX_UPPER_BOUND]
     new_climatology.attrs["center"] = MODEL_NAMES[model]
     if var in end_d:
         new_climatology.to_netcdf(

@@ -167,6 +167,13 @@ class Coupling:
 
         Currently just resaves the clim files with a diff name.
 
+        TODO: systematically explore other options:
+            - linear change between taubeg and tauend
+            - take half trend away or not.
+            - turn off land precipitation.
+            - make deep convection universal.
+            - change in thermocline opposite of that expected - is this  a sign error?
+
         Args:
             it: the iteration in the coupling scheme.
             add: whether to add the trend to the ECMWF timeseries. Defaults to False.
@@ -180,6 +187,7 @@ class Coupling:
         # ah ok, this is definitely wrong
         for i in range(len(taux.coords["T"].values)):
             if add:
+
                 taux_new["taux"][i, 0, 40:141, :] = (
                     taux.taux[i, 0, 40:141, :]
                     + i * taux_trend[:, :] / len(taux.coords["T"].values)
