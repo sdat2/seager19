@@ -31,6 +31,10 @@ python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=SSSSSSS comp.sst=5c comp.prwnd=5c
 
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=EEES comp.sst=5b comp.prwnd=5b
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false  atm.mem=EESE comp.sst=5a comp.prwnd=5a
+
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=EEEC comp.sst=5b comp.prwnd=5b
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false  atm.mem=EECE comp.sst=5a comp.prwnd=5a
