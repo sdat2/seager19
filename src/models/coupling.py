@@ -139,6 +139,7 @@ class Coupling:
     def tau_anom_ds(self) -> xr.Dataset:
         """
         Wind stress anomaly.
+        # TODO: Could simplify this function, and the following function.
 
         Returns:
             xr.Dataset: dataset with different different tau fields.
@@ -180,36 +181,39 @@ class Coupling:
                 If False just has the trend.
 
         """
+        # tau
         ds = self.tau_anom_ds()
         taux = xr.open_dataset(self.setup.tau_x(0), decode_times=False)
         taux_trend = ds.t_trend_u
         taux_new = taux.copy()
-        # ah ok, this is definitely wrong
-        for i in range(len(taux.coords["T"].values)):
-            if add:
-
-                taux_new["taux"][i, 0, 40:141, :] = (
-                    taux.taux[i, 0, 40:141, :]
-                    + i * taux_trend[:, :] / len(taux.coords["T"].values)
-                    - 1 / 2 * taux_trend[:, :]
-                )
-            else:
-                taux_new["taux"][i, 0, 40:141, :] = (
-                    i * taux_trend[:, :] / len(taux.coords["T"].values)
-                    - 1 / 2 * taux_trend[:, :]
-                )
-
-        taux_new.to_netcdf(self.setup.tau_x(it), format="NETCDF3_CLASSIC")
-
         tauy = xr.open_dataset(self.setup.tau_y(0), decode_times=False)
         tauy_trend = ds.t_trend_v
         tauy_new = tauy.copy()
-        for i in range(len(tauy.coords["T"].values)):
-            tauy_new["tauy"][i, 0, 40:141, :] = tauy.tauy[
-                i, 0, 40:141, :
-            ] + i * tauy_trend[:, :] / len(tauy.coords["T"].values)
+        # ah ok, this is definitely wrong
+        time_length = len(tauy.coords["T"].values)
+        for i in range(time_length):
+            if add:
+                taux_new["taux"][i, 0, 40:141, :] = (
+                    taux.taux[i, 0, 40:141, :]
+                    + (i / time_length - 1 / 2) * taux_trend[:, :]
+                )
+                tauy_new["tauy"][i, 0, 40:141, :] = (
+                    tauy.tauy[i, 0, 40:141, :]
+                    + (i / time_length - 1 / 2) * tauy_trend[:, :]
+                )
+            else:
+                taux_new["taux"][i, 0, 40:141, :] = (
+                    +(i / time_length - 1 / 2) * taux_trend[:, :]
+                )
+                tauy_new["tauy"][i, 0, 40:141, :] = (
+                    +(i / time_length - 1 / 2) * tauy_trend[:, :]
+                )
+
+        taux_new.to_netcdf(self.setup.tau_x(it), format="NETCDF3_CLASSIC")
         tauy_new.to_netcdf(self.setup.tau_y(it), format="NETCDF3_CLASSIC")
 
+        # doesn't change tau. TODO: Change tau
+        # !!! WARNING: DOES NOTHING !!!
         taux_clim_obj = xr.open_dataset(self.setup.tau_clim_x(0), decode_times=False)
         taux_clim_obj.to_netcdf(
             self.setup.tau_clim_x(it),
