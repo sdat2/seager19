@@ -11,6 +11,7 @@ Subpackages
    src.data_loading
    src.models
    src.test
+   src.test_utils
    src.visualisation
 
 Submodules

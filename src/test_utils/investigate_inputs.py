@@ -1,4 +1,4 @@
-""""""
+"""Tools to investigate the inputs to the model"""
 from typing import Union
 import pathlib
 from src.xr_utils import open_dataarray, sel, spatial_mean
