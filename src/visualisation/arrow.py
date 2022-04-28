@@ -1,4 +1,6 @@
-"""Arrow plots for mechanism."""
+"""Arrow plots for mechanism.
+
+Figure 2."""
 import os
 from collections import OrderedDict
 from typing import Optional, List, Union

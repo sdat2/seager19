@@ -43,6 +43,10 @@ python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false  atm.mem=EECE comp.sst=5a comp.prwnd=5a
 
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false coup.add_stress=true coup.stress_trend=true  atm.mem=EEEE comp.sst=5a comp.prwnd=5a
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false coup.add_stress=true coup.stress_trend=true  atm.mem=EECC comp.sst=5c comp.prwnd=5c
+
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=true atm.mem=EE6E archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=false atm.mem=EE6E archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
