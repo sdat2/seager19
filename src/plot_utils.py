@@ -37,19 +37,22 @@ Example:
         label_subplots(axs, start_from=0, fontsize=10)
 
 """
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union, Optional
 import numpy as np
 from sys import platform
 import itertools
 from distutils.spawn import find_executable
 import matplotlib
 import pandas as pd
+from pydantic import NonNegativeFloat
 import xarray as xr
 from uncertainties import ufloat
 import seaborn as sns
+from jupyterthemes import jtplot
 import cftime
 import cmocean
 from src.constants import REPORT_WIDTH, DATE_TITLE_FORMAT
+from src.utils import in_notebook
 
 
 def label_subplots(
@@ -181,7 +184,7 @@ def set_dim(
     )
 
 
-def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
+def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> None:
     """Apply plotting style to produce nice looking figures.
 
     Call this at the start of a script which uses `matplotlib`.
@@ -190,10 +193,10 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
 
     Args:
         use_tex (bool, optional): Whether or not to use latex matplotlib backend.
-            Defaults to True.
+            Defaults to False.
         dpi (int, optional): Which dpi to set for the figures.
-            Defaults to 600 dpi (high quality). 150 dpi probably
-            fine for notebooks. Largest dpi needed for presentations.
+Defaults to 600 dpi (high quality) in terminal or 150 dpi for notebooks.
+Largest dpi needed for presentations.
 
     Examples:
         Basic setting the plotting defaults::
@@ -201,16 +204,21 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
             >>> from src.plot_utils import ps_defaults
             >>> ps_defaults()
 
-        Setting defaults for a jupyter notebook::
-
-            >>> from src.plot_utils import ps_defaults
-            >>> ps_defaults(use_tex=False, dpi=150)
-
     """
     if platform == "darwin":
         matplotlib.use("TkAgg")
 
-    use_tex: bool = False
+    if in_notebook():
+        jtplot.style(theme="grade3", context="notebook", ticks=True, grid=False)
+        if use_tex is None:
+            use_tex: bool = False
+        if dpi is None:
+            dpi: int = 150
+    else:
+        if use_tex is None:
+            use_tex: bool = False  # assume tex does not exist.
+        if dpi is None:
+            dpi = 600  # high quality dpi
 
     p_general = {
         "font.family": "STIXGeneral",  # Nice alternative font.

@@ -2,31 +2,43 @@
 
 Possible preprocessing script for pangeo config script.
 
+# TODO: create auto-archive functionality.
+
+TODO: change Filestructure to be more logical.
 
 File structures inside src/data:
 
     Full ensemble time series:
-        nc/historical.ssp585/${var}/${member}.nc
+        ${DIR}/historical.ssp585/timeseries/${var}/${member}.nc
 
     Ensemble 60 year mean state:
-        nc/historical.ssp585.mean/${var}/${member}.nc
+        ${DIR}/historical.ssp585/mean/${var}/${member}.nc
 
     Ensemble 60 year climatology:
-        nc/historical.ssp585.climatology/${var}/${member}.nc
+        ${DIR}/historical.ssp585/climatology/${var}/${member}.nc
 
     Ensemble 60 year linear trend:
-        nc/historical.ssp585.trend/${var}/${member}.nc
+        ${DIR}/historical.ssp585/trend/${var}/${member}.nc
 
     Ensemble 60 year linear trend:
-        nc/historical.ssp585.nino3.4/${var}/${member}.nc
+        ${DIR}/historical.ssp585/nino3.4/${var}/${member}.nc
+
+    Ensemble 60 year nino3.4:
+        nc/historical.ssp585.nino3.4/${var}.nc
+
+    Ensemble 60 year nino3.4.climatology:
+        nc/historical.ssp585.nino3.4.climatology/${var}.nc
+
+    Ensemble 60 year nino3.4.trends:
+        nc/historical.ssp585.nino3.4.trends/${var}.nc
 
     MMM 60 year mean:
-        nc/historical.ssp585.mmm.mean/${var}.nc
+        ${DIR}/historical.ssp585.mmm/mean/${var}.nc
 
     MMM 60 year trend:
-        nc/historical.ssp585.mmm.trend/${var}.nc
+        ${DIR}/historical.ssp585.mmm/trend/${var}.nc
 
     MMM 60 year climatology:
-        nc/historical.ssp585.mmm.climatology/${var}.nc
+        ${DIR}/historical.ssp585.mmm/climatology/${var}.nc
 
 """

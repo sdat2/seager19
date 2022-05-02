@@ -10,6 +10,7 @@ import shutil
 import urllib
 import numpy as np
 import xarray as xr
+from src.utils import timeit, time_stamp
 from src.constants import PSL_INDICES_PATH, ERSSTV5_PATH
 from src.xr_utils import can_coords, fix_calendar
 from src.metrics import nino_calculate
@@ -34,7 +35,7 @@ url_d = {
 }
 
 
-def index_da(var: str = "tni") -> xr.DataArray:
+def psl_index_da(var: str = "tni") -> xr.DataArray:
     """
     Read an index from the psl website,
     and reformat it into an xarray.Datarray object.
@@ -48,34 +49,37 @@ def index_da(var: str = "tni") -> xr.DataArray:
             Assumes that the value corresponds to the 1st of the month,
             and nans out missing values.
     """
-    url = url_d[var]
-    file = urllib.request.urlopen(url)
 
     def parse_line(decoded_line):
         return [x for x in decoded_line.strip("\n").split(" ") if x != ""]
 
-    stage = 0
-    index_list = []
-    date_list = []
-    description = ""
-    for line in file:
-        decoded_line = line.decode("utf-8")
-        list_line = parse_line(decoded_line)
-        if stage == 0:
-            last_year = int(list_line[1])
-            stage = 1
-        elif stage == 1:
-            year = int(list_line.pop(0))
-            date_line = [datetime.datetime(year, i, 1, 0, 0, 0) for i in range(1, 13)]
-            index_list.extend(list_line)
-            date_list.extend(date_line)
-            if year == last_year:
-                stage = 2
-        elif stage == 2:
-            missing_value = float(list_line[0])
-            stage = 3
-        else:
-            description += decoded_line
+    url = url_d[var]
+    with urllib.request.urlopen(url) as file:
+
+        stage = 0
+        index_list = []
+        date_list = []
+        description = ""
+        for line in file:
+            decoded_line = line.decode("utf-8")
+            list_line = parse_line(decoded_line)
+            if stage == 0:
+                last_year = int(list_line[1])
+                stage = 1
+            elif stage == 1:
+                year = int(list_line.pop(0))
+                date_line = [
+                    datetime.datetime(year, i, 1, 0, 0, 0) for i in range(1, 13)
+                ]
+                index_list.extend(list_line)
+                date_list.extend(date_line)
+                if year == last_year:
+                    stage = 2
+            elif stage == 2:
+                missing_value = float(list_line[0])
+                stage = 3
+            else:
+                description += decoded_line
 
     index_np = np.asarray(index_list, dtype="float32")
     date_np = np.asarray(date_list)
@@ -86,7 +90,7 @@ def index_da(var: str = "tni") -> xr.DataArray:
         attrs=dict(
             name=var,
             long_name=var.upper(),
-            units="dimensionless",  # TODO: This is wrong for most metrics.
+            units="dimensionless",  # TODO: This is wrong for most metrics; change.
             description=description,
             missing_value=missing_value,
         ),
@@ -94,6 +98,7 @@ def index_da(var: str = "tni") -> xr.DataArray:
     return var_xr.where(var_xr != missing_value)
 
 
+@timeit
 def get_psl_indices(reload: bool = False) -> xr.Dataset:
     """
     A function to return the psl indices, either from memory,
@@ -110,12 +115,18 @@ def get_psl_indices(reload: bool = False) -> xr.Dataset:
     if os.path.exists(PSL_INDICES_PATH) and not reload:
         ds = xr.open_dataset(PSL_INDICES_PATH)
     else:
-        ds = xr.merge([index_da(var) for var in url_d], join="outer")
+        ds = xr.merge([psl_index_da(var) for var in url_d], join="outer")
+        ds.attrs = {
+            "name": "PSL data climate indices",
+            "units": "Variable",
+            "Description": "PSL data scraped from the website on " + time_stamp(),
+        }
         ds.to_netcdf(PSL_INDICES_PATH)
 
     return ds
 
 
+@timeit
 def get_ersstv5(reload: bool = False) -> xr.DataArray:
     """
     Get ERSSTV5 datarray.
@@ -129,6 +140,7 @@ def get_ersstv5(reload: bool = False) -> xr.DataArray:
     if os.path.exists(ERSSTV5_PATH) and not reload:
         da = xr.open_dataset(ERSSTV5_PATH).sst
     else:
+        # SHOULD this url not be in constants
         url = "https://downloads.psl.noaa.gov/Datasets/noaa.ersst.v5/sst.mnmean.nc"
         name = "sst.mnmean.nc"
         urllib.request.urlretrieve(url, name)
@@ -138,6 +150,7 @@ def get_ersstv5(reload: bool = False) -> xr.DataArray:
     return da
 
 
+@timeit
 def psl_metric_test() -> None:
     """Test to see if the psl and I agree on the metrics given the
     ERSSTv5 SST data (i.e. to debug metrics etc.)"""
@@ -155,4 +168,4 @@ def psl_metric_test() -> None:
 if __name__ == "__main__":
     # python src/data_loading/psl.py
     # get_ersstv5(reload=True)
-    get_psl_indices(reload=True)
+    print(get_psl_indices(reload=True))

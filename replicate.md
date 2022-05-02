@@ -7,6 +7,8 @@ python src/main.py name=test25
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true atm.mem=EESS comp.sst=5c comp.prwnd=5c
 
 
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEEE coup.stress_trend=true coup.add_stress=false comp.sst=5a comp.prwnd=5a
+
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true atm.mem=EEEE comp.sst=5a comp.prwnd=5a
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EECCE comp.sst=5c comp.prwnd=5c
