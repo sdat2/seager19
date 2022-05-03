@@ -10,7 +10,7 @@ from src.constants import (
     MODEL_NAMES,
     VAR_DICT,
 )
-from src.mem_to_input import mem_to_dict
+from src.model_utils.mem_to_input import mem_to_dict
 
 
 class ModelSetup:

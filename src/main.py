@@ -26,7 +26,7 @@ from src.models.model_setup import ModelSetup
 from src.configs.config import format_config
 from src.wandb_utils import start_wandb
 from src.data_loading.download import get_data
-from src.clear import clear
+from src.model_utils.clear import clear
 
 
 @timeit
