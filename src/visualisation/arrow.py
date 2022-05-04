@@ -1,4 +1,13 @@
-"""Arrow plots for mechanism."""
+"""Arrow plots for mechanism.
+
+Figure 2.
+
+TODO: A class structure would probably work best.
+
+TODO: Central plotting base class could work.
+
+TODO: Remove old plot functions.
+"""
 import os
 from collections import OrderedDict
 from typing import Optional, List, Union
@@ -12,14 +21,22 @@ from src.plot_utils import ps_defaults, set_dim, tex_uf, label_subplots
 from src.constants import FIGURE_PATH
 from src.wandb_utils import output_fig_2_data
 
+# These globals should really be able to
+# be generated from the input files.
+# TODO: Move somewhere more systematic.
 ECMWF_TREND = 0.411
 CMIP5_TREND = 0.889
 CMIP6_TREND = 0.772
+
+# Plotting constants: not extensible.
 COLOR_L = ["blue", "green", "orange", "red"]
+
+# CMIP TREND L: order arbitrary
 CMIP_TREND_L = [CMIP5_TREND, CMIP6_TREND]
 
 
 def _arrow_plot_path(project: str) -> str:
+    """The arrow plot path."""
     return str(FIGURE_PATH / str("Arrow-2-Panel-" + project.split("/")[-1] + ".png"))
 
 
@@ -43,6 +60,14 @@ def _plot_arrow(
     x_val: float,
     y_val: float,
 ) -> None:
+    """
+    Add a single upwards arrow to the subplot.
+
+    Args:
+        ax (matplotlib.axes.Axes): The subplot to add to.
+        x_val (float): The left/right position of the arrow.
+        y_val (float): The length of the arrow.
+    """
     head_length = 0.03
     decrease_arrow = 0.00
     head_width = 0.03
@@ -61,10 +86,19 @@ def _plot_arrow(
 
 
 def _horizontal_line(ax: matplotlib.axes.Axes, y_val: float, color: str = COLOR_L[0]):
+    """
+    Add horizontal line to  the plot.
+
+    Args:
+        ax (matplotlib.axes.Axes): _description_
+        y_val (float): _description_
+        color (str, optional): _description_. Defaults to COLOR_L[0].
+    """
     ax.plot([0.5, 3.5], [y_val, y_val], color=color)
 
 
 def _setup_ax(ax: matplotlib.axes.Axes, cmip_trend: float):
+    """Setup an axis within plot."""
     ax.set_xlim([0.5, 3.5])
     ax.set_xticks([])
     _horizontal_line(ax, ECMWF_TREND, color=COLOR_L[0])
@@ -109,7 +143,17 @@ def arrow_plot(
     """
         Make the automated arrow plot on a particular project.
 
-        TODO: Fix the xticks - currently not visibile.
+        TODO: Add legend with only CMIP5/6 and ECMWF values.
+
+        TODO: Add option to plot seager19 values for comparison to CMIP5 plot.
+
+        TODO: Add option for SST QFLXing etc. and general extnesiblity to different options.
+
+        TODO: Add option to allow matching before subtraction.
+
+        TODO: Add option to allow filtering of project to particular input values.
+
+        TODO: Add option to allow differnt regions e.g. nino1 to be plotted.
 
         Args:
             project (str, optional): Which wandb project to read.

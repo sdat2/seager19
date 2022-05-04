@@ -6,7 +6,18 @@ python src/main.py name=test25
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true atm.mem=EESS comp.sst=5c comp.prwnd=5c
 
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false coup.stress_trend=false,true coup.add_stress=false,true ocean.flux_once=true,false atm.mem=EEEE  comp.sst=5a comp.prwnd=5a
+
+oc.f1prime=-0.0021
+
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false coup.stress_trend=false,true coup.add_stress=false,true atm.prcp_land=0 ocean.flux_once=true,false atm.mem=EEEE  comp.sst=5a comp.prwnd=5a
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true atm.mem=EEEE comp.sst=5a comp.prwnd=5a
+
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EECCE comp.sst=5c comp.prwnd=5c
+
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEEEE comp.sst=5a comp.prwnd=5a
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false atm.mem=EEGG comp.sst=5c comp.prwnd=5c
@@ -31,9 +42,17 @@ python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=SSSSSSS comp.sst=5c comp.prwnd=5c
 
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=EEES comp.sst=5b comp.prwnd=5b
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false  atm.mem=EESE comp.sst=5a comp.prwnd=5a
+
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=false,true atm.mem=EEEC comp.sst=5b comp.prwnd=5b
 
 python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false  atm.mem=EECE comp.sst=5a comp.prwnd=5a
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false coup.add_stress=true coup.stress_trend=true  atm.mem=EEEE comp.sst=5a comp.prwnd=5a
+
+python src/main.py -m atm.e_frac=0.5,1,2 atm.vary_cloud_const=true,false coup.add_stress=true coup.stress_trend=true  atm.mem=EECC comp.sst=5c comp.prwnd=5c
 
 python src/main.py -m atm.e_frac=0.5,2 atm.vary_cloud_const=true atm.mem=EE6E archive_dir=/gws/nopw/j04/ai4er/users/sdat2/rep comp.sst=5a comp.prwnd=5a
 

@@ -12,22 +12,6 @@ src.data\_loading.download module
    :undoc-members:
    :show-inheritance:
 
-src.data\_loading.ensemble\_processing module
----------------------------------------------
-
-.. automodule:: src.data_loading.ensemble_processing
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-src.data\_loading.gcloud module
--------------------------------
-
-.. automodule:: src.data_loading.gcloud
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 src.data\_loading.ingrid module
 -------------------------------
 

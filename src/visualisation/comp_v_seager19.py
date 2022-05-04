@@ -2,6 +2,7 @@
 
 Perhaps this module should be renamed 'comp_v_seager19'.
 """
+import os
 from typing import Union
 import numpy as np
 import xarray as xr
@@ -80,20 +81,30 @@ def comp_prcp_quiver_plot(
 
 def return_var_list(num: Union[int, str]) -> List[str]:
     """
-    Get a list of the variables from each figure.
+        Get a list of the variables from each figure.
 
-    Args:
-        num Union[int, str]: The figure number.
-            Example input: int(4) or "2a".
+        Args:
+            num Union[int, str]: The figure number.
+    Example input: int(4) or "2a".
 
-    Returns:
-        List[str]: A list of the variable names.
+        Returns:
+            List[str]: A list of the variable names.
     """
     var_list = []
     for var in xr.open_dataset(FIGURE_DATA_PATH):
         if "Fig_" + str(num) in var:
             var_list.append(var)
     return var_list
+
+
+def return_seager19_ds() -> xr.Dataset:
+    """
+    Return seager19 data taken from website.
+
+    Returns:
+        xr.Dataset: The dataset for all the figure data.
+    """
+    return xr.open_dataset(FIGURE_DATA_PATH)
 
 
 def return_figure_ds(num: str) -> xr.Dataset:
@@ -104,15 +115,15 @@ def return_figure_ds(num: str) -> xr.Dataset:
         num (str): The figure number e.g. "2c".
 
     Returns:
-        xr.Dataset: the dataset with the standard names.
+        xr.Dataset: the dataset for a particular figure panel with the standard names.
     """
     ps_defaults(use_tex=False, dpi=200)
-    fig_data = xr.open_dataset(FIGURE_DATA_PATH)
+    seager19_data = xr.open_dataset(FIGURE_DATA_PATH)
     r_dict = {}
-    for i in fig_data[return_var_list(num)]:
+    for i in seager19_data[return_var_list(num)]:
         r_dict[i] = i.split(".")[-1]
 
-    return fig_data[return_var_list(num)].rename(r_dict)
+    return seager19_data[return_var_list(num)].rename(r_dict)
 
 
 def comp_uc_oc(setup: ModelSetup, panel="d", show_plots: bool = False) -> None:
@@ -204,8 +215,8 @@ def comp_oc_sst(
     oc_dt = add_units(get_trend(clip(can_coords(uc_oc.SST_SST))).isel(Z=0).drop("Z"))
     oc_dt.attrs["units"] = r"$\Delta$ K"
     oc_dt.attrs["long_name"] = r"$\Delta$ SST"
-    ds = return_figure_ds(num)
-    ddata = add_units(sel(can_coords(ds[var])))
+    fig_ds = return_figure_ds(num)
+    ddata = add_units(sel(can_coords(fig_ds[var])))
     ddata = ddata.where(ddata != 0.0).rename(r"$\Delta$ SST")
     ddata.attrs["units"] = r"$\Delta$ K"
     ddata.attrs["long_name"] = r"$\Delta$ SST"
@@ -235,8 +246,8 @@ def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> str
     )
     oc_dt.attrs["units"] = r"$\Delta$ m"
     oc_dt.attrs["long_name"] = r"$\Delta$ $H_T$"
-    ds = return_figure_ds(num)
-    ddata = add_units(sel(can_coords(ds["HTHERM"])))
+    fig_ds = return_figure_ds(num)
+    ddata = add_units(sel(can_coords(fig_ds["HTHERM"])))
     ddata = ddata.where(ddata != 0.0)  # .rename(r"$\Delta$ SST")
     ddata.attrs["units"] = r"$\Delta$ m"
     ddata.attrs["long_name"] = r"$\Delta$ $H_T$"
@@ -251,25 +262,42 @@ def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> str
     return setup.rep_plot(num, "_htherm")
 
 
-if __name__ == "__main__":
-    # python src/visualisation/comp.py
-    # python src/visualisation/comp_v_seager19.py
-    import os
+def make_plots_example() -> None:
+    """
+    make example plots.
+    """
 
     plot_dir = "/gws/nopw/j04/ai4er/users/sdat2/sensitivity/k_days_logs/k_days_10/plots"
 
     if not os.path.exists(plot_dir):
         os.mkdir(plot_dir)
 
-    uncoupled_run_dir = str(UC_LOGS / "it_1")
-    cfg = load_config(test=False)
-    uncoup_setup = ModelSetup(uncoupled_run_dir, cfg, make_move=False)
+    # uncoupled_run_dir = str(UC_LOGS / "it_1")
+    # cfg = load_config(test=False)
+    # uncoup_setup = ModelSetup(uncoupled_run_dir, cfg, make_move=False)
     coup_setup = get_default_setup()
     # comp_uc_atm(uncoup_setup)
     comp_oc_sst(coup_setup, "3")
     comp_atm_prwnd(coup_setup, "3")
     comp_oc_htherm(coup_setup, "4b")
-    # comp_uc_oc(uncoup_setup)
+
+
+if __name__ == "__main__":
+    # python src/visualisation/comp.py
+    # python src/visualisation/comp_v_seager19.py
+    # ForcedAtmosphereModel.Fig_2c.nc.tsClim
+    # ForcedAtmosphereModel.Fig_2c.nc.tstrend
+    # ForcedAtmosphereModel.Fig_2d.nc.tsClim
+    # ForcedAtmosphereModel.Fig_2d.nc.tstrend
+    ds = return_seager19_ds()
+    for i in ds:
+        print(i)
+
+    print(ds["ForcedAtmosphereModel.Fig_2d.nc.tstrend"])
+    print(ds["ForcedAtmosphereModel.Fig_2c.nc.tstrend"])
+    # ForcedOceanModel.sst-trend-Fig_1d.nc.SST
+    # ForcedOceanModel.sst-trend-Fig_1e.nc.SST
+    # ForcedOceanModel.sst-trend-Fig_1f.nc.SST
 
 
 def field_plot() -> None:

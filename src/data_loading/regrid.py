@@ -9,7 +9,6 @@ from typing import Union, Tuple
 import numpy as np
 import xarray as xr
 import xesmf as xe
-import warnings
 from src.xr_utils import can_coords
 
 

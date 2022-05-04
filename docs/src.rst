@@ -9,9 +9,12 @@ Subpackages
 
    src.configs
    src.data_loading
+   src.model_utils
    src.models
    src.test
+   src.test_utils
    src.visualisation
+   src.visualisation_utils
 
 Submodules
 ----------
@@ -36,14 +39,6 @@ src.main module
 ---------------
 
 .. automodule:: src.main
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-src.mem\_to\_input module
--------------------------
-
-.. automodule:: src.mem_to_input
    :members:
    :undoc-members:
    :show-inheritance:

@@ -59,6 +59,17 @@ def time_limit(seconds: int) -> None:
         signal.alarm(0)
 
 
+def time_stamp() -> str:
+    """
+    Return the current local time.
+
+    Returns:
+        str: Time string format "%Y-%m-%d %H:%M:%S".
+    """
+    current_time = time.localtime()
+    return time.strftime("%Y-%m-%d %H:%M:%S", current_time)
+
+
 def hr_time(time_in: float) -> str:
     """
     Return human readable time as string.
@@ -247,7 +258,7 @@ def in_notebook() -> bool:
         bool: whether in notebook.
     """
     try:
-        # pylint: disable=import-outside-top-level
+        # pylint: disable=import-outside-toplevel
         from IPython import get_ipython
 
         if "IPKernelApp" not in get_ipython().config:  # pragma: no cover

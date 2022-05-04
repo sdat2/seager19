@@ -37,7 +37,7 @@ Example:
         label_subplots(axs, start_from=0, fontsize=10)
 
 """
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union, Optional
 import numpy as np
 from sys import platform
 import itertools
@@ -47,9 +47,11 @@ import pandas as pd
 import xarray as xr
 from uncertainties import ufloat
 import seaborn as sns
+from jupyterthemes import jtplot
 import cftime
 import cmocean
 from src.constants import REPORT_WIDTH, DATE_TITLE_FORMAT
+from src.utils import in_notebook
 
 
 def label_subplots(
@@ -59,6 +61,7 @@ def label_subplots(
     fontsize: int = 10,
     x_pos: float = 0.02,
     y_pos: float = 0.95,
+    override: Optional[str] = None,
 ) -> None:
     """Adds e.g. (a), (b), (c) at the top left of each subplot panel.
 
@@ -72,6 +75,8 @@ def label_subplots(
         fontsize (int, optional): Font size for labels. Defaults to 10.
         x_pos (float, optional): Relative x position of labels. Defaults to 0.02.
         y_pos (float, optional): Relative y position of labels. Defaults to 0.95.
+        override (Optional[str], optional): Whether to overide the
+    x_pos and y_pos to apply a set default.
 
     Returns:
         void; alters the `matplotlib.axes.Axes` objects
@@ -83,6 +88,12 @@ def label_subplots(
             >>> label_subplots(axs, start_from=0, fontsize=10)
 
     """
+    override_d = {"default": [0.02, 0.95]}
+    if override is not None:
+        if override in override_d:
+            x_pos = override_d[override][0]
+            y_pos = override_d[override][1]
+
     if isinstance(axs, list):
         axs = np.asarray(axs)
     assert len(axs.ravel()) + start_from <= len(labels)
@@ -181,8 +192,9 @@ def set_dim(
     )
 
 
-def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
-    """Apply plotting style to produce nice looking figures.
+def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> None:
+    """
+    Apply plotting style to produce nice looking figures.
 
     Call this at the start of a script which uses `matplotlib`.
     Can enable `matplotlib` LaTeX backend if it is available.
@@ -190,27 +202,32 @@ def ps_defaults(use_tex: bool = True, dpi: int = 600) -> None:
 
     Args:
         use_tex (bool, optional): Whether or not to use latex matplotlib backend.
-            Defaults to True.
+            Defaults to False.
         dpi (int, optional): Which dpi to set for the figures.
-            Defaults to 600 dpi (high quality). 150 dpi probably
-            fine for notebooks. Largest dpi needed for presentations.
+    Defaults to 600 dpi (high quality) in terminal or 150 dpi for notebooks.
+    Largest dpi needed for presentations.
 
     Examples:
-        Basic setting the plotting defaults::
+        Basic setting for the plotting defaults::
 
             >>> from src.plot_utils import ps_defaults
             >>> ps_defaults()
-
-        Setting defaults for a jupyter notebook::
-
-            >>> from src.plot_utils import ps_defaults
-            >>> ps_defaults(use_tex=False, dpi=150)
 
     """
     if platform == "darwin":
         matplotlib.use("TkAgg")
 
-    use_tex: bool = False
+    if in_notebook():
+        jtplot.style(theme="grade3", context="notebook", ticks=True, grid=False)
+        if use_tex is None:
+            use_tex: bool = False
+        if dpi is None:
+            dpi: int = 150
+    else:
+        if use_tex is None:
+            use_tex: bool = False  # assume tex does not exist.
+        if dpi is None:
+            dpi = 600  # high quality dpi
 
     p_general = {
         "font.family": "STIXGeneral",  # Nice alternative font.

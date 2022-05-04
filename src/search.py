@@ -1,7 +1,6 @@
 """search.py"""
 from typing import List
 import os
-import numpy as np
 from itertools import product
 import hydra
 from hydra.experimental import initialize, compose
@@ -16,25 +15,6 @@ from src.constants import (
     ARCHIVE_DIR,
 )
 from src.utils import timeit
-
-
-def rand(low: float, high: float) -> float:
-    """
-    Get a single random float from the range.
-
-    A wrapper round `np.random.uniform`, so that I can quickly change this
-    if need be from here. Could replace this with a latin hypercube search,
-    or equivalently Sobel indices etc.
-    These alternatives that they would more fairly sample the space.
-
-    Args:
-        low (float): low end.
-        high (float): high end.
-
-    Returns:
-        float: random float.
-    """
-    return float(np.random.uniform(low, high, 1))
 
 
 @timeit

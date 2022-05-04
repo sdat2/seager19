@@ -2,13 +2,13 @@
 # src/configs/config.yaml: Config file for Hydra.
 # Hopefully passes all the important parameters.
 # Usage example: python src/main.py --multirun oc.nummode=9,10 wandb=false
-project: ENSOTrend-gamma
+project: ENSOTrend-zeta
 user: sdat2
-animate: true # whether to make animations after run.
+animate: false # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
 notes: NA
 # name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
-name: k_days_${atm.k_days}_eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_${atm.mem}
+name: eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_${atm.mem}_add_stress_${coup.add_stress}_stress_trend_${coup.stress_trend}_prcp_land_${atm.prcp_land}
 # name: eps_days_${atm.eps_days}
 # python src/main.py --multirun atm.eps_days=1.35,1.45
 # python src/main.py --multirun atm.eps_days=0.35,0.45
@@ -21,7 +21,7 @@ test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
 archive: true # whether to move the run to the gws archive
-archive_dir: /gws/nopw/j04/ai4er/users/sdat2/ensotrend-gamma
+archive_dir: /gws/nopw/j04/ai4er/users/sdat2/ensotrend-zeta
 ocean: # whether to run parts of the ocean model
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -30,6 +30,7 @@ ocean: # whether to run parts of the ocean model
   ingrid: true   # whether to use spin-up step
   run_through: true
   animate_qflx: true
+  flux_once: true
 oc: # the ocean paramters
   nummode: 2 # each aditional mode adds about 7 minutes to the run time of run2f.
   boundaries: Periodic # realistically this can't be changed.
@@ -50,6 +51,9 @@ coup:
   # The stopping condition is currently quite qualitative, and so 
   # iterations will be quite hard to tune.
   # Initially when fully coupled the models blew up.
+  add_stress: false # whether to add original ECMWF stress in.
+  stress_trend: false # Whether to add stress trend produced by TCAM.
+  # IF False add go between the two TCAM values instead.
 atm:
   # begining TCAM
   prcp_land: 1   # use data precip trends over land

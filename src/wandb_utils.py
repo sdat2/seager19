@@ -13,7 +13,7 @@ from subprocess import PIPE, run
 from src.utils import timeit, in_notebook
 from src.constants import DATA_PATH, run_path, DEFAULT_PROJECT
 from src.models.model_setup import ModelSetup
-from src.mem_to_input import mems_to_df
+from src.model_utils.mem_to_input import mems_to_df
 
 log = logging.getLogger(__name__)
 
@@ -565,9 +565,7 @@ def aggregate_table(
     mem_list: List[str] = DEFAULT_MEM_LIST,
 ) -> pd.DataFrame:
     """
-    _summary_
-
-    _extended_summary_
+    Make aggregate table.
 
     Args:
         project (str, optional): _description_. Defaults to DEFAULT_PROJECT.

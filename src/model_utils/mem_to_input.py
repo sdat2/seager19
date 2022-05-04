@@ -24,9 +24,9 @@ def mems_to_df(mem_list: List[str]) -> pd.DataFrame:
             mems_to_df(["EEEE", "CCCC", "66E6"])
     """
     results_lol = []
-    for i in VAR_DICT:
+    for _ in VAR_DICT:
         results_lol.append([])
-    for i, mem in enumerate(mem_list):
+    for _, mem in enumerate(mem_list):
         for j in VAR_DICT:
             if len(mem) <= j:
                 results_lol[j].append(MODEL_NAMES["E"])
