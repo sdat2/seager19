@@ -223,22 +223,27 @@ class Ocean:
         print(it)
         # Run the test to see if it's working.
         self.run("../SRC/" + self.cfg.ocean.tcom_name + " -i om_test")
-        if self.cfg.ocean.spin:
-            self.run(
-                "../SRC/" + self.cfg.ocean.tcom_name + " -i om_spin -t om_spin.tios"
-            )
-            self.run("../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_spin")
-            self.run("rm -rf output/om_spin.data output/om_spin.indx")
-            self.run("cp -f output/om_spin.save output/om_spin.20y.restart")
-        if self.cfg.ocean.diag:
-            self.run(
-                "../SRC/" + self.cfg.ocean.tcom_name + " -i om_diag -t om_diag.tios"
-            )
-            self.run("../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_diag")
-            self.run("rm -rf output/om_diag.data output/om_diag.indx")
-            self.run("cp -f output/om_diag.save output/om_diag.2y.restart")
-        if self.cfg.ocean.ingrid:
-            linear_qflx_replacement(self.setup)
+        if not self.cfg.ocean.flux_once or it == 0:
+            if self.cfg.ocean.spin:
+                self.run(
+                    "../SRC/" + self.cfg.ocean.tcom_name + " -i om_spin -t om_spin.tios"
+                )
+                self.run(
+                    "../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_spin"
+                )
+                self.run("rm -rf output/om_spin.data output/om_spin.indx")
+                self.run("cp -f output/om_spin.save output/om_spin.20y.restart")
+            if self.cfg.ocean.diag:
+                self.run(
+                    "../SRC/" + self.cfg.ocean.tcom_name + " -i om_diag -t om_diag.tios"
+                )
+                self.run(
+                    "../SRC/" + self.cfg.ocean.tios2cdf_name + " -f output/om_diag"
+                )
+                self.run("rm -rf output/om_diag.data output/om_diag.indx")
+                self.run("cp -f output/om_diag.save output/om_diag.2y.restart")
+            if self.cfg.ocean.ingrid:
+                linear_qflx_replacement(self.setup)
         if self.cfg.ocean.run_through:
             run_time = self.run(
                 "../SRC/" + self.cfg.ocean.tcom_name + " -i om_run2f -t om_run2f.tios"

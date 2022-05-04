@@ -12,3 +12,4 @@ You can also run the tutorials just in your browser without installing anything 
 
    notebooks/analyse_results
    notebooks/psl-read
+   notebooks/param

@@ -8,6 +8,12 @@ TODO: change Filestructure to be more logical.
 
 File structures inside src/data:
 
+Initial directory:
+    DIR=src/data/nc
+
+Final directory:
+    DIR=/gws/nopw/j04/ai4er/users/sdat2/CMIP6
+
     Full ensemble time series:
         ${DIR}/historical.ssp585/timeseries/${var}/${member}.nc
 
@@ -24,13 +30,13 @@ File structures inside src/data:
         ${DIR}/historical.ssp585/nino3.4/${var}/${member}.nc
 
     Ensemble 60 year nino3.4:
-        nc/historical.ssp585.nino3.4/${var}.nc
+        ${DIR}/historical.ssp585.nino3.4/${var}.nc
 
     Ensemble 60 year nino3.4.climatology:
-        nc/historical.ssp585.nino3.4.climatology/${var}.nc
+        ${DIR}/historical.ssp585.nino3.4.climatology/${var}.nc
 
     Ensemble 60 year nino3.4.trends:
-        nc/historical.ssp585.nino3.4.trends/${var}.nc
+        ${DIR}/historical.ssp585.nino3.4.trends/${var}.nc
 
     MMM 60 year mean:
         ${DIR}/historical.ssp585.mmm/mean/${var}.nc
