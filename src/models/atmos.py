@@ -2,6 +2,8 @@
 
 This model was initially written in python by Dr. Naomi Henderson.
 
+It includes the atmospheric Matsuno-Gill model, and the Seager1991 surface flux model.
+
 It was refactored by Simon Thomas into a class structure / to be pylint compatible,
 and to take the cfg DictConfig struct as input.
 
@@ -9,7 +11,7 @@ It includes both the tropical Atmospheric model
 (Matsumo-Gill) with a single baroclinic mode,
 and the surface fluxes calculated based on the Ocean model.
 
-An intriduction to the Matsumo-Gill model:
+An introduction to the Matsumo-Gill model:
 
 https://www.atmos.washington.edu/~dargan/591/591_8.pdf
 
@@ -1194,7 +1196,7 @@ class Atmos:
         u_b_loc = tmp_wsp.unstack("z").T  # climatological windspeed.
         c_b_loc = dclim_loc.clt / 100.0
         rh_loc = dclim_loc.rh / 100.0
-        f1p = -0.003  # f1prime
+        f1p = self.atm.f1prime  # -0.003  # f1prime
 
         alh0 = self.f_dqlh_dtemp(t_sb_loc, self.atm.u_bar, rh_loc)
         alw0 = self.f_dqlw_dtemp(t_sb_loc, self.atm.c_bar, self.atm.f1_bar, rh_loc)

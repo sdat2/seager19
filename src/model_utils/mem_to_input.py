@@ -29,6 +29,7 @@ def mems_to_df(mem_list: List[str]) -> pd.DataFrame:
     for _, mem in enumerate(mem_list):
         for j in VAR_DICT:
             if len(mem) <= j:
+                # ECMWF inputs are the default.
                 results_lol[j].append(MODEL_NAMES["E"])
             else:
                 results_lol[j].append(MODEL_NAMES[mem[j]])
