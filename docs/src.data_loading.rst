@@ -28,14 +28,6 @@ src.data\_loading.make\_inputs module
    :undoc-members:
    :show-inheritance:
 
-src.data\_loading.move\_old module
-----------------------------------
-
-.. automodule:: src.data_loading.move_old
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 src.data\_loading.pangeo module
 -------------------------------
 

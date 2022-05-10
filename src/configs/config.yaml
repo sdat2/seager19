@@ -2,13 +2,13 @@
 # src/configs/config.yaml: Config file for Hydra.
 # Hopefully passes all the important parameters.
 # Usage example: python src/main.py --multirun oc.nummode=9,10 wandb=false
-project: ENSOTrend-zeta
+project: ENSOTrend-eta
 user: sdat2
 animate: false # whether to make animations after run.
 wandb: true # whether or not to sync to weights and biases.
 notes: NA
 # name: k_days_${atm.k_days} # name needs to be unique otherwise will overwrite.
-name: eps_days_${atm.eps_days}_e_frac_${atm.e_frac}_c_d_${coup.c_d}_vary_cloud_const_${atm.vary_cloud_const}_${atm.mem}_add_stress_${coup.add_stress}_stress_trend_${coup.stress_trend}_prcp_land_${atm.prcp_land}
+name: e_frac_${atm.e_frac}_vary_cloud_const_${atm.vary_cloud_const}_${atm.mem}_add_stress_${coup.add_stress}_stress_trend_${coup.stress_trend}_prcp_land_${atm.prcp_land}_f1prime_${oc.f1prime}_ocean.flux_once_${ocean.flux_once}
 # name: eps_days_${atm.eps_days}
 # python src/main.py --multirun atm.eps_days=1.35,1.45
 # python src/main.py --multirun atm.eps_days=0.35,0.45
@@ -21,7 +21,7 @@ test: false # unimportant param for filtering later.
 atmos: true # run the atmospheric model.
 run: true  # whether to run any of the ocean model.
 archive: true # whether to move the run to the gws archive
-archive_dir: /gws/nopw/j04/ai4er/users/sdat2/ensotrend-zeta
+archive_dir: /gws/nopw/j04/ai4er/users/sdat2/ensotrend-eta
 ocean: # whether to run parts of the ocean model
   tcom_name: tcom
   tios2cdf_name: tios2cdf
@@ -110,6 +110,7 @@ atm:
   a_cloud_const_norm: 0.8   # this is for normal conditions
   # basic parameters
   f1_bar: 0.39  # f1 = 0.39
+  f1prime: ${oc.f1prime} #-0.003 # -0.006 # -0.0021
   # f'1  is the anomaly in f1—a parameter that can be adjusted
   # to control the variation in surface longwave radiation due
   # to a_cloud_const change in CO2
