@@ -46,8 +46,10 @@ numpy               # arrays, linear algebra
 scipy               # linear algebra and numerical mathematics
 numba               # speeding up array operations
 pandas              # tabular data analysis
-scipy               # scipy
-uncertainties       # linear error propogation
+scipy               # scipy for constants, curvefitting etc.
+uncertainties       # linear error propagation
+astropy             # astropy has constants e.g. radius of earth.
+pint                # units
 
 # interactive computing
 tqdm                # loading bar
