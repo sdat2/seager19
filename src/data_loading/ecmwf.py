@@ -177,6 +177,7 @@ if __name__ == "__main__":
     # python src/data_loading/ecmwf.py
     get_ecmwf()
     main_variables = [
+        "total_precipitation",
         "skin_temperature",
         "total_cloud_cover",
         "10m_wind_speed",
