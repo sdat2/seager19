@@ -1,24 +1,28 @@
 """
 ECMWF download script.
 """
+from typing import List
 import os
 import xarray as xr
 import cdsapi
-from src.constants import DATA_PATH
+from src.constants import DATA_PATH, GWS_DIR
 from src.utils import timeit
 
 DATA_DIREC = DATA_PATH / "ecmwf"
+ARCHIVE_DIREC = GWS_DIR / "ecmwf"
 
 
 @timeit
 def get_ecmwf(
-    variable="total_precipitation",
-    area=[
+    variable: str = "total_precipitation",
+    # pylint: disable=dangerous-default-value
+    area: List[int] = [
         90,
         -180,
         -90,
         180,
     ],
+    archive: bool = True,
 ) -> None:
     """
     Get ECMWF variable.
@@ -26,10 +30,15 @@ def get_ecmwf(
     Args:
         variable (str, optional): ECMWF API variable name.
     Defaults to "total_precipitation".
+        area (List[int], optional): Defaults to [ 90, -180, -90, 180, ].
+        archive (bool, optional): Defaults to True.
     """
 
-    if os.path.exists(DATA_DIREC):
+    if not os.path.exists(DATA_DIREC):
         os.mkdir(DATA_DIREC)
+    if archive:
+        if not os.path.exists(ARCHIVE_DIREC):
+            os.mkdir(ARCHIVE_DIREC)
 
     c = cdsapi.Client()
 
@@ -87,7 +96,7 @@ def get_ecmwf(
             "time": "00:00",
             "area": area,
         },
-        str(DATA_DIREC / "1.nc"),
+        str(DATA_DIREC / str(variable + "1.nc")),
     )
 
     c.retrieve(
@@ -159,23 +168,26 @@ def get_ecmwf(
             "time": "00:00",
             "area": area,
         },
-        str(DATA_DIREC / "2.nc"),
+        str(DATA_DIREC / str(variable + "2.nc")),
     )
 
     ds = xr.merge(
         [
-            xr.open_dataset(str(DATA_DIREC / "1.nc")),
-            xr.open_dataset(str(DATA_DIREC / "2.nc")),
+            xr.open_dataset(str(DATA_DIREC / str(variable + "1.nc"))),
+            xr.open_dataset(str(DATA_DIREC / str(variable + "2.nc"))),
         ]
     )
     ds.to_netcdf(DATA_DIREC / str(variable + ".nc"))
-    os.remove(str(DATA_DIREC / "1.nc"))
-    os.remove(str(DATA_DIREC / "2.nc"))
+    os.remove(str(DATA_DIREC / str(variable + "1.nc")))
+    os.remove(str(DATA_DIREC / str(variable + "2.nc")))
+    os.rename(
+        str(DATA_DIREC / str(variable + ".nc")),
+        str(ARCHIVE_DIREC / str(variable + ".nc")),
+    )
 
 
 if __name__ == "__main__":
     # python src/data_loading/ecmwf.py
-    get_ecmwf()
     main_variables = [
         "total_precipitation",
         "skin_temperature",
@@ -183,12 +195,14 @@ if __name__ == "__main__":
         "10m_wind_speed",
         "sea_surface_temperature",
         "mean_sea_level_pressure",
-        "evaporation",
-    ]
-
-    other_variables = [
         "10m_u_component_of_wind",
         "10m_v_component_of_wind",
+    ]
+    for var in main_variables:
+        get_ecmwf(variable=var)
+
+    other_variables = [
+        "evaporation",
         "low_vegetation_cover",
         "soil_temperature_level_1",
         "soil_temperature_level_2",
