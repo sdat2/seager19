@@ -12,6 +12,14 @@ src.data\_loading.download module
    :undoc-members:
    :show-inheritance:
 
+src.data\_loading.ecmwf module
+------------------------------
+
+.. automodule:: src.data_loading.ecmwf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 src.data\_loading.ingrid module
 -------------------------------
 
