@@ -14,6 +14,42 @@ DATA_DIREC = DATA_PATH / "ecmwf"
 # final directory for archiving
 ARCHIVE_DIREC = GWS_DIR / "ecmwf"
 
+# regional bounding boxes
+MEKONG = [35, 92, 8, 112]
+GOM = [-100, 15, 35, -80]
+
+
+class FileNames:
+    """
+    Class to store ERA5 file names.
+    """
+
+    def __init__(self, variable="total_precipitation", region_name="") -> None:
+        """
+        Establish class with variable and region name.
+
+        Args:
+            variable (str, optional): Variable name. Defaults to "total_precipitation".
+            region_name (str, optional): Region name. Defaults to "".
+        """
+        self.variable = variable
+        # file paths
+        region_name = ""
+        if region_name != "":
+            region_name = "_" + region_name + "_"
+        self.back_extension_path = str(
+            DATA_DIREC / str(variable + region_name + "_back_extension_era5.nc")
+        )
+        self.main_era5_path = str(
+            DATA_DIREC / str(variable + region_name + "_main_era5.nc")
+        )
+        self.initial_combined_path = str(
+            DATA_DIREC / str(variable + region_name + "_era5.nc")
+        )
+        self.archive_combined_path = str(
+            ARCHIVE_DIREC / str(variable + region_name + "_era5.nc")
+        )
+
 
 @timeit
 def get_era5(
@@ -25,11 +61,12 @@ def get_era5(
         -90,
         180,
     ],
+    region_name: str = "",
     start_year: int = 1950,
     end_year: int = 2022,
     download: bool = True,  # whether to redownload data (or just archive)
     regrid: bool = False,  # whether to regrid onto 1 degree mesh.
-    archive: bool = True,
+    archive: bool = True,  # whether to archive in the group work space.
 ) -> None:
     """
     Get ECMWF variable.
@@ -52,15 +89,14 @@ def get_era5(
     if end_year >= transition_year:
         main_era5_years = [
             str(x)
-            for x in range(max(transition_year, start_year), min(end_year + 1, 2022+1))
+            for x in range(
+                max(transition_year, start_year), min(end_year + 1, 2022 + 1)
+            )
         ]
     else:
         main_era5_years = []
 
-    back_extension_path = str(DATA_DIREC / str(variable + "1.nc"))
-    main_era5_path = str(DATA_DIREC / str(variable + "1.nc"))
-    initial_combined_path = str(DATA_DIREC / str(variable + ".nc"))
-    archive_combined_path = str(ARCHIVE_DIREC / str(variable + ".nc"))
+    files = FileNames(variable=variable, region_name=region_name)
 
     ds_list = []
 
@@ -105,9 +141,13 @@ def get_era5(
                     "time": "00:00",
                     "area": area,
                 },
-                back_extension_path,
+                files.back_extension_path,
             )
-            ds_list.append(xr.open_dataset(back_extension_path).drop("expver"))
+            ds_back = xr.open_dataset(files.back_extension_path)
+            if "expver" in ds_back:
+                ds_back.drop("expver")
+            ds_list.append(ds_back)
+
         if main_era5_years:  # wont run if empty
             c.retrieve(
                 "reanalysis-era5-single-levels-monthly-means",
@@ -120,28 +160,33 @@ def get_era5(
                     "time": "00:00",
                     "area": area,
                 },
-                main_era5_path,
+                files.main_era5_path,
             )
-            ds_list.append(xr.open_dataset(main_era5_path).drop("expver"))
+            ds_main = xr.open_dataset(files.main_era5_path)
+            print(ds_main)
+            if "expver" in ds_back:
+                ds_main.drop("expver")
+            ds_list.append(ds_main)
         # create new combined dataset.
         ds = xr.merge(ds_list)
         if regrid:
             print("Regridding not yet implemented")
             assert False
-        ds.to_netcdf(initial_combined_path)
+        ds.to_netcdf(files.initial_combined_path)
         # remove intermediate datasets.
-        os.remove(back_extension_path)
-        os.remove(main_era5_path)
+        os.remove(files.back_extension_path)
+        os.remove(files.main_era5_path)
         # move merged dataset to archive
     if archive:
         shutil.move(
-            initial_combined_path,
-            archive_combined_path,
+            files.initial_combined_path,
+            files.archive_combined_path,
         )
 
 
 @timeit
-def get_main_variables():
+def get_main_variables() -> None:
+    """Make the main ERA5 variables for seager19."""
     main_variables = [
         "total_precipitation",
         "skin_temperature",
@@ -153,16 +198,15 @@ def get_main_variables():
         "10m_v_component_of_wind",
     ]
     for var in main_variables:
-        get_era5(variable=var)
+        get_era5(variable=var, regrid=True)
 
 
-if __name__ == "__main__":
-    # python src/data_loading/ecmwf.py
-
-    get_era5(variable="skin_temperature", download=True)
-
-    other_variables = [
+def get_mekong_variables() -> None:
+    """Download and archive mekong variables"""
+    mekong_variables = [
         "evaporation",
+        "total_precipitation",
+        "skin_temperature",
         "low_vegetation_cover",
         "soil_temperature_level_1",
         "soil_temperature_level_2",
@@ -175,3 +219,12 @@ if __name__ == "__main__":
         "volumetric_soil_water_layer_3",
         "volumetric_soil_water_layer_4",
     ]
+    for var in mekong_variables:
+        get_era5(variable=var, area=MEKONG, region_name="mekong")
+
+
+if __name__ == "__main__":
+    # python src/data_loading/ecmwf.py
+    get_mekong_variables()
+
+    # get_era5(variable="skin_temperature", download=True)
