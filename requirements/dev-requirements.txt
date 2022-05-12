@@ -83,3 +83,4 @@ cmocean
 # downloads
 requests
 zipfile38
+cdsapi       # download ecmwf.

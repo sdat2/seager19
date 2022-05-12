@@ -1,24 +1,72 @@
 """
-ECMWF download script.
+ECMWF ERA5 download script.
 """
+from typing import List
 import os
+import shutil
 import xarray as xr
 import cdsapi
-from src.constants import DATA_PATH
+from src.constants import DATA_PATH, GWS_DIR
 from src.utils import timeit
 
+# intial directory on jasmin home workspace
 DATA_DIREC = DATA_PATH / "ecmwf"
+# final directory for archiving
+ARCHIVE_DIREC = GWS_DIR / "ecmwf"
+
+# regional bounding boxes
+MEKONG = [35, 92, 8, 112]
+GOM = [-100, 15, 35, -80]
+
+
+class FileNames:
+    """
+    Class to store ERA5 file names.
+    """
+
+    def __init__(self, variable="total_precipitation", region_name="") -> None:
+        """
+        Establish class with variable and region name.
+
+        Args:
+            variable (str, optional): Variable name. Defaults to "total_precipitation".
+            region_name (str, optional): Region name. Defaults to "".
+        """
+        self.variable = variable
+        # file paths
+        region_name = ""
+        if region_name != "":
+            region_name = "_" + region_name + "_"
+        self.back_extension_path = str(
+            DATA_DIREC / str(variable + region_name + "_back_extension_era5.nc")
+        )
+        self.main_era5_path = str(
+            DATA_DIREC / str(variable + region_name + "_main_era5.nc")
+        )
+        self.initial_combined_path = str(
+            DATA_DIREC / str(variable + region_name + "_era5.nc")
+        )
+        self.archive_combined_path = str(
+            ARCHIVE_DIREC / str(variable + region_name + "_era5.nc")
+        )
 
 
 @timeit
-def get_ecmwf(
-    variable="total_precipitation",
-    area=[
+def get_era5(
+    variable: str = "total_precipitation",
+    # pylint: disable=dangerous-default-value
+    area: List[int] = [
         90,
         -180,
         -90,
         180,
     ],
+    region_name: str = "",
+    start_year: int = 1950,
+    end_year: int = 2022,
+    download: bool = True,  # whether to redownload data (or just archive)
+    regrid: bool = False,  # whether to regrid onto 1 degree mesh.
+    archive: bool = True,  # whether to archive in the group work space.
 ) -> None:
     """
     Get ECMWF variable.
@@ -26,168 +74,139 @@ def get_ecmwf(
     Args:
         variable (str, optional): ECMWF API variable name.
     Defaults to "total_precipitation".
+        area (List[int], optional): Defaults to [ 90, -180, -90, 180, ].
+        archive (bool, optional): Defaults to True.
     """
-
-    if os.path.exists(DATA_DIREC):
-        os.mkdir(DATA_DIREC)
-
-    c = cdsapi.Client()
-
-    c.retrieve(
-        "reanalysis-era5-single-levels-monthly-means-preliminary-back-extension",
-        {
-            "format": "netcdf",
-            "product_type": "reanalysis-monthly-means-of-daily-means",
-            "variable": variable,
-            "year": [
-                "1950",
-                "1951",
-                "1952",
-                "1953",
-                "1954",
-                "1955",
-                "1956",
-                "1957",
-                "1958",
-                "1959",
-                "1960",
-                "1961",
-                "1962",
-                "1963",
-                "1964",
-                "1965",
-                "1966",
-                "1967",
-                "1968",
-                "1969",
-                "1970",
-                "1971",
-                "1972",
-                "1973",
-                "1974",
-                "1975",
-                "1976",
-                "1977",
-                "1978",
-            ],
-            "month": [
-                "01",
-                "02",
-                "03",
-                "04",
-                "05",
-                "06",
-                "07",
-                "08",
-                "09",
-                "10",
-                "11",
-                "12",
-            ],
-            "time": "00:00",
-            "area": area,
-        },
-        str(DATA_DIREC / "1.nc"),
-    )
-
-    c.retrieve(
-        "reanalysis-era5-single-levels-monthly-means",
-        {
-            "format": "netcdf",
-            "product_type": "monthly_averaged_reanalysis",
-            "variable": variable,
-            "year": [
-                "1979",
-                "1980",
-                "1981",
-                "1982",
-                "1983",
-                "1984",
-                "1985",
-                "1986",
-                "1987",
-                "1988",
-                "1989",
-                "1990",
-                "1991",
-                "1992",
-                "1993",
-                "1994",
-                "1995",
-                "1996",
-                "1997",
-                "1998",
-                "1999",
-                "2000",
-                "2001",
-                "2002",
-                "2003",
-                "2004",
-                "2005",
-                "2006",
-                "2007",
-                "2008",
-                "2009",
-                "2010",
-                "2011",
-                "2012",
-                "2013",
-                "2014",
-                "2015",
-                "2016",
-                "2017",
-                "2018",
-                "2019",
-                "2020",
-                "2021",
-                "2022",
-            ],
-            "month": [
-                "01",
-                "02",
-                "03",
-                "04",
-                "05",
-                "06",
-                "07",
-                "08",
-                "09",
-                "10",
-                "11",
-                "12",
-            ],
-            "time": "00:00",
-            "area": area,
-        },
-        str(DATA_DIREC / "2.nc"),
-    )
-
-    ds = xr.merge(
-        [
-            xr.open_dataset(str(DATA_DIREC / "1.nc")),
-            xr.open_dataset(str(DATA_DIREC / "2.nc")),
+    transition_year = 1979  # first year for newer ECMWF
+    # make year lists splitting years around 1950
+    if start_year < transition_year:
+        back_extension_years = [
+            str(x)
+            for x in range(max(1950, start_year), min(end_year + 1, transition_year))
         ]
-    )
-    ds.to_netcdf(DATA_DIREC / str(variable + ".nc"))
-    os.remove(str(DATA_DIREC / "1.nc"))
-    os.remove(str(DATA_DIREC / "2.nc"))
+    else:
+        back_extension_years = []
+    if end_year >= transition_year:
+        main_era5_years = [
+            str(x)
+            for x in range(
+                max(transition_year, start_year), min(end_year + 1, 2022 + 1)
+            )
+        ]
+    else:
+        main_era5_years = []
+
+    files = FileNames(variable=variable, region_name=region_name)
+
+    ds_list = []
+
+    print(back_extension_years, main_era5_years)
+
+    # make sure the right directories exist.
+    if not os.path.exists(DATA_DIREC):
+        os.mkdir(DATA_DIREC)
+    if archive:
+        if not os.path.exists(ARCHIVE_DIREC):
+            os.mkdir(ARCHIVE_DIREC)
+
+    months = [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+    ]
+
+    if download:
+
+        # Download data
+        c = cdsapi.Client()
+
+        if back_extension_years:  # wont run if empty
+            c.retrieve(
+                "reanalysis-era5-single-levels-monthly-means-preliminary-back-extension",
+                {
+                    "format": "netcdf",
+                    "product_type": "reanalysis-monthly-means-of-daily-means",
+                    "variable": variable,
+                    "year": back_extension_years,
+                    "month": months,
+                    "time": "00:00",
+                    "area": area,
+                },
+                files.back_extension_path,
+            )
+            ds_back = xr.open_dataset(files.back_extension_path)
+            if "expver" in ds_back:
+                ds_back.drop("expver")
+            ds_list.append(ds_back)
+
+        if main_era5_years:  # wont run if empty
+            c.retrieve(
+                "reanalysis-era5-single-levels-monthly-means",
+                {
+                    "format": "netcdf",
+                    "product_type": "monthly_averaged_reanalysis",
+                    "variable": variable,
+                    "year": main_era5_years,
+                    "month": months,
+                    "time": "00:00",
+                    "area": area,
+                },
+                files.main_era5_path,
+            )
+            ds_main = xr.open_dataset(files.main_era5_path)
+            print(ds_main)
+            if "expver" in ds_back:
+                ds_main.drop("expver")
+            ds_list.append(ds_main)
+        # create new combined dataset.
+        ds = xr.merge(ds_list)
+        if regrid:
+            print("Regridding not yet implemented")
+            assert False
+        ds.to_netcdf(files.initial_combined_path)
+        # remove intermediate datasets.
+        os.remove(files.back_extension_path)
+        os.remove(files.main_era5_path)
+        # move merged dataset to archive
+    if archive:
+        shutil.move(
+            files.initial_combined_path,
+            files.archive_combined_path,
+        )
 
 
-if __name__ == "__main__":
-    # python src/data_loading/ecmwf.py
-    get_ecmwf()
+@timeit
+def get_main_variables() -> None:
+    """Make the main ERA5 variables for seager19."""
     main_variables = [
+        "total_precipitation",
         "skin_temperature",
         "total_cloud_cover",
         "10m_wind_speed",
         "sea_surface_temperature",
         "mean_sea_level_pressure",
-        "evaporation",
-    ]
-
-    other_variables = [
         "10m_u_component_of_wind",
         "10m_v_component_of_wind",
+    ]
+    for var in main_variables:
+        get_era5(variable=var, regrid=True)
+
+
+def get_mekong_variables() -> None:
+    """Download and archive mekong variables"""
+    mekong_variables = [
+        "evaporation",
+        "total_precipitation",
+        "skin_temperature",
         "low_vegetation_cover",
         "soil_temperature_level_1",
         "soil_temperature_level_2",
@@ -200,3 +219,12 @@ if __name__ == "__main__":
         "volumetric_soil_water_layer_3",
         "volumetric_soil_water_layer_4",
     ]
+    for var in mekong_variables:
+        get_era5(variable=var, area=MEKONG, region_name="mekong")
+
+
+if __name__ == "__main__":
+    # python src/data_loading/ecmwf.py
+    get_mekong_variables()
+
+    # get_era5(variable="skin_temperature", download=True)
