@@ -116,7 +116,14 @@ def can_coords(
         xr_ob: Union[xr.DataArray, xr.Dataset], dstr: str, dimtup: Tuple[str]
     ) -> Union[xr.DataArray, xr.Dataset]:
 
-        ext_pos = {"X": "lon", "Y": "lat", "L": "Z", "T": "time"}
+        ext_pos = {
+            "X": "lon",
+            # "X": "longitude",
+            "Y": "lat",
+            # "Y": "latitude",
+            "L": "Z",
+            "T": "time",
+        }
 
         def check_and_rep(
             xr_ob1: Union[xr.DataArray, xr.Dataset], var: str, dstr1: str
@@ -129,6 +136,10 @@ def can_coords(
             d_l.append(ext_pos[var])
             d_l.append(var.lower())
             d_l.append(ext_pos[var].lower())
+            if var == "X":
+                d_l.append("longitude")
+            if var == "Y":
+                d_l.append("latitude")
 
             # check that the dimension is within the possiblities.
             assert dstr1 in d_l
@@ -141,9 +152,9 @@ def can_coords(
             else:
                 return xr_ob1.rename({dstr1: "Z"})
 
-        if "X" in dstr or "x" in dstr or "lon" in dstr:
+        if "X" in dstr or "x" in dstr or "lon" in dstr or "longitude" in dstr:
             xr_ob = check_and_rep(xr_ob, "X", dstr)
-        elif "Y" in dstr or "y" in dstr or "lat" in dstr:
+        elif "Y" in dstr or "y" in dstr or "lat" in dstr or "latitude" in dstr:
             xr_ob = check_and_rep(xr_ob, "Y", dstr)
         elif "L" in dstr or "z" in dstr or "Z" in dstr:
             xr_ob = check_and_rep(xr_ob, "L", dstr)

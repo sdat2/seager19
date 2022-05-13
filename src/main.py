@@ -2,7 +2,7 @@
 
 Basically a wrapper for bash commands
 that run the ocean model (fortran/C),
-and calls the atmospheric model.
+and calls the atmospheric and surface flux model (python).
 
 Example:
    Usage of script::
@@ -86,7 +86,7 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
         archive()
         if cfg.wandb:
             wandb.finish()
-        clear(project=str(cfg.user +"/" + cfg.project))
+        clear(project=str(cfg.user + "/" + cfg.project))
     else:
         if cfg.wandb:
             wandb.finish()
