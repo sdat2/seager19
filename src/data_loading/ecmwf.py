@@ -1,5 +1,14 @@
 """
 ECMWF ERA5 download script.
+
+This script requires you to have registered for an account at:
+
+https://cds.climate.copernicus.eu/
+
+And to have added the login details to your computer user profile as described there.
+
+The script can take a long time to run, as requests at the CDS can
+be held in a very long queue (i.e for many hours on weekdays).
 """
 from typing import List, Tuple
 import os
@@ -8,8 +17,9 @@ import xarray as xr
 import cdsapi
 from src.constants import DATA_PATH, GWS_DIR
 from src.utils import timeit
-from src.xr_utils import can_coords
-from src.data_loading.regrid import regrid_1d_to_standard
+
+# from src.xr_utils import can_coords
+# from src.data_loading.regrid import regrid_1d_to_standard
 
 
 # intial directory on jasmin home workspace
@@ -238,6 +248,7 @@ def get_main_variables() -> None:
         get_era5(variable=var, regrid=True)
 
 
+@timeit
 def get_mekong_variables() -> None:
     """Download and archive mekong variables"""
     mekong_variables = [
