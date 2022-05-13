@@ -37,9 +37,24 @@ GOM = [-100, 15, 35, -80]
 class FileNames:
     """
     Class to store ERA5 file names.
+
+
+    Properties:
+
+    back_extension_path
+    main_era5_path
+    initial_combined_path
+    archive_combined_path
+
+    Example Usage::
+        from src.data_loading.ecmwf import FileNames
+        precip_names = FileNames(variable="total_precipitation", region="mekong")
+
     """
 
-    def __init__(self, variable="total_precipitation", region_name="") -> None:
+    def __init__(
+        self, variable: str = "total_precipitation", region_name: str = ""
+    ) -> None:
         """
         Establish class with variable and region name.
 
@@ -51,7 +66,7 @@ class FileNames:
         self.variable = variable
         # file paths
         if region_name != "":
-            region_name = "_" + region_name + "_"
+            region_name = "_" + region_name
         self.back_extension_path = str(
             DATA_DIREC / str(variable + region_name + "_back_extension_era5.nc")
         )
@@ -225,14 +240,35 @@ def get_era5(
         os.remove(files.main_era5_path)
         # move merged dataset to archive
     if archive:
-        shutil.move(
-            files.initial_combined_path,
-            files.archive_combined_path,
-        )
+        _archive_f(files)
+
+
+def _archive_f(files: FileNames) -> None:
+    """Archive file to gws.
+
+    Args:
+        files (FileNames): file structure class
+    """
+    shutil.move(
+        files.initial_combined_path,
+        files.archive_combined_path,
+    )
+
+
+def _dearchive_f(files: FileNames) -> None:
+    """Dearchive file from gws.
+
+    Args:
+        files (FileNames): file structure class.
+    """
+    shutil.move(
+        files.archive_combined_path,
+        files.initial_combined_path,
+    )
 
 
 @timeit
-def get_main_variables() -> None:
+def get_main_variables(regrid=False) -> None:
     """Make the main ERA5 variables for seager19."""
     main_variables = [
         "total_precipitation",
@@ -245,7 +281,7 @@ def get_main_variables() -> None:
         "10m_v_component_of_wind",
     ]
     for var in main_variables:
-        get_era5(variable=var, regrid=True)
+        get_era5(variable=var, regrid=regrid)
 
 
 @timeit
@@ -279,12 +315,18 @@ def _test_year_lists() -> None:
 
 if __name__ == "__main__":
     # python src/data_loading/ecmwf.py
+    get_main_variables()
     # get_mekong_variables()
-    _test_year_lists()
+    # _test_year_lists()
     # print(_year_lists(1980, 2011))
     # print(_year_lists(1960, 1970))
     # print(_year_lists(1950, 2022))
     # print(_year_lists(1978, 1978))
     # print(_year_lists(1979, 1979))
+    # print(
+    #    FileNames(
+    #        variable="total_precipitation", region_name="mekong"
+    #    ).archive_combined_path
+    # )
 
     # get_era5(variable="skin_temperature", download=True)
