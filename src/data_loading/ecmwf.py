@@ -1,7 +1,16 @@
 """
 ECMWF ERA5 download script.
+
+This script requires you to have registered for an account at:
+
+https://cds.climate.copernicus.eu/
+
+And to have added the login details to your computer user profile as described there.
+
+The script can take a long time to run, as requests at the CDS can
+be held in a very long queue (i.e for many hours on weekdays).
 """
-from typing import List
+from typing import List, Tuple
 import os
 import shutil
 import xarray as xr
@@ -9,13 +18,19 @@ import cdsapi
 from src.constants import DATA_PATH, GWS_DIR
 from src.utils import timeit
 
+# from src.xr_utils import can_coords
+# from src.data_loading.regrid import regrid_1d_to_standard
+
+
 # intial directory on jasmin home workspace
 DATA_DIREC = DATA_PATH / "ecmwf"
 # final directory for archiving
 ARCHIVE_DIREC = GWS_DIR / "ecmwf"
 
 # regional bounding boxes
+# Mekong river (some padding)
 MEKONG = [35, 92, 8, 112]
+# Gulf of Mexico
 GOM = [-100, 15, 35, -80]
 
 
@@ -29,12 +44,12 @@ class FileNames:
         Establish class with variable and region name.
 
         Args:
-            variable (str, optional): Variable name. Defaults to "total_precipitation".
+            variable (str, optional): Variable name.
+        Defaults to "total_precipitation".
             region_name (str, optional): Region name. Defaults to "".
         """
         self.variable = variable
         # file paths
-        region_name = ""
         if region_name != "":
             region_name = "_" + region_name + "_"
         self.back_extension_path = str(
@@ -49,6 +64,48 @@ class FileNames:
         self.archive_combined_path = str(
             ARCHIVE_DIREC / str(variable + region_name + "_era5.nc")
         )
+
+
+def _year_lists(
+    start_year: int = 1950, end_year: int = 2022, transition_year: int = 1979
+) -> Tuple[List[str]]:
+    """
+    Return the year lists.
+
+    Args:
+        start_year (int, optional): First year in list. Defaults to 1950.
+        end_year (int, optional): Final year in list. Defaults to 2022.
+        transition_year (int, optional): Year to go between lists.
+        Defaults to 1979. first year for newer ECMWF.
+
+
+    Returns:
+        Tuple[List[str]]: back_extension_years, main_era5_years
+
+    Example::
+        back_extension_years, main_era5_years = _year_lists(start_year=1951, end_year=2011)
+    """
+    # make year lists splitting years around 1950
+    if start_year < transition_year:
+        back_extension_years = [
+            str(x)
+            for x in range(max(1950, start_year), min(end_year + 1, transition_year))
+        ]
+    else:
+        back_extension_years = []
+    if end_year >= transition_year:
+        main_era5_years = [
+            str(x)
+            for x in range(
+                max(transition_year, start_year),
+                min(end_year + 1, 2022 + 1)
+                # 1
+            )
+        ]
+    else:
+        main_era5_years = []
+
+    return back_extension_years, main_era5_years
 
 
 @timeit
@@ -69,36 +126,26 @@ def get_era5(
     archive: bool = True,  # whether to archive in the group work space.
 ) -> None:
     """
-    Get ECMWF variable.
+    Get ECMWF monthly average variable.
 
     Args:
         variable (str, optional): ECMWF API variable name.
     Defaults to "total_precipitation".
-        area (List[int], optional): Defaults to [ 90, -180, -90, 180, ].
+        area (List[int], optional): Defaults to global [ 90, -180, -90, 180].
+        region_name (str, optional): Region name to add to files. Defaults to "".
+        start_year (int, optional): Start year of timeseries. Defaults to 1950.
+        end_year (int, optional): End year of timeseries. Defaults to 2022.
+        regrid (int, optional): Whether or not to regrid the data to my standard grid.
         archive (bool, optional): Defaults to True.
     """
-    transition_year = 1979  # first year for newer ECMWF
-    # make year lists splitting years around 1950
-    if start_year < transition_year:
-        back_extension_years = [
-            str(x)
-            for x in range(max(1950, start_year), min(end_year + 1, transition_year))
-        ]
-    else:
-        back_extension_years = []
-    if end_year >= transition_year:
-        main_era5_years = [
-            str(x)
-            for x in range(
-                max(transition_year, start_year), min(end_year + 1, 2022 + 1)
-            )
-        ]
-    else:
-        main_era5_years = []
 
     files = FileNames(variable=variable, region_name=region_name)
 
     ds_list = []
+
+    back_extension_years, main_era5_years = _year_lists(
+        start_year=start_year, end_year=end_year
+    )
 
     print(back_extension_years, main_era5_years)
 
@@ -164,8 +211,8 @@ def get_era5(
             )
             ds_main = xr.open_dataset(files.main_era5_path)
             print(ds_main)
-            if "expver" in ds_back:
-                ds_main.drop("expver")
+            if "expver" in ds_main:
+                ds_main = ds_main.isel(expver=0).drop("expver")
             ds_list.append(ds_main)
         # create new combined dataset.
         ds = xr.merge(ds_list)
@@ -201,6 +248,7 @@ def get_main_variables() -> None:
         get_era5(variable=var, regrid=True)
 
 
+@timeit
 def get_mekong_variables() -> None:
     """Download and archive mekong variables"""
     mekong_variables = [
@@ -223,8 +271,20 @@ def get_mekong_variables() -> None:
         get_era5(variable=var, area=MEKONG, region_name="mekong")
 
 
+def _test_year_lists() -> None:
+    """Test if year lists output correct results."""
+    assert str(_year_lists(1978, 1978)) == "(['1978'], [])"
+    assert str(_year_lists(1979, 1979)) == "([], ['1979'])"
+
+
 if __name__ == "__main__":
     # python src/data_loading/ecmwf.py
-    get_mekong_variables()
+    # get_mekong_variables()
+    _test_year_lists()
+    # print(_year_lists(1980, 2011))
+    # print(_year_lists(1960, 1970))
+    # print(_year_lists(1950, 2022))
+    # print(_year_lists(1978, 1978))
+    # print(_year_lists(1979, 1979))
 
     # get_era5(variable="skin_temperature", download=True)
