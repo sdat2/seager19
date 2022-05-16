@@ -47,8 +47,12 @@ class FileNames:
     archive_combined_path
 
     Example Usage::
+
+        import xarray as xr
         from src.data_loading.ecmwf import FileNames
         precip_names = FileNames(variable="total_precipitation", region="mekong")
+        xr.open_dataset(precip_names.archive_combined_path)
+
 
     """
 
@@ -284,27 +288,40 @@ def get_main_variables(regrid=False) -> None:
         get_era5(variable=var, regrid=regrid)
 
 
+MEKONG_VARIABLES = [
+    "evaporation",
+    "total_precipitation",
+    "skin_temperature",
+    "low_vegetation_cover",
+    "soil_temperature_level_1",
+    "soil_temperature_level_2",
+    "soil_temperature_level_3",
+    "soil_temperature_level_4",
+    "soil_type",
+    "type_of_high_vegetation",
+    "volumetric_soil_water_layer_1",
+    "volumetric_soil_water_layer_2",
+    "volumetric_soil_water_layer_3",
+    "volumetric_soil_water_layer_4",
+]
+
+
 @timeit
 def get_mekong_variables() -> None:
     """Download and archive mekong variables"""
-    mekong_variables = [
-        "evaporation",
-        "total_precipitation",
-        "skin_temperature",
-        "low_vegetation_cover",
-        "soil_temperature_level_1",
-        "soil_temperature_level_2",
-        "soil_temperature_level_3",
-        "soil_temperature_level_4",
-        "soil_type",
-        "type_of_high_vegetation",
-        "volumetric_soil_water_layer_1",
-        "volumetric_soil_water_layer_2",
-        "volumetric_soil_water_layer_3",
-        "volumetric_soil_water_layer_4",
-    ]
-    for var in mekong_variables:
+    for var in MEKONG_VARIABLES:
         get_era5(variable=var, area=MEKONG, region_name="mekong")
+
+
+@timeit
+def rename_mekong() -> None:
+    """Rename mekong files."""
+    for var in MEKONG_VARIABLES:
+        wrong_names = FileNames(variable=var, region_name="mekong_")
+        right_names = FileNames(variable=var, region_name="mekong")
+        shutil.move(
+            wrong_names.archive_combined_path, right_names.archive_combined_path
+        )
 
 
 def _test_year_lists() -> None:
@@ -315,7 +332,8 @@ def _test_year_lists() -> None:
 
 if __name__ == "__main__":
     # python src/data_loading/ecmwf.py
-    get_main_variables()
+    rename_mekong()
+    # get_main_variables()
     # get_mekong_variables()
     # _test_year_lists()
     # print(_year_lists(1980, 2011))
