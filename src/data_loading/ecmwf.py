@@ -36,7 +36,8 @@ GOM = [-100, 15, 35, -80]
 
 class FileNames:
     """
-    Class to store ERA5 file names.
+    Class to store ERA5 file names, both to create the files, and to
+    reference them later.
 
 
     Properties:
@@ -56,32 +57,28 @@ class FileNames:
 
     """
 
-    def __init__(
-        self, variable: str = "total_precipitation", region_name: str = ""
-    ) -> None:
+    def __init__(self, variable: str = "total_precipitation", region: str = "") -> None:
         """
         Establish class with variable and region name.
 
         Args:
             variable (str, optional): Variable name.
         Defaults to "total_precipitation".
-            region_name (str, optional): Region name. Defaults to "".
+            region (str, optional): Region name. Defaults to "".
         """
         self.variable = variable
         # file paths
-        if region_name != "":
-            region_name = "_" + region_name
+        if region != "":
+            region = "_" + region
         self.back_extension_path = str(
-            DATA_DIREC / str(variable + region_name + "_back_extension_era5.nc")
+            DATA_DIREC / str(variable + region + "_back_extension_era5.nc")
         )
-        self.main_era5_path = str(
-            DATA_DIREC / str(variable + region_name + "_main_era5.nc")
-        )
+        self.main_era5_path = str(DATA_DIREC / str(variable + region + "_main_era5.nc"))
         self.initial_combined_path = str(
-            DATA_DIREC / str(variable + region_name + "_era5.nc")
+            DATA_DIREC / str(variable + region + "_era5.nc")
         )
         self.archive_combined_path = str(
-            ARCHIVE_DIREC / str(variable + region_name + "_era5.nc")
+            ARCHIVE_DIREC / str(variable + region + "_era5.nc")
         )
 
 
@@ -137,7 +134,7 @@ def get_era5(
         -90,
         180,
     ],
-    region_name: str = "",
+    region: str = "",
     start_year: int = 1950,
     end_year: int = 2022,
     download: bool = True,  # whether to redownload data (or just archive)
@@ -151,14 +148,14 @@ def get_era5(
         variable (str, optional): ECMWF API variable name.
     Defaults to "total_precipitation".
         area (List[int], optional): Defaults to global [ 90, -180, -90, 180].
-        region_name (str, optional): Region name to add to files. Defaults to "".
+        region (str, optional): Region name to add to files. Defaults to "".
         start_year (int, optional): Start year of timeseries. Defaults to 1950.
         end_year (int, optional): End year of timeseries. Defaults to 2022.
         regrid (int, optional): Whether or not to regrid the data to my standard grid.
         archive (bool, optional): Defaults to True.
     """
 
-    files = FileNames(variable=variable, region_name=region_name)
+    files = FileNames(variable=variable, region=region)
 
     ds_list = []
 
@@ -310,15 +307,15 @@ MEKONG_VARIABLES = [
 def get_mekong_variables() -> None:
     """Download and archive mekong variables"""
     for var in MEKONG_VARIABLES:
-        get_era5(variable=var, area=MEKONG, region_name="mekong")
+        get_era5(variable=var, area=MEKONG, region="mekong")
 
 
 @timeit
 def rename_mekong() -> None:
     """Rename mekong files."""
     for var in MEKONG_VARIABLES:
-        wrong_names = FileNames(variable=var, region_name="mekong_")
-        right_names = FileNames(variable=var, region_name="mekong")
+        wrong_names = FileNames(variable=var, region="mekong_")
+        right_names = FileNames(variable=var, region="mekong")
         shutil.move(
             wrong_names.archive_combined_path, right_names.archive_combined_path
         )
@@ -343,7 +340,7 @@ if __name__ == "__main__":
     # print(_year_lists(1979, 1979))
     # print(
     #    FileNames(
-    #        variable="total_precipitation", region_name="mekong"
+    #        variable="total_precipitation", region="mekong"
     #    ).archive_combined_path
     # )
 
