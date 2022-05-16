@@ -37,7 +37,7 @@ Example:
         label_subplots(axs, start_from=0, fontsize=10)
 
 """
-from typing import Sequence, Tuple, Union, Optional
+from typing import Sequence, Tuple, Union, Optional, Literal
 import numpy as np
 from sys import platform
 import itertools
@@ -61,7 +61,7 @@ def label_subplots(
     fontsize: int = 10,
     x_pos: float = 0.02,
     y_pos: float = 0.95,
-    override: Optional[str] = None,
+    override: Optional[Literal["inside", "outside", "default"]] = None,
 ) -> None:
     """Adds e.g. (a), (b), (c) at the top left of each subplot panel.
 
@@ -75,8 +75,9 @@ def label_subplots(
         fontsize (int, optional): Font size for labels. Defaults to 10.
         x_pos (float, optional): Relative x position of labels. Defaults to 0.02.
         y_pos (float, optional): Relative y position of labels. Defaults to 0.95.
-        override (Optional[str], optional): Whether to overide the
-    x_pos and y_pos to apply a set default.
+        override (Optional[Literal["inside", "outside", "default"]], optional): Choose a
+            preset x_pos, y_pos option to overide choices.
+            "Outside" is good for busy colormaps. Defaults to None.
 
     Returns:
         void; alters the `matplotlib.axes.Axes` objects
@@ -88,8 +89,11 @@ def label_subplots(
             >>> label_subplots(axs, start_from=0, fontsize=10)
 
     """
-    override_d = {"default": [0.02, 0.95]}
+    override_d = {"default": "inside", "outside": [-0.02, 1.05], "inside": [0.02, 0.95]}
     if override is not None:
+        # allow redirection to keep DRY.
+        if override_d[override] in override_d:
+            override = override_d[override]
         if override in override_d:
             x_pos = override_d[override][0]
             y_pos = override_d[override][1]
@@ -199,6 +203,8 @@ def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> No
     Call this at the start of a script which uses `matplotlib`.
     Can enable `matplotlib` LaTeX backend if it is available.
 
+    Uses serif font,
+
 
     Args:
         use_tex (bool, optional): Whether or not to use latex matplotlib backend.
@@ -242,8 +248,7 @@ def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> No
         "legend.fontsize": 10,
         "xtick.labelsize": 9,
         "ytick.labelsize": 9,
-        # currently I don't use these autofomatters, but hopefully they
-        # are sensible choices to have made.
+        # Times.
         "date.autoformatter.year": "%Y",
         "date.autoformatter.month": "%Y-%m",
         "date.autoformatter.day": "%Y-%m-%d",
@@ -280,6 +285,7 @@ def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> No
     matplotlib.rcParams.update(p_setting)
 
 
+# Constants from SVM (could move to src.constants)
 # Standard color list
 STD_CLR_LIST = [
     "#4d2923ff",
@@ -420,7 +426,10 @@ def add_units(
 
 
 def tex_uf(
-    uf: ufloat, bracket: bool = False, force_latex=False, exponential=True
+    uf: ufloat,
+    bracket: bool = False,
+    force_latex: bool = False,
+    exponential: bool = True,
 ) -> str:
     """
     A function to take an uncertainties.ufloat, and return a tex containing string
@@ -433,7 +442,7 @@ def tex_uf(
         force_latex (bool, optional): Whether to force latex output.
     Defaults to False. If false will check matplotlib.rcParams first.
         exponential (bool, optional): Whether to put in scientific notation.
-    Defaults to True
+    Defaults to True.
 
 
     Returns:
@@ -470,6 +479,13 @@ def axis_formatter() -> matplotlib.ticker.ScalarFormatter:
         Returns:
             matplotlib.ticker.ScalarFormatter: An object to pass in to a
     matplotlib operation.
+
+    Examples:
+        Using with xarray::
+
+            import xarray as xr
+            da = xr.tutorial.open_dataset("air_temperature").air
+            da.isel(time=0).plot(cbar_kwargs={"format": axis_formatter()})
 
     """
 

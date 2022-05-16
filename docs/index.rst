@@ -5,7 +5,7 @@
 A Parsimonious Coupled Model of the Equatorial Pacific Surface Temperature Change
 =============================================================================================
 
-Welcome to the seager19 documentation!
+Welcome to the seager19 replication documentation!
 
 This project reassembles a parsimonious coupled model of the equatorial Pacific,
 from `Seager et al. 2019 (S19)`_, which they created to explain the bias in the
