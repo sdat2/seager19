@@ -210,8 +210,8 @@ def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> No
         use_tex (bool, optional): Whether or not to use latex matplotlib backend.
             Defaults to False.
         dpi (int, optional): Which dpi to set for the figures.
-    Defaults to 600 dpi (high quality) in terminal or 150 dpi for notebooks.
-    Largest dpi needed for presentations.
+            Defaults to 600 dpi (high quality) in terminal or 150 dpi for notebooks.
+            Larger dpi may be needed for presentations.
 
     Examples:
         Basic setting for the plotting defaults::
@@ -220,13 +220,14 @@ def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> No
             >>> ps_defaults()
 
     """
+    # mac needs a different plotting backend...
     if platform == "darwin":
         matplotlib.use("TkAgg")
 
     if in_notebook():
         jtplot.style(theme="grade3", context="notebook", ticks=True, grid=False)
         if use_tex is None:
-            use_tex: bool = False
+            use_tex: bool = False  # assume tex does not exist.
         if dpi is None:
             dpi: int = 150
     else:
@@ -236,7 +237,7 @@ def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> No
             dpi = 600  # high quality dpi
 
     p_general = {
-        "font.family": "STIXGeneral",  # Nice alternative font.
+        "font.family": "STIXGeneral",  # Nice serif font, similar to latex default.
         # "font.family": "serif",
         # "font.serif": [],
         # Use 10pt font in plots, to match 10pt font in document
@@ -267,13 +268,14 @@ def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> No
         "image.cmap": "viridis",
     }
     matplotlib.rcParams.update(p_general)
+    # colorblind optimised colormap as default.
     matplotlib.style.use("seaborn-colorblind")
 
     if use_tex and find_executable("latex"):
         p_setting = {
             "pgf.texsystem": "pdflatex",
             "text.usetex": True,
-            "pgf.preamble": (
+            "pgf.preamble": str(
                 r"\usepackage[utf8x]{inputenc} \usepackage[T1]{fontenc}"
                 + r"\usepackage[separate -uncertainty=true]{siunitx}"
             ),
@@ -311,6 +313,10 @@ def time_title(
 ) -> None:
     """Add time title to axes.
 
+    Used by e.g. the animation scripts. Hopefully it will consistently
+    deal with a variety of different date formats, including the
+    native format for the ocean model (months since 1960).
+
     Args:
         ax (matplotlib.axes.Axes): axis to add title to.
         time (Union[np.datetime64, float, cftime.Datetime360Day]): time string.
@@ -342,6 +348,13 @@ def time_title(
 
 def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     """Get cmap from a variable name string.
+
+    Ideally colormaps for variables should be consistent
+    throughout the project, and changed in this function.
+    The colormaps are set to be green where there are NaN values,
+    as this has a high contrast with the colormaps used, and
+    should ordinarily represent land, unless something has gone wrong.
+
 
     Args:
         variable_name (str): name of variable to give colormap.
@@ -440,9 +453,9 @@ def tex_uf(
         bracket (bool, optional): Whether or not to add latex brackets around
             the parameter. Defaults to False.
         force_latex (bool, optional): Whether to force latex output.
-    Defaults to False. If false will check matplotlib.rcParams first.
+            Defaults to False. If false will check matplotlib.rcParams first.
         exponential (bool, optional): Whether to put in scientific notation.
-    Defaults to True.
+            Defaults to True.
 
 
     Returns:
@@ -478,7 +491,7 @@ def axis_formatter() -> matplotlib.ticker.ScalarFormatter:
 
         Returns:
             matplotlib.ticker.ScalarFormatter: An object to pass in to a
-    matplotlib operation.
+                matplotlib operation.
 
     Examples:
         Using with xarray::
