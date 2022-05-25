@@ -1,4 +1,7 @@
-"""Consistent plotting settings across the project.
+"""Plotting Utilities Module.
+
+Contains generic plotting functions that are used to achieve
+consistent and easy to produce plots across the project.
 
 Example:
     Usage with simple plots::
@@ -52,6 +55,117 @@ import cftime
 import cmocean
 from src.constants import REPORT_WIDTH, DATE_TITLE_FORMAT
 from src.utils import in_notebook
+
+
+def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> None:
+    """
+    Apply plotting style to produce nice looking figures.
+
+    Call this at the start of a script which uses `matplotlib`.
+    Can enable `matplotlib` LaTeX backend if it is available.
+
+    Uses serif font to fit into latex report.
+    Uses REPORT_WIDTH from `src.constants`.
+
+
+    Args:
+        use_tex (bool, optional): Whether or not to use latex matplotlib backend.
+            Defaults to False.
+        dpi (int, optional): Which dpi to set for the figures.
+            Defaults to 600 dpi (high quality) in terminal or 150 dpi for notebooks.
+            Larger dpi may be needed for presentations.
+
+    Examples:
+        Basic setting for the plotting defaults::
+
+            >>> from src.plot_utils import ps_defaults
+            >>> ps_defaults()
+
+    """
+    # mac needs a different plotting backend...
+    if platform == "darwin":
+        matplotlib.use("TkAgg")
+
+    if in_notebook():
+        jtplot.style(theme="grade3", context="notebook", ticks=True, grid=False)
+        if use_tex is None:
+            use_tex: bool = False  # assume tex does not exist.
+        if dpi is None:
+            dpi: int = 150
+    else:
+        if use_tex is None:
+            use_tex: bool = False  # assume tex does not exist.
+        if dpi is None:
+            dpi = 600  # high quality dpi
+
+    p_general = {
+        "font.family": "STIXGeneral",  # Nice serif font, similar to latex default.
+        # "font.family": "serif",
+        # "font.serif": [],
+        # Use 10pt font in plots, to match 10pt font in document
+        "axes.labelsize": 10,
+        "font.size": 10,
+        "figure.dpi": dpi,
+        "savefig.dpi": dpi,
+        # Make the legend/label fonts a little smaller
+        "legend.fontsize": 10,
+        "xtick.labelsize": 9,
+        "ytick.labelsize": 9,
+        # Times.
+        "date.autoformatter.year": "%Y",
+        "date.autoformatter.month": "%Y-%m",
+        "date.autoformatter.day": "%Y-%m-%d",
+        "date.autoformatter.hour": "%m-%d %H",
+        "date.autoformatter.minute": "%Y-%m-%d %H:%M:%S",
+        "date.autoformatter.second": "%H:%M:%S",
+        "date.autoformatter.microsecond": "%M:%S.%f",
+        # Set the font for maths
+        "axes.formatter.use_mathtext": True,
+        "mathtext.fontset": "cm",
+        # "font.sans-serif": ["DejaVu Sans"],  # gets rid of error messages
+        # "font.monospace": [],
+        "figure.figsize": get_dim(),
+        "lines.linewidth": 1.0,
+        "scatter.marker": "x",
+        "image.cmap": "viridis",
+    }
+    matplotlib.rcParams.update(p_general)
+    # colorblind optimised colormap as default.
+    matplotlib.style.use("seaborn-colorblind")
+
+    if use_tex and find_executable("latex"):
+        p_setting = {
+            "pgf.texsystem": "pdflatex",
+            "text.usetex": True,
+            "pgf.preamble": str(
+                r"\usepackage[utf8x]{inputenc} \usepackage[T1]{fontenc}"
+                + r"\usepackage[separate -uncertainty=true]{siunitx}"
+            ),
+        }
+    else:
+        p_setting = {
+            "text.usetex": False,
+        }
+    matplotlib.rcParams.update(p_setting)
+
+
+# Constants from SVM (could move to src.constants)
+# Standard color list
+STD_CLR_LIST = [
+    "#4d2923ff",
+    "#494f1fff",
+    "#38734bff",
+    "#498489ff",
+    "#8481baff",
+    "#c286b2ff",
+    "#d7a4a3ff",
+]
+_paper_colors = sns.color_palette(STD_CLR_LIST)
+# Note: To inspect colors, call `sns.palplot(_paper_colors)`
+PALETTE = itertools.cycle(_paper_colors)
+CAM_BLUE = "#a3c1ad"
+OX_BLUE = "#002147"
+BRICK_RED = "#CB4154"
 
 
 def label_subplots(
@@ -196,156 +310,6 @@ def set_dim(
     )
 
 
-def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> None:
-    """
-    Apply plotting style to produce nice looking figures.
-
-    Call this at the start of a script which uses `matplotlib`.
-    Can enable `matplotlib` LaTeX backend if it is available.
-
-    Uses serif font,
-
-
-    Args:
-        use_tex (bool, optional): Whether or not to use latex matplotlib backend.
-            Defaults to False.
-        dpi (int, optional): Which dpi to set for the figures.
-            Defaults to 600 dpi (high quality) in terminal or 150 dpi for notebooks.
-            Larger dpi may be needed for presentations.
-
-    Examples:
-        Basic setting for the plotting defaults::
-
-            >>> from src.plot_utils import ps_defaults
-            >>> ps_defaults()
-
-    """
-    # mac needs a different plotting backend...
-    if platform == "darwin":
-        matplotlib.use("TkAgg")
-
-    if in_notebook():
-        jtplot.style(theme="grade3", context="notebook", ticks=True, grid=False)
-        if use_tex is None:
-            use_tex: bool = False  # assume tex does not exist.
-        if dpi is None:
-            dpi: int = 150
-    else:
-        if use_tex is None:
-            use_tex: bool = False  # assume tex does not exist.
-        if dpi is None:
-            dpi = 600  # high quality dpi
-
-    p_general = {
-        "font.family": "STIXGeneral",  # Nice serif font, similar to latex default.
-        # "font.family": "serif",
-        # "font.serif": [],
-        # Use 10pt font in plots, to match 10pt font in document
-        "axes.labelsize": 10,
-        "font.size": 10,
-        "figure.dpi": dpi,
-        "savefig.dpi": dpi,
-        # Make the legend/label fonts a little smaller
-        "legend.fontsize": 10,
-        "xtick.labelsize": 9,
-        "ytick.labelsize": 9,
-        # Times.
-        "date.autoformatter.year": "%Y",
-        "date.autoformatter.month": "%Y-%m",
-        "date.autoformatter.day": "%Y-%m-%d",
-        "date.autoformatter.hour": "%m-%d %H",
-        "date.autoformatter.minute": "%Y-%m-%d %H:%M:%S",
-        "date.autoformatter.second": "%H:%M:%S",
-        "date.autoformatter.microsecond": "%M:%S.%f",
-        # Set the font for maths
-        "axes.formatter.use_mathtext": True,
-        "mathtext.fontset": "cm",
-        # "font.sans-serif": ["DejaVu Sans"],  # gets rid of error messages
-        # "font.monospace": [],
-        "figure.figsize": get_dim(),
-        "lines.linewidth": 1.0,
-        "scatter.marker": "x",
-        "image.cmap": "viridis",
-    }
-    matplotlib.rcParams.update(p_general)
-    # colorblind optimised colormap as default.
-    matplotlib.style.use("seaborn-colorblind")
-
-    if use_tex and find_executable("latex"):
-        p_setting = {
-            "pgf.texsystem": "pdflatex",
-            "text.usetex": True,
-            "pgf.preamble": str(
-                r"\usepackage[utf8x]{inputenc} \usepackage[T1]{fontenc}"
-                + r"\usepackage[separate -uncertainty=true]{siunitx}"
-            ),
-        }
-    else:
-        p_setting = {
-            "text.usetex": False,
-        }
-    matplotlib.rcParams.update(p_setting)
-
-
-# Constants from SVM (could move to src.constants)
-# Standard color list
-STD_CLR_LIST = [
-    "#4d2923ff",
-    "#494f1fff",
-    "#38734bff",
-    "#498489ff",
-    "#8481baff",
-    "#c286b2ff",
-    "#d7a4a3ff",
-]
-_paper_colors = sns.color_palette(STD_CLR_LIST)
-# Note: To inspect colors, call `sns.palplot(_paper_colors)`
-PALETTE = itertools.cycle(_paper_colors)
-CAM_BLUE = "#a3c1ad"
-OX_BLUE = "#002147"
-BRICK_RED = "#CB4154"
-
-
-def time_title(
-    ax: matplotlib.axes.Axes,
-    time: Union[np.datetime64, float, cftime.Datetime360Day],
-    date_time_formatter: str = DATE_TITLE_FORMAT,
-) -> None:
-    """Add time title to axes.
-
-    Used by e.g. the animation scripts. Hopefully it will consistently
-    deal with a variety of different date formats, including the
-    native format for the ocean model (months since 1960).
-
-    Args:
-        ax (matplotlib.axes.Axes): axis to add title to.
-        time (Union[np.datetime64, float, cftime.Datetime360Day]): time string.
-        date_time_formatter (str, optional): Default is
-            `src.constants.DATE_TITLE_FORMAT`.
-
-    Example:
-        Usage with an xarray.Datarray object::
-
-            >>> from src.plot_utils import time_title
-            >>> time_title(ax, xr_da.time.values[index])
-
-    """
-    if isinstance(time, np.datetime64):
-        # use pandas to format time
-        ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
-    elif isinstance(time, cftime.Datetime360Day):
-        ax.set_title(time.strftime()[0:10])
-    elif isinstance(time, (float, np.floating)):
-        # It would be better to have this as an option
-        ax.set_title("%2.1f months after 1960" % time)
-    else:
-        print(
-            "!Warning!: input of type "
-            + str(type(time))
-            + " does not lead to title plotting."
-        )
-
-
 def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     """Get cmap from a variable name string.
 
@@ -405,6 +369,47 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     cmap_t.set_bad(color="#15b01a")
 
     return cmap_t
+
+
+
+def time_title(
+    ax: matplotlib.axes.Axes,
+    time: Union[np.datetime64, float, cftime.Datetime360Day],
+    date_time_formatter: str = DATE_TITLE_FORMAT,
+) -> None:
+    """Add time title to axes.
+
+    Used by e.g. the animation scripts. Hopefully it will consistently
+    deal with a variety of different date formats, including the
+    native format for the ocean model (months since 1960).
+
+    Args:
+        ax (matplotlib.axes.Axes): axis to add title to.
+        time (Union[np.datetime64, float, cftime.Datetime360Day]): time string.
+        date_time_formatter (str, optional): Default is
+            `src.constants.DATE_TITLE_FORMAT`.
+
+    Example:
+        Usage with an xarray.Datarray object::
+
+            >>> from src.plot_utils import time_title
+            >>> time_title(ax, xr_da.time.values[index])
+
+    """
+    if isinstance(time, np.datetime64):
+        # use pandas to format time
+        ax.set_title(pd.to_datetime(str(time)).strftime(date_time_formatter))
+    elif isinstance(time, cftime.Datetime360Day):
+        ax.set_title(time.strftime()[0:10])
+    elif isinstance(time, (float, np.floating)):
+        # It would be better to have this as an option
+        ax.set_title("%2.1f months after 1960" % time)
+    else:
+        print(
+            "!Warning!: input of type "
+            + str(type(time))
+            + " does not lead to title plotting."
+        )
 
 
 def add_units(
@@ -497,6 +502,7 @@ def axis_formatter() -> matplotlib.ticker.ScalarFormatter:
         Using with xarray::
 
             import xarray as xr
+            from src.plot_utils import axis_formatter
             da = xr.tutorial.open_dataset("air_temperature").air
             da.isel(time=0).plot(cbar_kwargs={"format": axis_formatter()})
 
