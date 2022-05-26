@@ -203,10 +203,10 @@ def label_subplots(
             >>> label_subplots(axs, start_from=0, fontsize=10)
 
     """
-    override_d = {"default": "inside", "outside": [-0.02, 1.05], "inside": [0.02, 0.95]}
+    override_d = {"default": "inside", "outside": [-0.12, 1.12], "inside": [0.02, 0.95]}
     if override is not None:
         # allow redirection to keep DRY.
-        if override_d[override] in override_d:
+        if not isinstance(override_d[override], list):
             override = override_d[override]
         if override in override_d:
             x_pos = override_d[override][0]

@@ -10,6 +10,7 @@ You can also run the tutorials just in your browser without installing anything 
 .. toctree::
    :maxdepth: 1
 
-   notebooks/analyse_results
    notebooks/psl-read
+   notebooks/plot_utils
+   notebooks/analyse_results
    notebooks/param
