@@ -11,7 +11,7 @@ from src.constants import (
     FIGURE_PATH,
     CD_LOGS,
 )
-from src.plot_utils import add_units, ps_defaults, cmap, label_subplots, get_dim
+from src.plot_utils import add_units, plot_defaults, cmap, label_subplots, get_dim
 from src.xr_utils import (
     get_trend,
     open_dataarray,
@@ -113,7 +113,7 @@ def get_nino_trend(
         dict: nino dict.
     """
     plt.clf()
-    ps_defaults(dpi=150)
+    plot_defaults(dpi=150)
     # TODO: this is very hacky :'(  Fix this!
     if "NOAA" not in path_of_run2f and "ts" not in path_of_run2f:
         sst_output = can_coords(open_dataset(path_of_run2f).SST_SST)

@@ -13,7 +13,7 @@ from src.xr_utils import open_dataset, get_trend, clip, can_coords, sel
 from src.wandb_utils import setup_from_name
 from src.utils import get_default_setup
 from src.configs.load_config import load_config
-from src.plot_utils import add_units, cmap, get_dim, label_subplots, ps_defaults
+from src.plot_utils import add_units, cmap, get_dim, label_subplots, plot_defaults
 from src.constants import UC_LOGS, FIGURE_DATA_PATH, FIGURE_PATH
 from src.visualisation.quiver import pqp_part
 
@@ -64,7 +64,7 @@ def comp_prcp_quiver_plot(
         ours (xr.Dataset): Our dataset.
         theirs (xr.Dataset): Their dataset.
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     _, axs = plt.subplots(3, 1, figsize=get_dim(ratio=0.3 * 3), sharex=True)
     pqp_part(axs[0], ours, x_pos=x_pos, y_pos=y_pos, vmin=vmin, vmax=vmax)
     axs[0].set_xlabel("")
@@ -117,7 +117,7 @@ def return_figure_ds(num: str) -> xr.Dataset:
     Returns:
         xr.Dataset: the dataset for a particular figure panel with the standard names.
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     seager19_data = xr.open_dataset(FIGURE_DATA_PATH)
     r_dict = {}
     for i in seager19_data[return_var_list(num)]:
@@ -134,7 +134,7 @@ def comp_uc_oc(setup: ModelSetup, panel="d", show_plots: bool = False) -> None:
         setup (ModelSetup): The setup object.
         panel (str, optional): Which panel to test aginst. Defaults to "d".
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     fig_data = xr.open_dataset(FIGURE_DATA_PATH)
     uc_oc = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
     uc_oc_dt = add_units(get_trend(clip(can_coords(uc_oc.SST_SST))).isel(Z=0).drop("Z"))
@@ -164,7 +164,7 @@ def comp_uc_atm(setup: ModelSetup, panel="d", show_plots: bool = False) -> None:
         setup (ModelSetup): The path object.
         panel (str, optional): Which panel to test against. Defaults to "d".
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     uc_atm = open_dataset(setup.tcam_output())
     ads = return_figure_ds("2" + panel)
     comp_prcp_quiver_plot(uc_atm, ads)
@@ -184,7 +184,7 @@ def comp_atm_prwnd(setup: ModelSetup, num: str, show_plots: bool = False) -> str
         setup (ModelSetup): The path object.
         panel (str): Which panel to test against. E.g. 2d.
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     uc_atm = open_dataset(setup.tcam_output())
     ads = return_figure_ds(num)
     comp_prcp_quiver_plot(uc_atm, ads)
@@ -210,7 +210,7 @@ def comp_oc_sst(
     """
     if "1" in num:
         var = "SST"
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     uc_oc = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
     oc_dt = add_units(get_trend(clip(can_coords(uc_oc.SST_SST))).isel(Z=0).drop("Z"))
     oc_dt.attrs["units"] = r"$\Delta$ K"
@@ -239,7 +239,7 @@ def comp_oc_htherm(setup: ModelSetup, num: str, show_plots: bool = False) -> str
         setup (ModelSetup): The setup.
         num (str): The number e.g. "4b".
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     uc_oc = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
     oc_dt = add_units(
         get_trend(clip(can_coords(uc_oc.TDEEP_HMODEL))).isel(Z=0).drop("Z")

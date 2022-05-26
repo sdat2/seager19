@@ -17,7 +17,7 @@ import xarray as xr
 import matplotlib
 import matplotlib.pyplot as plt
 from uncertainties import ufloat
-from src.plot_utils import ps_defaults, set_dim, tex_uf, label_subplots
+from src.plot_utils import plot_defaults, set_dim, tex_uf, label_subplots
 from src.constants import FIGURE_PATH
 from src.wandb_utils import output_fig_2_data
 
@@ -173,7 +173,7 @@ def arrow_plot(
                 arrow_plot(project="sdat2/seager19", show_plots=True)
     """
     plt.clf()
-    ps_defaults(use_tex=False)
+    plot_defaults(use_tex=False)
     fig, axs = plt.subplots(1, 2, sharey=True)
     set_dim(fig, ratio=0.4)
     table_list, variable = output_fig_2_data(project=project)
@@ -223,7 +223,7 @@ def origninal_arrow_plot(
             Defaults to None. If None will not save.
         show_plots (bool, optional): Whether to show plots. Defaults to False.
     """
-    ps_defaults(use_tex=False)
+    plot_defaults(use_tex=False)
 
     color_d = {
         "EEEE": "blue",
@@ -326,7 +326,7 @@ def plot_arrow_plot_6(
             Defaults to None. If None will not save.
         show_plots (bool, optional): Whether to show plots. Defaults to False.
     """
-    ps_defaults(use_tex=False)
+    plot_defaults(use_tex=False)
 
     color_d = {
         "EEEE": "blue",
@@ -487,7 +487,7 @@ def plot_results_xr() -> None:
     """
     Plot the `RESULTS_XR` object, to make a nice plot for AGU.
     """
-    ps_defaults(use_tex=False)
+    plot_defaults(use_tex=False)
 
     pairs = [("EEEE", "EEEE"), ("EECE", "EE6E"), ("EEEC", "EEE6"), ("EECC", "EE66")]
     label_matches = {

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from src.utils import timeit
 from src.models.model_setup import ModelSetup
 from src.xr_utils import can_coords, clip, get_trend
-from src.plot_utils import cmap, get_dim, ps_defaults, label_subplots
+from src.plot_utils import cmap, get_dim, plot_defaults, label_subplots
 from src.utils import get_default_setup
 from src.constants import FIGURE_PATH
 
@@ -24,7 +24,7 @@ def up_therm_qnet(
         save_path ([type], optional): path to save fig to.
             Defaults to str(FIGURE_PATH / "tuq_trends.png").
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     ds = xr.open_dataset(setup.om_run2f_nc(), decode_times=False)
     _, axs = plt.subplots(3, 1, figsize=get_dim(ratio=0.28 * 3.8))
     clip(get_trend(can_coords(ds.TDEEP_HMODEL))).plot(ax=axs[0], cmap=cmap("delta"))

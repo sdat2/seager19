@@ -5,7 +5,7 @@ import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
 from src.xr_utils import get_trend, sel
-from src.plot_utils import add_units, cmap, get_dim, ps_defaults, axis_formatter
+from src.plot_utils import add_units, cmap, get_dim, plot_defaults, axis_formatter
 from src.models.poly import plot
 from src.constants import (
     SEL_DICT,
@@ -20,7 +20,7 @@ from src.models.model_setup import ModelSetup
 from src.utils import timeit
 from src.wandb_utils import get_wandb_data, metric_conv_data
 
-ps_defaults(use_tex=False, dpi=200)
+plot_defaults(use_tex=False, dpi=200)
 
 
 @timeit

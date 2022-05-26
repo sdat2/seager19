@@ -3,7 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from src.plot_utils import (
-    ps_defaults,
+    plot_defaults,
     label_subplots,
     set_dim,
     STD_CLR_LIST,
@@ -18,7 +18,7 @@ def test_plot() -> None:
 
     for use_tex in [False, True]:
 
-        ps_defaults(use_tex=use_tex)
+        plot_defaults(use_tex=use_tex)
 
         fig, axs = plt.subplots(2, 2)
         x = np.linspace(0, np.pi, num=100)

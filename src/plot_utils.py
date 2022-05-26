@@ -7,7 +7,7 @@ Example:
     Usage with simple plots::
 
         from src.plot_utils import (
-            ps_defaults,
+            plot_defaults,
             label_subplots,
             get_dim,
             set_dim,
@@ -18,7 +18,7 @@ Example:
             OX_BLUE,
         )
 
-        ps_defaults(use_tex=True)
+        plot_defaults(use_tex=True)
 
         # ---- example set of graphs ---
 
@@ -57,7 +57,7 @@ from src.constants import REPORT_WIDTH, DATE_TITLE_FORMAT
 from src.utils import in_notebook
 
 
-def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> None:
+def plot_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> None:
     """
     Apply plotting style to produce nice looking figures.
 
@@ -78,8 +78,8 @@ def ps_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> No
     Examples:
         Basic setting for the plotting defaults::
 
-            >>> from src.plot_utils import ps_defaults
-            >>> ps_defaults()
+            >>> from src.plot_utils import plot_defaults
+            >>> plot_defaults()
 
     """
     # mac needs a different plotting backend...
@@ -424,7 +424,7 @@ def add_units(
     Fails softly.
 
     Args:
-        xr_da (Union[xr.DataArray, xr.Dataset]: Initial datarray/datset
+        xr_da (Union[xr.DataArray, xr.Dataset]): Initial datarray/datset
             (potentially with units for axes).
         x_val (str): Defaults to "X"
         y_val (str): Defaults to "Y"

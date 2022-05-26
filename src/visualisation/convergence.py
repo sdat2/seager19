@@ -8,7 +8,7 @@ from src.wandb_utils import metric_conv_data
 from src.constants import FIGURE_PATH, CD_LOGS
 from src.xr_utils import open_dataarray, open_dataset, sel, fix_calendar
 from src.plot_utils import (
-    ps_defaults,
+    plot_defaults,
     cmap,
     add_units,
     get_dim,
@@ -31,7 +31,7 @@ def metric_conv_plot(
         long_name (str, optional): The long name for the ylabel.
             Defaults to "Mean Tropical Pacific (pac)".
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
 
     metric_dict, _ = metric_conv_data(metric_name=metric_name)
 

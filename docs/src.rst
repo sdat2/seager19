@@ -14,7 +14,6 @@ Subpackages
    src.test
    src.test_utils
    src.visualisation
-   src.visualisation_utils
 
 Submodules
 ----------

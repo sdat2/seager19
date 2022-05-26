@@ -5,7 +5,7 @@ from typing import Optional
 import matplotlib.pyplot as plt
 from uncertainties import unumpy as unp
 from src.constants import FIGURE_PATH
-from src.plot_utils import ps_defaults
+from src.plot_utils import plot_defaults
 from src.models.poly import fit
 from src.wandb_utils import cd_variation_comp
 
@@ -22,7 +22,7 @@ def plot_comp_cd(
             Defaults to None. If None will not save.
         show_plots (bool, optional): Whether to show plots. Defaults to False.
     """
-    ps_defaults(use_tex=False)
+    plot_defaults(use_tex=False)
 
     color_d = {
         "EEEE": "blue",

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from typeguard import typechecked
 import imageio
 from src.plot_utils import (
-    ps_defaults,
+    plot_defaults,
     time_title,
     cmap,
     add_units,
@@ -51,7 +51,7 @@ def animate_ds(
             to None. Introduced so that I could speed up the test animation,
             while still covering the function.
     """
-    ps_defaults(use_tex=False, dpi=dpi)
+    plot_defaults(use_tex=False, dpi=dpi)
     cmap_d = {
         "DYN_PRES": "delta",
         "SST_QFLX": "delta",
@@ -111,7 +111,7 @@ def animate_xr_da(
         dpi (float, optional): dots per inch for plotting. Defaults to 200.
 
     """
-    ps_defaults(use_tex=False, dpi=dpi)
+    plot_defaults(use_tex=False, dpi=dpi)
     balanced_colormap = False
 
     xr_da = add_units(xr_da)
@@ -213,7 +213,7 @@ def animate_qflx_diff(
         fps (int, optional): Frames per second. Defaults to 5.
         dpi (int, optional): dots per inch. Defaults to 200.
     """
-    ps_defaults(use_tex=False, dpi=dpi)
+    plot_defaults(use_tex=False, dpi=dpi)
 
     qflx = open_dataarray(path_a)
     qflx_0 = open_dataarray(path_b)
@@ -313,7 +313,7 @@ def animate_coupling(
             Defaults to False.
 
     """
-    ps_defaults(use_tex=False, dpi=dpi)  # set the plot settings sensibly.
+    plot_defaults(use_tex=False, dpi=dpi)  # set the plot settings sensibly.
 
     video_indices = list(range(setup.cfg.coup.iterations))
     video_path = setup.coupling_video(pac=pac, mask_land=mask_land)

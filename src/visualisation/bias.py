@@ -12,7 +12,7 @@ from src.constants import (
     DATA_PATH,
     CMIP6_TS_PATH,
 )
-from src.plot_utils import ps_defaults, label_subplots, cmap, ps_defaults, set_dim
+from src.plot_utils import plot_defaults, label_subplots, cmap, plot_defaults, set_dim
 from src.xr_utils import (
     can_coords,
     sel,
@@ -234,7 +234,7 @@ def multi_bias_plot(model: str = "S", vertical=True) -> None:
     else:
         fig, axs = plt.subplots(2, 2)
     set_dim(fig, ratio=1.5)
-    ps_defaults()
+    plot_defaults()
     axs = axs.ravel()
     temperature_line_plot(axs[0])
     i = 0

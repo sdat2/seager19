@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from src.utils import timeit, get_default_setup
 from src.models.model_setup import ModelSetup
 from src.xr_utils import can_coords, clip
-from src.plot_utils import cmap, add_units, get_dim, ps_defaults
+from src.plot_utils import cmap, add_units, get_dim, plot_defaults
 from src.constants import FIGURE_PATH
 
 
@@ -25,7 +25,7 @@ def prcp_quiver_plot(
         save_path ([type], optional): Path to save fig to. Defaults to
             str(FIGURE_PATH / "uv_prcp.png").
     """
-    ps_defaults(use_tex=False, dpi=200)
+    plot_defaults(use_tex=False, dpi=200)
     _, ax = plt.subplots(1, figsize=get_dim(ratio=0.5))
     ads = xr.open_dataset(setup.tcam_output())
     pqp_part(ax, ads)
