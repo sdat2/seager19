@@ -237,7 +237,7 @@ if not os.path.exists(str(LOG_PATH)):
 REPORT_WIDTH: float = 398.3386  # in pixels
 
 # DATE FORMAT for plotting titles
-DATE_TITLE_FORMAT: str = "%Y.%m.%d"
+DATE_TITLE_FORMAT: str = "%Y-%m-%d"
 
 
 def run_path(cfg: DictConfig, unit_test: bool = False) -> str:
