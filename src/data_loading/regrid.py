@@ -170,10 +170,7 @@ def regrid_1d_to_standard(
     return can_coords(
         da.rename({"x": "X", "y": "Y"})
         .assign_coords(
-            {
-                "X": ("X", da.isel(y=0).lon.values),
-                "Y": ("Y", da.isel(x=0).lat.values),
-            }
+            {"X": ("X", da.isel(y=0).lon.values), "Y": ("Y", da.isel(x=0).lat.values),}
         )
         .drop_vars(["lon", "lat"])
     )

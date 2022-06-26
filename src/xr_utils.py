@@ -314,9 +314,7 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
 
 
 def cut_and_taper(
-    da: xr.DataArray,
-    y_var: str = "Y",
-    x_var: str = "X",
+    da: xr.DataArray, y_var: str = "Y", x_var: str = "X",
 ) -> xr.DataArray:
     """
     Cut and taper a field by latitude.

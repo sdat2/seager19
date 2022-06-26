@@ -13,7 +13,7 @@ from src.constants import FIGURE_PATH
 def up_therm_qnet(
     setup: ModelSetup = get_default_setup(),
     show_plots: bool = False,
-    save_path: str =str(FIGURE_PATH / "tuq_trends.png"),
+    save_path: str = str(FIGURE_PATH / "tuq_trends.png"),
 ) -> None:
     """
     up trend qnet trend.

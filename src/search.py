@@ -55,10 +55,7 @@ def main(settings: DictConfig) -> None:
             # print(override_list)
 
         with initialize(config_path=rel_path):
-            cfg = compose(
-                config_name=CONFIG_NAME,
-                overrides=override_list,
-            )
+            cfg = compose(config_name=CONFIG_NAME, overrides=override_list,)
 
         # print(cfg)
         print(cfg.name)
@@ -71,7 +68,7 @@ def between_two(choices: List[Char] = ["C", "E"], length: int = 4) -> List[str]:
     Args:
         choices (List[Char], optional): Characters to choose between.
             Defaults to ["C", "E"].
-        length (int, optional): _description_. Defaults to 4.
+        length (int, optional): Length of "mem" input string. Defaults to 4.
 
     Returns:
         (List[str]): list of possible sequences.
@@ -101,8 +98,8 @@ def variable_combinations(
     set and multiple experiments deviations.
 
     Args:
-        control (Char, optional): _description_. Defaults to "E".
-        exps (List[Char], optional): _description_. Defaults to ["C", "6"].
+        control (Char, optional): Control input. Defaults to "E" for ECMWF.
+        exps (List[Char], optional): Experimental inputs. Defaults to ["C", "6"].
 
     Returns:
         List[str]: List of combinations to try.

@@ -141,10 +141,7 @@ def trends_from_csv(
             end_year=(["end_year"], df.index.values),
             source=(["source"], df.columns.values),
         ),
-        attrs=dict(
-            long_name="nino3.4 60 year trend up to end year",
-            units="K",
-        ),
+        attrs=dict(long_name="nino3.4 60 year trend up to end year", units="K",),
     )
     da["end_year"].attrs["long_name"] = "End year"
     da["source"].attrs["long_name"] = "Multi-model-mean"

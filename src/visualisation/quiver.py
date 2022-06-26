@@ -52,12 +52,7 @@ def pqp_part(
     new_y = list(range(-30, 31, 5))
     fvtrend = interp2d(ads.X, ads.Yv, ads.vtrend, kind="linear")
     futrend = interp2d(ads.X, ads.Yu, ads.utrend, kind="linear")
-    new_ds = xr.Dataset(
-        {
-            "X": ("X", new_x),
-            "Y": ("Y", new_y),
-        }
-    )
+    new_ds = xr.Dataset({"X": ("X", new_x), "Y": ("Y", new_y),})
     new_ds.X.attrs = [("units", "degree_east")]
     new_ds.Y.attrs = [("units", "degree_north")]
     new_ds["utrend"] = (["Y", "X"], futrend(new_x, new_y))

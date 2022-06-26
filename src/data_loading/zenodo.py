@@ -23,6 +23,7 @@ def get_zip() -> None:
         for chunk in tqdm(req.iter_content(chunk_size=128)):
             file.write(chunk)
 
+
 if __name__ == "__main__":
     # python src/data_loading/zenodo.py
     get_zip()

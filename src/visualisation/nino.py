@@ -96,10 +96,7 @@ def plot_nino(ax: matplotlib.axes.Axes, legend: bool = False) -> None:
 
 
 def get_nino_trend(
-    path_of_run2f: str,
-    graph_path: str,
-    nc_path: str,
-    show_plots: bool = False,
+    path_of_run2f: str, graph_path: str, nc_path: str, show_plots: bool = False,
 ) -> dict:
     """
     Get nino trend, mean, plot the graph.
@@ -165,18 +162,12 @@ def get_nino_trend(
         )
 
         metric.plot(
-            ax=axs[1],
-            label=label,
-            color=SEL_DICT[reg]["color"],
-            linewidth=0.5,
+            ax=axs[1], label=label, color=SEL_DICT[reg]["color"], linewidth=0.5,
         )
         axs[1].set_title("")
 
         clim.plot(
-            ax=axs[2],
-            label=label,
-            color=SEL_DICT[reg]["color"],
-            linewidth=1.5,
+            ax=axs[2], label=label, color=SEL_DICT[reg]["color"], linewidth=1.5,
         )
 
         axs[2].set_title("")
@@ -236,11 +227,7 @@ def make_plots() -> None:
     """
     cfg = load_config()
 
-    setup = ModelSetup(
-        str("logs/it_1a"),
-        cfg,
-        make_move=False,
-    )
+    setup = ModelSetup(str("logs/it_1a"), cfg, make_move=False,)
 
     get_nino_trend(
         setup.om_run2f_nc(),
@@ -344,18 +331,12 @@ def multi_panel_nino(sst_output, graph_path, show_plots=False):
         )
 
         metric.plot(
-            ax=axs[1],
-            label=label,
-            color=SEL_DICT[reg]["color"],
-            linewidth=0.5,
+            ax=axs[1], label=label, color=SEL_DICT[reg]["color"], linewidth=0.5,
         )
         axs[1].set_title("")
 
         clim.plot(
-            ax=axs[2],
-            label=label,
-            color=SEL_DICT[reg]["color"],
-            linewidth=1.5,
+            ax=axs[2], label=label, color=SEL_DICT[reg]["color"], linewidth=1.5,
         )
 
         axs[2].set_title("")

@@ -927,19 +927,11 @@ class Atmos:
         # pr_c, u1, v1, phi1, mc1
 
         pr_c_end, u_end, v_end, phi_end, mc_end = iterate(
-            pr_end,
-            pr_c_end,
-            q_th_end,
-            e_end,
-            qa_end,
+            pr_end, pr_c_end, q_th_end, e_end, qa_end,
         )
 
         pr_c_beg, u_beg, v_beg, phi_beg, mc_beg = iterate(
-            pr_beg,
-            pr_c_beg,
-            q_th_beg,
-            e_beg,
-            qa_beg,
+            pr_beg, pr_c_beg, q_th_beg, e_beg, qa_beg,
         )
 
         # save and plot the trends

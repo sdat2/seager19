@@ -16,8 +16,7 @@ def test_nino() -> None:
     get_test_nino_data()
     metric, clim = calculate_nino3_4_from_noaa()
     for x in recursive_diff.recursive_diff(
-        metric,
-        xr.open_dataarray(str(NINO3_4_TEST_PATH)),
+        metric, xr.open_dataarray(str(NINO3_4_TEST_PATH)),
     ):
         print(x)
         assert False

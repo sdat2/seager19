@@ -72,23 +72,14 @@ def get_data(force_refresh: bool = False) -> None:
             str(ATMOS_PATH),
             [
                 [PREFIX + "j7x3bjfnb8fdw3b/tmp.zip" + SUFFIX, "tmp.zip"],
-                [
-                    PREFIX + "r82fv6g8sdwykzj/DATA.zip" + SUFFIX,
-                    "DATA.zip",
-                ],
+                [PREFIX + "r82fv6g8sdwykzj/DATA.zip" + SUFFIX, "DATA.zip",],
             ],
         ],
         [
             str(OCEAN_PATH),
             [
-                [
-                    PREFIX + "luoo402lzbsyi5r/DATA.zip" + SUFFIX,
-                    "DATA.zip",
-                ],
-                [
-                    PREFIX + "q2qxeucdsb9958j/output.zip" + SUFFIX,
-                    "output.zip",
-                ],
+                [PREFIX + "luoo402lzbsyi5r/DATA.zip" + SUFFIX, "DATA.zip",],
+                [PREFIX + "q2qxeucdsb9958j/output.zip" + SUFFIX, "output.zip",],
             ],
         ],
     ]
@@ -102,15 +93,7 @@ def get_figure_data(force_refresh: bool = False) -> None:
     name = FIGURE_DATA_NAME + ".zip"
 
     lol = [
-        [
-            str(DATA_PATH),
-            [
-                [
-                    PREFIX + code + name + SUFFIX,
-                    name,
-                ],
-            ],
-        ],
+        [str(DATA_PATH), [[PREFIX + code + name + SUFFIX, name,],],],
     ]
 
     _get_data(lol, force_refresh=force_refresh)
@@ -123,15 +106,7 @@ def get_noaa_data() -> None:
     name = NOAA_DATA_NAME + ".zip"
 
     lol = [
-        [
-            str(DATA_PATH),
-            [
-                [
-                    PREFIX + code + name + SUFFIX,
-                    name,
-                ],
-            ],
-        ],
+        [str(DATA_PATH), [[PREFIX + code + name + SUFFIX, name,],],],
     ]
 
     _get_data(lol)
@@ -144,15 +119,7 @@ def get_test_nino_data() -> None:
     name = NINO3_4_TEST_NAME + ".zip"
 
     lol = [
-        [
-            str(DATA_PATH),
-            [
-                [
-                    PREFIX + code + name + SUFFIX,
-                    name,
-                ],
-            ],
-        ],
+        [str(DATA_PATH), [[PREFIX + code + name + SUFFIX, name,],],],
     ]
 
     _get_data(lol)
@@ -171,15 +138,7 @@ def get_original_models() -> None:
     ]:
 
         lol = [
-            [
-                str(DATA_PATH),
-                [
-                    [
-                        PREFIX + code + name + SUFFIX,
-                        name,
-                    ],
-                ],
-            ],
+            [str(DATA_PATH), [[PREFIX + code + name + SUFFIX, name,],],],
         ]
 
         _get_data(lol)
@@ -190,12 +149,7 @@ def get_member_data(force_refresh: bool = False) -> None:
     lol = [
         [
             str(DATA_PATH),
-            [
-                [
-                    PREFIX + "udui5x9c3q7y2ca/ts_nc.zip" + SUFFIX,
-                    "ts_nc.zip",
-                ],
-            ],
+            [[PREFIX + "udui5x9c3q7y2ca/ts_nc.zip" + SUFFIX, "ts_nc.zip",],],
         ],
     ]
 
@@ -246,12 +200,7 @@ def get_cmip6_mmm(force_refresh: bool = False) -> None:
     lol = [
         [
             str(DATA_PATH),
-            [
-                [
-                    PREFIX + "18oca0kaft5tdy0/cmip6-mmm.zip" + SUFFIX,
-                    "cmip6-mmm.zip",
-                ],
-            ],
+            [[PREFIX + "18oca0kaft5tdy0/cmip6-mmm.zip" + SUFFIX, "cmip6-mmm.zip",],],
         ],
     ]
 
@@ -264,12 +213,7 @@ def get_cmip6_mmm_clim60(force_refresh: bool = False) -> None:
     lol = [
         [
             str(DATA_PATH),
-            [
-                [
-                    PREFIX + "9tj08i0o5cntv8t/nc_mean.zip" + SUFFIX,
-                    "nc_mean.zip",
-                ],
-            ],
+            [[PREFIX + "9tj08i0o5cntv8t/nc_mean.zip" + SUFFIX, "nc_mean.zip",],],
         ],
     ]
 
@@ -281,12 +225,7 @@ def get_ts_ensemble(force_refresh: bool = False) -> None:
     lol = [
         [
             str(DATA_PATH),
-            [
-                [
-                    PREFIX + "4fsdixia0dl9gt4/nc80.zip" + SUFFIX,
-                    "nc80.zip",
-                ],
-            ],
+            [[PREFIX + "4fsdixia0dl9gt4/nc80.zip" + SUFFIX, "nc80.zip",],],
         ],
     ]
 

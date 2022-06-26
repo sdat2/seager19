@@ -74,9 +74,7 @@ def k_plots(show_plots: bool = False) -> None:
     for reg in SEL_DICT:
 
         metric_d, _ = metric_conv_data(
-            metric_name="trend_" + reg,
-            prefix="k_days_",
-            index_by=("atm", "k_days"),
+            metric_name="trend_" + reg, prefix="k_days_", index_by=("atm", "k_days"),
         )
 
         pair_list = []
@@ -180,12 +178,7 @@ def eps_heatmaps(show_plots: bool = False) -> None:
     for name in names:
         direc = str(EPS_LOGS / name)
         name_direc_l.append(
-            (
-                name,
-                float(name[5:]),
-                direc,
-                ModelSetup(direc, cfg, make_move=False),
-            )
+            (name, float(name[5:]), direc, ModelSetup(direc, cfg, make_move=False),)
         )
 
     print(name_direc_l)
@@ -265,9 +258,7 @@ def eps_heatmaps(show_plots: bool = False) -> None:
         figsize=get_dim(ratio=0.5),
     )
     add_units(hatch_mask).where(hatch_mask != 0).plot(
-        add_colorbar=False,
-        cmap="Greys",
-        alpha=0.3,
+        add_colorbar=False, cmap="Greys", alpha=0.3,
     )
     plt.tight_layout()
     plt.title("")
@@ -387,9 +378,7 @@ def cd_heatmaps(show_plots: bool = False) -> None:
         figsize=get_dim(ratio=0.5),
     )
     add_units(hatch_mask).where(hatch_mask != 0).plot(
-        add_colorbar=False,
-        cmap="Greys",
-        alpha=0.3,
+        add_colorbar=False, cmap="Greys", alpha=0.3,
     )
     plt.tight_layout()
     plt.title("")

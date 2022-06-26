@@ -200,11 +200,7 @@ def coupling_frame(
         axs[0, 1].set_xlabel("")
         axs[0, 1].set_ylabel("")
         clip(add_units(open_dataarray(setup.dq_df(it=index)).isel(T=1))).plot(
-            ax=axs[1, 0],
-            cmap=cmap("sst"),
-            vmin=180,
-            vmax=450,
-            cbar_kwargs=cbar_dict,
+            ax=axs[1, 0], cmap=cmap("sst"), vmin=180, vmax=450, cbar_kwargs=cbar_dict,
         )
         axs[1, 0].set_title(r"$\frac{dQ}{df}$ [W m$^{-2}$]")
         axs[1, 0].set_xlabel("")
@@ -215,11 +211,7 @@ def coupling_frame(
         axs[1, 1].set_xlabel("")
         axs[1, 1].set_ylabel("")
         clip(add_units(open_dataarray(setup.ts_clim(it=index)))).plot(
-            ax=axs[2, 0],
-            cmap=cmap("sst"),
-            vmin=270,
-            vmax=310,
-            cbar_kwargs=cbar_dict,
+            ax=axs[2, 0], cmap=cmap("sst"), vmin=270, vmax=310, cbar_kwargs=cbar_dict,
         )
         axs[2, 0].set_title(r"$\bar{T}_s$ [K]")
         clip(add_units(open_dataarray(setup.ts_trend(it=index)))).plot(
@@ -251,20 +243,12 @@ def final_coup_plot() -> None:
     direc = CD_LOGS / "cd_2.25" / "wandb" / "latest-run" / "files"
     cfg = load_config(test=False)
     setup = ModelSetup(direc, cfg, make_move=False)
-    make_frame = coupling_frame(
-        setup,
-        close_figure=False,
-    )
+    make_frame = coupling_frame(setup, close_figure=False,)
     _ = make_frame(5)
     plt.savefig(FIGURE_PATH / "cd_2.25_coup.pdf")
     plt.savefig(FIGURE_PATH / "cd_2.25_coup.png")
     plt.clf()
-    make_frame = coupling_frame(
-        setup,
-        pac=True,
-        mask_land=True,
-        close_figure=False,
-    )
+    make_frame = coupling_frame(setup, pac=True, mask_land=True, close_figure=False,)
     _ = make_frame(5)
     plt.savefig(FIGURE_PATH / "cd_2.25_pac_mask_land_coup.pdf")
     plt.savefig(FIGURE_PATH / "cd_2.25_pac_mask_land_coup.png")

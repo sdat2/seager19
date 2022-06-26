@@ -66,20 +66,13 @@ def plot_comp_cd(
         )
         plt.plot(x_pred, y_pred_n, color=color_d[mem], alpha=0.5)
         plt.scatter(
-            mem_d[mem][0],
-            mem_d[mem][1],
-            marker="x",
-            label=name_d[mem],
-            c=color_d[mem],
+            mem_d[mem][0], mem_d[mem][1], marker="x", label=name_d[mem], c=color_d[mem],
         )
 
     plt.xlabel("Drag coefficient, $C_d$, [dimesionless]")
     plt.ylabel("1958-2017 nino3.4 trend [K]")
     plt.legend(
-        bbox_to_anchor=(0.0, 1.02, 1, 0.102),
-        loc="lower left",
-        mode="expand",
-        ncol=4,
+        bbox_to_anchor=(0.0, 1.02, 1, 0.102), loc="lower left", mode="expand", ncol=4,
     )
     plt.gca().ticklabel_format(
         axis="x", style="sci", scilimits=(0, 0), useMathText=True

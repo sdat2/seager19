@@ -55,11 +55,7 @@ def _plot_error(
     ax.plot([x - 0.2, x + 0.2], [y, y], "black", linewidth=1)
 
 
-def _plot_arrow(
-    ax: matplotlib.axes.Axes,
-    x_val: float,
-    y_val: float,
-) -> None:
+def _plot_arrow(ax: matplotlib.axes.Axes, x_val: float, y_val: float,) -> None:
     """
     Add a single upwards arrow to the subplot.
 
@@ -300,10 +296,7 @@ def origninal_arrow_plot(
     plt.ylabel("1958-2017, Trend in nino3.4 [K]")
 
     plt.legend(
-        bbox_to_anchor=(0.0, 1.02, 1, 0.102),
-        loc="lower left",
-        mode="expand",
-        ncol=2,
+        bbox_to_anchor=(0.0, 1.02, 1, 0.102), loc="lower left", mode="expand", ncol=2,
     )
     plt.tight_layout()
 
@@ -394,10 +387,7 @@ def plot_arrow_plot_6(
     plot_error(3, ecmwf + rh_and_wind, rh_and_wind_error, "EECC")
     plt.plot(xlim, [ecmwf, ecmwf], color="blue", label="ECMWF/ORAS4 $= 0.411$ K ")
     plt.plot(
-        xlim,
-        [cmip6, cmip6],
-        color="red",
-        label="CMIP6 MMM $= 0.772$ K",
+        xlim, [cmip6, cmip6], color="red", label="CMIP6 MMM $= 0.772$ K",
     )
 
     # plt.xticks([0, 1, 2, 3], ["ECMWF", "W", "RH", "RH+W"])
@@ -421,10 +411,7 @@ def plot_arrow_plot_6(
     plt.ylabel("1958-2017, Trend in nino3.4 [K]")
 
     plt.legend(
-        bbox_to_anchor=(0.0, 1.02, 1, 0.102),
-        loc="lower left",
-        mode="expand",
-        ncol=2,
+        bbox_to_anchor=(0.0, 1.02, 1, 0.102), loc="lower left", mode="expand", ncol=2,
     )
     plt.tight_layout()
 

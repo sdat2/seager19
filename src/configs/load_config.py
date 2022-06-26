@@ -37,10 +37,7 @@ def load_config(prefix: str = "../../", test=True) -> DictConfig:
             ]
         else:
             override_list = ["user=non-test"]
-        cfg = compose(
-            config_name=CONFIG_NAME,
-            overrides=override_list,
-        )
+        cfg = compose(config_name=CONFIG_NAME, overrides=override_list,)
         # print(cfg)
         cfg = format_config(cfg)
         # print(cfg)

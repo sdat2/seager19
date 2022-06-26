@@ -371,7 +371,6 @@ def cmap(variable_name: str) -> matplotlib.colors.LinearSegmentedColormap:
     return cmap_t
 
 
-
 def time_title(
     ax: matplotlib.axes.Axes,
     time: Union[np.datetime64, float, cftime.Datetime360Day],

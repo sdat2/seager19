@@ -156,10 +156,7 @@ def finished_names(project: str = DEFAULT_PROJECT) -> List[str]:
 def metric_conv_data(
     metric_name: str = "mean_pac",
     prefix: str = "cd_",
-    ex_list: List[str] = [
-        "cd_norm",
-        "nummode",
-    ],
+    ex_list: List[str] = ["cd_norm", "nummode",],
     control_variable_list=[(("atm", "k_days"), 10), (("atm", "e_frac"), 2)],
     index_by: tuple = ("coup", "c_d"),
     project: str = DEFAULT_PROJECT,
@@ -561,8 +558,7 @@ DEFAULT_MEM_LIST: List[str] = ["EEEE", "EECE", "EEEC", "EECC"]
 
 
 def aggregate_table(
-    project: str = DEFAULT_PROJECT,
-    mem_list: List[str] = DEFAULT_MEM_LIST,
+    project: str = DEFAULT_PROJECT, mem_list: List[str] = DEFAULT_MEM_LIST,
 ) -> pd.DataFrame:
     """
     Make aggregate table.
@@ -591,8 +587,7 @@ def _remove_row(df: pd.DataFrame, row_index: str = "EEEE") -> pd.DataFrame:
 
 
 def change_table(
-    project: str = DEFAULT_PROJECT,
-    mem_list: List[str] = DEFAULT_MEM_LIST,
+    project: str = DEFAULT_PROJECT, mem_list: List[str] = DEFAULT_MEM_LIST,
 ) -> Tuple[pd.DataFrame, str]:
     """
         Return a table with the differences between ECMWF run and the different inputs

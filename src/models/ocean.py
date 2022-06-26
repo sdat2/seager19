@@ -125,15 +125,11 @@ class Ocean:
                 string_list,
             )
             string_list = replace_item(
-                self.setup.dq_df(0, path=False),
-                self.setup.dq_df_file(),
-                string_list,
+                self.setup.dq_df(0, path=False), self.setup.dq_df_file(), string_list,
             )
             # TODO: Need SST clim added?
             string_list = replace_item(
-                self.setup.sst_file(),
-                self.setup.sst_replacement_file(),
-                string_list,
+                self.setup.sst_file(), self.setup.sst_replacement_file(), string_list,
             )
 
             self.setup.clim_file("sst", "clim", path=False)

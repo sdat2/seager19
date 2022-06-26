@@ -119,21 +119,12 @@ class Coupling:
             Tuple[xr.DataArray, xr.DataArray]: tau_u, tau_v
         """
         sfcw50 = wind.sel(Y=slice(-50, 50))
-        ds = xr.Dataset(
-            {
-                "X": ("X", sfcw50.X.values),
-                "Y": ("Y", sfcw50.Y.values),
-            }
-        )
+        ds = xr.Dataset({"X": ("X", sfcw50.X.values), "Y": ("Y", sfcw50.Y.values),})
         fuend = interp2d(u_vel.X, u_vel.Yu, u_vel, kind="linear")
         ds["u_vel"] = (["Y", "X"], fuend(sfcw50.X.values, sfcw50.Y.values))
         fvend = interp2d(v_vel.X, v_vel.Yv, v_vel, kind="linear")
         ds["v_vel"] = (["Y", "X"], fvend(sfcw50.X.values, sfcw50.Y.values))
-        t_u, t_v = self.f_stress(
-            sfcw50,
-            ds.u_vel,
-            ds.v_vel,
-        )
+        t_u, t_v = self.f_stress(sfcw50, ds.u_vel, ds.v_vel,)
         return cut_and_taper(t_u).rename("tau_u"), cut_and_taper(t_v).rename("tau_v")
 
     def tau_anom_ds(self) -> xr.Dataset:
@@ -232,12 +223,10 @@ class Coupling:
                     )
                 else:
                     taux_new["taux"][i, 0, 40:141, :] = (
-                        +(i / time_length) * taux_trend[:, :]
-                        + tauy_beg[:, :]
+                        +(i / time_length) * taux_trend[:, :] + tauy_beg[:, :]
                     )
                     tauy_new["tauy"][i, 0, 40:141, :] = (
-                        +(i / time_length) * tauy_trend[:, :]
-                        + tauy_beg[:, :]
+                        +(i / time_length) * tauy_trend[:, :] + tauy_beg[:, :]
                     )
 
         taux_new.to_netcdf(self.setup.tau_x(it), format="NETCDF3_CLASSIC")
@@ -248,13 +237,11 @@ class Coupling:
         # !!! JUST ADDED TO MAKE SURE PROCESS WORKS !!!
         taux_clim_obj = xr.open_dataset(self.setup.tau_clim_x(0), decode_times=False)
         taux_clim_obj.to_netcdf(
-            self.setup.tau_clim_x(it),
-            format="NETCDF3_CLASSIC",
+            self.setup.tau_clim_x(it), format="NETCDF3_CLASSIC",
         )
         tauy_clim_obj = xr.open_dataset(self.setup.tau_clim_y(0), decode_times=False)
         tauy_clim_obj.to_netcdf(
-            self.setup.tau_clim_y(it),
-            format="NETCDF3_CLASSIC",
+            self.setup.tau_clim_y(it), format="NETCDF3_CLASSIC",
         )
 
     def replace_dq(self, it: int) -> None:
@@ -265,28 +252,20 @@ class Coupling:
         dQdT
         """
         dq_df_from_atm = open_dataset(self.setup.dq_output()).dq_df
-        dq_df_sample = xr.open_dataarray(
-            self.setup.dq_df(0),
-            decode_times=False,
-        )
+        dq_df_sample = xr.open_dataarray(self.setup.dq_df(0), decode_times=False,)
         dq_df_new = dq_df_sample.copy()
         for t in range(12):
             dq_df_new[t, 0, 30:151, :] = can_coords(dq_df_from_atm)[:, :]
         dq_df_new.to_dataset().to_netcdf(
-            self.setup.dq_df(it),
-            format="NETCDF3_CLASSIC",
+            self.setup.dq_df(it), format="NETCDF3_CLASSIC",
         )
         dq_dt_from_atm = open_dataset(self.setup.dq_output()).dq_dt
-        dq_dt_sample = xr.open_dataarray(
-            self.setup.dq_dt(0),
-            decode_times=False,
-        )
+        dq_dt_sample = xr.open_dataarray(self.setup.dq_dt(0), decode_times=False,)
         dq_dt_new = dq_dt_sample.copy()
         for t in range(12):
             dq_dt_new[t, 0, 30:151, :] = can_coords(dq_dt_from_atm)[:, :]
         dq_dt_new.to_dataset().to_netcdf(
-            self.setup.dq_dt(it),
-            format="NETCDF3_CLASSIC",
+            self.setup.dq_dt(it), format="NETCDF3_CLASSIC",
         )
 
     def replace_surface_temp(self, it: int) -> None:
@@ -361,9 +340,7 @@ class Coupling:
         """
         print("logging")
         d1 = get_nino_trend(
-            self.setup.om_run2f_nc(),
-            self.setup.nino_png(it),
-            self.setup.nino_nc(it),
+            self.setup.om_run2f_nc(), self.setup.nino_png(it), self.setup.nino_nc(it),
         )
         d2 = get_other_trends(self.setup)
         d3 = {**d1, **d2}

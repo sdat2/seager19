@@ -75,8 +75,7 @@ def sub_main(cfg: DictConfig, unit_test: bool = False) -> None:
                 os.mkdir(cfg.archive_dir)
             try:
                 shutil.move(
-                    run_p,
-                    str(cfg.archive_dir),
+                    run_p, str(cfg.archive_dir),
                 )
             # pylint: disable=broad-except
             except Exception as e:

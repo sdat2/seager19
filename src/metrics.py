@@ -136,9 +136,7 @@ def replace_nino3_4_from_noaa() -> None:
 
 
 @timeit
-def get_other_trends(
-    setup: ModelSetup,
-) -> dict:
+def get_other_trends(setup: ModelSetup,) -> dict:
     """
     Get trends in nino regions for other variables other than sst.
 

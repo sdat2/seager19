@@ -123,9 +123,7 @@ def animate_xr_da(
 
     assert isinstance(vcmap, matplotlib.colors.LinearSegmentedColormap)
 
-    def gen_frame_func(
-        xr_da: xr.DataArray,
-    ) -> Callable:
+    def gen_frame_func(xr_da: xr.DataArray,) -> Callable:
         """Create imageio frame function for `xarray.DataArray` visualisation.
 
         Args:
@@ -167,11 +165,7 @@ def animate_xr_da(
 
         return make_frame
 
-    def xarray_to_video(
-        xr_da: xr.DataArray,
-        video_path: str,
-        fps: int = 5,
-    ) -> None:
+    def xarray_to_video(xr_da: xr.DataArray, video_path: str, fps: int = 5,) -> None:
         """Generate video of an `xarray.DataArray`.
 
         Args:

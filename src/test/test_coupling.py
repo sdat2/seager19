@@ -44,10 +44,7 @@ def test_stress() -> None:
     cfg = load_config()
     setup = ModelSetup(str(TEST_DIREC), cfg)
 
-    couple = Coupling(
-        cfg,
-        setup,
-    )
+    couple = Coupling(cfg, setup,)
 
     tau_u, tau_v = couple.f_stress(0.5, u_da, v_da)
 

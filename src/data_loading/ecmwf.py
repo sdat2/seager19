@@ -128,12 +128,7 @@ def _year_lists(
 def get_era5(
     variable: str = "total_precipitation",
     # pylint: disable=dangerous-default-value
-    area: List[int] = [
-        90,
-        -180,
-        -90,
-        180,
-    ],
+    area: List[int] = [90, -180, -90, 180,],
     region: str = "",
     start_year: int = 1950,
     end_year: int = 2022,
@@ -251,8 +246,7 @@ def _archive_f(files: FileNames) -> None:
         files (FileNames): file structure class
     """
     shutil.move(
-        files.initial_combined_path,
-        files.archive_combined_path,
+        files.initial_combined_path, files.archive_combined_path,
     )
 
 
@@ -263,8 +257,7 @@ def _dearchive_f(files: FileNames) -> None:
         files (FileNames): file structure class.
     """
     shutil.move(
-        files.archive_combined_path,
-        files.initial_combined_path,
+        files.archive_combined_path, files.initial_combined_path,
     )
 
 

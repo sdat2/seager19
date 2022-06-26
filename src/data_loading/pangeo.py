@@ -367,9 +367,7 @@ class GetEnsemble:
         # sel in xarray time is inclusive
         # hence year end has to be 2014 to get to the end of it etc.
         self.da_lists[self.past] = self.get_var(
-            experiment=self.past,
-            year_begin="1940",
-            year_end="2014",
+            experiment=self.past, year_begin="1940", year_end="2014",
         )
         self.da_lists[self.future] = self.get_var(
             experiment=self.future, year_begin="2015", year_end="2099"
@@ -1128,10 +1126,7 @@ def members_df() -> pd.DataFrame:
     variables: List[str] = ALL_VARIABLES
     combined_list = []
     for var in variables:
-        ens = GetEnsemble(
-            var=var,
-            regen_success_list=False,
-        )
+        ens = GetEnsemble(var=var, regen_success_list=False,)
         # pylint: disable=protected-access
         var_dict[var] = ens._member_list()
         combined_list = [*combined_list, *var_dict[var]]
