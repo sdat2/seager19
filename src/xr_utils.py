@@ -302,7 +302,8 @@ def open_dataarray(path: Union[str, pathlib.Path]) -> xr.DataArray:
      into the canonical coordinate names (using can_coords).
     Will also decode the time axis.
 
-    TODO: add option for opening of datarrayys that just ensures they open, rather than changing their atrributes.
+    TODO: add option for opening of datarrayys that just ensures they open,
+        rather than changing their atrributes.
 
     Args:
         path (Union[str, pathlib.Path]): the path to the netcdf datarray file.
