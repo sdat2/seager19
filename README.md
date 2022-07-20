@@ -2,9 +2,9 @@
 
 <a href="https://mybinder.org/v2/gh/sdat2/seager19/HEAD?filepath=notebooks%2Fbinder%2Fanalyse_results.ipynb">
 <img alt="Binder" src="https://mybinder.org/badge_logo.svg"/></a>
-<a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src=https://img.shields.io/badge/License-MIT-blue.svg></a>
- <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
- <a href=https://www.python.org/downloads/release/python-388/><img src='https://img.shields.io/badge/python-3.8-blue.svg' alt='Python 3.8' /></a>
+<a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src=https://img.shields.io/badge/License-MIT-blue.svg /></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a>
+<a href="https://www.python.org/downloads/release/python-388/"><img src='https://img.shields.io/badge/python-3.8-blue.svg' alt='Python 3.8' /></a>
 <a href='https://seager19.readthedocs.io/en/latest/?badge=latest'>
 <img src='https://readthedocs.org/projects/seager19/badge/?version=latest' alt='Documentation Status' />
 </a>
@@ -12,9 +12,9 @@
     <img src='https://travis-ci.com/sdat2/seager19.svg?branch=main' alt='Build Status' />
 </a>
 <a href='https://coveralls.io/github/sdat2/seager19?branch=main'><img src='https://coveralls.io/repos/github/sdat2/seager19/badge.svg?branch=main' alt='Coverage Status' /></a>
-<a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/python.yml/badge.svg' alt='python' /></a>
-<a href=https://github.com/sdat2/seager19/actions><img src='https://github.com/sdat2/seager19/actions/workflows/fort-c.yml/badge.svg' alt='fort-c' /></a>
-<a href="https://zenodo.org/badge/latestdoi/309507184"><img src="https://zenodo.org/badge/309507184.svg" alt="DOI"></a>
+<a href="https://github.com/sdat2/seager19/actions"><img src='https://github.com/sdat2/seager19/actions/workflows/python.yml/badge.svg' alt='python' /></a>
+<a href="https://github.com/sdat2/seager19/actions"><img src='https://github.com/sdat2/seager19/actions/workflows/fort-c.yml/badge.svg' alt='fort-c' /></a>
+<a href="https://zenodo.org/badge/latestdoi/309507184"><img src="https://zenodo.org/badge/309507184.svg" alt="DOI" /></a>
 
 Model run results: <https://wandb.ai/sdat2/seager19>
 
