@@ -88,6 +88,7 @@ def between_two(choices: List[Char] = ["C", "E"], length: int = 4) -> List[str]:
     return output
 
 
+# pylint: disable=dangerous-default-value
 def variable_combinations(
     control: Char = "E",
     exps: List[Char] = ["C", "6"],

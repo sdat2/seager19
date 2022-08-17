@@ -67,7 +67,6 @@ def plot_defaults(use_tex: Optional[bool] = None, dpi: Optional[int] = None) -> 
     Uses serif font to fit into latex report.
     Uses REPORT_WIDTH from `src.constants`.
 
-
     Args:
         use_tex (bool, optional): Whether or not to use latex matplotlib backend.
             Defaults to False.
@@ -506,9 +505,7 @@ def axis_formatter() -> matplotlib.ticker.ScalarFormatter:
             da.isel(time=0).plot(cbar_kwargs={"format": axis_formatter()})
 
     """
-
     fit_obj = matplotlib.ticker.ScalarFormatter(useMathText=True)
     fit_obj.set_scientific(True)
     fit_obj.set_powerlimits((0, 0))
-
     return fit_obj
