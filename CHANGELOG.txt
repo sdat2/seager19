@@ -1,0 +1,2 @@
+- Should the windspeed be added to ECMWF?
+- Why aren't the indivdual ensemble members running?
