@@ -1,5 +1,8 @@
 """setup.py allows the installation of the project by pip."""
+from typing import List
 from setuptools import find_packages, setup
+
+REQUIRED: List[str] = ["sithom"]
 
 setup(
     name="src",
@@ -8,8 +11,6 @@ setup(
     author_email="sdat2@cam.ac.uk",
     description="ENSOTrend Project",
     url="https://github.com/sdat2/seager19",
+    install_requires=REQUIRED,
     packages=find_packages(),
-    # test_suite="src.tests.test_all.suite",
-    # setup_requires=["pytest-runner"],
-    # tests_require=["pytest"],
 )

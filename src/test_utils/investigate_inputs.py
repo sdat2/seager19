@@ -1,7 +1,8 @@
 """Tools to investigate the inputs to the model"""
 from typing import Union
 import pathlib
-from src.xr_utils import open_dataarray, sel, spatial_mean
+from sithom.xr import spatial_mean
+from src.xr_utils import open_dataarray, sel
 
 
 def da_diagnostics(path: Union[pathlib.Path, str], reg: str = "nino3.4") -> None:

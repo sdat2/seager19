@@ -6,18 +6,18 @@ import pandas as pd
 import xarray as xr
 import matplotlib
 import matplotlib.pyplot as plt
+from sithom.xr import spatial_mean
+from sithom.plot import plot_defaults, label_subplots, cmap, set_dim
 from src.constants import (
     atmos_input_file_path,
     MODEL_NAMES,
     DATA_PATH,
     CMIP6_TS_PATH,
 )
-from src.plot_utils import plot_defaults, label_subplots, cmap, plot_defaults, set_dim
 from src.xr_utils import (
     can_coords,
     sel,
     get_trend,
-    spatial_mean,
     clip,
 )
 from src.visualisation.nino import plot_nino_box
