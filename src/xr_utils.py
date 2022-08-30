@@ -386,6 +386,10 @@ def get_trend(
     Returns either the linear trend rise, or the linear trend slope,
     possibly with the array to hatch out where the trend is not significant.
 
+    This does not account for the fact that the timeseries series:
+     - may not be Gaussian.
+     - is not i.i.d.
+
     Uses `xr.polyfit` order 1 to do everything.
 
     Args:
