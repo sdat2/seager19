@@ -177,7 +177,6 @@ class Ocean:
         assert it != 0
 
         for part in ["om_run2f", "om_spin", "om_diag"]:
-
             print(part, it)
             file_name = os.path.join(self.setup.ocean_run_path, part)
 

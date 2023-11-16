@@ -220,7 +220,7 @@ class GetEnsemble:
                 Defaults to "Amon".
             regrid (Literal["1d", "2d"]):
             output_folder (Optional[str], optional): Where to output the ensemble to.
-                Defaults to None, and uses default structure. 
+                Defaults to None, and uses default structure.
                 nc/scenariomip/ts/
             regen_success_list (bool, optional): whether or not to regenerate
                 the success list. Defaults to False.
@@ -404,8 +404,12 @@ class GetEnsemble:
         # print(scenario_instit.member.values)
         # print(historical_instit.member.values)
         for model in scenario_instit.model.values:
-            scenario_model = scenario_instit.where(scenario_instit.model == model, drop=True)
-            historical_model = historical_instit.where(historical_instit.model == model, drop=True)
+            scenario_model = scenario_instit.where(
+                scenario_instit.model == model, drop=True
+            )
+            historical_model = historical_instit.where(
+                historical_instit.model == model, drop=True
+            )
             # print(scenario_model.member.values)
             # print(historical_model.member.values)
             for member_id in scenario_instit.member_id.values:
@@ -446,7 +450,7 @@ class GetEnsemble:
                             + ".nc",
                         ),
                         # save some space
-                        encoding={self.var: {"dtype": "float16"}}
+                        encoding={self.var: {"dtype": "float16"}},
                     )
                 else:
                     print("problem with " + model + " " + member_id)
@@ -501,7 +505,6 @@ class GetEnsemble:
             _folder(os.path.join("ScenarioMIP", scenario, self.var))
             da = self.get_var(experiment=scenario, year_begin="2014", year_end="2100")
             for member in da.member.values:
-
                 da.sel(member=member).to_netcdf(
                     os.path.join(
                         "ScenarioMIP",
@@ -514,23 +517,25 @@ class GetEnsemble:
                     )
                 )
 
+
 def load_ensemble_da(var: str, path: str) -> xr.DataArray:
     """
     Args:
         var (str): the variable to load.
             E.g. "ts"
-        path (str): the path to the variable to load. 
+        path (str): the path to the variable to load.
             E.g. "src/data/nc/nc_ts"
-        
+
     Returns:
-        xr.DataArray: the xarray datarray with "X", "Y", "T", and "member" 
+        xr.DataArray: the xarray datarray with "X", "Y", "T", and "member"
             as dimensions.
     """
     return xr.open_mfdataset(
-            os.path.join(path, "*.nc"),
-            concat_dim="member",
-            preprocess=_get_preproc_func(var),
-        )[var]
+        os.path.join(path, "*.nc"),
+        concat_dim="member",
+        preprocess=_get_preproc_func(var),
+    )[var]
+
 
 def _scenariomip_data(var: str = "ts", scenario: str = "ssp585"):
     return os.path.join(os.path.join("ScenarioMIP", scenario, var))
@@ -572,10 +577,10 @@ def _print_scenario_sel():
 
 def _member_name_from_da(da: xr.DataArray) -> str:
     """Member name from da already referenced by member.
-    
+
     Args:
         da (xr.DataArray): xarray input.
-    
+
     Returns:
         str: member name.
     """
@@ -600,7 +605,9 @@ def _member_name(instit: str, model: str, member_id: str) -> str:
     return str(instit) + "." + str(model) + "." + str(member_id)
 
 
-def _folder_name(var: str, experiment: str, root_direc: Union[pathlib.Path, str] = NC_PATH) -> str:
+def _folder_name(
+    var: str, experiment: str, root_direc: Union[pathlib.Path, str] = NC_PATH
+) -> str:
     """
     Folder name for ensemble of netcdfs.
 
@@ -718,20 +725,22 @@ def test_if_regridding_ok() -> None:
         plt.savefig("fig-" + str(i) + "-a.png")
         plt.clf()
 
+
 @timeit
 @hydra.main(config_path=CONFIG_PATH, config_name="pangeo.yml")
 def main(cfg: DictConfig) -> None:
     print(cfg)
     wandb.init(
-            project=cfg.project,
-            entity=cfg.user,
-            save_code=True,
-            name=cfg.name,
-            # pylint: disable=protected-access
-            config=cfg._content,
-        )
-    
+        project=cfg.project,
+        entity=cfg.user,
+        save_code=True,
+        name=cfg.name,
+        # pylint: disable=protected-access
+        config=cfg._content,
+    )
+
     get_vars([cfg.var], regen_success_list=False)
+
 
 if __name__ == "__main__":
     # from src.data_loading.pangeo import GetEnsemble

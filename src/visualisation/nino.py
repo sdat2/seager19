@@ -27,7 +27,6 @@ def plot_nino(ax: matplotlib.axes.Axes, legend: bool = False) -> None:
         return x, y
 
     for reg in reversed(sorted(SEL_DICT)):
-
         x, y = get_points(SEL_DICT[reg])
         # if False: # reg == "nino3.4":
         # metric

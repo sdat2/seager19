@@ -100,11 +100,11 @@ def f_ebar(T, rh):
 
 def f_QLW1(T, C, f, rh):
     Ta = f_Ta(T)
-    return const2 * (1 - a * C ** 2) * Ta ** 4 * (f - f2 * np.sqrt(f_ebar(T, rh)))
+    return const2 * (1 - a * C**2) * Ta**4 * (f - f2 * np.sqrt(f_ebar(T, rh)))
 
 
 def f_QLW2(T):
-    return 4 * eps * sigma * T ** 3 * (T - f_Ta(T))
+    return 4 * eps * sigma * T**3 * (T - f_Ta(T))
 
 
 def f_QLW(T, f, rh):
@@ -112,7 +112,7 @@ def f_QLW(T, f, rh):
 
 
 def f_dQLWdf(T, C):
-    return const2 * (1 - a * C ** 2) * T ** 4
+    return const2 * (1 - a * C**2) * T**4
 
 
 def f_dQLWdT(T, C, f, rh):
@@ -120,10 +120,10 @@ def f_dQLWdT(T, C, f, rh):
     qs = f_qs(T)
     dqsdT = f_dqsdT(T)
     return const2 * (
-        (1 - a * C ** 2)
-        * T ** 3
+        (1 - a * C**2)
+        * T**3
         * (4 * f - f2 * np.sqrt(ebar) * (4 + T * dqsdT / 2 / qs))
-        + 12 * T ** 2 * delta
+        + 12 * T**2 * delta
     )
 
 

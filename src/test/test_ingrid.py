@@ -53,7 +53,6 @@ def test_ingrid() -> None:
         print(x)
 
         if "-999.0" not in str(x):
-
             # otherwise it would catch errors about what
             # the missing value attribute is.
             assert False

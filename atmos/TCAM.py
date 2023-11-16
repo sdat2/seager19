@@ -178,7 +178,7 @@ def S91_solver(Q1):
     AfQ = (fQ[1 : ny - 1, :] + fQ[0 : ny - 2, :]) / 2.0
     km = Kk / rEarth
     DQ = (Q1t[1 : ny - 1, :] - Q1t[0 : ny - 2, :]) / dym
-    rk = 1.0j * km * beta - epsu * epsv * epsp - epsv * km ** 2
+    rk = 1.0j * km * beta - epsu * epsv * epsp - epsv * km**2
     fcp = fcu[1 : ny - 1] ** 2 / 4.0
     fcm = fcu[0 : ny - 2] ** 2 / 4.0
 

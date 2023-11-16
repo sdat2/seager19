@@ -1,4 +1,4 @@
-# NOTE: These requirements are used for pangeo. 
+# NOTE: These requirements are used for pangeo.
 
 # core packages
 cmip6_preprocessing
@@ -15,7 +15,7 @@ scipy               # linear algebra and numerical mathematics
 numba               # speeding up array operations
 pandas              # tabular data analysis
 scipy               # scipy
-uncertainties       # linear error propogation
+uncertainties       # linear error propagation
 
 # interactive computing
 tqdm                # loading bar
@@ -23,7 +23,7 @@ tqdm                # loading bar
 # useful xarray extensions
 eccodes
 cftime
-dask[complete]      # allows more lazy operation for xarray.
+dask[complete]      # allows more lazy operations for xarray.
 
 # bottleneck          # useful for operations on arrays.
 nc-time-axis        # Hopefully this allows time to be decoded

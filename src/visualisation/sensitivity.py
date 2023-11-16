@@ -42,7 +42,6 @@ def cd_plots(show_plots: bool = False) -> None:
         cd_list.append(coup_dict["c_d"])
 
     for reg in SEL_DICT:
-
         reg_list = f_df["end_trend_" + reg].tolist()
 
         if reg == "nino1+2":
@@ -72,7 +71,6 @@ def k_plots(show_plots: bool = False) -> None:
     """
 
     for reg in SEL_DICT:
-
         metric_d, _ = metric_conv_data(
             metric_name="trend_" + reg,
             prefix="k_days_",
@@ -115,7 +113,6 @@ def eps_plots(show_plots: bool = False) -> None:
     """
 
     for reg in SEL_DICT:
-
         metric_d1, _ = metric_conv_data(
             metric_name="trend_nino3",
             prefix="days_",

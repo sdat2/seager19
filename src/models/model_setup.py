@@ -73,7 +73,6 @@ class ModelSetup:
         # temperature of the surface, cloud area fraction, surface wind, rel humidity.
 
         if make_move:
-
             for i in [
                 # make general paths
                 self.gif_path,
@@ -113,7 +112,6 @@ class ModelSetup:
         """initialise the ocean model by copying files over."""
 
         for file_ending in ["*.F", "*.c", "*.h", "*.inc", "*.mod", ".tios"]:
-
             os.system(
                 "cd "
                 + str(OCEAN_SRC_PATH)
@@ -178,7 +176,6 @@ class ModelSetup:
 
     # pylint: disable=missing-function-docstring
     def tcam_output(self, path: bool = True) -> str:
-
         name = (
             "S91"
             + "-hq"

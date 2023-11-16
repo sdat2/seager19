@@ -991,7 +991,6 @@ class Atmos:
         do_plot = False
 
         if do_plot:
-
             # next ds
             ds_subset = ds.sel(X=slice(120, 290), Yu=slice(-40, 40))
             plt.figure(figsize=(8, 5))

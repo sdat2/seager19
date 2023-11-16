@@ -50,7 +50,6 @@ def start_wandb(cfg: DictConfig, unit_test: bool = False) -> None:
     """
 
     if not unit_test:
-
         wandb.init(
             project=cfg.project,
             entity=cfg.user,
@@ -80,7 +79,6 @@ def get_full_csv() -> pd.DataFrame:
     name_list = []
 
     for rn in runs:
-
         # run.summary are the output key/values like accuracy.
         # We call ._json_dict to omit large files
         # pylint: disable=protected-access

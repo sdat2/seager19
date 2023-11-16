@@ -169,7 +169,6 @@ def get_original_models() -> None:
         ["u5ufak4kv8peajd/", "atmos-model.zip"],
         ["s6u80p1s1e5qom4/", "ocean-model.zip"],
     ]:
-
         lol = [
             [
                 str(DATA_PATH),

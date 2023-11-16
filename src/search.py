@@ -68,7 +68,6 @@ def main(settings: DictConfig) -> None:
     override_list = list()
 
     for _ in range(settings.runs):
-
         for i in sens:
             override_list.append(i + "={:.3e}".format(rand(sens[i][0], sens[i][1])))
 

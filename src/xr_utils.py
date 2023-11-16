@@ -35,7 +35,6 @@ def fix_calendar(
     t_list.append(timevar)
 
     for t_dim in t_list:
-
         if t_dim in ds.dims:
             # add 360_day attribute
             if "calendar" not in ds[t_dim].attrs:
@@ -115,7 +114,6 @@ def can_coords(
     def upgr(
         xr_ob: Union[xr.DataArray, xr.Dataset], dstr: str, dimtup: Tuple[str]
     ) -> Union[xr.DataArray, xr.Dataset]:
-
         ext_pos = {"X": "lon", "Y": "lat", "L": "Z", "T": "time"}
 
         def check_and_rep(
@@ -463,7 +461,6 @@ def get_trend(
         return float(inp)
 
     if "X" in da.dims or "Y" in da.dims:
-
         fit_da = da.polyfit(t_var, 1, cov=make_hatch_mask)
 
         if make_hatch_mask:
@@ -488,7 +485,6 @@ def get_trend(
             slope = get_float(slope)
 
     if output == "rise":
-
         run = length_time(da)
         rise = slope * run
 

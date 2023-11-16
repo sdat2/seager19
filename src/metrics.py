@@ -255,7 +255,6 @@ def get_nino_trend(
             return da
 
     if "NOAA" not in path_of_run2f:
-
         anom = rem_z(xr.concat(metric_l, "reg").assign_coords(reg=reg_l)).to_dataset(
             name="anomaly"
         )
@@ -284,7 +283,6 @@ def get_other_trends(
     nino_dict = dict()
 
     for field in ["TDEEP_HMODEL", "SST_QNET", "SST_W1"]:
-
         output = can_coords(open_dataset(setup.om_run2f_nc())[field])
         output = output.where(output != 0.0)
 
@@ -323,7 +321,6 @@ def get_other_trends(
             reg_l.append(reg)
 
     for field in ["PRtrend", "utrend", "vtrend"]:
-
         tcam_output = can_coords(open_dataset(setup.tcam_output())[field])
         for reg in reversed(sorted(SEL_DICT)):
             nino_dict["trend_" + field + "_" + reg] = float(
